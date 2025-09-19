@@ -1,9 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36429.23 d17.14
+VisualStudioVersion = 17.14.36429.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify", "Gymify\Gymify.csproj", "{61EA464B-8349-46F3-9812-A7C7F97B63A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Web", "Gymify\Gymify.Web.csproj", "{61EA464B-8349-46F3-9812-A7C7F97B63A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Application", "Gymify.Application\Gymify.Application.csproj", "{032AE574-C4FC-471B-9A61-197C2BB08E53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Data", "Gymify.Data\Gymify.Data.csproj", "{489B4633-B5AB-4451-A985-26083D2E6ABD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Infrastructure", "Gymify.Infrastructure\Gymify.Infrastructure.csproj", "{7EAC8088-86A0-46B3-A78E-CA0794B5255D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Persistence", "Gymify.Persistence\Gymify.Persistence.csproj", "{94E3553E-C3D5-4794-9495-18D9BA937044}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +23,22 @@ Global
 		{61EA464B-8349-46F3-9812-A7C7F97B63A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61EA464B-8349-46F3-9812-A7C7F97B63A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61EA464B-8349-46F3-9812-A7C7F97B63A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{032AE574-C4FC-471B-9A61-197C2BB08E53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{032AE574-C4FC-471B-9A61-197C2BB08E53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{032AE574-C4FC-471B-9A61-197C2BB08E53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{032AE574-C4FC-471B-9A61-197C2BB08E53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{489B4633-B5AB-4451-A985-26083D2E6ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{489B4633-B5AB-4451-A985-26083D2E6ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{489B4633-B5AB-4451-A985-26083D2E6ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{489B4633-B5AB-4451-A985-26083D2E6ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EAC8088-86A0-46B3-A78E-CA0794B5255D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EAC8088-86A0-46B3-A78E-CA0794B5255D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EAC8088-86A0-46B3-A78E-CA0794B5255D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EAC8088-86A0-46B3-A78E-CA0794B5255D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94E3553E-C3D5-4794-9495-18D9BA937044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94E3553E-C3D5-4794-9495-18D9BA937044}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94E3553E-C3D5-4794-9495-18D9BA937044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94E3553E-C3D5-4794-9495-18D9BA937044}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
