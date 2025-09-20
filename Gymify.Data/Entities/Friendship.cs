@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Data.Entities;
 
-namespace Gymify.Data.Entities
+public class Friendship
 {
-    internal class Friendship
-    {
-    }
+    public Guid UserId1 { get; set; }
+    public Guid UserId2 { get; set; }
+    public User User1 { get; set; } = null!;
+    public User User2 { get; set; } = null!;
 }

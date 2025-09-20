@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Data.Entities;
 
-namespace Gymify.Data.Entities
+public class Message : BaseEntity
 {
-    internal class Message
-    {
-    }
+    public string Content { get; set; } = string.Empty;
+    public bool IsRead { get; set; } = false;
+    public Guid SenderId { get; set; }
+    public Guid ReceiverId { get; set; }
+    public User Sender { get; set; } = null!;
+    public User Receiver { get; set; } = null!;
 }

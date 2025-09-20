@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Data.Enums;
 
-namespace Gymify.Data.Enums
+public enum RoleType
 {
-    internal class RoleType
-    {
-    }
+    Admin = 1,
+    User = 2,
+    Guest = 3,
 }

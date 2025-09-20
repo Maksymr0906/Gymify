@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Data.Entities;
 
-namespace Gymify.Data.Entities
+public class Achievement : BaseEntity
 {
-    internal class Achievement
-    {
-    }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string IconUrl {  get; set; } = string.Empty;
+    public ICollection<UserAchievement> UserAchievements { get; set; } = [];
 }

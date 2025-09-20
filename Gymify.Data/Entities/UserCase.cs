@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Data.Entities;
 
-namespace Gymify.Data.Entities
+public class UserCase
 {
-    internal class UserCase
-    {
-    }
+    public Guid UserId { get; set; }
+    public Guid CaseId { get; set; }
+    public User User { get; set; } = null!;
+    public Case Case { get; set; } = null!;
 }

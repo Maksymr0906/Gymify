@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Data.Enums;
 
-namespace Gymify.Data.Enums
+public enum PermissionType
 {
-    internal class PermissionType
-    {
-    }
+    Create = 1,
+    Read = 2,
+    Update = 3,
+    Delete = 4,
 }
