@@ -6,4 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Gymify.Application\Gymify.Application.csproj" />
+    <ProjectReference Include="..\Gymify.Data\Gymify.Data.csproj" />
+    <ProjectReference Include="..\Gymify.Infrastructure\Gymify.Infrastructure.csproj" />
+    <ProjectReference Include="..\Gymify.Persistence\Gymify.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>
