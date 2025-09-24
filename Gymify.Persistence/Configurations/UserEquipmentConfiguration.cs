@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gymify.Data.Entities;
+using Gymify.Persistence.SeedData;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Gymify.Persistence.Configurations
+namespace Gymify.Persistence.Configurations;
+
+public partial class UserEquipmentConfiguration(SeedDataOptions seedDataOptions)
+    : IEntityTypeConfiguration<UserEquipment>
 {
-    internal class UserEquipmentConfiguration
+    private readonly SeedDataOptions _seedDataOptions = seedDataOptions;
+
+    public void Configure(EntityTypeBuilder<UserEquipment> builder)
     {
+        builder.Property(e => e.CreatedAt)
+           .IsRequired()
+           .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.HasData(_seedDataOptions.UserEquipments);
     }
 }

@@ -1,12 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gymify.Data.Entities;
+using Gymify.Data.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Gymify.Persistence.Configurations
+namespace Gymify.Persistence.Configurations;
+
+public partial class PermissionConfiguration
+    : IEntityTypeConfiguration<Permission>
 {
-    internal class PermissionConfiguration
+    public void Configure(EntityTypeBuilder<Permission> builder)
     {
+        var permissions = Enum
+               .GetValues<PermissionType>()
+               .Select(p => new Permission
+               {
+                   Id = (int)p,
+                   Name = p.ToString()
+               });
+
+        builder.HasData(permissions);
     }
 }

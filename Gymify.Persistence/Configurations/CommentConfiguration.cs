@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gymify.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Gymify.Persistence.Configurations
+namespace Gymify.Persistence.Configurations;
+
+public partial class CommentConfiguration
+    : IEntityTypeConfiguration<Comment>
 {
-    internal class CommentConfiguration
+    public void Configure(EntityTypeBuilder<Comment> builder)
     {
+        builder.Property(e => e.CreatedAt)
+           .IsRequired()
+           .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(c => c.Content)
+            .IsRequired()
+            .HasMaxLength(10000);
     }
 }

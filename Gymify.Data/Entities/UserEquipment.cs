@@ -1,6 +1,6 @@
 ﻿namespace Gymify.Data.Entities;
 
-public class UserEquipment
+public class UserEquipment : BaseEntity
 {
     public Guid UserId { get; set; }
     public Guid AvatarId { get; set; }

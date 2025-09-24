@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gymify.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Gymify.Persistence.Configurations
+namespace Gymify.Persistence.Configurations;
+
+public partial class UserCaseConfiguration
+    : IEntityTypeConfiguration<UserCase>
 {
-    internal class UserCaseConfiguration
+    public void Configure(EntityTypeBuilder<UserCase> builder)
     {
+        builder.HasKey(uc => new {uc.UserId, uc.CaseId});
     }
 }
