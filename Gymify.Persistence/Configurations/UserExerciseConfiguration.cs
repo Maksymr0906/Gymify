@@ -14,7 +14,7 @@ public partial class UserExerciseConfiguration(SeedDataOptions seedDataOptions)
     {
         builder.Property(e => e.CreatedAt)
            .IsRequired()
-           .HasDefaultValueSql("GETUTCDATE()");
+           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.Property(ue => ue.Name)
             .IsRequired()

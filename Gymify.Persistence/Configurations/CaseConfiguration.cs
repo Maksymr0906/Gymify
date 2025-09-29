@@ -14,7 +14,7 @@ public partial class CaseConfiguration(SeedDataOptions seedDataOptions)
     {
         builder.Property(e => e.CreatedAt)
            .IsRequired()
-           .HasDefaultValueSql("GETUTCDATE()");
+           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.Property(c => c.Name)
             .IsRequired()
@@ -33,7 +33,9 @@ public partial class CaseConfiguration(SeedDataOptions seedDataOptions)
 
         builder.ToTable(tb => tb.HasCheckConstraint(
             "CK_Case_DropChance",
-            "[DropChance] >= 1 AND [DropChance] <= 99"));
+            "DropChance BETWEEN 1 AND 99"
+        ));
+
 
         builder.HasData(_seedDataOptions.Cases);
     }

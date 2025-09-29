@@ -14,7 +14,7 @@ public partial class UserEquipmentConfiguration(SeedDataOptions seedDataOptions)
     {
         builder.Property(e => e.CreatedAt)
            .IsRequired()
-           .HasDefaultValueSql("GETUTCDATE()");
+           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.HasData(_seedDataOptions.UserEquipments);
     }

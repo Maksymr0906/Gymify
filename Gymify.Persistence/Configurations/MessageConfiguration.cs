@@ -11,7 +11,7 @@ public partial class MessageConfiguration
     {
         builder.Property(e => e.CreatedAt)
            .IsRequired()
-           .HasDefaultValueSql("GETUTCDATE()");
+           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.Property(m => m.Content)
             .IsRequired()

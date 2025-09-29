@@ -42,6 +42,26 @@ public class GymifyDbContext(
 
         modelBuilder.ApplyConfiguration(new RolePermissionConfiguration(_authorizationOptions));
 
+        modelBuilder.ApplyConfiguration(new AchievementConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new CaseConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new ExerciseConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new ItemConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new NotificationConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new UserConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new UserEquipmentConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new UserExerciseConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new UserItemConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new WorkoutConfiguration(_seedDataOptions));
+
         modelBuilder.ApplyConfiguration(new UserConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new UserRoleConfiguration(_seedDataOptions));

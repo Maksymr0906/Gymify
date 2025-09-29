@@ -14,10 +14,20 @@ public partial class FriendInviteConfiguration
 
         builder.Property(fi => fi.SentAt)
             .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.Property(fi => fi.Status)
             .IsRequired()
             .HasDefaultValue(InviteStatus.Pending);
+
+        builder.HasOne(fi => fi.Sender)
+            .WithMany(u => u.SentFriendInvites)
+            .HasForeignKey(fi => fi.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(fi => fi.Receiver)
+            .WithMany(u => u.ReceivedFriendInvites)
+            .HasForeignKey(fi => fi.ReceiverId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

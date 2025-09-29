@@ -11,7 +11,7 @@ public partial class CommentConfiguration
     {
         builder.Property(e => e.CreatedAt)
            .IsRequired()
-           .HasDefaultValueSql("GETUTCDATE()");
+           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.Property(c => c.Content)
             .IsRequired()

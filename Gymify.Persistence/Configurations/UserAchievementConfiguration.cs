@@ -21,6 +21,6 @@ public partial class UserAchievementConfiguration
 
         builder.Property(ua => ua.UnlockedAt)
             .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");   
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");   
     }
 }
