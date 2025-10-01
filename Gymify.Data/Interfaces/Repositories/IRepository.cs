@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gymify.Data.Entities;
 
-namespace Gymify.Data.Interfaces.Repositories
+namespace Gymify.Data.Interfaces.Repositories;
+
+public interface IRepository<TEntity> where TEntity : BaseEntity
 {
-    internal interface IRepository
-    {
-    }
+    Task<TEntity> CreateAsync(TEntity entity);
+    Task<ICollection<TEntity>> GetAllAsync();
+    Task<TEntity> GetByIdAsync(Guid id);
+    Task<TEntity> UpdateAsync(TEntity entity);
+    Task<TEntity> DeleteByIdAsync(Guid id);
 }
