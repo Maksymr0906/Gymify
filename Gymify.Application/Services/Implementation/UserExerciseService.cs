@@ -2,6 +2,6 @@
 
 namespace Gymify.Application.Services.Implementation;
 
-public class AuthService : IAuthService
+public class UserExerciseService : IUserExersiceService
 {
 }

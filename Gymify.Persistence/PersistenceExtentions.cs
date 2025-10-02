@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Gymify.Data.Interfaces.Repositories;
+using Gymify.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +17,18 @@ public static class PersistenceExtensions
             options.UseMySql(configuration.GetConnectionString("GymifyConnectionString"),
                 new MySqlServerVersion(new Version(8, 3, 0)));
         });
+
+        services.AddScoped<IAchievementRepository, AchievementRepository>();
+        services.AddScoped<ICaseRepository, CaseRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<IExerciseRepository, ExerciseRepository>();
+        services.AddScoped<IItemRepository, ItemRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IUserEquipmentRepository, UserEquipmentRepository>();
+        services.AddScoped<IUserExerciseRepository, UserExerciseRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IWorkoutRepository, WorkoutRepository>();
 
         return services;
     }

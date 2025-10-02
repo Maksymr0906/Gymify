@@ -1,5 +1,6 @@
 ﻿namespace Gymify.Application.Services.Interfaces;
 
-public interface IAuthService
+public interface IUserExersiceService
 {
+
 }
