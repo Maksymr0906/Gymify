@@ -7,6 +7,7 @@ public class SeedDataOptions
     public AchievementSeedData[] Achievements { get; init; } = [];
     public CaseSeedData[] Cases { get; init; } = [];
     public ExerciseSeedData[] Exercises { get; init; } = [];
+    public ImageSeedData[] Images { get; init; } = [];
     public ItemSeedData[] Items { get; init; } = [];
     public NotificationSeedData[] Notifications { get; init; } = [];
     public UserEquipmentSeedData[] UserEquipments { get; init; } = [];

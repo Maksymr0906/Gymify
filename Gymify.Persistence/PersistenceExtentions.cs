@@ -22,6 +22,7 @@ public static class PersistenceExtensions
         services.AddScoped<ICaseRepository, CaseRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
+        services.AddScoped<IImageRepository, ImageRepository>();
         services.AddScoped<IItemRepository, ItemRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();

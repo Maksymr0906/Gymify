@@ -21,6 +21,7 @@ public class GymifyDbContext(
     public DbSet<Exercise> Exercises { get; set; }
     public DbSet<FriendInvite> FriendInvites { get; set; }
     public DbSet<Friendship> Friendships { get; set; }
+    public DbSet<Image> Images { get; set; }
     public DbSet<Item> Items { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Notification> Notifications { get; set; }
@@ -47,6 +48,8 @@ public class GymifyDbContext(
         modelBuilder.ApplyConfiguration(new CaseConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new ExerciseConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new ImageConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new ItemConfiguration(_seedDataOptions));
 

@@ -1,5 +1,11 @@
-﻿namespace Gymify.Application;
+﻿using AutoMapper;
 
-public class AutomapperProfile
+namespace Gymify.Application;
+
+public class AutomapperProfile : Profile
 {
+    public AutomapperProfile()
+    {
+
+    }
 }

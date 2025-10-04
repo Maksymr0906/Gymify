@@ -1,5 +1,7 @@
+using Gymify.Application.Extensions;
 using Gymify.Persistence;
 using Gymify.Persistence.SeedData;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -10,7 +12,9 @@ services.Configure<SeedDataOptions>(configuration.GetSection("SeedDataOptions"))
 
 services.AddRazorPages();
 
-services.AddPersistence(configuration);
+services
+    .AddPersistence(configuration)
+    .AddApplication();
 
 var app = builder.Build();
 
@@ -21,7 +25,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+    RequestPath = "/Images"
+});
 
 app.UseRouting();
 

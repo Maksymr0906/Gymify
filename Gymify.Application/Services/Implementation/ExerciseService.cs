@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gymify.Application.Services.Interfaces;
 
-namespace Gymify.Application.Services.Implementation
+namespace Gymify.Application.Services.Implementation;
+
+public class ExerciseService : IExerciseService
 {
-    public class ExerciseService
-    {
-    }
 }
