@@ -29,11 +29,12 @@ public partial class CaseConfiguration(SeedDataOptions seedDataOptions)
             .HasMaxLength(255);
 
         builder.Property(c => c.DropChance)
-       .IsRequired();
+            .IsRequired()
+            .HasColumnType("decimal(5,2)"); ;
 
         builder.ToTable(tb => tb.HasCheckConstraint(
             "CK_Case_DropChance",
-            "DropChance BETWEEN 1 AND 99"
+            "DropChance >= 0 AND DropChance <= 1"
         ));
 
 

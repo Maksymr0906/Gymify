@@ -1,4 +1,5 @@
 ﻿using Gymify.Data.Entities;
+using Gymify.Data.Enums;
 using Gymify.Persistence.SeedData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,6 +27,20 @@ public partial class ItemConfiguration(SeedDataOptions seedDataOptions)
         builder.Property(i => i.ImageURL)
             .HasMaxLength(255);
 
-        builder.HasData(_seedDataOptions.Items);
+        builder.HasData(MapSeedDataItems(_seedDataOptions));
+    }
+
+    private IEnumerable<Item> MapSeedDataItems(SeedDataOptions seedData)
+    {
+        return seedData.Items.Select(i => new Item
+        {
+            Id = i.Id,
+            CreatedAt = i.CreatedAt,
+            Name = i.Name,
+            Description = i.Description,
+            Type = (ItemType)i.Type,
+            Rarity = (ItemRarity)i.Rarity,
+            ImageURL = i.ImageURL
+        });
     }
 }

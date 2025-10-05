@@ -41,8 +41,6 @@ public class GymifyDbContext(
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(GymifyDbContext).Assembly);
 
-        modelBuilder.ApplyConfiguration(new RolePermissionConfiguration(_authorizationOptions));
-
         modelBuilder.ApplyConfiguration(new AchievementConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new CaseConfiguration(_seedDataOptions));
@@ -53,9 +51,11 @@ public class GymifyDbContext(
 
         modelBuilder.ApplyConfiguration(new ItemConfiguration(_seedDataOptions));
 
-        modelBuilder.ApplyConfiguration(new NotificationConfiguration(_seedDataOptions));
-
         modelBuilder.ApplyConfiguration(new UserConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new WorkoutConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new NotificationConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new UserEquipmentConfiguration(_seedDataOptions));
 
@@ -63,10 +63,8 @@ public class GymifyDbContext(
 
         modelBuilder.ApplyConfiguration(new UserItemConfiguration(_seedDataOptions));
 
-        modelBuilder.ApplyConfiguration(new WorkoutConfiguration(_seedDataOptions));
-
-        modelBuilder.ApplyConfiguration(new UserConfiguration(_seedDataOptions));
-
         modelBuilder.ApplyConfiguration(new UserRoleConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new RolePermissionConfiguration(_authorizationOptions));
     }
 }

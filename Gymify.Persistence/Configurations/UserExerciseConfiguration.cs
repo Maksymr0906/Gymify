@@ -20,16 +20,9 @@ public partial class UserExerciseConfiguration(SeedDataOptions seedDataOptions)
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(ue => ue.Sets)
-            .IsRequired()
-            .HasDefaultValue(0);
-
-        builder.Property(ue => ue.Reps)
-            .IsRequired()
-            .HasDefaultValue(0);
-
-        builder.Property(ue => ue.Weight)
-            .HasDefaultValue(0);
+        builder.Property(ue => ue.Duration)
+                .HasConversion<TimeSpan>()
+                .HasDefaultValue(null);
 
         builder.Property(ue => ue.EarnedXP)
             .IsRequired()

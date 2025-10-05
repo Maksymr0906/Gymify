@@ -12,6 +12,6 @@ public partial class ImageConfiguration(SeedDataOptions seedDataOptions)
 
     public void Configure(EntityTypeBuilder<Image> builder)
     {
-        builder.HasData(_seedDataOptions);
+        builder.HasData(_seedDataOptions.Images);
     }
 }

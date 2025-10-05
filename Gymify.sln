@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36429.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Web", "Gymify\Gymify.Web.csproj", "{61EA464B-8349-46F3-9812-A7C7F97B63A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Web", "Gymify.Web\Gymify.Web.csproj", "{61EA464B-8349-46F3-9812-A7C7F97B63A0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Application", "Gymify.Application\Gymify.Application.csproj", "{032AE574-C4FC-471B-9A61-197C2BB08E53}"
 EndProject
