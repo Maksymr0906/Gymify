@@ -1,38 +1,48 @@
 @page
 @model WorkoutModel
 @{
-    ViewData["Title"] = "Workout";
+	ViewData["Title"] = "Workout";
 }
 <div class="text-center">
-    <div>
-        <div>Назва трені</div>
-        <div>Статистика</div>
-    </div>
+	<div class="workoutTop">
+		<div class="workoutTopLeft">
+			<div class="workoutTitle">asdasdasd</div>
+			<div class="workoutText">asdasdasd</div>
+		</div>
+		<div class="workoutTopRight">
+			<div class="workoutText scroll" ">
+				asdasdasd<br>
+				asdasdasd<br>
+				asdasdasd<br>
+				asdasdasd<br>
+				asdasdasd
+			</div>
+			<div class="workoutText scroll" ">
+				asdasdasd<br>
+				asdasdasd<br>
+				asdasdasd<br>
+				asdasdasd<br>
+				asdasdasd
+			</div>
+		</div>
+	</div>
 
-    <div>
-        <div style="width:250px;height:60px;overflow-y:scroll;border:1px solid black;margin:5px;">
-            Юзер описав своє тренування<br>
-            Тут довгий текст...<br>
-            Ще рядок...<br>
-            Ще...<br>
-            І ще...
-        </div>
+	<div class="workoutBott">
+		<h2 class="workoutListTitle">asdasdasd</h2>
+		<div class="workoutItems">
+			<div class="workoutItem">
+				<div class="workoutItemStat">asdasdasd</div>
+				<div class="workoutItemStat">60asdasdasd</div>
+				<div class="workoutItemStat">8x3</div>
+				<div class="workoutItemStat">+100asdasdasd</div>
+			</div>
+			<div class="workoutItem">
+				<div class="workoutItemStat">asdasdasd</div>
+				<div class="workoutItemStat">60asdasdasd</div>
+				<div class="workoutItemStat">8x3</div>
+				<div class="workoutItemStat">+100asdasdasd</div>
+			</div>
+		</div>
+	</div>
 
-        <div style="width:250px;height:60px;overflow-y:scroll;border:1px solid black;margin:5px;">
-            Юзер зробив висновки<br>
-            Багато тексту...<br>
-            Ще один рядок<br>
-            Ще текст<br>
-            Ще...
-        </div>
-    </div>
-
-    <div>
-        <h2>Список вправ</h2>
-        <div>Жим</div>
-        <div>60кг</div>
-        <div>8x3</div>
-        <div>+100 хп</div>
-    </div>
-    
 </div>

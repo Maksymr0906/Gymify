@@ -1,20 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Gymify.Pages
+namespace Gymify.Pages;
+
+public class LoginModel : PageModel
 {
-    public class LoginModel : PageModel
+    private readonly ILogger<LoginModel> _logger;
+
+    public LoginModel(ILogger<LoginModel> logger)
     {
-        private readonly ILogger<LoginModel> _logger;
-
-        public LoginModel(ILogger<LoginModel> logger)
-        {
-            _logger = logger;
-        }
-
-        public void OnGet()
-        {
-        }
+        _logger = logger;
     }
 
+    public void OnGet()
+    {
+    }
 }

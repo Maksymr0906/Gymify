@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Gymify.Pages;
 
-public class WorkoutModel : PageModel
+public class UserItemsModel : PageModel
 {
-    private readonly ILogger<WorkoutModel> _logger;
+    private readonly ILogger<UserItemsModel> _logger;
 
-    public WorkoutModel(ILogger<WorkoutModel> logger)
+    public UserItemsModel(ILogger<UserItemsModel> logger)
     {
         _logger = logger;
     }

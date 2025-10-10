@@ -1,34 +1,34 @@
 @page
 @model FirstModel
 @{
-ViewData["Title"] = "First";
+    ViewData["Title"] = "First";
 }
 <div class="text-center">
-    <div>
-        <div>
-            <div>LEVEL 1</div>
-            <div>—ÔÓ‚≥˘ÂÌÌˇ</div>
-            <a href="/CreateWorkout">Create new workout</a>
+    <div class="homeTop">
+        <div class="homeTopLeft">
+            <div class="homeTitle">LEVEL 1</div>
+            <div class="homeText"></div>
+            <a class="homeButton scaleButton" href="/CreateWorkout">Create new workout</a>
         </div>
-        <div>
-            <div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+        <div class="homeTopRight">
+            <div class="homeStats">
+                <div class="homeStat">98%</div>
+                <div class="homeStat">34%</div>
+                <div class="homeStat">24%</div>
+                <div class="homeStat">55%</div>
             </div>
-            <div>ﬂ ¿—‹ —“¿“»—“» ¿ «¿ Ã≤—ﬂ÷‹</div>
+            <div class="homeStatText"></div>
         </div>
     </div>
 
-    <div>
-        <h2>My last trainings</h2>
-        <div>
-            <a><img>a</a>
-            <a><img>a</a>
-            <a><img>a</a>
-            <a><img>a</a>
+    <div class="homeBott">
+        <h2 class="homeTitle">My last trainings</h2>
+        <div class="homeTrains">
+            <a class="homeTrain" href="/Workout">98%</a>
+            <a class="homeTrain" href="/Workout">34%</a>
+            <a class="homeTrain" href="/Workout">24%</a>
+            <a class="homeTrain" href="/Workout">55%</a>
         </div>
     </div>
-    
+
 </div>

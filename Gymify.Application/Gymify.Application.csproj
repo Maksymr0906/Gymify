@@ -20,16 +20,6 @@
 
   <ItemGroup>
     <Folder Include="DTOs\Message\" />
-    <Folder Include="DTOs\Item\" />
-    <Folder Include="DTOs\Exercise\" />
-    <Folder Include="DTOs\Comment\" />
-    <Folder Include="DTOs\Case\" />
-    <Folder Include="DTOs\Achievement\" />
-    <Folder Include="DTOs\Notification\" />
-    <Folder Include="DTOs\UserEquipment\" />
-    <Folder Include="DTOs\UserExercise\" />
-    <Folder Include="DTOs\Workout\" />
-    <Folder Include="DTOs\User\" />
   </ItemGroup>
 
 </Project>
