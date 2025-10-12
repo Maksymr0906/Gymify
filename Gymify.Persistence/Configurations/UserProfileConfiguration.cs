@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Gymify.Persistence.Configurations;
 
-public partial class UserConfiguration(SeedDataOptions seedDataOptions)
-    : IEntityTypeConfiguration<User>
+public partial class UserProfileConfiguration(SeedDataOptions seedDataOptions)
+    : IEntityTypeConfiguration<UserProfile>
 {
     private readonly SeedDataOptions _seedDataOptions = seedDataOptions;
 
-    public void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<UserProfile> builder)
     {
         builder.Property(u => u.Username)
             .IsRequired()
@@ -40,6 +40,10 @@ public partial class UserConfiguration(SeedDataOptions seedDataOptions)
            .IsRequired()
            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.HasData(_seedDataOptions.Users);
+        builder.HasOne(p => p.ApplicationUser)
+            .WithOne(u => u.UserProfile)
+            .HasForeignKey<UserProfile>(p => p.ApplicationUserId);
+
+        builder.HasData(_seedDataOptions.UserProfiles);
     }
 }

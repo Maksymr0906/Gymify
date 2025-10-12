@@ -35,7 +35,7 @@ public partial class NotificationConfiguration(SeedDataOptions seedDataOptions)
             CreatedAt = n.CreatedAt,
             Content = n.Content,
             Type = (NotificationType)n.Type,
-            UserId = n.UserId,
+            UserProfileId = n.UserProfileId,
         });
     }
 }

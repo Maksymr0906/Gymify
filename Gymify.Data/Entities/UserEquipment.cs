@@ -2,7 +2,7 @@
 
 public class UserEquipment : BaseEntity
 {
-    public Guid UserId { get; set; }
+    public Guid UserProfileId { get; set; }
     public Guid AvatarId { get; set; }
     public Guid BackgroundId { get; set; }
     public Guid TitleId { get; set; }
@@ -11,6 +11,6 @@ public class UserEquipment : BaseEntity
     public Item Background { get; set; } = null!;
     public Item Title { get; set; } = null!;
     public Item Frame { get; set; } = null!;
-    public User User { get; set; } = null!;
+    public UserProfile UserProfile { get; set; } = null!;
 }
 

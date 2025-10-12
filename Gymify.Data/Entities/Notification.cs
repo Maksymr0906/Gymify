@@ -6,6 +6,6 @@ public class Notification : BaseEntity
 {
     public string Content { get; set; } = string.Empty;
     public NotificationType Type { get; set; } = 0;
-    public Guid UserId { get; set; }
-    public User User { get; set; } = null!;
+    public Guid UserProfileId { get; set; }
+    public UserProfile UserProfile { get; set; } = null!;
 }

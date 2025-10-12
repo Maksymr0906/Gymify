@@ -4,10 +4,10 @@ namespace Gymify.Data.Entities;
 
 public class FriendInvite
 {
-    public Guid SenderId { get; set; }
-    public Guid ReceiverId { get; set; }
+    public Guid SenderProfileId { get; set; }
+    public Guid ReceiverProfileId { get; set; }
     public InviteStatus Status { get; set; } = InviteStatus.Pending;
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
-    public User Receiver { get; set; } = null!;
-    public User Sender { get; set; } = null!;
+    public UserProfile ReceiverProfile { get; set; } = null!;
+    public UserProfile SenderProfile { get; set; } = null!;
 }

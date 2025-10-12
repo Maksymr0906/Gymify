@@ -2,6 +2,6 @@
 
 public record UserItemSeedData
 {
-    public required Guid UserId { get; init; }
+    public required Guid UserProfileId { get; init; }
     public required Guid ItemId { get; init; }
 }

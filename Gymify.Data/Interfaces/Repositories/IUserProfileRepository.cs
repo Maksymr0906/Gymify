@@ -2,6 +2,6 @@
 
 namespace Gymify.Data.Interfaces.Repositories;
 
-public interface IUserRepository : IRepository<User>
+public interface IUserProfileRepository : IRepository<UserProfile>
 {
 }

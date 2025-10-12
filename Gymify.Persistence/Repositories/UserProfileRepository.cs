@@ -3,7 +3,7 @@ using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Persistence.Repositories;
 
-public class UserRepository(GymifyDbContext context)
-    : Repository<User>(context), IUserRepository
+public class UserProfileRepository(GymifyDbContext context)
+    : Repository<UserProfile>(context), IUserProfileRepository
 {
 }

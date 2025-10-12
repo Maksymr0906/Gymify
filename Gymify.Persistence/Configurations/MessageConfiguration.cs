@@ -1,6 +1,7 @@
 ﻿using Gymify.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gymify.Persistence.Configurations;
 
@@ -20,14 +21,14 @@ public partial class MessageConfiguration
         builder.Property(m => m.IsRead)
             .IsRequired();
 
-        builder.HasOne(m => m.Sender)
+        builder.HasOne(m => m.SenderProfile)
             .WithMany(u => u.SentMessages)
-            .HasForeignKey(m => m.SenderId)
+            .HasForeignKey(m => m.SenderProfileId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(m => m.Receiver)
+        builder.HasOne(m => m.ReceiverProfile)
             .WithMany(u => u.ReceivedMessages)
-            .HasForeignKey(m => m.ReceiverId)
+            .HasForeignKey(m => m.ReceiverProfileId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

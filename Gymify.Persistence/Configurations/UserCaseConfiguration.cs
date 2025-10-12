@@ -9,6 +9,6 @@ public partial class UserCaseConfiguration
 {
     public void Configure(EntityTypeBuilder<UserCase> builder)
     {
-        builder.HasKey(uc => new {uc.UserId, uc.CaseId});
+        builder.HasKey(uc => new {uc.UserProfileId, uc.CaseId});
     }
 }

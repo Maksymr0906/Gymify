@@ -19,7 +19,7 @@ public class UnitOfWork : IUnitOfWork
         NotificationRepository = new NotificationRepository(context);
         UserEquipmentRepository = new UserEquipmentRepository(context);
         UserExerciseRepository = new UserExerciseRepository(context);
-        UserRepository = new UserRepository(context);
+        UserProfileRepository = new UserProfileRepository(context);
         WorkoutRepository = new WorkoutRepository(context);
     }
 
@@ -33,7 +33,7 @@ public class UnitOfWork : IUnitOfWork
         INotificationRepository notificationRepository,
         IUserEquipmentRepository userEquipmentRepository,
         IUserExerciseRepository userExerciseRepository,
-        IUserRepository userRepository,
+        IUserProfileRepository userRepository,
         IWorkoutRepository workoutRepository) 
     {
         _context = context;
@@ -47,7 +47,7 @@ public class UnitOfWork : IUnitOfWork
         NotificationRepository = notificationRepository;
         UserEquipmentRepository = userEquipmentRepository;
         UserExerciseRepository = userExerciseRepository;
-        UserRepository = userRepository;
+        UserProfileRepository = userRepository;
         WorkoutRepository = workoutRepository;
     }
 
@@ -60,7 +60,7 @@ public class UnitOfWork : IUnitOfWork
     public INotificationRepository NotificationRepository { get; set; }
     public IUserEquipmentRepository UserEquipmentRepository { get; set; }
     public IUserExerciseRepository UserExerciseRepository { get; set; }
-    public IUserRepository UserRepository { get; set; }
+    public IUserProfileRepository UserProfileRepository { get; set; }
     public IWorkoutRepository WorkoutRepository { get; set; }
 
     public async Task SaveAsync()

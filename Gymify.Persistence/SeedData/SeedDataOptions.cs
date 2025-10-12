@@ -4,6 +4,7 @@ namespace Gymify.Persistence.SeedData;
 
 public class SeedDataOptions
 {
+    public ApplicationUserSeedData[] ApplicationUsers { get; init; } = [];
     public AchievementSeedData[] Achievements { get; init; } = [];
     public CaseSeedData[] Cases { get; init; } = [];
     public ExerciseSeedData[] Exercises { get; init; } = [];
@@ -13,7 +14,6 @@ public class SeedDataOptions
     public UserEquipmentSeedData[] UserEquipments { get; init; } = [];
     public UserExerciseSeedData[] UserExercises { get; init; } = [];
     public UserItemSeedData[] UserItems { get; init; } = [];
-    public UserRoleSeedData[] UserRoles { get; init; } = [];
-    public UserSeedData[] Users { get; init; } = [];
+    public UserProfileSeedData[] UserProfiles { get; init; } = [];
     public WorkoutSeedData[] Workouts { get; init; } = [];
 }

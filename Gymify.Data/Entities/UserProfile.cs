@@ -1,6 +1,6 @@
 ﻿namespace Gymify.Data.Entities;
 
-public class User : BaseEntity
+public class UserProfile : BaseEntity
 {
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -8,7 +8,6 @@ public class User : BaseEntity
     public int Level { get; set; } = 0;
     public long CurrentXP { get; set; } = 0;
     public UserEquipment Equipment { get; set; } = null!;
-    public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<Comment> Comments { get; set; } = [];
     public ICollection<UserAchievement> UserAchievements { get; set; } = [];
     public ICollection<FriendInvite> SentFriendInvites { get; set; } = [];
@@ -21,4 +20,7 @@ public class User : BaseEntity
     public ICollection<UserItem> UserItems { get; set; } = [];
     public ICollection<UserCase> UserCases { get; set; } = [];
     public ICollection<Workout> Workouts { get; set; } = [];
+
+    public Guid ApplicationUserId { get; set; }
+    public virtual ApplicationUser? ApplicationUser { get; set; }
 }
