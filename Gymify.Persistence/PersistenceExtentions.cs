@@ -31,6 +31,8 @@ public static class PersistenceExtensions
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
         services.AddScoped<IWorkoutRepository, WorkoutRepository>();
 
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         return services;
     }
 }

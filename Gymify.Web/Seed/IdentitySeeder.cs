@@ -1,5 +1,5 @@
-﻿using Gymify.Data.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Gymify.Data.Entities;
 
 namespace Gymify.Web.Seed;
 

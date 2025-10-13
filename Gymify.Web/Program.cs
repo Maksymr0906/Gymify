@@ -7,12 +7,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var services = builder.Services;
 var configuration = builder.Configuration;
 
 services.Configure<SeedDataOptions>(configuration.GetSection("SeedDataOptions"));
-
-services.AddRazorPages();
 
 services
     .AddPersistence(configuration)
@@ -26,9 +25,10 @@ services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
 })
-.AddEntityFrameworkStores<GymifyDbContext>() 
-.AddDefaultTokenProviders()
-.AddDefaultUI();
+.AddEntityFrameworkStores<GymifyDbContext>()
+.AddDefaultTokenProviders();
+
+services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -40,10 +40,9 @@ using (var scope = app.Services.CreateScope())
     await IdentitySeeder.SeedRolesAndAdminAsync(roleManager, userManager);
 }
 
-
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -57,8 +56,12 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRazorPages();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 app.Run();

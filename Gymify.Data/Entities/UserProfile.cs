@@ -2,9 +2,7 @@
 
 public class UserProfile : BaseEntity
 {
-    public string Username { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
+    public Guid ApplicationUserId { get; set; }
     public int Level { get; set; } = 0;
     public long CurrentXP { get; set; } = 0;
     public UserEquipment Equipment { get; set; } = null!;
@@ -20,7 +18,5 @@ public class UserProfile : BaseEntity
     public ICollection<UserItem> UserItems { get; set; } = [];
     public ICollection<UserCase> UserCases { get; set; } = [];
     public ICollection<Workout> Workouts { get; set; } = [];
-
-    public Guid ApplicationUserId { get; set; }
     public virtual ApplicationUser? ApplicationUser { get; set; }
 }

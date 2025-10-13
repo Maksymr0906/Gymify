@@ -12,22 +12,6 @@ public partial class UserProfileConfiguration(SeedDataOptions seedDataOptions)
 
     public void Configure(EntityTypeBuilder<UserProfile> builder)
     {
-        builder.Property(u => u.Username)
-            .IsRequired()
-            .HasMaxLength(50);
-
-        builder.HasIndex(u => u.Username).IsUnique();
-
-        builder.Property(u => u.Email)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.HasIndex(u => u.Email).IsUnique();
-
-        builder.Property(u => u.PasswordHash)
-            .IsRequired()
-            .HasMaxLength(255);
-
         builder.Property(u => u.Level)
             .IsRequired()
             .HasDefaultValue(0);
