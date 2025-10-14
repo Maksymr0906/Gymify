@@ -54,7 +54,12 @@ public class AuthService : IAuthService
 
     public async Task<SignInResult> LoginAsync(LoginRequestDto dto)
     {
-        return await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false);
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+
+        if (user == null)
+            return SignInResult.Failed;
+
+        return await _signInManager.PasswordSignInAsync(user, dto.Password, dto.RememberMe, false);
     }
 
     public async Task LogoutAsync()

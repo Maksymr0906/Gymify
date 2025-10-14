@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Gymify.Data.Entities;
+﻿using Gymify.Data.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Gymify.Web.Seed;
 
@@ -15,11 +16,14 @@ public class IdentitySeeder
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
 
-        var admin = await userManager.FindByEmailAsync("example1@gmail.com");
-        if (admin != null && !await userManager.IsInRoleAsync(admin, "Admin"))
-            await userManager.AddToRoleAsync(admin, "Admin");
+        var adminUser = await userManager.FindByEmailAsync("admin@gmail.com");
+        if (adminUser != null && !await userManager.IsInRoleAsync(adminUser, "Admin") && !await userManager.IsInRoleAsync(adminUser, "User"))
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+            await userManager.AddToRoleAsync(adminUser, "User");
+        }
 
-        var user = await userManager.FindByEmailAsync("example2@gmail.com");
+        var user = await userManager.FindByEmailAsync("user@gmail.com");
         if (user != null && !await userManager.IsInRoleAsync(user, "User"))
             await userManager.AddToRoleAsync(user, "User");
     }

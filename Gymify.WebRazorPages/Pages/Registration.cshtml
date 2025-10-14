@@ -1,0 +1,20 @@
+@page
+@model RegistrationModel
+@{
+	ViewData["Title"] = "Registration";
+}
+<div class="text-center">
+	<form class="authForm" action="/Registration" method="post" autocomplete="on" novalidate>
+		<label class="authText" for="user">Login</label>
+		<input class="authInput" id="user" name="user" type="text" inputmode="email" required />
+
+		<label class="authText" for="password">Enter password</label>
+		<input class="authInput" id="password" name="password" type="password" required />
+
+		<label class="authText" for="confirmPassword">Confirm password</label>
+		<input class="authInput" id="password" name="confirmPassword" type="password" required />
+
+		<button class="authButton scaleButton" type="submit">Register</button>
+		<a class="authAddButton scaleButton" href="/Index">Go back</a>
+	</form>
+</div>
