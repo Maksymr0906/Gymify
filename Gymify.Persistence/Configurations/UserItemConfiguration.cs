@@ -12,7 +12,7 @@ public partial class UserItemConfiguration(SeedDataOptions seedDataOptions)
 
     public void Configure(EntityTypeBuilder<UserItem> builder)
     {
-        builder.HasKey(ui => new {ui.UserId, ui.ItemId});
+        builder.HasKey(ui => new {ui.UserProfileId, ui.ItemId});
 
         builder.HasData(_seedDataOptions.UserItems);
     }

@@ -8,5 +8,5 @@ public record WorkoutSeedData
     public required string Description { get; init; }
     public required string Conclusion { get; init; }
     public required bool IsPrivate { get; init; }
-    public required Guid UserId { get; init; }
+    public required Guid UserProfileId { get; init; }
 }

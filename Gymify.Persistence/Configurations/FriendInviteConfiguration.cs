@@ -10,7 +10,7 @@ public partial class FriendInviteConfiguration
 {
     public void Configure(EntityTypeBuilder<FriendInvite> builder)
     {
-        builder.HasKey(fi => new { fi.SenderId, fi.ReceiverId });
+        builder.HasKey(fi => new { fi.SenderProfileId, fi.ReceiverProfileId });
 
         builder.Property(fi => fi.SentAt)
             .IsRequired()
@@ -20,14 +20,14 @@ public partial class FriendInviteConfiguration
             .IsRequired()
             .HasDefaultValue(InviteStatus.Pending);
 
-        builder.HasOne(fi => fi.Sender)
+        builder.HasOne(fi => fi.SenderProfile)
             .WithMany(u => u.SentFriendInvites)
-            .HasForeignKey(fi => fi.SenderId)
+            .HasForeignKey(fi => fi.SenderProfileId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(fi => fi.Receiver)
+        builder.HasOne(fi => fi.ReceiverProfile)
             .WithMany(u => u.ReceivedFriendInvites)
-            .HasForeignKey(fi => fi.ReceiverId)
+            .HasForeignKey(fi => fi.ReceiverProfileId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -9,7 +9,7 @@ public partial class UserAchievementConfiguration
 {
     public void Configure(EntityTypeBuilder<UserAchievement> builder)
     {
-        builder.HasKey(ua => new { ua.UserId, ua.AchievementId });
+        builder.HasKey(ua => new { ua.UserProfileId, ua.AchievementId });
 
         builder.Property(ua => ua.Progress)
             .IsRequired()

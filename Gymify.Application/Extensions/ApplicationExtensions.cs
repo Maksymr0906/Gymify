@@ -10,8 +10,8 @@ public static class ApplicationExtensions
     {
         services.AddAutoMapper(typeof(AutomapperProfile));
 
-        services.AddScoped<IAchievementService, AchievementService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAchievementService, AchievementService>();
         services.AddScoped<ICaseService, CaseService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IExerciseService, ExerciseService>();

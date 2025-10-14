@@ -9,16 +9,16 @@ public partial class FriendshipConfiguration
 {
     public void Configure(EntityTypeBuilder<Friendship> builder)
     {
-        builder.HasKey(f => new { f.UserId1, f.UserId2 });
+        builder.HasKey(f => new { f.UserProfileId1, f.UserProfileId2 });
 
-        builder.HasOne(f => f.User1)
+        builder.HasOne(f => f.UserProfile1)
             .WithMany(u => u.Friendships1)
-            .HasForeignKey(f => f.UserId1)
+            .HasForeignKey(f => f.UserProfileId1)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(f => f.User2)
+        builder.HasOne(f => f.UserProfile2)
             .WithMany(u => u.Friendships2)
-            .HasForeignKey(f => f.UserId2)
+            .HasForeignKey(f => f.UserProfileId2)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

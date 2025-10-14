@@ -6,5 +6,5 @@ public record NotificationSeedData
     public required DateTime CreatedAt { get; init; }
     public required string Content { get; init; }
     public required int Type { get; init; }
-    public required Guid UserId { get; init; }
+    public required Guid UserProfileId { get; init; }
 }

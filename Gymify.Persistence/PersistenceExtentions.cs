@@ -28,8 +28,10 @@ public static class PersistenceExtensions
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IUserEquipmentRepository, UserEquipmentRepository>();
         services.AddScoped<IUserExerciseRepository, UserExerciseRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserProfileRepository, UserProfileRepository>();
         services.AddScoped<IWorkoutRepository, WorkoutRepository>();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

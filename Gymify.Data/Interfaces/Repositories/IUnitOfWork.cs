@@ -11,7 +11,7 @@ public interface IUnitOfWork
     INotificationRepository NotificationRepository { get; }
     IUserEquipmentRepository UserEquipmentRepository { get; }
     IUserExerciseRepository UserExerciseRepository { get; }
-    IUserRepository UserRepository { get; }
+    IUserProfileRepository UserProfileRepository { get; }
     IWorkoutRepository WorkoutRepository { get; }
     Task SaveAsync();
 }
