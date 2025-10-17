@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Application.DTOs.Workout;
 
-namespace Gymify.Application.DTOs.Workout
+public class WorkoutDto
 {
-    internal class WorkoutDto
-    {
-    }
 }

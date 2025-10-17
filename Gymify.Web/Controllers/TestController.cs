@@ -25,5 +25,12 @@ namespace Gymify.Web.Controllers
         {
             return View();
         }
+
+        [Authorize]
+        public IActionResult Claims()
+        {
+            var claims = User.Claims.ToList();
+            return Json(claims.Select(c => new { c.Type, c.Value }));
+        }
     }
 }

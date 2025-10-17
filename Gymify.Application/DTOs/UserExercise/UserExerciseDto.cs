@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Application.DTOs.UserExercise;
 
-namespace Gymify.Application.DTOs.UserExercise
+public class UserExerciseDto
 {
-    internal class UserExerciseDto
-    {
-    }
 }

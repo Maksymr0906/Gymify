@@ -2,4 +2,5 @@
 
 public interface IAchievementService
 {
+    Task CheckForAchievementsAsync(Guid userProfileId);
 }

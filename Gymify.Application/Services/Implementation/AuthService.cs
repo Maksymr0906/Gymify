@@ -2,7 +2,9 @@
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Gymify.Application.Services.Implementation;
 
@@ -45,8 +47,17 @@ public class AuthService : IAuthService
 
             await _unitOfWork.UserProfileRepository.CreateAsync(profile);
             await _unitOfWork.SaveAsync();
+
             await _userManager.AddToRoleAsync(user, "User");
-            await _signInManager.SignInAsync(user, false);
+
+            var claims = new List<Claim>
+            {
+                new Claim("UserProfileId", profile.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email!)
+            };
+
+            await _userManager.AddClaimsAsync(user, claims);
+            await _signInManager.SignInAsync(user, isPersistent: false);
         }
 
         return result;
@@ -59,8 +70,11 @@ public class AuthService : IAuthService
         if (user == null)
             return SignInResult.Failed;
 
-        return await _signInManager.PasswordSignInAsync(user, dto.Password, dto.RememberMe, false);
+        var result = await _signInManager.PasswordSignInAsync(user, dto.Password, dto.RememberMe, false);
+
+        return result;
     }
+
 
     public async Task LogoutAsync()
     {

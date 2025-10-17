@@ -5,6 +5,16 @@ public class UserProfile : BaseEntity
     public Guid ApplicationUserId { get; set; }
     public int Level { get; set; } = 0;
     public long CurrentXP { get; set; } = 0;
+    public int TotalWorkouts { get; set; } = 0;
+    public int WorkoutStreak { get; set; } = 0;
+    public int TotalWeightLifted { get; set; } = 0;
+    public int TotalKmRunned { get; set; } = 0;
+    public int StrengthExercisesCompleted { get; set; } = 0;
+    public int CardioExercisesCompleted { get; set; } = 0;
+    public int FlexibilityExercisesCompleted { get; set; } = 0;
+    public int BalanceExercisesCompleted { get; set; } = 0;
+    public int EnduranceExercisesCompleted { get; set; } = 0;
+    public int MobilityExercisesCompleted { get; set; } = 0;
     public UserEquipment Equipment { get; set; } = null!;
     public ICollection<Comment> Comments { get; set; } = [];
     public ICollection<UserAchievement> UserAchievements { get; set; } = [];

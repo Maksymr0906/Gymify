@@ -2,4 +2,5 @@
 
 public interface ICaseService
 {
+    Task GenerateRewardsAsync(Guid userProfileId);
 }
