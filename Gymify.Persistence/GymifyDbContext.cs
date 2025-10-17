@@ -22,6 +22,7 @@ public class GymifyDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
 
     public DbSet<Achievement> Achievements { get; set; }
     public DbSet<Case> Cases { get; set; }
+    public DbSet<CaseItem> CaseItems { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Exercise> Exercises { get; set; }
     public DbSet<FriendInvite> FriendInvites { get; set; }
@@ -47,6 +48,8 @@ public class GymifyDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
         modelBuilder.ApplyConfiguration(new AchievementConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new CaseConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new CaseItemConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new ExerciseConfiguration(_seedDataOptions));
 
