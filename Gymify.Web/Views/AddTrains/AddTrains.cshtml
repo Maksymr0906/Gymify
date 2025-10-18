@@ -1,0 +1,35 @@
+﻿@model Gymify.Application.DTOs.UserExercise.AddUserExerciseToWorkoutRequestDto;
+
+@{
+    ViewData["Title"] = "AddTrains";
+}
+<div>
+    <h1 class="AddExerciseTitle">Train №</h1>
+
+    <form asp-action="AddExercise" method="post" class="createWorkoutForm">
+        <label asp-for="Name" class="AddExerciseLabel ">Choose train</label>
+        <input asp-for="Name" class="AddExerciseInput" />
+
+        <div class="AddExerciseRadio">
+            <label asp-for="ExerciseType" class="AddExerciseLabelRadio">Weight</label>
+            <input asp-for="ExerciseType" class="AddExerciseInputRadio" type="radio" value="1"/> 
+
+            <label asp-for="ExerciseType" class="AddExerciseLabelRadio">Duration</label>
+            <input asp-for="ExerciseType" class="AddExerciseInputRadio" type="radio" value="2"/>
+        </div>
+
+        <label asp-for="Name" class="AddExerciseLabel ">Weight</label>
+        <input asp-for="Name" class="AddExerciseInput" />
+
+        <label asp-for="Name" class="AddExerciseLabel ">Sets</label>
+        <input asp-for="Name" class="AddexerciseInput" />
+
+        <label asp-for="Name" class="AddExerciseLabel ">Reps</label>
+        <input asp-for="Name" class="AddExerciseInput" />
+
+        <div class ="addExerciseButtons">
+            <button type="submit" valur="end" class="AddExerciseButton scaleButton">End</button>
+            <button type="submit" value="add" class="AddExerciseButton scaleButton">Add new exercise</button>
+        </div>
+    </form>
+</div>

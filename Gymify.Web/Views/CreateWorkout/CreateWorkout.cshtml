@@ -1,0 +1,12 @@
+﻿@model Gymify.Application.DTOs.Workout.CreateWorkoutRequestDto;
+
+@{
+    ViewData["Title"] = "CreateWorkout";
+}
+
+<form asp-action="CreateWorkout" method="post" class="createWorkoutForm">
+    <label asp-for="Name" class="createWorkoutLabel ">Workout name</label>
+    <input asp-for="Name" class="createWorkoutInput" />
+
+    <button type="submit" class="createWorkoutButton scaleButton">Continue</button>
+</form>
