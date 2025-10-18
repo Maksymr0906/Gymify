@@ -1,22 +1,299 @@
+
+:root {
+    --BackgroundColor: #F6F6F6;
+    --TitleColor: #311E4C;
+    --TextColor: black;
+    --ButtonColor: #F49B3A;
+    --ButtonHoverColor: #311E4C;
+    --NavBarColor: #9cd9e9;
+    --TextHoverColor: white;
+}
+
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
+    color: var(--TextColor);
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: var(--BackgroundColor);
+}
+
+* {
+    transition: all 0.4s ease;
+}
+.navbar{
+    background-color: var(--NavBarColor);
+}
+a {
+    color: black;
+    text-decoration: none;
+}
+
+    a:hover {
+        color: black;
+    }
+
+.scaleButton:hover {
+    transform: scale(1.05);
+    background: var(--ButtonHoverColor);
+    opacity: 0.7;
+    color: var(--TextHoverColor);
+    border-color: var(--ButtonHoverColor);
+}
+
+.mainTitle {
+    font-size: 212px;
+    color: var(--TitleColor);
+}
+
+.mainDescription {
+}
+
+.mainRegistration {
+    margin-top: 18px;
+    font-size: 48px;
+    border-radius: 25px;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: var(--ButtonColor);
+}
+
+.mainLogin {
+    margin-top: 25px;
+    font-size: 36px;
+    border-radius: 20px;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: var(--ButtonColor);
+}
+
+.df {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.authForm {
+    height: 80vh;
+    padding: 15%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.authText {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.authInput {
+    font-size: 20px;
+    font-weight: 400;
+    width: 350px;
+    border: 1.5px solid;
+    border-radius: 15px;
+    padding: 5px 15px;
+}
+
+.authButton {
+    width: 250px;
+    margin-top: 15px;
+    font-size: 24px;
+    background: white;
+    border-radius: 20px;
+    padding: 2px;
+    background-color: var(--ButtonColor);
+}
+
+.authAddButton {
+    width: 200px;
+    margin-top: 15px;
+    font-size: 16px;
+    background: white;
+    border-radius: 18px;
+    padding: 2px;
+    background-color: var(--ButtonColor);
+}
+
+.homeTop {
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    height: 400px;
+    margin-top: 50px;
+}
+
+.homeTopLeft {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.homeTitle {
+    font-size: 42px;
+    font-weight: 500;
+}
+
+.homeText {
+    font-size: 30px;
+}
+
+.homeButton {
+    font-size: 36px;
+
+    border-radius: 20px;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: var(--ButtonColor);
+}
+
+.homeTopRight {
+    width: 30%;
+    border: 2px solid;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.homeStats {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.homeStat {
+    margin: 10px 0 0 0;
+    width: 80px;
+    height: 80px;
+    border: 1.5px solid;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
+
+.homeStatText {
+    margin: 20px 0 0 0;
+    font-size: 24px;
+}
+
+.homeBott {
+    padding: 30px 5%;
+    text-align: left;
+}
+
+.homeTrains {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.homeTrain {
+    margin: 10px 0 0 0;
+    width: 15%;
+    aspect-ratio: 1 / 1;
+    border: 1.5px solid;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
+
+.workoutTop {
+    height: 350px;
+    display: flex;
+    justify-content: space-around;
+}
+
+    .workoutTop * {
+        width: 40%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        .workoutTop * * {
+            border: 2px solid;
+            height: 40%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            border-radius: 30px;
+            padding: 0 20px;
+        }
+
+.workoutTopLeft {
+    text-align: left;
+}
+
+.workoutTopRight {
+    text-align: right;
+    align-items: flex-end;
+}
+
+.workoutTitle {
+    font-size: 36px;
+    font-weight: 500;
+}
+
+.workoutText {
+    font-size: 24px;
+    width: 100%;
+    height: 40%;
+}
+
+.scroll {
+    overflow-y: scroll;
+    display: block;
+}
+
+.workoutBott {
+    border: 2px solid;
+    margin: 1% 5%;
+    border-radius: 50px;
+}
+
+.workoutListTitle {
+    font-size: 72px;
+}
+
+.workoutItems {
+}
+
+.workoutItem {
+    display: flex;
+    justify-content: space-around;
+}
+
+.workoutItemStat {
+    margin: 20px 0;
+    border: 1.5px solid;
+    width: 10%;
+    aspect-ratio: 1 / 1;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
 }
