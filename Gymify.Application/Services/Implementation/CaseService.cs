@@ -10,56 +10,52 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly Random _random = new Random();
 
-    public async Task<List<UserCase>> GenerateRewardsAsync(Guid userProfileId, List<Achievement> newAchievements, bool isLevelUp)
+    public async Task GenerateRewardsAsync(
+    Guid userProfileId,
+    List<Achievement> newAchievements,
+    bool isLevelUp)
     {
-        throw new NotImplementedException();
+        var userProfile = await _unitOfWork.UserProfileRepository.GetByIdAsync(userProfileId);
+        if (userProfile == null)
+            throw new Exception("UserProfile not found");
 
-        //var userProfile = await _unitOfWork.UserProfileRepository.GetByIdAsync(userProfileId);
-        //if (userProfile == null)
-        //    throw new Exception("UserProfile not found");
+        
+        foreach (var achievement in newAchievements)
+        {
+            var caseToGive = await _unitOfWork.CaseRepository
+                    .GetByCaseTypeAsync(achievement.RewardCaseType);
 
-        //var issuedCases = new List<UserCase>();
+            if (caseToGive != null)
+            {
+                var userCase = new UserCase
+                {
+                    UserProfileId = userProfile.Id,
+                    CaseId = caseToGive.Id
+                };
 
-        //foreach (var achievement in newAchievements)
-        //{
-        //    if (achievement.RewardCaseType.HasValue)
-        //    {
-        //        var caseToGive = await _unitOfWork.CaseRepository
-        //            .GetFirstOrDefaultAsync(c => c.Type == achievement.RewardCaseType.Value);
+                await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
+            }
+        }
 
-        //        if (caseToGive != null)
-        //        {
-        //            var userCase = new UserCase
-        //            {
-        //                UserProfileId = userProfile.Id,
-        //                CaseId = caseToGive.Id
-        //            };
-        //            await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
-        //            issuedCases.Add(userCase);
-        //        }
-        //    }
-        //}
+        if (isLevelUp)
+        {
+            var allCases = (await _unitOfWork.CaseRepository.GetAllAsync()).ToList();
+            if (allCases.Any())
+            {
+                var randomCase = allCases[_random.Next(allCases.Count)];
 
-        //if (isLevelUp)
-        //{
-        //    var allCases = await _unitOfWork.CaseRepository.GetAllAsync();
-        //    var eligibleCases = allCases.Where(c => c.Type != CaseType.Common).ToList();
-        //    if (eligibleCases.Any())
-        //    {
-        //        var randomCase = eligibleCases[_random.Next(eligibleCases.Count)];
+                var userCase = new UserCase
+                {
+                    UserProfileId = userProfile.Id,
+                    CaseId = randomCase.Id
+                };
 
-        //        var userCase = new UserCase
-        //        {
-        //            UserProfileId = userProfile.Id,
-        //            CaseId = randomCase.Id
-        //        };
+                await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
+            }
+        }
 
-        //        await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
-        //        issuedCases.Add(userCase);
-        //    }
-        //}
 
-        //await _unitOfWork.SaveAsync();
-        //return issuedCases;
+        await _unitOfWork.SaveAsync();
     }
+
 }
