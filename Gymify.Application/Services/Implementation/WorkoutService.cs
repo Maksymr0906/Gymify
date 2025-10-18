@@ -1,4 +1,5 @@
-﻿using Gymify.Application.DTOs.Workout;
+﻿using Gymify.Application.DTOs.Achievement;
+using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
@@ -13,7 +14,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
     private readonly IAchievementService _achievementService = achievementService;
     private readonly ICaseService _caseService = caseService;
 
-    public async Task<WorkoutDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model)
+    public async Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model)
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdWithDetailsAsync(model.WorkoutId);
 
@@ -37,19 +38,29 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         var newAchievements = await _achievementService.CheckForAchievementsAsync(userProfile.Id);
 
-        var rewards = await _caseService.GenerateRewardsAsync(userProfile.Id, newAchievements, isLevelUp);
+        await _caseService.GenerateRewardsAsync(userProfile.Id, newAchievements, isLevelUp);
 
         await _unitOfWork.SaveAsync();
 
-        return new WorkoutDto
+        return new CompleteWorkoutResponseDto
         {
-            Id = workout.Id,
-            Name = workout.Name,
-            Description = workout.Description,
-            Conclusion = workout.Conclusion,
-            IsPrivate = workout.IsPrivate,
-            TotalXP = workout.TotalXP,
-            UserProfileId = workout.UserProfileId
+            WorkoutDto = new WorkoutDto
+            {
+                Id = workout.Id,
+                Name = workout.Name,
+                Description = workout.Description,
+                Conclusion = workout.Conclusion,
+                IsPrivate = workout.IsPrivate,
+                TotalXP = workout.TotalXP,
+                UserProfileId = workout.UserProfileId
+            },
+            AchievementDtos = newAchievements.Select(a => new AchievementDto
+            {
+                Name = a.Name,
+                Description = a.Description,
+                IconUrl = a.IconUrl,
+                CaseRewardType = (int)a.RewardCaseType
+            }).ToList()
         };
     }
 

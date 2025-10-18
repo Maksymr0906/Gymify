@@ -13,5 +13,6 @@ public interface IUnitOfWork
     IUserExerciseRepository UserExerciseRepository { get; }
     IUserProfileRepository UserProfileRepository { get; }
     IWorkoutRepository WorkoutRepository { get; }
+    IUserCaseRepository UserCaseRepository { get; }
     Task SaveAsync();
 }
