@@ -1,4 +1,4 @@
-﻿using Gymify.Data.Entities;
+﻿using Gymify.Data.Enums;
 using Gymify.Persistence.SeedData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,9 +12,9 @@ public partial class CaseConfiguration(SeedDataOptions seedDataOptions)
 
     public void Configure(EntityTypeBuilder<Case> builder)
     {
-        builder.Property(e => e.CreatedAt)
-           .IsRequired()
-           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+        builder.Property(c => c.CreatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.Property(c => c.Name)
             .IsRequired()
@@ -28,12 +28,17 @@ public partial class CaseConfiguration(SeedDataOptions seedDataOptions)
             .IsRequired()
             .HasMaxLength(255);
 
-        builder.ToTable(tb => tb.HasCheckConstraint(
-            "CK_Case_DropChance",
-            "DropChance >= 0 AND DropChance <= 1"
-        ));
+        builder.Property(c => c.Type)
+            .IsRequired();
 
-
-        builder.HasData(_seedDataOptions.Cases);
+        builder.HasData(_seedDataOptions.Cases.Select(c => new Case
+        {
+            Id = c.Id,
+            CreatedAt = c.CreatedAt,
+            Name = c.Name,
+            Description = c.Description,
+            ImageUrl = c.ImageUrl,
+            Type = (CaseType)c.CaseType
+        }));
     }
 }

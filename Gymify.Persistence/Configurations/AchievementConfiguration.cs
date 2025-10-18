@@ -12,10 +12,6 @@ public partial class AchievementConfiguration(SeedDataOptions seedDataOptions)
 
     public void Configure(EntityTypeBuilder<Achievement> builder)
     {
-        builder.Property(e => e.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-
         builder.Property(a => a.Name)
             .IsRequired()
             .HasMaxLength(100);
@@ -38,6 +34,17 @@ public partial class AchievementConfiguration(SeedDataOptions seedDataOptions)
 
         builder.HasIndex(a => a.Name).IsUnique();
 
-        builder.HasData(_seedDataOptions.Achievements);
+        builder.HasData(_seedDataOptions.Achievements.Select(a => new Achievement
+        {
+            Id = a.Id,
+            CreatedAt = a.CreatedAt,
+            Name = a.Name,
+            Description = a.Description,
+            IconUrl = a.IconUrl,
+            TargetProperty = a.TargetProperty,
+            TargetValue = a.TargetValue,
+            ComparisonType = a.ComparisonType,
+            RewardCaseType = (Gymify.Data.Enums.CaseType)a.CaseType
+        }));
     }
 }

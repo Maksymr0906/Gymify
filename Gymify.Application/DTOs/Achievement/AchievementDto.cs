@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Application.DTOs.Achievement;
 
-namespace Gymify.Application.DTOs.Achievement
+public class AchievementDto
 {
-    internal class AchievementDto
-    {
-    }
+    public required string Name { get; set; } = string.Empty;
+    public required string Description { get; set; } = string.Empty;
+    public required string IconUrl { get; set; } = string.Empty;
+    public required int CaseRewardType { get; set; } = 0;
 }
