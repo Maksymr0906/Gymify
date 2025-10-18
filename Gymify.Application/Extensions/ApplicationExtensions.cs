@@ -21,7 +21,7 @@ public static class ApplicationExtensions
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IUserEquipmentService, UserEquipmentService>();
         services.AddScoped<IUserExersiceService, UserExerciseService>();
-        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IWorkoutService, WorkoutService>();
 
         return services;

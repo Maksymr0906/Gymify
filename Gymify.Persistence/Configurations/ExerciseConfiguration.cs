@@ -1,4 +1,5 @@
 ﻿using Gymify.Data.Entities;
+using Gymify.Data.Enums;
 using Gymify.Persistence.SeedData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,6 +21,9 @@ public partial class ExerciseConfiguration(SeedDataOptions seedDataOptions)
            .IsRequired()
            .HasMaxLength(100);
 
+        builder.Property(e => e.Type)
+           .IsRequired();
+
         builder.Property(e => e.Description)
             .HasMaxLength(500);
 
@@ -33,6 +37,20 @@ public partial class ExerciseConfiguration(SeedDataOptions seedDataOptions)
         builder.Property(e => e.DifficultyMultiplier)
             .IsRequired();
 
-        builder.HasData(_seedDataOptions.Exercises);
+        builder.HasData(MapSeedDataExercises(_seedDataOptions));
+    }
+
+    private IEnumerable<Exercise> MapSeedDataExercises(SeedDataOptions seedData)
+    {
+        return seedData.Exercises.Select(e => new Exercise
+        {
+            Id = e.Id,
+            CreatedAt = e.CreatedAt,
+            Name = e.Name,
+            BaseXP = e.BaseXP,
+            Description = e.Description,
+            DifficultyMultiplier = e.DifficultyMultiplier,
+            Type = (ExerciseType)e.Type,
+        });
     }
 }

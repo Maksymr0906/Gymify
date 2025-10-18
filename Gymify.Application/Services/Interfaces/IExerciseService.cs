@@ -2,5 +2,5 @@
 
 public interface IExerciseService
 {
-
+    Task<int> GetBaseXpForExerciseAsync(string name);
 }

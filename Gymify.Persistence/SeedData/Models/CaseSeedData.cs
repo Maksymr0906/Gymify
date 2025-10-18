@@ -7,5 +7,5 @@ public record CaseSeedData
     public required string Name { get; init; }
     public required string Description { get; init; }
     public required string ImageUrl { get; init; }
-    public required double DropChance { get; init; }
+    public required int CaseType { get; init; }
 }

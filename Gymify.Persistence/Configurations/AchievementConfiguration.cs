@@ -13,8 +13,8 @@ public partial class AchievementConfiguration(SeedDataOptions seedDataOptions)
     public void Configure(EntityTypeBuilder<Achievement> builder)
     {
         builder.Property(e => e.CreatedAt)
-           .IsRequired()
-           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            .IsRequired()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
         builder.Property(a => a.Name)
             .IsRequired()
@@ -27,6 +27,14 @@ public partial class AchievementConfiguration(SeedDataOptions seedDataOptions)
         builder.Property(a => a.IconUrl)
             .IsRequired()
             .HasMaxLength(255);
+
+        builder.Property(a => a.TargetProperty)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(a => a.ComparisonType)
+            .IsRequired()
+            .HasMaxLength(5);
 
         builder.HasIndex(a => a.Name).IsUnique();
 

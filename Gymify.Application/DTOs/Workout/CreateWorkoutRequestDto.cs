@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Application.DTOs.Workout;
 
-namespace Gymify.Application.DTOs.Workout
+public class CreateWorkoutRequestDto
 {
-    internal class CreateWorkoutRequestDto
-    {
-    }
+    public required string Name { get; set; } = string.Empty;
+    public string? Description { get; set; } = string.Empty;
+    public required bool IsPrivate { get; set; } = true;
+    public required Guid UserProfileId { get; set; }
 }

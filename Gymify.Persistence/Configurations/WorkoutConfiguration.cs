@@ -20,6 +20,9 @@ public partial class WorkoutConfiguration(SeedDataOptions seedDataOptions)
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(w => w.TotalXP)
+            .IsRequired();
+
         builder.Property(w => w.Description)
             .HasMaxLength(500);
 
