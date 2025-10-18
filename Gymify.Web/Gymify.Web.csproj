@@ -24,4 +24,8 @@
     <ProjectReference Include="..\Gymify.Persistence\Gymify.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\NewFolder\" />
+  </ItemGroup>
+
 </Project>
