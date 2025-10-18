@@ -1,4 +1,4 @@
-﻿using Gymify.Application.Services.Interfaces;
+using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
 
