@@ -14,5 +14,6 @@ public interface IUnitOfWork
     IUserProfileRepository UserProfileRepository { get; }
     IWorkoutRepository WorkoutRepository { get; }
     IUserCaseRepository UserCaseRepository { get; }
+    IPendingExerciseRepository PendingExerciseRepository { get; }
     Task SaveAsync();
 }

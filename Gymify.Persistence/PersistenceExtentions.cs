@@ -31,6 +31,7 @@ public static class PersistenceExtensions
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
         services.AddScoped<IWorkoutRepository, WorkoutRepository>();
         services.AddScoped<IUserCaseRepository, UserCaseRepository>();
+        services.AddScoped<IPendingExerciseRepository, PendingExerciseRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

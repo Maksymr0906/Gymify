@@ -25,8 +25,8 @@ public partial class UserExerciseConfiguration(SeedDataOptions seedDataOptions)
             .IsRequired();
 
         builder.Property(ue => ue.Duration)
-                .HasConversion<TimeSpan>()
-                .HasDefaultValue(null);
+               .HasConversion<TimeSpan>()
+               .HasDefaultValue(null);
 
         builder.Property(ue => ue.EarnedXP)
             .IsRequired()
@@ -48,7 +48,7 @@ public partial class UserExerciseConfiguration(SeedDataOptions seedDataOptions)
             Sets = ue.Sets,
             Weight = ue.Weight,
             WorkoutId = ue.WorkoutId,
-            Type = (ExerciseType)ue.Type,
+            Type = (ExerciseType)ue.Type
         });
     }
 }
