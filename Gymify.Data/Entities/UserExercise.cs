@@ -13,4 +13,7 @@ public class UserExercise : BaseEntity
     public int EarnedXP { get; set; } = 0;
     public Guid WorkoutId { get; set; }
     public Workout Workout { get; set; } = null!;
+    public Guid? ExerciseId { get; set; }
+    public Exercise Exercise { get; set; } = null!;
+    public bool IsPendingApproval { get; set; } = false;
 }
