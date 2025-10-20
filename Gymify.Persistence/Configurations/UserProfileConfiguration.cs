@@ -73,6 +73,17 @@ public partial class UserProfileConfiguration(SeedDataOptions seedDataOptions)
             .HasForeignKey<UserProfile>(p => p.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(u => u.Comments)
+            .WithOne(c => c.Author)
+            .HasForeignKey(c => c.AuthorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(u => u.ReceivedComments)
+            .WithOne(c => c.UserProfile)
+            .HasForeignKey(c => c.TargetId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasData(_seedDataOptions.UserProfiles);
     }
 }

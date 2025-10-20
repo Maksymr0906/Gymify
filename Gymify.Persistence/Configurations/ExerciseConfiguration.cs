@@ -37,20 +37,17 @@ public partial class ExerciseConfiguration(SeedDataOptions seedDataOptions)
         builder.Property(e => e.DifficultyMultiplier)
             .IsRequired();
 
-        builder.HasData(MapSeedDataExercises(_seedDataOptions));
-    }
-
-    private IEnumerable<Exercise> MapSeedDataExercises(SeedDataOptions seedData)
-    {
-        return seedData.Exercises.Select(e => new Exercise
-        {
-            Id = e.Id,
-            CreatedAt = e.CreatedAt,
-            Name = e.Name,
-            BaseXP = e.BaseXP,
-            Description = e.Description,
-            DifficultyMultiplier = e.DifficultyMultiplier,
-            Type = (ExerciseType)e.Type,
-        });
+        builder.HasData(
+            _seedDataOptions.Exercises.Select(e => new Exercise
+            {
+                Id = e.Id,
+                CreatedAt = e.CreatedAt,
+                Name = e.Name,
+                BaseXP = e.BaseXP,
+                Description = e.Description,
+                DifficultyMultiplier = e.DifficultyMultiplier,
+                Type = (ExerciseType)e.Type
+            })
+        );
     }
 }
