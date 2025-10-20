@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Gymify.Application.DTOs.Image;
 using Gymify.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gymify.Web.Controllers
@@ -73,6 +74,41 @@ namespace Gymify.Web.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View();
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadFromComponent(IFormFile file)
+        {
+            if (file == null)
+                return BadRequest("File not provided.");
+
+            var httpRequest = HttpContext.Request;
+            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file.FileName);
+            var fileExtension = Path.GetExtension(file.FileName);
+            var title = fileNameWithoutExt;
+
+            var urlPath = $"{httpRequest.Scheme}://{httpRequest.Host}{httpRequest.PathBase}/Images/{fileNameWithoutExt}{fileExtension}";
+            var localPath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", file.FileName);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
+
+            await using (var stream = new FileStream(localPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var imageUploadModel = new ImageUploadModel(
+                fileNameWithoutExt,
+                fileExtension,
+                title,
+                localPath,
+                urlPath,
+                await ConvertFileToByteArrayAsync(file)
+            );
+
+            var createdImage = await _imageService.CreateImageAsync(imageUploadModel);
+
+            return Json(new { success = true, url = createdImage.Url });
         }
 
         private async Task<byte[]> ConvertFileToByteArrayAsync(IFormFile file)
