@@ -24,18 +24,15 @@ public partial class NotificationConfiguration(SeedDataOptions seedDataOptions)
         builder.Property(n => n.Type)
             .IsRequired();
 
-        builder.HasData(MapSeedDataNotifications(_seedDataOptions));
-    }
-
-    private IEnumerable<Notification> MapSeedDataNotifications(SeedDataOptions seedData)
-    {
-        return seedData.Notifications.Select(n => new Notification
-        {
-            Id = n.Id,
-            CreatedAt = n.CreatedAt,
-            Content = n.Content,
-            Type = (NotificationType)n.Type,
-            UserProfileId = n.UserProfileId,
-        });
+        builder.HasData(
+            _seedDataOptions.Notifications.Select(n => new Notification
+            {
+                Id = n.Id,
+                CreatedAt = n.CreatedAt,
+                Content = n.Content,
+                Type = (NotificationType)n.Type,
+                UserProfileId = n.UserProfileId,
+            })
+        );
     }
 }
