@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gymify.Data.Enums;
 
-namespace Gymify.Application.DTOs.Comment
+namespace Gymify.Application.DTOs.Comment;
+
+public class CreateCommentRequestDto
 {
-    internal class CreateCommentRequestDto
-    {
-    }
+    public string Content { get; set; } = string.Empty;
+    public Guid AuthorId { get; set; }
+    public Guid TargetId { get; set; }
+    public CommentTargetType TargetType { get; set; }
 }
