@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Application.DTOs.UserEquipment;
 
-namespace Gymify.Application.DTOs.UserEquipment
+public class UpdateUserEquipmentDto
 {
-    internal class UpdateUserEquipmentDto
-    {
-    }
+    public Guid? AvatarId { get; set; }
+    public Guid? BackgroundId { get; set; }
+    public Guid? TitleId { get; set; }
+    public Guid? FrameId { get; set; }
 }
