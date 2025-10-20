@@ -43,7 +43,6 @@ public class UnitOfWork : IUnitOfWork
         IWorkoutRepository workoutRepository,
         IUserCaseRepository userCaseRepository,
         IUserItemRepository userItemRepository,
-        IPendingExerciseRepository pendingExerciseRepository 
         IPendingExerciseRepository pendingExerciseRepository,
         IImageRepository imageRepository) 
     {
