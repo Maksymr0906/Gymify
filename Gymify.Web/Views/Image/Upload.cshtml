@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Upload Image";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>Upload Image</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Upload" enctype="multipart/form-data" method="post">
+            <div class="mt-3">
+                <input type="file" class="form-control" name="file" />
+            </div>
+            <div class="mt-3">
+                <input type="text" class="form-control" name="fileName" placeholder="File Name" />
+            </div>
+            <div class="mt-3">
+                <input type="text" class="form-control" name="title" placeholder="Title" />
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </form>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+        }
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger mt-3">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div>@error.ErrorMessage</div>
+                }
+            </div>
+        }
+
+        <ul class="upload-requirements-container">
+            <li class="upload-requirements-text">Images must be PNG, JPG, JPEG only</li>
+            <li class="upload-requirements-text">Minimum dimensions 960x960</li>
+            <li class="upload-requirements-text">Max file size: 10MB</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    .card-header {
+        background-color: #d8c3a5 !important;
+        color: #ffffff;
+    }
+
+    .card-body {
+        background-color: #eae7dc !important;
+    }
+
+    .upload-requirements-container {
+        margin-top: 16px;
+        font-size: 12px;
+        color: #b1b1b1;
+    }
+
+    .upload-requirements-text {
+        margin: 0;
+    }
+</style>
