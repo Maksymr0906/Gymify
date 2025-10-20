@@ -8,8 +8,5 @@ namespace Gymify.Persistence.Repositories;
 public class CaseRepository(GymifyDbContext context)
     : Repository<Case>(context), ICaseRepository
 {
-    public async Task<Case?> GetByCaseTypeAsync(CaseType type)
-    {
-        return await Entities.FirstOrDefaultAsync(c => c.Type == type);
-    }
+
 }

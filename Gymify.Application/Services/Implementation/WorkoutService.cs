@@ -59,7 +59,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
                 Name = a.Name,
                 Description = a.Description,
                 IconUrl = a.IconUrl,
-                CaseRewardType = (int)a.RewardCaseType
+                RewardItemId = a.RewardItemId
             }).ToList()
         };
     }

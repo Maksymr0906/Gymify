@@ -10,5 +10,5 @@ public record AchievementSeedData
     public required string TargetProperty { get; init; }
     public required double TargetValue { get; init; }
     public required string ComparisonType { get; init; }
-    public required int CaseType { get; init; }
+    public required Guid RewardItemId { get; init; }
 }

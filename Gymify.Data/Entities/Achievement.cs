@@ -10,7 +10,7 @@ public class Achievement : BaseEntity
     public string TargetProperty { get; set; } = string.Empty;
     public double TargetValue { get; set; }
     public string ComparisonType { get; set; } = ">=";
-    public CaseType RewardCaseType { get; set; }
+    public Guid RewardItemId { get; set; } = Guid.Empty;
 
     public ICollection<UserAchievement> UserAchievements { get; set; } = [];
 }

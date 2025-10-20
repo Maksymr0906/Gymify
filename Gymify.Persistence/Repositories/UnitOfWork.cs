@@ -22,6 +22,7 @@ public class UnitOfWork : IUnitOfWork
         UserProfileRepository = new UserProfileRepository(context);
         WorkoutRepository = new WorkoutRepository(context);
         UserCaseRepository = new UserCaseRepository(context);
+        UserItemRepository = new UserItemRepository(context);
         PendingExerciseRepository = new PendingExerciseRepository(context);
     }
 
@@ -38,6 +39,7 @@ public class UnitOfWork : IUnitOfWork
         IUserProfileRepository userRepository,
         IWorkoutRepository workoutRepository,
         IUserCaseRepository userCaseRepository,
+        IUserItemRepository userItemRepository,
         IPendingExerciseRepository pendingExerciseRepository) 
     {
         _context = context;
@@ -54,6 +56,7 @@ public class UnitOfWork : IUnitOfWork
         UserProfileRepository = userRepository;
         WorkoutRepository = workoutRepository;
         UserCaseRepository = userCaseRepository;
+        UserItemRepository = userItemRepository;
         PendingExerciseRepository = pendingExerciseRepository;
     }
 
@@ -69,6 +72,7 @@ public class UnitOfWork : IUnitOfWork
     public IUserProfileRepository UserProfileRepository { get; set; }
     public IWorkoutRepository WorkoutRepository { get; set; }
     public IUserCaseRepository UserCaseRepository { get; set; }
+    public IUserItemRepository UserItemRepository { get; set; }
     public IPendingExerciseRepository PendingExerciseRepository { get; set; }
 
     public async Task SaveAsync()

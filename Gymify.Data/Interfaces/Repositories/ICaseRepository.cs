@@ -5,5 +5,4 @@ namespace Gymify.Data.Interfaces.Repositories;
 
 public interface ICaseRepository : IRepository<Case>
 {
-    Task<Case?> GetByCaseTypeAsync(CaseType type);
 }

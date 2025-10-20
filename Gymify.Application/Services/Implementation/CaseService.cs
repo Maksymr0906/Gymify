@@ -10,10 +10,7 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly Random _random = new Random();
 
-    public async Task GenerateRewardsAsync(
-    Guid userProfileId,
-    List<Achievement> newAchievements,
-    bool isLevelUp)
+    public async Task GenerateRewardsAsync(Guid userProfileId, List<Achievement> newAchievements, bool isLevelUp)
     {
         var userProfile = await _unitOfWork.UserProfileRepository.GetByIdAsync(userProfileId);
         if (userProfile == null)
@@ -22,18 +19,18 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
         
         foreach (var achievement in newAchievements)
         {
-            var caseToGive = await _unitOfWork.CaseRepository
-                    .GetByCaseTypeAsync(achievement.RewardCaseType);
+            var itemToGive = await _unitOfWork.ItemRepository
+                    .GetByIdAsync(achievement.RewardItemId);
 
-            if (caseToGive != null)
+            if (itemToGive != null)
             {
-                var userCase = new UserCase
+                var userItem = new UserItem
                 {
                     UserProfileId = userProfile.Id,
-                    CaseId = caseToGive.Id
+                    ItemId = itemToGive.Id
                 };
 
-                await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
+                await _unitOfWork.UserItemRepository.CreateAsync(userItem);
             }
         }
 
