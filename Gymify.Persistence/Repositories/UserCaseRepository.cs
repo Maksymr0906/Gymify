@@ -33,6 +33,15 @@ public class UserCaseRepository(GymifyDbContext context) : IUserCaseRepository
 
         return entities;
     }
+    public async Task<UserCase?> GetFirstByUserIdAndCaseIdAsync(Guid userId, Guid caseId)
+    {
+        var entity = await _context.UserCases
+            .Include(uc => uc.Case)
+            .Include(uc => uc.UserProfile)
+            .FirstOrDefaultAsync(uc => uc.UserProfileId == userId && uc.CaseId == caseId);
+
+        return entity;
+    }
 
     public async Task<UserCase> UpdateAsync(UserCase entity)
     {
@@ -41,9 +50,9 @@ public class UserCaseRepository(GymifyDbContext context) : IUserCaseRepository
         return entity;
     }
 
-    public async Task<UserCase> DeleteByIdAsync(Guid id)
+    public async Task<UserCase> DeleteFirstByUserIdAndCaseIdAsync(Guid userId, Guid caseId)
     {
-        var entity = await _context.UserCases.FirstOrDefaultAsync(uc => uc.CaseId == id);
+        var entity = await _context.UserCases.FirstOrDefaultAsync(uc => uc.UserProfileId == userId && uc.CaseId == caseId);
         if (entity == null)
             throw new Exception("UserCase not found");
 

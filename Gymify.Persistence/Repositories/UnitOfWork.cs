@@ -12,6 +12,7 @@ public class UnitOfWork : IUnitOfWork
 
         AchievementRepository = new AchievementRepository(context);
         CaseRepository = new CaseRepository(context);
+        CaseItemRepository = new CaseItemRepository(context);
         CommentRepository = new CommentRepository(context);
         ExerciseRepository = new ExerciseRepository(context);
         ItemRepository = new ItemRepository(context);
@@ -29,6 +30,7 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(GymifyDbContext context,
         IAchievementRepository achievementRepository,
         ICaseRepository caseRepository,
+        ICaseItemRepository caseItemRepository,
         ICommentRepository commentRepository,
         IExerciseRepository exerciseRepository,
         IItemRepository itemRepository,
@@ -46,6 +48,7 @@ public class UnitOfWork : IUnitOfWork
 
         AchievementRepository = achievementRepository;
         CaseRepository = caseRepository;
+        CaseItemRepository = caseItemRepository;
         CommentRepository = commentRepository;
         ExerciseRepository = exerciseRepository;
         ItemRepository = itemRepository;
@@ -62,6 +65,7 @@ public class UnitOfWork : IUnitOfWork
 
     public IAchievementRepository AchievementRepository { get; set; }
     public ICaseRepository CaseRepository { get; set; }
+    public ICaseItemRepository CaseItemRepository { get; set; }
     public ICommentRepository CommentRepository { get; set; }
     public IExerciseRepository ExerciseRepository { get; set; }
     public IItemRepository ItemRepository { get; set; }

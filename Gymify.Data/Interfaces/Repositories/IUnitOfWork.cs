@@ -4,6 +4,7 @@ public interface IUnitOfWork
 {
     IAchievementRepository AchievementRepository { get; }
     ICaseRepository CaseRepository { get; }
+    ICaseItemRepository CaseItemRepository { get; }
     ICommentRepository CommentRepository { get; }
     IExerciseRepository ExerciseRepository { get; }
     IItemRepository ItemRepository { get; }
