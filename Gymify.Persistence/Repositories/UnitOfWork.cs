@@ -23,6 +23,7 @@ public class UnitOfWork : IUnitOfWork
         WorkoutRepository = new WorkoutRepository(context);
         UserCaseRepository = new UserCaseRepository(context);
         PendingExerciseRepository = new PendingExerciseRepository(context);
+        ImageRepository = new ImageRepository(context);
     }
 
     public UnitOfWork(GymifyDbContext context,
@@ -38,7 +39,8 @@ public class UnitOfWork : IUnitOfWork
         IUserProfileRepository userRepository,
         IWorkoutRepository workoutRepository,
         IUserCaseRepository userCaseRepository,
-        IPendingExerciseRepository pendingExerciseRepository) 
+        IPendingExerciseRepository pendingExerciseRepository,
+        IImageRepository imageRepository) 
     {
         _context = context;
 
@@ -55,6 +57,7 @@ public class UnitOfWork : IUnitOfWork
         WorkoutRepository = workoutRepository;
         UserCaseRepository = userCaseRepository;
         PendingExerciseRepository = pendingExerciseRepository;
+        ImageRepository = imageRepository;
     }
 
     public IAchievementRepository AchievementRepository { get; set; }
@@ -70,6 +73,7 @@ public class UnitOfWork : IUnitOfWork
     public IWorkoutRepository WorkoutRepository { get; set; }
     public IUserCaseRepository UserCaseRepository { get; set; }
     public IPendingExerciseRepository PendingExerciseRepository { get; set; }
+    public IImageRepository ImageRepository { get; set; }
 
     public async Task SaveAsync()
     {

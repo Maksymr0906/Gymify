@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Gymify.Application.DTOs.Image.ImageDto>
+
+@{
+    ViewData["Title"] = "Images";
+}
+
+<div class="card h-100">
+    <div class="card-header">
+        <h3 class="card-title">Images</h3>
+    </div>
+    <div class="card-body">
+        <a asp-action="Upload" class="btn btn-primary mb-3">Upload New Image</a>
+        <div class="d-flex flex-wrap" style="max-height: 500px; overflow-y: scroll;">
+            @foreach (var image in Model)
+            {
+                <div class="mt-1 bg-white d-flex align-items-center flex-column border p-3"
+                     style="min-width: 100px; justify-content: center; cursor: pointer;">
+                    <img src="@image.Url" alt="@image.Title" style="height: 100px" />
+                    <span class="mt-1 text-primary">@image.Title</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-header {
+        background-color: #d8c3a5 !important;
+        color: #ffffff;
+    }
+    .card-body {
+        background-color: #eae7dc !important;
+    }
+</style>
