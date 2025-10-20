@@ -23,15 +23,15 @@ public class UserCaseRepository(GymifyDbContext context) : IUserCaseRepository
             .ToListAsync();
     }
 
-    public async Task<UserCase> GetByIdAsync(Guid id)
+    public async Task<ICollection<UserCase>> GetAllByUserIdAsync(Guid userId)
     {
-        var entity = await _context.UserCases
+        var entities = await _context.UserCases
             .Include(uc => uc.Case)
             .Include(uc => uc.UserProfile)
-            .FirstOrDefaultAsync(uc => uc.CaseId == id);
-        if (entity == null)
-            throw new Exception("UserCase not found");
-        return entity;
+            .Where(uc => uc.UserProfileId == userId)
+            .ToListAsync();
+
+        return entities;
     }
 
     public async Task<UserCase> UpdateAsync(UserCase entity)

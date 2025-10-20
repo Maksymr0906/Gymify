@@ -1,4 +1,5 @@
-﻿using Gymify.Data.Entities;
+﻿using Gymify.Application.DTOs.Case;
+using Gymify.Data.Entities;
 
 namespace Gymify.Application.Services.Interfaces;
 

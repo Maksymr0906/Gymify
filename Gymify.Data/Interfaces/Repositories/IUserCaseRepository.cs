@@ -6,7 +6,7 @@ public interface IUserCaseRepository
 {
     Task<UserCase> CreateAsync(UserCase entity);
     Task<ICollection<UserCase>> GetAllAsync();
-    Task<UserCase> GetByIdAsync(Guid id);
+    Task<ICollection<UserCase>> GetAllByUserIdAsync(Guid userId);
     Task<UserCase> UpdateAsync(UserCase entity);
     Task<UserCase> DeleteByIdAsync(Guid id);
 }
