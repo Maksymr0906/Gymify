@@ -42,8 +42,10 @@ public class CaseController : Controller
 		if (userId == null)
 			throw new Exception("User not authorized");
 
-		_caseViewModel ??= new CaseViewModel();
-        var result = await _caseService.OpenCaseAsync(userId, _caseViewModel.CaseInfo.CaseId);
+		if (_caseViewModel.CaseInfo == null || _caseViewModel.OpenCaseResult == null || _caseViewModel == null)
+			throw new Exception("CaseViewModel is not complete, something is missing");
+
+		var result = await _caseService.OpenCaseAsync(userId, _caseViewModel.CaseInfo.CaseId);
 
         _caseViewModel.OpenCaseResult = result;
 
