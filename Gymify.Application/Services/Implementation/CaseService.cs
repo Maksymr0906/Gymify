@@ -69,7 +69,7 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
             .GetFirstByUserIdAndCaseIdAsync(userId, caseId);
 
         if (userCase == null)
-            throw new Exception("No cases available for this user");
+            throw new Exception("No userCase found");
 
         var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
         var caseItems = await _unitOfWork.CaseItemRepository.GetAllByCaseIdAsync(caseId);

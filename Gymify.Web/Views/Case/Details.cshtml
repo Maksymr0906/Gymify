@@ -5,13 +5,16 @@
 }
 
 <!--> це базові дані типу ім'я картинка кейса перед відкриттям, кнопка'</!-->
+
 <h2 class="text-center">@Model.CaseInfo.CaseName</h2>
 
-<div class="text-center">
-    <button id="openCaseBtn" data-case-id="@Model.CaseInfo.CaseId" class="btn btn-primary">
-        Відкрити кейс
-    </button>
-</div>
+<form asp-action="OpenCase" method="post">
+    <div class="text-center">
+        <button id="openCaseBtn" class="btn btn-primary">
+            Відкрити кейс
+        </button>
+    </div>
+</form>
 
 <div class="roulette-container">
     <div id="roulette-strip"></div>

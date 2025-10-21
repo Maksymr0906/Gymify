@@ -1,4 +1,6 @@
-﻿using Gymify.Application.Services.Interfaces;
+﻿using Gymify.Application.DTOs.Case;
+using Gymify.Application.Services.Interfaces;
+using Gymify.Application.ViewModels.Case;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gymify.Web.Controllers;
@@ -6,6 +8,7 @@ namespace Gymify.Web.Controllers;
 public class CaseController : Controller
 {
     private readonly ICaseService _caseService;
+    private CaseViewModel? _caseViewModel;
 
     public CaseController(ICaseService caseService)
     {
@@ -13,18 +16,30 @@ public class CaseController : Controller
     }
 
     // GET: показати сторінку кейсу тут тіпа ім'я його картінка
+    
     [HttpGet]
-    public async Task<IActionResult> Details(Guid caseId)
+    public IActionResult Details(CaseInfoDto caseInfoDto)
     {
-        var caseInfo = await _caseService.GetCaseDetailsAsync(caseId);
-        return View(caseInfo); // модель для Razor
+        var viewModel = new CaseViewModel()
+        {
+            CaseInfo = caseInfoDto,
+            OpenCaseResult = new OpenCaseResultDto()
+        };
+
+        _caseViewModel = viewModel;
+
+        return View(viewModel); // модель для Razor
     }
 
-    // POST: відкриття кейсу
+    // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
     [HttpPost]
-    public async Task<IActionResult> Open(Guid userId, Guid caseId)
+    public async Task<IActionResult> OpenCase(Guid userId)
     {
-        var result = await _caseService.OpenCaseAsync(userId, caseId);
+        _caseViewModel ??= new CaseViewModel();
+        var result = await _caseService.OpenCaseAsync(userId, _caseViewModel.CaseInfo.CaseId);
+
+        _caseViewModel.OpenCaseResult = result;
+
         return Json(result);
     }
 }
