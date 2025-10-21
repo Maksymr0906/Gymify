@@ -12,6 +12,7 @@ public class UnitOfWork : IUnitOfWork
 
         AchievementRepository = new AchievementRepository(context);
         CaseRepository = new CaseRepository(context);
+        CaseItemRepository = new CaseItemRepository(context);
         CommentRepository = new CommentRepository(context);
         ExerciseRepository = new ExerciseRepository(context);
         ItemRepository = new ItemRepository(context);
@@ -22,6 +23,7 @@ public class UnitOfWork : IUnitOfWork
         UserProfileRepository = new UserProfileRepository(context);
         WorkoutRepository = new WorkoutRepository(context);
         UserCaseRepository = new UserCaseRepository(context);
+        UserItemRepository = new UserItemRepository(context);
         PendingExerciseRepository = new PendingExerciseRepository(context);
         ImageRepository = new ImageRepository(context);
     }
@@ -29,6 +31,7 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(GymifyDbContext context,
         IAchievementRepository achievementRepository,
         ICaseRepository caseRepository,
+        ICaseItemRepository caseItemRepository,
         ICommentRepository commentRepository,
         IExerciseRepository exerciseRepository,
         IItemRepository itemRepository,
@@ -39,6 +42,7 @@ public class UnitOfWork : IUnitOfWork
         IUserProfileRepository userRepository,
         IWorkoutRepository workoutRepository,
         IUserCaseRepository userCaseRepository,
+        IUserItemRepository userItemRepository,
         IPendingExerciseRepository pendingExerciseRepository,
         IImageRepository imageRepository) 
     {
@@ -46,6 +50,7 @@ public class UnitOfWork : IUnitOfWork
 
         AchievementRepository = achievementRepository;
         CaseRepository = caseRepository;
+        CaseItemRepository = caseItemRepository;
         CommentRepository = commentRepository;
         ExerciseRepository = exerciseRepository;
         ItemRepository = itemRepository;
@@ -56,12 +61,14 @@ public class UnitOfWork : IUnitOfWork
         UserProfileRepository = userRepository;
         WorkoutRepository = workoutRepository;
         UserCaseRepository = userCaseRepository;
+        UserItemRepository = userItemRepository;
         PendingExerciseRepository = pendingExerciseRepository;
         ImageRepository = imageRepository;
     }
 
     public IAchievementRepository AchievementRepository { get; set; }
     public ICaseRepository CaseRepository { get; set; }
+    public ICaseItemRepository CaseItemRepository { get; set; }
     public ICommentRepository CommentRepository { get; set; }
     public IExerciseRepository ExerciseRepository { get; set; }
     public IItemRepository ItemRepository { get; set; }
@@ -72,6 +79,7 @@ public class UnitOfWork : IUnitOfWork
     public IUserProfileRepository UserProfileRepository { get; set; }
     public IWorkoutRepository WorkoutRepository { get; set; }
     public IUserCaseRepository UserCaseRepository { get; set; }
+    public IUserItemRepository UserItemRepository { get; set; }
     public IPendingExerciseRepository PendingExerciseRepository { get; set; }
     public IImageRepository ImageRepository { get; set; }
 

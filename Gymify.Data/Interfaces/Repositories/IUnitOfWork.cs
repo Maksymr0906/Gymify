@@ -4,6 +4,7 @@ public interface IUnitOfWork
 {
     IAchievementRepository AchievementRepository { get; }
     ICaseRepository CaseRepository { get; }
+    ICaseItemRepository CaseItemRepository { get; }
     ICommentRepository CommentRepository { get; }
     IExerciseRepository ExerciseRepository { get; }
     IItemRepository ItemRepository { get; }
@@ -14,6 +15,7 @@ public interface IUnitOfWork
     IUserProfileRepository UserProfileRepository { get; }
     IWorkoutRepository WorkoutRepository { get; }
     IUserCaseRepository UserCaseRepository { get; }
+    IUserItemRepository UserItemRepository { get; }
     IPendingExerciseRepository PendingExerciseRepository { get; }
     IImageRepository ImageRepository { get; }
     Task SaveAsync();

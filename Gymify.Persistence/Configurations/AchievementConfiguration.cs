@@ -44,7 +44,7 @@ public partial class AchievementConfiguration(SeedDataOptions seedDataOptions)
             TargetProperty = a.TargetProperty,
             TargetValue = a.TargetValue,
             ComparisonType = a.ComparisonType,
-            RewardCaseType = (Gymify.Data.Enums.CaseType)a.CaseType
+            RewardItemId = a.RewardItemId
         }));
     }
 }

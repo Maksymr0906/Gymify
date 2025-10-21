@@ -23,14 +23,23 @@ public class UserCaseRepository(GymifyDbContext context) : IUserCaseRepository
             .ToListAsync();
     }
 
-    public async Task<UserCase> GetByIdAsync(Guid id)
+    public async Task<ICollection<UserCase>> GetAllByUserIdAsync(Guid userId)
+    {
+        var entities = await _context.UserCases
+            .Include(uc => uc.Case)
+            .Include(uc => uc.UserProfile)
+            .Where(uc => uc.UserProfileId == userId)
+            .ToListAsync();
+
+        return entities;
+    }
+    public async Task<UserCase?> GetFirstByUserIdAndCaseIdAsync(Guid userId, Guid caseId)
     {
         var entity = await _context.UserCases
             .Include(uc => uc.Case)
             .Include(uc => uc.UserProfile)
-            .FirstOrDefaultAsync(uc => uc.CaseId == id);
-        if (entity == null)
-            throw new Exception("UserCase not found");
+            .FirstOrDefaultAsync(uc => uc.UserProfileId == userId && uc.CaseId == caseId);
+
         return entity;
     }
 
@@ -41,9 +50,9 @@ public class UserCaseRepository(GymifyDbContext context) : IUserCaseRepository
         return entity;
     }
 
-    public async Task<UserCase> DeleteByIdAsync(Guid id)
+    public async Task<UserCase> DeleteFirstByUserIdAndCaseIdAsync(Guid userId, Guid caseId)
     {
-        var entity = await _context.UserCases.FirstOrDefaultAsync(uc => uc.CaseId == id);
+        var entity = await _context.UserCases.FirstOrDefaultAsync(uc => uc.UserProfileId == userId && uc.CaseId == caseId);
         if (entity == null)
             throw new Exception("UserCase not found");
 
