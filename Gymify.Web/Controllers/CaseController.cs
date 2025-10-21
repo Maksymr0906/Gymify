@@ -18,8 +18,10 @@ public class CaseController : Controller
     // GET: показати сторінку кейсу тут тіпа ім'я його картінка
     
     [HttpGet]
-    public IActionResult Details(CaseInfoDto caseInfoDto)
+    public async Task<IActionResult> Details(Guid caseId)
     {
+        var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId);
+
         var viewModel = new CaseViewModel()
         {
             CaseInfo = caseInfoDto,
@@ -33,9 +35,14 @@ public class CaseController : Controller
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
     [HttpPost]
-    public async Task<IActionResult> OpenCase(Guid userId)
+    public async Task<IActionResult> OpenCase()
     {
-        _caseViewModel ??= new CaseViewModel();
+		var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+
+		if (userId == null)
+			throw new Exception("User not authorized");
+
+		_caseViewModel ??= new CaseViewModel();
         var result = await _caseService.OpenCaseAsync(userId, _caseViewModel.CaseInfo.CaseId);
 
         _caseViewModel.OpenCaseResult = result;

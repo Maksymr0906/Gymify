@@ -57,17 +57,21 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
     }
     public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
     {
-        // не реалізовано, буде інвентар зроблю
+        var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
+
         return new CaseInfoDto()
         {
-
+            CaseId = caseEntity.Id,
+            CaseName = caseEntity.Name,
+            CaseDescription = caseEntity.Description,
+            CaseImageUrl = caseEntity.ImageUrl
         };
     }
 
     public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
     {
-        var userCase = await _unitOfWork.UserCaseRepository
-            .GetFirstByUserIdAndCaseIdAsync(userId, caseId);
+		var userCase = await _unitOfWork.UserCaseRepository
+                .GetFirstByUserIdAndCaseIdAsync(userId, caseId);
 
         if (userCase == null)
             throw new Exception("No userCase found");
