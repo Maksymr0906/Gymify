@@ -57,6 +57,7 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
     }
     public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
     {
+        // не реалізовано, буде інвентар зроблю
         return new CaseInfoDto()
         {
 
@@ -107,9 +108,10 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
         if (!rewardsOfSameRarity.Any())
             rewardsOfSameRarity = detailedItems.ToList();
 
-        var selectedReward = rewardsOfSameRarity[_random.Next(rewardsOfSameRarity.Count)];
+		int selectedIndex = _random.Next(rewardsOfSameRarity.Count);
+		var selectedReward = rewardsOfSameRarity[selectedIndex];
 
-        var userReward = new UserItem
+		var userReward = new UserItem
         {
             UserProfileId = userId,
             ItemId = selectedReward.Id,
@@ -123,7 +125,9 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         return new OpenCaseResultDto()
         {
-            ItemName = selectedReward.Name,
+            Rewards = detailedItems,
+            SelectedIndex = selectedIndex,
+			ItemName = selectedReward.Name,
             ItemDescription = selectedReward.Description,
             ItemImageURL = selectedReward.ImageURL,
             ItemRarity = selectedReward.Rarity,
