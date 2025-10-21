@@ -55,8 +55,15 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         await _unitOfWork.SaveAsync();
     }
+    public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
+    {
+        return new CaseInfoDto()
+        {
 
-    public async Task<OpenCaseResultDto> OpenAsync(Guid userId, Guid caseId)
+        };
+    }
+
+    public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
     {
         var userCase = await _unitOfWork.UserCaseRepository
             .GetFirstByUserIdAndCaseIdAsync(userId, caseId);
@@ -116,11 +123,11 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         return new OpenCaseResultDto()
         {
-            Name = selectedReward.Name,
-            Description = selectedReward.Description,
-            ImageURL = selectedReward.ImageURL,
-            Rarity = selectedReward.Rarity,
-            Type = selectedReward.Type
+            ItemName = selectedReward.Name,
+            ItemDescription = selectedReward.Description,
+            ItemImageURL = selectedReward.ImageURL,
+            ItemRarity = selectedReward.Rarity,
+            ItemType = selectedReward.Type
         };
     }
 }
