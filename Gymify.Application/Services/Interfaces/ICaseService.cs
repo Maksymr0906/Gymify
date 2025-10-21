@@ -6,4 +6,5 @@ namespace Gymify.Application.Services.Interfaces;
 public interface ICaseService
 {
     Task GenerateRewardsAsync(Guid userProfileId, List<Achievement> newAchievements, bool isLevelUp);
+    Task<OpenCaseResultDto> OpenAsync(Guid userId, Guid caseId);
 }
