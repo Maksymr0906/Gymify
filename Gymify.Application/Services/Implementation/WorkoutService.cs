@@ -38,6 +38,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         var newAchievements = await _achievementService.CheckForAchievementsAsync(userProfile.Id);
 
+        // Вернути тіп кейса
         await _caseService.GenerateRewardsAsync(userProfile.Id, newAchievements, isLevelUp);
 
         await _unitOfWork.SaveAsync();

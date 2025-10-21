@@ -17,6 +17,7 @@ public class UserProfile : BaseEntity
     public int MobilityExercisesCompleted { get; set; } = 0;
     public UserEquipment Equipment { get; set; } = null!;
     public ICollection<Comment> Comments { get; set; } = [];
+    public ICollection<Comment> ReceivedComments { get; set; } = [];
     public ICollection<UserAchievement> UserAchievements { get; set; } = [];
     public ICollection<FriendInvite> SentFriendInvites { get; set; } = [];
     public ICollection<FriendInvite> ReceivedFriendInvites { get; set; } = [];
