@@ -55,14 +55,26 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         await _unitOfWork.SaveAsync();
     }
-
-    public async Task<OpenCaseResultDto> OpenAsync(Guid userId, Guid caseId)
+    public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
     {
-        var userCase = await _unitOfWork.UserCaseRepository
-            .GetFirstByUserIdAndCaseIdAsync(userId, caseId);
+        var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
+
+        return new CaseInfoDto()
+        {
+            CaseId = caseEntity.Id,
+            CaseName = caseEntity.Name,
+            CaseDescription = caseEntity.Description,
+            CaseImageUrl = caseEntity.ImageUrl
+        };
+    }
+
+    public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
+    {
+		var userCase = await _unitOfWork.UserCaseRepository
+                .GetFirstByUserIdAndCaseIdAsync(userId, caseId);
 
         if (userCase == null)
-            throw new Exception("No cases available for this user");
+            throw new Exception("No userCase found");
 
         var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
         var caseItems = await _unitOfWork.CaseItemRepository.GetAllByCaseIdAsync(caseId);
@@ -100,9 +112,10 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
         if (!rewardsOfSameRarity.Any())
             rewardsOfSameRarity = detailedItems.ToList();
 
-        var selectedReward = rewardsOfSameRarity[_random.Next(rewardsOfSameRarity.Count)];
+		int selectedIndex = _random.Next(rewardsOfSameRarity.Count);
+		var selectedReward = rewardsOfSameRarity[selectedIndex];
 
-        var userReward = new UserItem
+		var userReward = new UserItem
         {
             UserProfileId = userId,
             ItemId = selectedReward.Id,
@@ -116,11 +129,13 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         return new OpenCaseResultDto()
         {
-            Name = selectedReward.Name,
-            Description = selectedReward.Description,
-            ImageURL = selectedReward.ImageURL,
-            Rarity = selectedReward.Rarity,
-            Type = selectedReward.Type
+            Rewards = detailedItems,
+            SelectedIndex = selectedIndex,
+			ItemName = selectedReward.Name,
+            ItemDescription = selectedReward.Description,
+            ItemImageURL = selectedReward.ImageURL,
+            ItemRarity = selectedReward.Rarity,
+            ItemType = selectedReward.Type
         };
     }
 }

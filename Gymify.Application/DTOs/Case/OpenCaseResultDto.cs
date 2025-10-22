@@ -10,11 +10,11 @@ namespace Gymify.Application.DTOs.Case;
 
 public class OpenCaseResultDto
 {
-    public List<Data.Entities.Item> Rewards { get; set; } = new List<Data.Entities.Item>();
+    public ICollection<Data.Entities.Item> Rewards { get; set; } = new List<Data.Entities.Item>();
     public int SelectedIndex { get; set; } = 0;
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public ItemType Type { get; set; } = 0;
-    public ItemRarity Rarity { get; set; } = ItemRarity.Common;
-    public string ImageURL { get; set; } = string.Empty;
+    public string ItemName { get; set; } = string.Empty;
+    public string ItemDescription { get; set; } = string.Empty;
+    public ItemType ItemType { get; set; } = 0;
+    public ItemRarity ItemRarity { get; set; } = ItemRarity.Common;
+    public string ItemImageURL { get; set; } = string.Empty;
 }
