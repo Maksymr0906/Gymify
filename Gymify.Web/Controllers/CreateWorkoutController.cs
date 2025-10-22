@@ -1,71 +1,31 @@
-﻿using Gymify.Application.DTOs.Auth;
+﻿using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gymify.Web.Controllers;
-
-public class CreateWorkout : Controller
+namespace Gymify.Web.Controllers
 {
-    //private readonly IAuthService _createWorkout;
-
-    public IActionResult Index()
+    public class CreateWorkoutController : Controller
     {
-        return View("CreateWorkout");
+        private readonly IWorkoutService _workoutService;
+
+        public CreateWorkoutController(IWorkoutService workoutService)
+        {
+            _workoutService = workoutService;
+        }
+
+        [HttpGet]
+        public IActionResult CreateWorkout()
+        {
+            return View("CreateWorkout");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateWorkout(CreateWorkoutRequestDto dto)
+        {
+            var workout = await _workoutService.CreateWorkoutAsync(dto);
+
+            TempData["WorkoutId"] = workout.Id.ToString();
+            return RedirectToAction("AddTrains", "AddTrains");
+        }
     }
-    /*
-    public CreateWorkout(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
-    [HttpGet]
-    public IActionResult Register()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Register(RegisterRequestDto dto)
-    {
-        if (!ModelState.IsValid)
-            return View(dto);
-
-        var result = await _authService.RegisterAsync(dto);
-
-        if (result.Succeeded)
-            return RedirectToAction("Index", "Home");
-
-        foreach (var error in result.Errors)
-            ModelState.AddModelError("", error.Description);
-
-        return View(dto);
-    }
-
-    [HttpGet]
-    public IActionResult Login()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Login(LoginRequestDto dto)
-    {
-        if (!ModelState.IsValid)
-            return View(dto);
-
-        var result = await _authService.LoginAsync(dto);
-
-        if (result.Succeeded)
-            return RedirectToAction("Index", "Home");
-
-        ModelState.AddModelError("", "Invalid login attempt.");
-        return View(dto);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Logout()
-    {
-        await _authService.LogoutAsync();
-        return RedirectToAction("Index", "Home");
-    }*/
 }

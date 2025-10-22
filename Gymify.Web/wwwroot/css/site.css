@@ -89,12 +89,15 @@ a {
     align-items: center;
 }
 
+
+/*              Auth            */
 .authForm {
     height: 80vh;
     padding: 15%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: var(--TitleColor);
 }
 
 .authText {
@@ -130,7 +133,7 @@ a {
     padding: 2px;
     background-color: var(--ButtonColor);
 }
-
+/*              Main            */
 .homeTop {
     display: flex;
     justify-content: space-around;
@@ -219,7 +222,7 @@ a {
     align-items: center;
     font-size: 30px;
 }
-
+/*              Workout             */
 .workoutTop {
     height: 350px;
     display: flex;
@@ -296,4 +299,195 @@ a {
     justify-content: center;
     align-items: center;
     font-size: 30px;
+}
+
+/*          CreateWorkout           */
+
+.createWorkoutForm {
+    height: 80vh;
+    padding: 15%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.createWorkoutLabel {
+    font-size: 44px;
+    color: var(--TitleColor);
+    font-weight: 500;
+}
+.createWorkoutInput {
+    font-size: 20px;
+    font-weight: 400;
+    width: 350px;
+    border: 1.5px solid;
+    border-radius: 15px;
+    padding: 5px 15px;
+}
+.createWorkoutForm .form-group{
+    font-size: 22px;
+    margin: 20px 0;
+}
+.createWorkoutButton {
+    width: 300px;
+    margin-top: 15px;
+    font-size: 36px;
+    background: white;
+    border-radius: 20px;
+    padding: 0 20px;
+    background-color: var(--ButtonColor);
+}
+
+/*              AddTrains           */
+
+.AddExerciseTitle{
+    color:var(--TitleColor);
+    font-size: 60px;
+    margin: 2% 4%
+}
+.addExerciseForm{
+    margin: 0 4%;
+    width: 92%;
+    display: flex;
+    flex-direction: column;
+    justify-content:space-between;
+    height: 50vh;
+}
+.AddExerciseFormGroup{
+    width: 100%;
+}
+.AddExerciseLabel {
+    color: var(--TitleColor);
+    font-size: 50px;
+}
+.AddExerciseInput {
+    width: 100%;
+    height: 50px;
+    font-size:30px;
+    padding: 10px;
+    border-radius: 30px;
+}
+.addExerciseButtons{
+    display: flex;
+    justify-content: space-between;
+    margin: 40px 0 0;
+}
+.AddExerciseButton{
+    width:350px;
+    padding: 20px;
+    background-color: var(--ButtonColor);
+    border-radius: 30px;
+    font-size: 30px;
+}
+.AddExerciseLabelRadio {
+    font-size: 40px;
+    margin: 20px 10px 20px 50px;
+}
+.AddExerciseInputRadio {
+    width: 20px;
+    height: 20px;
+}
+.userProfileContainer{
+    width: 92%;
+    margin: 2% 4%;
+    height: 1100px;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.userProfileCustoms{
+    height: 250px;
+    display: flex;
+}
+.userProfileNameBlock {
+    width: 100%;
+    margin-left: 50px;
+    display: flex;
+    justify-content: space-between;
+}
+.userProfileName {
+    font-size: 64px;
+    color: var(--TitleColor);
+}
+.userProfileEditButton{
+    width:400px;
+    border: 1px solid;
+    font-size: 50px;
+    padding: 30px;
+    height:fit-content;
+    text-align: center; 
+    background-color: var(--ButtonColor);
+    border-radius: 30px;    
+
+}
+.userProfileAchivmentBlock {
+    height: 20%;
+    border: 2px solid;
+    border-radius: 60px;
+    padding: 20px;
+}
+.userProfileLastTrains {
+    height: 300px;
+    border: 2px solid;
+    border-radius: 60px;
+    padding: 20px;
+}
+.userProfileComments {
+    border: 2px solid;
+    border-radius: 60px;
+    padding: 20px;
+    font-size: 72px;
+    text-align: center;
+}
+.userProfileAvatarBlock{
+    width: 300px;
+    border: 2px solid;
+}
+
+.userProfileAchivmentTitle, .userProfileTrainsTitle {
+    font-size: 40px;
+    color: var(--TitleColor);
+}
+.userProfileTrains {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.userProfileTrain {
+    margin: 10px 0 0 0;
+    width: 160px;
+    aspect-ratio: 1 / 1;
+    border: 1.5px solid;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+}
+
+/*              UserItems               */
+
+.UserItemsContainer{
+    width:92%;
+    margin: 2% 4%;
+
+}
+.UserItemsBlock{
+
+}
+.UserItemsTitle{
+    font-size: 72px;
+    color: var(--TitleColor);
+}
+.UserItems {
+    display: flex;
+    overflow-y: hidden;
+    overflow-x: scroll;
+    height: 220px;
+}
+.UserItem{
+    width: 200px;
+    height: 200px;
+    object-fit:cover;
+    margin-right:30px;
 }
