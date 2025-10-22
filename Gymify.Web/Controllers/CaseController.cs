@@ -37,10 +37,12 @@ public class CaseController : Controller
     [HttpPost]
     public async Task<IActionResult> OpenCase()
     {
-		var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+        var user = User.FindFirst("UserProfileId");
 
-		if (userId == null)
-			throw new Exception("User not authorized");
+        if(user == null)
+			throw new Exception("User not found");
+
+		var userId = Guid.Parse(user.Value);
 
 		if (_caseViewModel.CaseInfo == null || _caseViewModel.OpenCaseResult == null || _caseViewModel == null)
 			throw new Exception("CaseViewModel is not complete, something is missing");
