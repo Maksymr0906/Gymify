@@ -1,0 +1,29 @@
+﻿@model IEnumerable<Gymify.Application.DTOs.Item.ItemDto>
+
+@{
+    ViewData["Title"] = "UserItems";
+}
+
+<div class="UserItemsContainer">
+    @foreach (var group in Model.GroupBy(i => i.Type))
+    {
+        <div class="UserItemsBlock">
+            <h2 class="UserItemsTitle">
+                @(group.Key switch
+                {
+                    0 => "Avatar",
+                    1 => "Background",
+                    2 => "Border",
+                    3 => "Case",
+                    _ => "Unknown"
+                })
+            </h2>
+            <div class="UserItems">
+                @foreach (var item in group)
+                {
+                    <img src="@item.ImageURL" alt="@item.Name" class="UserItem" title="@item.Description" />
+                }
+            </div>
+        </div>
+    }
+</div>

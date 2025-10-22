@@ -7,5 +7,5 @@ public class ItemDto
     public string Description { get; set; } = string.Empty;
     public string ImageURL { get; set; } = string.Empty;
     public int Type { get; set; }
-    public int Rarity { get; set; }
+    public int Rarity { get; set; }     
 }

@@ -5,25 +5,28 @@ namespace Gymify.Web.Controllers
 {
     public class AddTrainsController : Controller
     {
-        public IActionResult Index()
+        public string? workoutId;
+        [HttpGet]
+        public IActionResult AddTrains()
         {
-            return View("AddTrains");
+            workoutId = TempData["WorkoutId"]?.ToString();
+            ViewBag.WorkoutId = workoutId;
+
+            TempData.Keep("WorkoutId");
+
+            return View();
         }
+
         [HttpPost]
         public IActionResult AddExercise(AddUserExerciseToWorkoutRequestDto dto, string action)
         {
-            if (action == "end")
-            {
-                // 🔹 логіка для завершення
-                return RedirectToAction("FinishWorkout");
-            }
-            else if (action == "add")
-            {
-                // 🔹 логіка для додавання ще однієї вправи
-                return RedirectToAction("AddExercise");
-            }
-
-            return View();
+            if (action == "end"){               // 🔹 логіка для завершення
+                return RedirectToAction("FinishWorkout"); 
+            } 
+            else if (action == "add") {         // 🔹 логіка для додавання ще однієї вправи
+                return RedirectToAction("AddExercise"); 
+            } 
+            return View(); 
         }
     }
 }
