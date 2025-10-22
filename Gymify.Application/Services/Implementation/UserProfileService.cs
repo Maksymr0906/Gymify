@@ -1,5 +1,4 @@
-﻿using Gymify.Application.DTOs.Item;
-using Gymify.Application.Services.Interfaces;
+﻿using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
 
