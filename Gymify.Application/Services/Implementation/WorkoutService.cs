@@ -72,8 +72,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Id = Guid.NewGuid(),
             Name = model.Name,
             Description = model.Description,
-            //UserProfileId = model.UserProfileId,
-            UserProfileId = Guid.Parse("95ffc3b1-bc57-4ef6-b4cd-bc97c7650bf1")
+            UserProfileId = model.UserProfileId,
         };
 
         await _unitOfWork.WorkoutRepository.CreateAsync(workout);
