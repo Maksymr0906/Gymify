@@ -1,12 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Gymify.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Gymify.Web.Controllers
 {
     public class UserProfileController : Controller
     {
-        public IActionResult Index()
+        private readonly IUserEquipmentService _userEquipmentService;
+        public UserProfileController(IUserEquipmentService userEquipmentService)
         {
-            return View("UserProfile");
+            _userEquipmentService = userEquipmentService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
+            var equipment = await _userEquipmentService.GetUserEquipmentAsync(userId);
+
+
+
+            return View("UserProfile", equipment);
         }
     }
 }
