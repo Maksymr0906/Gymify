@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Gymify.Application.DTOs.Exercise;
 
-namespace Gymify.Application.DTOs.Exercise
+public class ExerciseDto
 {
-    internal class ExerciseDto
-    {
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int Type { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public string VideoURL { get; set; } = string.Empty;
 }
