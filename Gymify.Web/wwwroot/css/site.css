@@ -5,8 +5,9 @@
     --TextColor: black;
     --ButtonColor: #F49B3A;
     --ButtonHoverColor: #311E4C;
-    --NavBarColor: #9cd9e9;
+    --NavBarColor: #161616;
     --TextHoverColor: white;
+    --BackgroundImg: url('../Images/bg.jpg');
 }
 
 html {
@@ -40,6 +41,10 @@ body {
 .navbar{
     background-color: var(--NavBarColor);
 }
+    .navbar .nav-link,
+    .navbar .navbar-brand {
+        color: white !important;
+    }
 a {
     color: black;
     text-decoration: none;
@@ -56,13 +61,17 @@ a {
     color: var(--TextHoverColor);
     border-color: var(--ButtonHoverColor);
 }
-
+.startPageContainer {
+    padding-top: 100px;
+}
 .mainTitle {
     font-size: 212px;
-    color: var(--TitleColor);
+    color: white;
 }
 
 .mainDescription {
+    color: white;
+    width: 70%;
 }
 
 .mainRegistration {
@@ -88,8 +97,18 @@ a {
     flex-direction: column;
     align-items: center;
 }
-
-
+.startPageBg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), var(--BackgroundImg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: -1;
+}
 /*              Auth            */
 .authForm {
     height: 80vh;
