@@ -32,7 +32,9 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
 
             existingExercise = new Exercise
             {
+                Id = Guid.NewGuid(),
                 Name = model.Name,
+                CreatedAt = DateTime.Now,
                 Type = (ExerciseType)model.ExerciseType,
                 BaseXP = DefaultPendingExerciseXP,
                 DifficultyMultiplier = 1.0
