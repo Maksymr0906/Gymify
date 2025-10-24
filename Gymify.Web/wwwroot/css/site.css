@@ -5,12 +5,15 @@
     --TextColor: black;
     --ButtonColor: #F49B3A;
     --ButtonHoverColor: #311E4C;
-    --NavBarColor: #9cd9e9;
+    --NavBarColor: #161616;
     --TextHoverColor: white;
+    --BackgroundImg: url('../Images/bg.jpg');
 }
 
 html {
     font-size: 14px;
+    color: #161616;
+    font-family: Inter, sans-serif;
 }
 
 @media (min-width: 768px) {
@@ -40,6 +43,10 @@ body {
 .navbar{
     background-color: var(--NavBarColor);
 }
+    .navbar .nav-link,
+    .navbar .navbar-brand {
+        color: white !important;
+    }
 a {
     color: black;
     text-decoration: none;
@@ -56,13 +63,17 @@ a {
     color: var(--TextHoverColor);
     border-color: var(--ButtonHoverColor);
 }
-
+.startPageContainer {
+    padding-top: 100px;
+}
 .mainTitle {
     font-size: 212px;
-    color: var(--TitleColor);
+    color: white;
 }
 
 .mainDescription {
+    color: white;
+    width: 70%;
 }
 
 .mainRegistration {
@@ -88,8 +99,18 @@ a {
     flex-direction: column;
     align-items: center;
 }
-
-
+.startPageBg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), var(--BackgroundImg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: -1;
+}
 /*              Auth            */
 .authForm {
     height: 80vh;
@@ -301,49 +322,6 @@ a {
     font-size: 30px;
 }
 
-/* Далі йдуть стилі які Коля робив для кейсів*/
-
-.roulette-container {
-    width: 800px;
-    margin: 30px auto;
-    overflow: hidden;
-    border: 2px solid #444;
-    border-radius: 8px;
-    background: #1a1a1a;
-}
-
-#roulette-strip {
-    display: flex;
-    transition: transform 4s cubic-bezier(0.2,0.9,0.4,1);
-}
-
-.item {
-    width: 120px;
-    margin: 6px;
-    text-align: center;
-    color: #eee;
-}
-
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.hidden {
-    display: none;
-}
-
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-}
-
 /*          CreateWorkout           */
 
 .createWorkoutForm {
@@ -485,7 +463,11 @@ a {
     width: 300px;
     border: 2px solid;
 }
-
+.avatarImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 .userProfileAchivmentTitle, .userProfileTrainsTitle {
     font-size: 40px;
     color: var(--TitleColor);
@@ -533,4 +515,58 @@ a {
     height: 200px;
     object-fit:cover;
     margin-right:30px;
+}
+
+/* Далі йдуть стилі які Коля робив для кейсів*/
+
+.roulette-container {
+    width: 800px;
+    margin: 30px auto;
+    overflow: hidden;
+    border: 2px solid #444;
+    border-radius: 8px;
+    background: #1a1a1a;
+}
+
+#roulette-strip {
+    display: flex;
+    transition: transform 4s cubic-bezier(0.2,0.9,0.4,1);
+}
+
+.item {
+    width: 120px;
+    margin: 6px;
+    text-align: center;
+    color: #eee;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Start page (Home)*/
+
+.start-page-section {
+    position: relative;
+    padding: 200px 0px;
+    background-image: linear-gradient( 103deg, rgba(18, 18, 17, 0) 0%, rgba(18, 18, 17, 0.4) 50%, rgba(18, 18, 17, 0.75) 85%, rgba(18, 18, 17, 0.9) 100% ), url("/Images/startPageCover.jpg");
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
 }

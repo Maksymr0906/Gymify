@@ -24,4 +24,21 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
 
         return itemDtos;
     }
+
+    public async Task<ItemDto> GetByIdAsync(Guid itemId)
+    {
+        var item = await _unitOfWork.ItemRepository.GetByIdAsync(itemId);
+
+        var itemDto = new ItemDto
+        {
+            Id = itemId,
+            Name = item.Name,
+            Description = item.Description,
+            ImageURL = item.ImageURL,
+            Type = (int)item.Type,
+            Rarity = (int)item.Rarity
+        };
+
+        return itemDto;
+    }
 }

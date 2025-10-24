@@ -5,4 +5,5 @@ namespace Gymify.Application.Services.Interfaces;
 public interface IItemService
 {
     Task<ICollection<ItemDto>> GetAllUserItemsAsync(Guid userProfileId);
+    Task<ItemDto> GetByIdAsync(Guid itemId);
 }

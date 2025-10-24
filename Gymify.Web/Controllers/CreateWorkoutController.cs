@@ -25,7 +25,7 @@ namespace Gymify.Web.Controllers
             var workout = await _workoutService.CreateWorkoutAsync(dto);
 
             TempData["WorkoutId"] = workout.Id.ToString();
-            return RedirectToAction("AddTrains", "AddTrains");
+            return RedirectToAction("AddExercises", "AddExercise");
         }
     }
 }
