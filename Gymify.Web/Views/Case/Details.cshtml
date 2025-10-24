@@ -4,24 +4,19 @@
     ViewData["Title"] = "Details";
 }
 
-<!--> це базові дані типу ім'я картинка кейса перед відкриттям, кнопка'</!-->
-
 <h2 class="text-center">@Model.CaseInfo.CaseName</h2>
 
-<form asp-action="OpenCase" method="post">
-    <div class="text-center">
-        <button id="openCaseBtn" class="btn btn-primary">
-            Відкрити кейс
-        </button>
-    </div>
-</form>
+<div class="text-center">
+    <button id="openCaseBtn" class="btn btn-primary"
+            data-case-id="@Model.CaseInfo.CaseId">
+        Відкрити кейс
+    </button>
+</div>
 
 <div class="roulette-container">
     <div id="roulette-strip"></div>
 </div>
-<!--> це базові дані типу ім'я картинка кейса перед відкриттям'</!-->
 
-<!--> це типу вспливаюче вікно</!-->
 <div id="resultModal" class="modal hidden">
     <div class="modal-content">
         <h2>Твій дроп!</h2>
@@ -31,14 +26,23 @@
         <button id="closeModal">Закрити</button>
     </div>
 </div>
-<!--> це типу вспливаюче вікно</!-->
 
 @section Scripts {
     <script>
         document.getElementById("openCaseBtn").addEventListener("click", async (e) => {
+            e.preventDefault();
+
             const caseId = e.target.dataset.caseId;
-            const response = await fetch(`/Case/Open?caseId=${caseId}`, { method: "POST" });
-            if (!response.ok) { alert("Помилка при відкритті кейсу!"); return; }
+
+            const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            });
+
+            if (!response.ok) {
+                alert("Помилка при відкритті кейсу!");
+                return;
+            }
 
             const data = await response.json();
             const strip = document.getElementById("roulette-strip");
@@ -59,9 +63,9 @@
             strip.style.transform = `translateX(-${offset}px)`;
 
             setTimeout(() => {
-                document.getElementById("dropImage").src = data.dropItemImageURL;
-                document.getElementById("dropName").textContent = data.dropItemName;
-                document.getElementById("dropRarity").textContent = data.dropItemRarity;
+                document.getElementById("dropImage").src = data.itemImageURL;
+                document.getElementById("dropName").textContent = data.itemName;
+                document.getElementById("dropRarity").textContent = data.itemRarity;
                 document.getElementById("resultModal").classList.remove("hidden");
             }, 4200);
         });
