@@ -1,77 +1,134 @@
 ﻿@model Gymify.Application.ViewModels.Case.CaseViewModel
 
 @{
-    ViewData["Title"] = "Details";
+	ViewData["Title"] = "Details";
 }
 
 <h2 class="text-center">@Model.CaseInfo.CaseName</h2>
-
 <div class="text-center">
-    <button id="openCaseBtn" class="btn btn-primary"
-            data-case-id="@Model.CaseInfo.CaseId">
-        Відкрити кейс
-    </button>
+	<img src="@Model.CaseInfo.CaseImageUrl" width="250" alt="@Model.CaseInfo.CaseName" />
 </div>
 
-<div class="roulette-container">
-    <div id="roulette-strip"></div>
+<div class="text-center" style="margin-top: 20px;">
+	<button id="openCaseBtn" class="authButton scaleButton"
+			data-case-id="@Model.CaseInfo.CaseId">
+		Відкрити кейс
+	</button>
 </div>
+
+<div class="roulette-wrapper">
+	<div class="roulette-container">
+		<div id="roulette-strip"></div>
+	</div>
+</div>
+
 
 <div id="resultModal" class="modal hidden">
-    <div class="modal-content">
-        <h2>Твій дроп!</h2>
-        <img id="dropImage" src="" width="150" />
-        <h3 id="dropName"></h3>
-        <p id="dropRarity"></p>
-        <button id="closeModal">Закрити</button>
-    </div>
+	<div class="modal-content">
+		<h2>Твій дроп!</h2>
+		<img id="dropImage" src="" width="150" />
+		<h3 id="dropName"></h3>
+		<p id="dropRarity"></p>
+		<button id="closeModal">Закрити</button>
+	</div>
 </div>
 
+
 @section Scripts {
-    <script>
-        document.getElementById("openCaseBtn").addEventListener("click", async (e) => {
-            e.preventDefault();
+	<script>
+		// Функція для отримання назви рідкісності (для модального вікна)
+		function getRarityName(rarity) {
+			switch (rarity) {
+				case 0: return "Common";
+				case 1: return "Uncommon";
+				case 2: return "Rare";
+				case 3: return "Epic";
+				case 4: return "Legendary";
+				default: return "";
+			}
+		}
 
-            const caseId = e.target.dataset.caseId;
+		const openButton = document.getElementById("openCaseBtn");
+		const strip = document.getElementById("roulette-strip");
+		const modal = document.getElementById("resultModal");
 
-            const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
-                method: "POST",
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            });
+		openButton.addEventListener("click", async (e) => {
+			e.preventDefault();
+			openButton.disabled = true; // Блокуємо кнопку на час анімації
 
-            if (!response.ok) {
-                alert("Помилка при відкритті кейсу!");
-                return;
-            }
+			const caseId = e.target.dataset.caseId;
 
-            const data = await response.json();
-            const strip = document.getElementById("roulette-strip");
-            strip.innerHTML = '';
+			const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
+				method: "POST",
+				headers: { "X-Requested-With": "XMLHttpRequest" }
+			});
 
-            // додаємо айтеми у рулетку
-            data.rewards.forEach(item => {
-                const div = document.createElement('div');
-                div.classList.add('item');
-                div.innerHTML = `<img src="${item.imageURL}" width="100" height="100" /><p>${item.name}</p>`;
-                strip.appendChild(div);
-            });
+			if (!response.ok) {
+				alert("Помилка при відкритті кейсу!");
+				openButton.disabled = false;
+				return;
+			}
 
-            // анімація рулетки
-            const itemWidth = 130;
-            const offset = data.selectedIndex * itemWidth - 400; // центрування виграшу
-            strip.style.transition = 'transform 4s cubic-bezier(0.25,1,0.5,1)';
-            strip.style.transform = `translateX(-${offset}px)`;
+			const data = await response.json(); // Отримуємо { rouletteStrip, itemName, ... }
 
-            setTimeout(() => {
-                document.getElementById("dropImage").src = data.itemImageURL;
-                document.getElementById("dropName").textContent = data.itemName;
-                document.getElementById("dropRarity").textContent = data.itemRarity;
-                document.getElementById("resultModal").classList.remove("hidden");
-            }, 4200);
-        });
+			// 1. Очищуємо та скидаємо стрічку
+			strip.innerHTML = '';
+			strip.style.transition = 'none'; // Вимикаємо анімацію для скидання
+			strip.style.transform = 'translateX(0px)'; // Скидаємо позицію
 
-        document.getElementById("closeModal").addEventListener("click", () => {
-            document.getElementById("resultModal").classList.add("hidden");
-        });
-    </script>
+			// 2. Заповнюємо стрічку з data.rouletteStrip
+			data.rouletteStrip.forEach(item => {
+				const div = document.createElement('div');
+				// Додаємо клас рідкісності для CSS-бордюру
+				div.classList.add('item', `rarity-${item.rarity}`);
+				div.innerHTML = `<img src="${item.imageURL}" alt="${item.name}" /><p>${item.name}</p>`;
+				strip.appendChild(div);
+			});
+
+			// 3. Розрахунок анімації
+			// Потрібно, щоб 78-й елемент опинився під центральною лінією
+
+			const itemWidth = 120; // .item width
+			const itemMargin = 6 + 6; // .item margin (left + right)
+			const totalItemWidth = itemWidth + itemMargin; // = 132px
+
+			const containerWidth = 800; // .roulette-container width
+			const winningIndex = 78; // Наш фіксований індекс переможця
+
+			// Розраховуємо, де має бути центр 78-го елемента
+			// (позиція зліва) + (половина ширини)
+			const winnerCenter = (winningIndex * totalItemWidth) + (totalItemWidth / 2);
+
+			// Ми хочемо, щоб центр переможця був по центру контейнера (containerWidth / 2)
+			const targetOffset = winnerCenter - (containerWidth / 2);
+
+			// Додаємо невеликий випадковий зсув, щоб не зупинялось завжди піксель в піксель
+			const randomJitter = Math.floor(Math.random() * (itemWidth / 4)) - (itemWidth / 8); // ~ від -15px до +15px
+			const finalOffset = targetOffset + randomJitter;
+
+			// Необхідна невелика затримка, щоб браузер встиг застосувати скидання позиції
+			setTimeout(() => {
+				// 4. Запускаємо анімацію
+				strip.style.transition = 'transform 4s cubic-bezier(0.25, 1, 0.5, 1)';
+				strip.style.transform = `translateX(-${finalOffset}px)`;
+			}, 100); // 100ms затримки
+
+			// 5. Показуємо результат після анімації
+			setTimeout(() => {
+				document.getElementById("dropImage").src = data.itemImageURL;
+				document.getElementById("dropName").textContent = data.itemName;
+				document.getElementById("dropRarity").textContent = getRarityName(data.itemRarity); // Використовуємо функцію
+
+				// Додаємо клас рідкісності до модального вікна
+				modal.querySelector('.modal-content').className = `modal-content rarity-${data.itemRarity}`;
+
+				modal.classList.remove("hidden");
+			}, 4200); // 4000ms анімація + 200ms запас
+		});
+
+		document.getElementById("closeModal").addEventListener("click", () => {
+			modal.classList.add("hidden");
+			openButton.disabled = false; // Розблоковуємо кнопку
+		});
+	</script>
 }

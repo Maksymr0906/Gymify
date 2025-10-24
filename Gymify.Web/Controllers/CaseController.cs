@@ -40,9 +40,11 @@ public class CaseController : Controller
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
     [HttpPost]
-	public async Task<IActionResult> OpenCase(Guid caseId)
+	public async Task<IActionResult> OpenCase()
 	{
-		var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
+        var caseId = Guid.Parse("20000000-0000-0000-0000-000000000045");
+
+        var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
 		var userId = Guid.Parse(user.Value);
 
 		var result = await _caseService.OpenCaseAsync(userId, caseId);
