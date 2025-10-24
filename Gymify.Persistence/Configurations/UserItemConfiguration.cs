@@ -12,8 +12,18 @@ public partial class UserItemConfiguration(SeedDataOptions seedDataOptions)
 
     public void Configure(EntityTypeBuilder<UserItem> builder)
     {
-        builder.HasKey(ui => new {ui.UserProfileId, ui.ItemId});
+        builder.Property(e => e.CreatedAt)
+           .IsRequired()
+           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.HasData(_seedDataOptions.UserItems);
+        builder.HasData(
+            _seedDataOptions.UserItems.Select(uc => new UserItem
+            {
+                Id = uc.Id,
+                CreatedAt = uc.CreatedAt,
+                UserProfileId = uc.UserProfileId,
+                ItemId = uc.ItemId
+            })
+        );
     }
 }

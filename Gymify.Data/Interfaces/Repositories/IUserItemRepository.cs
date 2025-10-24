@@ -2,11 +2,8 @@
 
 namespace Gymify.Data.Interfaces.Repositories;
 
-public interface IUserItemRepository
+public interface IUserItemRepository : IRepository<UserItem>
 {
-    Task<UserItem> CreateAsync(UserItem entity);
-    Task<ICollection<UserItem>> GetAllAsync();
+    Task<UserItem> DeleteByItemIdAsync(Guid id);
     Task<ICollection<UserItem>> GetAllByUserIdAsync(Guid userId);
-    Task<UserItem> UpdateAsync(UserItem entity);
-    Task<UserItem> DeleteByIdAsync(Guid id);
 }

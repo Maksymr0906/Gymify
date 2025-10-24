@@ -27,6 +27,8 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
             {
                 var userItem = new UserItem
                 {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.Now,
                     UserProfileId = userProfile.Id,
                     ItemId = itemToGive.Id
                 };
@@ -44,6 +46,8 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
                 var userCase = new UserCase
                 {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.Now,
                     UserProfileId = userProfile.Id,
                     CaseId = randomCase.Id
                 };
@@ -117,6 +121,8 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
 		var userReward = new UserItem
         {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.Now,
             UserProfileId = userId,
             ItemId = selectedReward.Id,
         };
