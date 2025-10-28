@@ -41,7 +41,7 @@ namespace Gymify.Web.Controllers
             if (caseEntity == null)
                 return NotFound();
 
-            return RedirectToAction("Details", "Case", new { id = caseId });
+            return RedirectToAction("Details", "Case", new { caseId = caseId });
         }
     }
 }

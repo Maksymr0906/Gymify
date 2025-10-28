@@ -20,7 +20,6 @@ public class CaseController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(Guid caseId)
     {
-
         var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId);
 
         return View(caseInfoDto); // модель для Razor
@@ -28,15 +27,13 @@ public class CaseController : Controller
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
     [HttpPost]
-	public async Task<IActionResult> OpenCase(Guid caseId)
-	{
-
+    public async Task<IActionResult> OpenCase(Guid caseId)
+    {
         var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
-		var userId = Guid.Parse(user.Value);
+        var userId = Guid.Parse(user.Value);
 
-		var result = await _caseService.OpenCaseAsync(userId, caseId);
-
-		return Json(result);
-	}
+        var result = await _caseService.OpenCaseAsync(userId, caseId);
+        return Json(result);
+    }
 
 }

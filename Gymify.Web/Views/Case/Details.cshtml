@@ -47,7 +47,7 @@
 			e.preventDefault();
 			openButton.disabled = true; // Блокуємо кнопку на час анімації
 
-			const caseId = e.target.dataset.id;
+			const caseId = e.target.dataset.caseId;
 
 			const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
 				method: "POST",

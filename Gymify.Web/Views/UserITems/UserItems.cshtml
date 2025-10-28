@@ -7,10 +7,12 @@
 <div id="itemModal" class="modal hidden">
     <div class="modal-content">
         <h2 id="modalName"></h2>
-        <img id="modalImage" src="" alt="" width="150" />
+        <div class="drop-image-containter">
+            <img id="modalImage" src="" width="150" />
+        </div>
         <p id="modalRarity"></p>
         <p id="modalDescription"></p> 
-        <form id="openCaseForm" method="post" asp-controller="UserItems" asp-action="GoToCasePage">
+        <form id="openCaseForm" method="post" asp-action="GoToCasePage">
             <input type="hidden" name="caseId" id="modalCaseId" />
             <button type="submit" id="openCaseBtn" class="hidden">Open Case</button>
         </form>
@@ -87,7 +89,7 @@
 
 @section Scripts{
     <script>
-            function showItemModal(element) {
+        function showItemModal(element) {
             const id = element.dataset.id;
             const name = element.dataset.name;
             const description = element.dataset.description;
@@ -105,7 +107,7 @@
                 rarityElement.textContent = `Rarity: ${rarity}`;
                 rarityElement.style.display = "block";
             } else {
-                rarityElement.style.display = "none"; // Hide rarity for cases
+                rarityElement.style.display = "none"; 
             }
 
             const img = document.getElementById("modalImage");
@@ -113,7 +115,7 @@
                 img.src = image;
                 img.style.display = "block";
             } else {
-                img.style.display = "none"; // Hide if no image
+                img.style.display = "none"; 
             }
 
             const openCaseBtn = document.getElementById("openCaseBtn");
@@ -132,7 +134,6 @@
         function closeModal() {
             document.getElementById("itemModal").classList.add("hidden");
         }
-
     </script>
 }
 
