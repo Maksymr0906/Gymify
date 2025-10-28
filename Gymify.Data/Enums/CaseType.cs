@@ -2,8 +2,8 @@
 
 public enum CaseType
 {
-    Mixed,
-    Backrounds,
-    Avatars,
-    Frames
+    Mixed = 1,
+    Backrounds = 2,
+    Avatars = 3,
+    Frames = 4
 }
