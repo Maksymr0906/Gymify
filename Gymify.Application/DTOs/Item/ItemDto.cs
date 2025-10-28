@@ -7,5 +7,7 @@ public class ItemDto
     public string Description { get; set; } = string.Empty;
     public string ImageURL { get; set; } = string.Empty;
     public int Type { get; set; }
-    public int Rarity { get; set; }     
+    public int Rarity { get; set; }
+    public string TypeName => ((Gymify.Data.Enums.ItemType)Type).ToString();
+    public string RarityName => ((Gymify.Data.Enums.ItemRarity)Rarity).ToString();
 }

@@ -14,4 +14,5 @@ public class CaseInfoDto
     public string Description { get; set; } = string.Empty;
     public string ImageUrl { get; set; } = string.Empty;
     public int Type { get; set; }
+    public string TypeName => ((Gymify.Data.Enums.CaseType)Type).ToString();
 }

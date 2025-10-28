@@ -38,17 +38,6 @@
 
 @section Scripts {
 	<script>
-		// Функція для отримання назви рідкісності (для модального вікна)
-		function getRarityName(rarity) {
-			switch (rarity) {
-				case 0: return "Common";
-				case 1: return "Uncommon";
-				case 2: return "Rare";
-				case 3: return "Epic";
-				case 4: return "Legendary";
-				default: return "";
-			}
-		}
 
 		const openButton = document.getElementById("openCaseBtn");
 		const strip = document.getElementById("roulette-strip");
@@ -119,7 +108,7 @@
 			setTimeout(() => {
 				document.getElementById("dropImage").src = data.imageURL;
 				document.getElementById("dropName").textContent = data.name;
-				document.getElementById("dropRarity").textContent = getRarityName(data.rarity); // Використовуємо функцію
+				document.getElementById("dropRarity").textContent = data.rarityName; // Використовуємо функцію
 
 				// Додаємо клас рідкісності до модального вікна
 				modal.querySelector('.modal-content').className = `modal-content rarity-${data.rarity}`;

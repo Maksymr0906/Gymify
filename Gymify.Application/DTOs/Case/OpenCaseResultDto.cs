@@ -14,6 +14,8 @@ public class OpenCaseResultDto
 	public string Name { get; set; } = string.Empty;
 	public string Description { get; set; } = string.Empty;
 	public string ImageURL { get; set; } = string.Empty;
-	public ItemType Type { get; set; } = 0;
-	public ItemRarity Rarity { get; set; } = ItemRarity.Common;
+	public int Type { get; set; } = 0;
+	public int Rarity { get; set; } = 0;
+    public string TypeName => ((Gymify.Data.Enums.ItemType)Type).ToString();
+    public string RarityName => ((Gymify.Data.Enums.ItemRarity)Rarity).ToString();
 }

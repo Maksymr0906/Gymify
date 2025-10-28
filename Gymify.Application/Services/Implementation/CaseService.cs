@@ -99,7 +99,7 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
 		var caseItems = await _unitOfWork.CaseItemRepository.GetAllByCaseIdAsync(caseId);
 
-		if (!caseItems.Any())
+		if (caseItems.Count == 0)
 			throw new Exception("Case has no rewards");
 
 		var itemsIds = caseItems.Select(item => item.ItemId).ToList();
@@ -187,8 +187,8 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 			Name = selectedReward.Name,
 			Description = selectedReward.Description,
 			ImageURL = selectedReward.ImageURL,
-			Rarity = selectedReward.Rarity,
-			Type = selectedReward.Type
+			Rarity = (int)selectedReward.Rarity,
+			Type = (int)selectedReward.Type
 		};
 	}
 }

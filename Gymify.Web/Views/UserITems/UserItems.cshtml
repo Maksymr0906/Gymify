@@ -4,6 +4,16 @@
     ViewData["Title"] = "UserItems";
 }
 
+<div id="itemModal" class="modal hidden">
+    <div class="modal-content">
+        <h2 id="modalName"></h2>
+        <img id="modalImage" src="" alt="" width="150" />
+        <p id="modalRarity"></p>
+        <p id="modalDescription"></p>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>
+
 <div class="UserItemsContainer">
     @foreach (var group in Model.Items.GroupBy(i => i.Type))
     {
@@ -17,22 +27,95 @@
                     4 => "Title",
                     _ => "Unknown"
                 })
-            </h2>
-            <div class="UserItems">
-                @foreach (var item in group)
+        </h2>
+        <div class="UserItems">
+            @foreach (var item in group)
                 {
-                    <img src="@item.ImageURL" alt="@item.Name" class="UserItem" title="@item.Description" />
+                    var isTitle = group.Key == 4;
+
+                    if (isTitle)
+                    {
+                        <div class="UserItem TitleBox"
+                                data-id="@item.Id"
+                                data-name="@item.Name"
+                                data-description="@item.Description"
+                                data-rarity="@item.RarityName"
+                                data-image="@item.ImageURL"
+                                onclick="showItemModal(this)">
+                            @item.Name
+                        </div>
+                    }
+                    else
+                    {
+                        <img src="@item.ImageURL"
+                                alt="@item.Name"
+                                class="UserItem"
+                                data-id="@item.Id"
+                                data-name="@item.Name"
+                                data-description="@item.Description"
+                                data-rarity="@item.RarityName"
+                                data-image="@item.ImageURL"
+                                onclick="showItemModal(this)" />
+                    }
                 }
             </div>
         </div>
     }
+
     <div class="UserItemsBlock">
         <h2 class="UserItemsTitle">Cases</h2>
         <div class="UserItems">
             @foreach (var caseEntity in Model.Cases.ToList())
             {
-                <img src="@caseEntity.ImageUrl" alt="@caseEntity.Name" class="UserItem" title="@caseEntity.Description" />
+                <img src="@caseEntity.ImageUrl" 
+                        alt="@caseEntity.Name" 
+                        class="UserItem"
+                        data-id="@caseEntity.Id"
+                        data-name="@caseEntity.Name"
+                        data-description="@caseEntity.Description"
+                        data-image="@caseEntity.ImageUrl"
+                        onclick="showItemModal(this)" />
             }
         </div>
     </div>
 </div>
+
+@section Scripts{
+    <script>
+            function showItemModal(element) {
+            const id = element.dataset.id;
+            const name = element.dataset.name;
+            const description = element.dataset.description;
+            const rarity = element.dataset.rarity;
+            const image = element.dataset.image;
+
+            document.getElementById("modalName").textContent = name;
+            document.getElementById("modalDescription").textContent = description;
+
+            const rarityElement = document.getElementById("modalRarity");
+            if (rarity) {
+                rarityElement.textContent = `Rarity: ${rarity}`;
+                rarityElement.style.display = "block";
+            } else {
+                rarityElement.style.display = "none"; // Hide rarity for cases
+            }
+
+            const img = document.getElementById("modalImage");
+            if (image) {
+                img.src = image;
+                img.style.display = "block";
+            } else {
+                img.style.display = "none"; // Hide if no image
+            }
+
+            document.getElementById("itemModal").classList.remove("hidden");
+            console.log("Item clicked, ID:", id); // Debug — shows ID in console
+        }
+
+        function closeModal() {
+            document.getElementById("itemModal").classList.add("hidden");
+        }
+
+    </script>
+}
+
