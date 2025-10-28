@@ -10,15 +10,10 @@ using System.Threading.Tasks;
 namespace Gymify.Application.DTOs.Case;
 public class OpenCaseResultDto
 {
-	// Замінили 'Rewards' на 'RouletteStrip'
 	public IEnumerable<ItemDto> RouletteStrip { get; set; } = new List<ItemDto>();
-
-	// SelectedIndex видалено
-
-	// Ці поля залишаються - вони описують виграний предмет
-	public string ItemName { get; set; } = string.Empty;
-	public string ItemDescription { get; set; } = string.Empty;
-	public ItemType ItemType { get; set; } = 0;
-	public ItemRarity ItemRarity { get; set; } = ItemRarity.Common;
-	public string ItemImageURL { get; set; } = string.Empty;
+	public string Name { get; set; } = string.Empty;
+	public string Description { get; set; } = string.Empty;
+	public string ImageURL { get; set; } = string.Empty;
+	public ItemType Type { get; set; } = 0;
+	public ItemRarity Rarity { get; set; } = ItemRarity.Common;
 }

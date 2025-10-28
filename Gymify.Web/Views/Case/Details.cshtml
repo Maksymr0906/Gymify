@@ -4,14 +4,14 @@
 	ViewData["Title"] = "Details";
 }
 
-<h2 class="text-center">@Model.CaseName</h2>
+<h2 class="text-center">@Model.Name</h2>
 <div class="text-center">
-	<img src="@Model.CaseImageUrl" width="250" alt="@Model.CaseName" />
+	<img src="@Model.ImageUrl" width="250" alt="@Model.Name" />
 </div>
 
 <div class="text-center" style="margin-top: 20px;">
 	<button id="openCaseBtn" class="authButton scaleButton"
-			data-case-id="@Model.CaseId">
+			data-case-id="@Model.Id">
 		Відкрити кейс
 	</button>
 </div>

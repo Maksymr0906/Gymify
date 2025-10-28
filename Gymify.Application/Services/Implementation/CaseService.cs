@@ -66,10 +66,11 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         return new CaseInfoDto()
         {
-            CaseId = caseEntity.Id,
-            CaseName = caseEntity.Name,
-            CaseDescription = caseEntity.Description,
-            CaseImageUrl = caseEntity.ImageUrl
+            Id = caseEntity.Id,
+            Name = caseEntity.Name,
+            Description = caseEntity.Description,
+            ImageUrl = caseEntity.ImageUrl,
+			Type = (int)caseEntity.Type
         };
     }
 
@@ -168,11 +169,11 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 											  // SelectedIndex видалено
 
 			// Інформація про переможця
-			ItemName = selectedReward.Name,
-			ItemDescription = selectedReward.Description,
-			ItemImageURL = selectedReward.ImageURL,
-			ItemRarity = selectedReward.Rarity,
-			ItemType = selectedReward.Type
+			Name = selectedReward.Name,
+			Description = selectedReward.Description,
+			ImageURL = selectedReward.ImageURL,
+			Rarity = selectedReward.Rarity,
+			Type = selectedReward.Type
 		};
 	}
 }
