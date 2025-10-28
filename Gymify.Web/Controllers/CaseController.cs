@@ -18,9 +18,8 @@ public class CaseController : Controller
     // GET: показати сторінку кейсу тут тіпа ім'я його картінка
     
     [HttpGet]
-    public async Task<IActionResult> Details()
+    public async Task<IActionResult> Details(Guid caseId)
     {
-        var caseId = Guid.Parse("20000000-0000-0000-0000-000000000045");
 
         var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId);
 
@@ -29,9 +28,8 @@ public class CaseController : Controller
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
     [HttpPost]
-	public async Task<IActionResult> OpenCase()
+	public async Task<IActionResult> OpenCase(Guid caseId)
 	{
-        var caseId = Guid.Parse("20000000-0000-0000-0000-000000000045");
 
         var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
 		var userId = Guid.Parse(user.Value);

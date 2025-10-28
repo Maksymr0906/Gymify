@@ -18,6 +18,7 @@ namespace Gymify.Web.Controllers
             _caseService = caseService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {   
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
@@ -31,6 +32,16 @@ namespace Gymify.Web.Controllers
             };
 
             return View("UserItems", userItemsViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult GoToCasePage(Guid caseId)
+        {
+            var caseEntity = _caseService.GetCaseDetailsAsync(caseId);
+            if (caseEntity == null)
+                return NotFound();
+
+            return RedirectToAction("Details", "Case", new { id = caseId });
         }
     }
 }

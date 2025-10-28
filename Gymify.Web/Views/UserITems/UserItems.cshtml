@@ -9,8 +9,11 @@
         <h2 id="modalName"></h2>
         <img id="modalImage" src="" alt="" width="150" />
         <p id="modalRarity"></p>
-        <p id="modalDescription"></p>
-        <button id="openCaseBtn" class="hidden">Open Case</button>
+        <p id="modalDescription"></p> 
+        <form id="openCaseForm" method="post" asp-controller="UserItems" asp-action="GoToCasePage">
+            <input type="hidden" name="caseId" id="modalCaseId" />
+            <button type="submit" id="openCaseBtn" class="hidden">Open Case</button>
+        </form>
         <button onclick="closeModal()">Close</button>
     </div>
 </div>
@@ -114,10 +117,13 @@
             }
 
             const openCaseBtn = document.getElementById("openCaseBtn");
+            const modalCaseId = document.getElementById("modalCaseId");
             if (type === "case") {
                 openCaseBtn.classList.remove("hidden");
+                modalCaseId.value = id; 
             } else {
                 openCaseBtn.classList.add("hidden");
+                modalCaseId.value = '';
             }
 
             document.getElementById("itemModal").classList.remove("hidden");
