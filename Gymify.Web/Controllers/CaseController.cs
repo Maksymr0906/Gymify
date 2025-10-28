@@ -1,6 +1,5 @@
 ﻿using Gymify.Application.DTOs.Case;
 using Gymify.Application.Services.Interfaces;
-using Gymify.Application.ViewModels.Case;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,12 +9,10 @@ namespace Gymify.Web.Controllers;
 public class CaseController : Controller
 {
     private readonly ICaseService _caseService;
-    private CaseViewModel _caseViewModel;
 
     public CaseController(ICaseService caseService)
     {
         _caseService = caseService;
-        _caseViewModel = new();
     }
 
     // GET: показати сторінку кейсу тут тіпа ім'я його картінка
@@ -27,15 +24,7 @@ public class CaseController : Controller
 
         var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId);
 
-        var viewModel = new CaseViewModel()
-        {
-            CaseInfo = caseInfoDto,
-            OpenCaseResult = new OpenCaseResultDto()
-        };
-
-        _caseViewModel = viewModel;
-
-        return View(viewModel); // модель для Razor
+        return View(caseInfoDto); // модель для Razor
     }
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера

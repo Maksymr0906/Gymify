@@ -1,17 +1,17 @@
-﻿@model Gymify.Application.ViewModels.Case.CaseViewModel
+﻿@model Gymify.Application.DTOs.Case.CaseInfoDto
 
 @{
 	ViewData["Title"] = "Details";
 }
 
-<h2 class="text-center">@Model.CaseInfo.CaseName</h2>
+<h2 class="text-center">@Model.CaseName</h2>
 <div class="text-center">
-	<img src="@Model.CaseInfo.CaseImageUrl" width="250" alt="@Model.CaseInfo.CaseName" />
+	<img src="@Model.CaseImageUrl" width="250" alt="@Model.CaseName" />
 </div>
 
 <div class="text-center" style="margin-top: 20px;">
 	<button id="openCaseBtn" class="authButton scaleButton"
-			data-case-id="@Model.CaseInfo.CaseId">
+			data-case-id="@Model.CaseId">
 		Відкрити кейс
 	</button>
 </div>
@@ -25,11 +25,13 @@
 
 <div id="resultModal" class="modal hidden">
 	<div class="modal-content">
-		<h2>Твій дроп!</h2>
-		<img id="dropImage" src="" width="150" />
+		<h2>Your reward</h2>
+		<div class="drop-image-containter">
+			<img id="dropImage" src=""  width="150" />
+		</div>
 		<h3 id="dropName"></h3>
 		<p id="dropRarity"></p>
-		<button id="closeModal">Закрити</button>
+		<button id="closeModal">OK</button>
 	</div>
 </div>
 

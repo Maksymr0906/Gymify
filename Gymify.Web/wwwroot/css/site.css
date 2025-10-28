@@ -628,6 +628,11 @@ a {
     text-align: center;
     color: #1a1a1a;
 }
+.drop-image-containter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 /* Start page (Home)*/
 
