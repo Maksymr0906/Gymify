@@ -10,6 +10,7 @@
         <img id="modalImage" src="" alt="" width="150" />
         <p id="modalRarity"></p>
         <p id="modalDescription"></p>
+        <button id="openCaseBtn" class="hidden">Open Case</button>
         <button onclick="closeModal()">Close</button>
     </div>
 </div>
@@ -74,6 +75,7 @@
                         data-name="@caseEntity.Name"
                         data-description="@caseEntity.Description"
                         data-image="@caseEntity.ImageUrl"
+                        data-type="case"
                         onclick="showItemModal(this)" />
             }
         </div>
@@ -88,6 +90,7 @@
             const description = element.dataset.description;
             const rarity = element.dataset.rarity;
             const image = element.dataset.image;
+            const type = element.dataset.type;
 
             document.getElementById("modalName").textContent = name;
             document.getElementById("modalDescription").textContent = description;
@@ -108,8 +111,14 @@
                 img.style.display = "none"; // Hide if no image
             }
 
+            const openCaseBtn = document.getElementById("openCaseBtn");
+            if (type === "case") {
+                openCaseBtn.classList.remove("hidden");
+            } else {
+                openCaseBtn.classList.add("hidden");
+            }
+
             document.getElementById("itemModal").classList.remove("hidden");
-            console.log("Item clicked, ID:", id); // Debug — shows ID in console
         }
 
         function closeModal() {
