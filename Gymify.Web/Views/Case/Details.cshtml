@@ -58,7 +58,7 @@
 			e.preventDefault();
 			openButton.disabled = true; // Блокуємо кнопку на час анімації
 
-			const caseId = e.target.dataset.caseId;
+			const caseId = e.target.dataset.id;
 
 			const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
 				method: "POST",
@@ -117,12 +117,12 @@
 
 			// 5. Показуємо результат після анімації
 			setTimeout(() => {
-				document.getElementById("dropImage").src = data.itemImageURL;
-				document.getElementById("dropName").textContent = data.itemName;
-				document.getElementById("dropRarity").textContent = getRarityName(data.itemRarity); // Використовуємо функцію
+				document.getElementById("dropImage").src = data.imageURL;
+				document.getElementById("dropName").textContent = data.name;
+				document.getElementById("dropRarity").textContent = getRarityName(data.rarity); // Використовуємо функцію
 
 				// Додаємо клас рідкісності до модального вікна
-				modal.querySelector('.modal-content').className = `modal-content rarity-${data.itemRarity}`;
+				modal.querySelector('.modal-content').className = `modal-content rarity-${data.rarity}`;
 
 				modal.classList.remove("hidden");
 			}, 4200); // 4000ms анімація + 200ms запас
