@@ -1,11 +1,11 @@
-﻿@model IEnumerable<Gymify.Application.DTOs.Item.ItemDto>
+﻿@model Gymify.Application.ViewModels.UserItems.UserItemsViewModel
 
 @{
     ViewData["Title"] = "UserItems";
 }
 
 <div class="UserItemsContainer">
-    @foreach (var group in Model.GroupBy(i => i.Type))
+    @foreach (var group in Model.Items.GroupBy(i => i.Type))
     {
         <div class="UserItemsBlock">
             <h2 class="UserItemsTitle">
@@ -14,6 +14,7 @@
                     1 => "Background",
                     2 => "Border",
                     3 => "Avatar",
+                    4 => "Title",
                     _ => "Unknown"
                 })
             </h2>
@@ -25,4 +26,13 @@
             </div>
         </div>
     }
+    <div class="UserItemsBlock">
+        <h2 class="UserItemsTitle">Cases</h2>
+        <div class="UserItems">
+            @foreach (var caseEntity in Model.Cases.ToList())
+            {
+                <img src="@caseEntity.ImageUrl" alt="@caseEntity.Name" class="UserItem" title="@caseEntity.Description" />
+            }
+        </div>
+    </div>
 </div>

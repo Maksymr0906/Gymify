@@ -60,6 +60,21 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         await _unitOfWork.SaveAsync();
     }
+    public async Task<ICollection<CaseInfoDto>> GetAllUserCasesAsync(Guid userProfileId)
+    {
+        var userCases = await _unitOfWork.CaseRepository.GetAllCasesByUserIdAsync(userProfileId);
+
+        var casesDtos = userCases.Select(item => new CaseInfoDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Description = item.Description,
+            ImageUrl = item.ImageUrl,
+            Type = (int)item.Type,
+        }).ToList();
+
+        return casesDtos;
+    }
     public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
     {
         var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
