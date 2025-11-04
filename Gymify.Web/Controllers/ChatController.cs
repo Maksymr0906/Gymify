@@ -2,7 +2,7 @@
 
 namespace Gymify.Web.Controllers
 {
-    public class NotificationController : Controller
+    public class ChatController : Controller
     {
         public IActionResult Index()
         {

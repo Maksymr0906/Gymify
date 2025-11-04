@@ -71,5 +71,7 @@ public class GymifyDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
         modelBuilder.ApplyConfiguration(new UserExerciseConfiguration(_seedDataOptions));
 
         modelBuilder.ApplyConfiguration(new UserItemConfiguration(_seedDataOptions));
+
+        modelBuilder.ApplyConfiguration(new UserCaseConfiguration(_seedDataOptions));
     }
 }

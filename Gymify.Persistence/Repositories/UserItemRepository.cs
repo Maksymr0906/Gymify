@@ -4,24 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Persistence.Repositories;
 
-public class UserItemRepository(GymifyDbContext context) : IUserItemRepository
+public class UserItemRepository(GymifyDbContext context) : Repository<UserItem>(context) , IUserItemRepository
 {
     private readonly GymifyDbContext _context = context;
-
-    public async Task<UserItem> CreateAsync(UserItem entity)
-    {
-        await _context.UserItems.AddAsync(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task<ICollection<UserItem>> GetAllAsync()
-    {
-        return await _context.UserItems
-            .Include(uc => uc.Item)
-            .Include(uc => uc.UserProfile)
-            .ToListAsync();
-    }
 
     public async Task<ICollection<UserItem>> GetAllByUserIdAsync(Guid userId)
     {
@@ -34,16 +19,9 @@ public class UserItemRepository(GymifyDbContext context) : IUserItemRepository
         return entities;
     }
 
-    public async Task<UserItem> UpdateAsync(UserItem entity)
+    public async Task<UserItem> DeleteByItemIdAsync(Guid itemId)
     {
-        _context.UserItems.Update(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task<UserItem> DeleteByIdAsync(Guid id)
-    {
-        var entity = await _context.UserItems.FirstOrDefaultAsync(uc => uc.ItemId == id);
+        var entity = await _context.UserItems.FirstOrDefaultAsync(uc => uc.ItemId == itemId);
         if (entity == null)
             throw new Exception("UserCase not found");
 

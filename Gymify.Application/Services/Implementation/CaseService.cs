@@ -1,4 +1,5 @@
 ﻿using Gymify.Application.DTOs.Case;
+using Gymify.Application.DTOs.Item;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Enums;
@@ -27,6 +28,8 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
             {
                 var userItem = new UserItem
                 {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.Now,
                     UserProfileId = userProfile.Id,
                     ItemId = itemToGive.Id
                 };
@@ -44,6 +47,8 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
                 var userCase = new UserCase
                 {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.Now,
                     UserProfileId = userProfile.Id,
                     CaseId = randomCase.Id
                 };
@@ -55,87 +60,135 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         await _unitOfWork.SaveAsync();
     }
+    public async Task<ICollection<CaseInfoDto>> GetAllUserCasesAsync(Guid userProfileId)
+    {
+        var userCases = await _unitOfWork.CaseRepository.GetAllCasesByUserIdAsync(userProfileId);
+
+        var casesDtos = userCases.Select(item => new CaseInfoDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Description = item.Description,
+            ImageUrl = item.ImageUrl,
+            Type = (int)item.Type,
+        }).ToList();
+
+        return casesDtos;
+    }
     public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
     {
         var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
 
         return new CaseInfoDto()
         {
-            CaseId = caseEntity.Id,
-            CaseName = caseEntity.Name,
-            CaseDescription = caseEntity.Description,
-            CaseImageUrl = caseEntity.ImageUrl
+            Id = caseEntity.Id,
+            Name = caseEntity.Name,
+            Description = caseEntity.Description,
+            ImageUrl = caseEntity.ImageUrl,
+			Type = (int)caseEntity.Type
         };
     }
 
-    public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
-    {
+	public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
+	{
 		var userCase = await _unitOfWork.UserCaseRepository
-                .GetFirstByUserIdAndCaseIdAsync(userId, caseId);
+			.GetFirstByUserIdAndCaseIdAsync(userId, caseId);
 
-        if (userCase == null)
-            throw new Exception("No userCase found");
+		if (userCase == null)
+			throw new Exception("No userCase found");
 
-        var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
-        var caseItems = await _unitOfWork.CaseItemRepository.GetAllByCaseIdAsync(caseId);
+		var caseItems = await _unitOfWork.CaseItemRepository.GetAllByCaseIdAsync(caseId);
 
-        if (caseEntity == null || !caseItems.Any()) 
-            throw new Exception("Case has no rewards");
+		if (caseItems.Count == 0)
+			throw new Exception("Case has no rewards");
 
-        var itemsIds = new List<Guid>();
+		var itemsIds = caseItems.Select(item => item.ItemId).ToList();
+		var detailedItems = (await _unitOfWork.ItemRepository.GetByListOfIdAsync(itemsIds)).ToList();
 
-        foreach(var item in caseItems)
-        {
-            itemsIds.Add(item.ItemId);
-        }
+		if (!detailedItems.Any())
+			throw new Exception("Case items details not found");
 
-        var detailedItems = await _unitOfWork.ItemRepository.GetByListOfIdAsync(itemsIds);
+		// --- ЛОГІКА ВИЗНАЧЕННЯ ПЕРЕМОЖЦЯ (залишається твоя) ---
+		var roll = _random.Next(1, 33);
+		ItemRarity targetRarity;
 
-        var roll = _random.Next(1, 33);
-        ItemRarity targetRarity;
+		if (roll <= 2)
+			targetRarity = ItemRarity.Legendary;
+		else if (roll <= 4)
+			targetRarity = ItemRarity.Epic;
+		else if (roll <= 8)
+			targetRarity = ItemRarity.Rare;
+		else if (roll <= 16)
+			targetRarity = ItemRarity.Uncommon;
+		else
+			targetRarity = ItemRarity.Common;
 
-        if (roll <= 2)
-            targetRarity = ItemRarity.Legendary;
-        else if (roll <= 4)
-            targetRarity = ItemRarity.Epic;
-        else if (roll <= 8)
-            targetRarity = ItemRarity.Rare;
-        else if (roll <= 16)
-            targetRarity = ItemRarity.Uncommon;
-        else
-            targetRarity = ItemRarity.Common;
+		var rewardsOfSameRarity = detailedItems
+			.Where(r => r.Rarity == targetRarity)
+			.ToList();
 
-        var rewardsOfSameRarity = detailedItems
-            .Where(r => r.Rarity == targetRarity)
-            .ToList();
-
-        if (!rewardsOfSameRarity.Any())
-            rewardsOfSameRarity = detailedItems.ToList();
+		if (rewardsOfSameRarity.Count == 0)
+			rewardsOfSameRarity = detailedItems.ToList(); // Fallback, якщо нема предметів такої рідкості
 
 		int selectedIndex = _random.Next(rewardsOfSameRarity.Count);
-		var selectedReward = rewardsOfSameRarity[selectedIndex];
+		var selectedReward = rewardsOfSameRarity[selectedIndex]; // Це наш переможець!
 
+		// --- НОВА ЛОГІКА: ГЕНЕРАЦІЯ СТРІЧКИ РУЛЕТКИ ---
+
+		const int stripLength = 100; // Загальна довжина стрічки (як у прикладі)
+		const int winningIndex = 78;  // Позиція, де завжди буде переможець
+
+		var rouletteItems = new List<Item>();
+
+		for (int i = 0; i < stripLength; i++)
+		{
+			if (i == winningIndex)
+			{
+				rouletteItems.Add(selectedReward); // Вставляємо переможця
+			}
+			else
+			{
+				// Вставляємо випадковий предмет з усіх можливих у цьому кейсі
+				rouletteItems.Add(detailedItems[_random.Next(detailedItems.Count)]);
+			}
+		}
+
+		// Мапимо згенеровану стрічку в DTO
+		var rouletteStripDto = rouletteItems.Select(i => new ItemDto
+		{
+			Id = i.Id,
+			Name = i.Name,
+			Description = i.Description,
+			ImageURL = i.ImageURL,
+			Rarity = (int)i.Rarity,
+			Type = (int)i.Type
+		});
+
+		// --- ЗБЕРЕЖЕННЯ РЕЗУЛЬТАТУ (залишається твоє) ---
 		var userReward = new UserItem
-        {
-            UserProfileId = userId,
-            ItemId = selectedReward.Id,
-        };
+		{
+			Id = Guid.NewGuid(),
+			CreatedAt = DateTime.Now,
+			UserProfileId = userId,
+			ItemId = selectedReward.Id,
+		};
 
-        await _unitOfWork.UserItemRepository.CreateAsync(userReward);
+		await _unitOfWork.UserItemRepository.CreateAsync(userReward);
+		await _unitOfWork.UserCaseRepository.DeleteFirstByUserIdAndCaseIdAsync(userId, caseId);
+		await _unitOfWork.SaveAsync();
 
-        await _unitOfWork.UserCaseRepository.DeleteFirstByUserIdAndCaseIdAsync(userId, caseId);
+		// --- ПОВЕРНЕННЯ РЕЗУЛЬТАТУ ---
+		return new OpenCaseResultDto()
+		{
+			RouletteStrip = rouletteStripDto, // Повертаємо нову стрічку
+											  // SelectedIndex видалено
 
-        await _unitOfWork.SaveAsync();
-
-        return new OpenCaseResultDto()
-        {
-            Rewards = detailedItems,
-            SelectedIndex = selectedIndex,
-			ItemName = selectedReward.Name,
-            ItemDescription = selectedReward.Description,
-            ItemImageURL = selectedReward.ImageURL,
-            ItemRarity = selectedReward.Rarity,
-            ItemType = selectedReward.Type
-        };
-    }
+			// Інформація про переможця
+			Name = selectedReward.Name,
+			Description = selectedReward.Description,
+			ImageURL = selectedReward.ImageURL,
+			Rarity = (int)selectedReward.Rarity,
+			Type = (int)selectedReward.Type
+		};
+	}
 }

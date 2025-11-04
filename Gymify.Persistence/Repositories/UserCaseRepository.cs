@@ -4,24 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Persistence.Repositories;
 
-public class UserCaseRepository(GymifyDbContext context) : IUserCaseRepository
+public class UserCaseRepository(GymifyDbContext context) : Repository<UserCase>(context), IUserCaseRepository
 {
     private readonly GymifyDbContext _context = context;
-
-    public async Task<UserCase> CreateAsync(UserCase entity)
-    {
-        await _context.UserCases.AddAsync(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task<ICollection<UserCase>> GetAllAsync()
-    {
-        return await _context.UserCases
-            .Include(uc => uc.Case)
-            .Include(uc => uc.UserProfile)
-            .ToListAsync();
-    }
 
     public async Task<ICollection<UserCase>> GetAllByUserIdAsync(Guid userId)
     {
@@ -40,13 +25,6 @@ public class UserCaseRepository(GymifyDbContext context) : IUserCaseRepository
             .Include(uc => uc.UserProfile)
             .FirstOrDefaultAsync(uc => uc.UserProfileId == userId && uc.CaseId == caseId);
 
-        return entity;
-    }
-
-    public async Task<UserCase> UpdateAsync(UserCase entity)
-    {
-        _context.UserCases.Update(entity);
-        await _context.SaveChangesAsync();
         return entity;
     }
 

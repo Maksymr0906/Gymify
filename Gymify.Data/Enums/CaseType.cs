@@ -2,7 +2,8 @@
 
 public enum CaseType
 {
-    Sigma = 1,
-    Chibi = 2,
-    Brainrot = 3
+    Mixed = 1,
+    Backrounds = 2,
+    Avatars = 3,
+    Frames = 4
 }

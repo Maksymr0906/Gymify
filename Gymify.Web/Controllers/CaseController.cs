@@ -1,14 +1,14 @@
 ﻿using Gymify.Application.DTOs.Case;
 using Gymify.Application.Services.Interfaces;
-using Gymify.Application.ViewModels.Case;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gymify.Web.Controllers;
 
+[Authorize]
 public class CaseController : Controller
 {
     private readonly ICaseService _caseService;
-    private CaseViewModel? _caseViewModel;
 
     public CaseController(ICaseService caseService)
     {
@@ -22,35 +22,18 @@ public class CaseController : Controller
     {
         var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId);
 
-        var viewModel = new CaseViewModel()
-        {
-            CaseInfo = caseInfoDto,
-            OpenCaseResult = new OpenCaseResultDto()
-        };
-
-        _caseViewModel = viewModel;
-
-        return View(viewModel); // модель для Razor
+        return View(caseInfoDto); // модель для Razor
     }
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
     [HttpPost]
-    public async Task<IActionResult> OpenCase()
+    public async Task<IActionResult> OpenCase(Guid caseId)
     {
-        var user = User.FindFirst("UserProfileId");
+        var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
+        var userId = Guid.Parse(user.Value);
 
-        if(user == null)
-			throw new Exception("User not found");
-
-		var userId = Guid.Parse(user.Value);
-
-		if (_caseViewModel.CaseInfo == null || _caseViewModel.OpenCaseResult == null || _caseViewModel == null)
-			throw new Exception("CaseViewModel is not complete, something is missing");
-
-		var result = await _caseService.OpenCaseAsync(userId, _caseViewModel.CaseInfo.CaseId);
-
-        _caseViewModel.OpenCaseResult = result;
-
+        var result = await _caseService.OpenCaseAsync(userId, caseId);
         return Json(result);
     }
+
 }
