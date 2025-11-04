@@ -28,7 +28,7 @@ public class AuthController : Controller
         var result = await _authService.RegisterAsync(dto);
 
         if (result.Succeeded)
-            return RedirectToAction("Index", "Main");
+            return RedirectToAction("Index", "Home");
 
         foreach (var error in result.Errors)
             ModelState.AddModelError("", error.Description);
@@ -51,7 +51,7 @@ public class AuthController : Controller
         var result = await _authService.LoginAsync(dto);
 
         if (result.Succeeded)
-            return RedirectToAction("Index", "Main");
+            return RedirectToAction("Index", "Home");
 
         ModelState.AddModelError("", "Invalid login attempt.");
         return View(dto);
@@ -61,6 +61,6 @@ public class AuthController : Controller
     public async Task<IActionResult> Logout()
     {
         await _authService.LogoutAsync();
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Start");
     }
 }
