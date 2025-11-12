@@ -1,0 +1,136 @@
+﻿@model Gymify.Application.DTOs.UserExercise.AddUserExerciseToWorkoutRequestDto
+
+@{
+    ViewData["Title"] = "Add Exercise";
+}
+
+<p>Workout ID: <strong>@ViewBag.WorkoutId</strong></p>
+
+<div class="container mt-4">
+    <h1 class="AddExerciseTitle mb-3">Add Exercise</h1>
+
+    <form asp-action="AddExercise" method="post" class="addExerciseForm">
+        <input type="hidden" asp-for="WorkoutId" value="@ViewBag.WorkoutId" />
+
+        <!-- Search / Add Exercise -->
+        <div class="AddExerciseFormGroup position-relative mb-3">
+            <label asp-for="Name" class="AddExerciseLabel">Choose Exercise</label>
+            <input asp-for="Name" id="exerciseName" class="AddExerciseInput form-control" autocomplete="off" required />
+            <ul id="exerciseSuggestions" class="suggestions-list"></ul>
+
+            <div id="newExerciseField" style="display:none; margin-top:10px;">
+                <label for="newExerciseName">New Exercise Name:</label>
+                <input type="text" id="newExerciseName" name="newExerciseName" class="AddExerciseInput form-control" />
+                <p class="text-muted small">This exercise will be sent for admin approval.</p>
+            </div>
+        </div>
+
+        <!-- Exercise Type -->
+        <div class="AddExerciseRadio mb-3">
+            <label class="AddExerciseLabelRadio me-2">Weight</label>
+            <input asp-for="ExerciseType" class="AddExerciseInputRadio" type="radio" value="1" />
+
+            <label class="AddExerciseLabelRadio ms-3 me-2">Duration</label>
+            <input asp-for="ExerciseType" class="AddExerciseInputRadio" type="radio" value="2" />
+        </div>
+
+        <!-- Sets / Reps / Weight -->
+        <div class="AddExerciseFormGroup mb-3">
+            <label asp-for="Weight" class="AddExerciseLabel">Weight</label>
+            <input asp-for="Weight" class="AddExerciseInput form-control" required />
+        </div>
+
+        <div class="AddExerciseFormGroup mb-3">
+            <label asp-for="Sets" class="AddExerciseLabel">Sets</label>
+            <input asp-for="Sets" class="AddExerciseInput form-control" required />
+        </div>
+
+        <div class="AddExerciseFormGroup mb-3">
+            <label asp-for="Reps" class="AddExerciseLabel">Reps</label>
+            <input asp-for="Reps" class="AddExerciseInput form-control" required />
+        </div>
+
+        <!-- Buttons -->
+        <div class="addExerciseButtons d-flex gap-3">
+            <button type="submit" name="action" value="end" class="AddExerciseButton btn btn-danger">End</button>
+            <button type="submit" name="action" value="add" class="AddExerciseButton btn btn-success">Add New Exercise</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const input = document.getElementById("exerciseName");
+            const list = document.getElementById("exerciseSuggestions");
+            const newField = document.getElementById("newExerciseField");
+            const newExerciseInput = document.getElementById("newExerciseName");
+
+            let timeout = null;
+
+            input.addEventListener("input", () => {
+                const query = input.value.trim();
+                clearTimeout(timeout);
+
+                if (query.length < 2) {
+                    list.innerHTML = "";
+                    newField.style.display = "none";
+                    return;
+                }
+
+                timeout = setTimeout(() => {
+                    fetch(`/AddExercise/SearchExercises?query=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            list.innerHTML = "";
+
+                            if (data.length > 0) {
+                                data.forEach(name => {
+                                    const li = document.createElement("li");
+                                    li.textContent = name;
+                                    li.classList.add("suggestion-item");
+                                    li.onclick = () => {
+                                        input.value = name;
+                                        list.innerHTML = "";
+                                        newField.style.display = "none";
+                                    };
+                                    list.appendChild(li);
+                                });
+                                newField.style.display = "none";
+                            } else {
+                                newField.style.display = "block";
+                                newExerciseInput.value = query;
+                            }
+                        })
+                        .catch(err => console.error("Error fetching exercises:", err));
+                }, 300);
+            });
+        });
+    </script>
+
+    <style>
+        .suggestions-list {
+            list-style: none;
+            position: absolute;
+            background: #fff;
+            width: 100%;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 2px;
+            padding-left: 0;
+            border-radius: 0.25rem;
+        }
+
+        .suggestion-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+            .suggestion-item:hover {
+                background: #f0f0f0;
+            }
+    </style>
+}
