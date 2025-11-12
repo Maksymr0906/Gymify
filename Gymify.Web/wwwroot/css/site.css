@@ -517,21 +517,21 @@ a {
     font-size: 24px;
 }
 
-/*              UserItems               */
+/*              Inventory               */
 
-.UserItemsContainer{
+.InventoryContainer{
     width:92%;
     margin: 2% 4%;
 
 }
-.UserItemsBlock{
+.InventoryBlock{
 
 }
-.UserItemsTitle{
+.InventoryTitle{
     font-size: 72px;
     color: var(--TitleColor);
 }
-.UserItems {
+.Inventory {
     display: flex;
     overflow-y: hidden;
     overflow-x: scroll;
