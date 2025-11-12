@@ -1,7 +1,7 @@
 ﻿@model Gymify.Application.ViewModels.UserItems.UserItemsViewModel
 
 @{
-    ViewData["Title"] = "UserItems";
+    ViewData["Title"] = "Inventory";
 }
 
 <div id="itemModal" class="modal hidden">
@@ -11,7 +11,7 @@
             <img id="modalImage" src="" width="150" />
         </div>
         <p id="modalRarity"></p>
-        <p id="modalDescription"></p> 
+        <p id="modalDescription"></p>
         <form id="openCaseForm" method="post" asp-action="GoToCasePage">
             <input type="hidden" name="caseId" id="modalCaseId" />
             <button type="submit" id="openCaseBtn" class="hidden">Open Case</button>
@@ -20,11 +20,11 @@
     </div>
 </div>
 
-<div class="UserItemsContainer">
+<div class="InventoryContainer">
     @foreach (var group in Model.Items.GroupBy(i => i.Type))
     {
-        <div class="UserItemsBlock">
-            <h2 class="UserItemsTitle">
+        <div class="InventoryBlock">
+            <h2 class="InventoryTitle">
                 @(group.Key switch
                 {
                     1 => "Background",
@@ -34,7 +34,7 @@
                     _ => "Unknown"
                 })
         </h2>
-        <div class="UserItems">
+        <div class="Inventory">
             @foreach (var item in group)
                 {
                     var isTitle = group.Key == 4;
@@ -42,52 +42,52 @@
                     if (isTitle)
                     {
                         <div class="UserItem TitleBox"
-                                data-id="@item.Id"
-                                data-name="@item.Name"
-                                data-description="@item.Description"
-                                data-rarity="@item.RarityName"
-                                data-image="@item.ImageURL"
-                                onclick="showItemModal(this)">
+                             data-id="@item.Id"
+                             data-name="@item.Name"
+                             data-description="@item.Description"
+                             data-rarity="@item.RarityName"
+                             data-image="@item.ImageURL"
+                             onclick="showItemModal(this)">
                             @item.Name
                         </div>
                     }
                     else
                     {
                         <img src="@item.ImageURL"
-                                alt="@item.Name"
-                                class="UserItem"
-                                data-id="@item.Id"
-                                data-name="@item.Name"
-                                data-description="@item.Description"
-                                data-rarity="@item.RarityName"
-                                data-image="@item.ImageURL"
-                                onclick="showItemModal(this)" />
+                             alt="@item.Name"
+                             class="UserItem"
+                             data-id="@item.Id"
+                             data-name="@item.Name"
+                             data-description="@item.Description"
+                             data-rarity="@item.RarityName"
+                             data-image="@item.ImageURL"
+                             onclick="showItemModal(this)" />
                     }
                 }
             </div>
         </div>
     }
 
-    <div class="UserItemsBlock">
-        <h2 class="UserItemsTitle">Cases</h2>
-        <div class="UserItems">
+    <div class="InventoryBlock">
+        <h2 class="InventoryTitle">Cases</h2>
+        <div class="Inventory">
             @foreach (var caseEntity in Model.Cases.ToList())
             {
-                <img src="@caseEntity.ImageUrl" 
-                        alt="@caseEntity.Name" 
-                        class="UserItem"
-                        data-id="@caseEntity.Id"
-                        data-name="@caseEntity.Name"
-                        data-description="@caseEntity.Description"
-                        data-image="@caseEntity.ImageUrl"
-                        data-type="case"
-                        onclick="showItemModal(this)" />
+                <img src="@caseEntity.ImageUrl"
+                     alt="@caseEntity.Name"
+                     class="UserItem"
+                     data-id="@caseEntity.Id"
+                     data-name="@caseEntity.Name"
+                     data-description="@caseEntity.Description"
+                     data-image="@caseEntity.ImageUrl"
+                     data-type="case"
+                     onclick="showItemModal(this)" />
             }
         </div>
     </div>
 </div>
 
-@section Scripts{
+@section Scripts {
     <script>
         function showItemModal(element) {
             const id = element.dataset.id;
@@ -107,7 +107,7 @@
                 rarityElement.textContent = `Rarity: ${rarity}`;
                 rarityElement.style.display = "block";
             } else {
-                rarityElement.style.display = "none"; 
+                rarityElement.style.display = "none";
             }
 
             const img = document.getElementById("modalImage");
@@ -115,14 +115,14 @@
                 img.src = image;
                 img.style.display = "block";
             } else {
-                img.style.display = "none"; 
+                img.style.display = "none";
             }
 
             const openCaseBtn = document.getElementById("openCaseBtn");
             const modalCaseId = document.getElementById("modalCaseId");
             if (type === "case") {
                 openCaseBtn.classList.remove("hidden");
-                modalCaseId.value = id; 
+                modalCaseId.value = id;
             } else {
                 openCaseBtn.classList.add("hidden");
                 modalCaseId.value = '';

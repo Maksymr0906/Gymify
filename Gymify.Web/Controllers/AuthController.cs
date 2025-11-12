@@ -13,13 +13,13 @@ public class AuthController : Controller
         _authService = authService;
     }
 
-    [HttpGet]
+    [HttpGet("register")]
     public IActionResult Register()
     {
         return View();
     }
 
-    [HttpPost]
+    [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequestDto dto)
     {
         if (!ModelState.IsValid)
@@ -36,13 +36,13 @@ public class AuthController : Controller
         return View(dto);
     }
 
-    [HttpGet]
+    [HttpGet("login")]
     public IActionResult Login()
     {
         return View();
     }
 
-    [HttpPost]
+    [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequestDto dto)
     {
         if (!ModelState.IsValid)
