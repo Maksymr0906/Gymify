@@ -64,10 +64,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "auth",
-    pattern: "{action}",
-    defaults: new { controller = "Auth" });
 
 app.MapControllerRoute(
     name: "default",
