@@ -1,0 +1,139 @@
+﻿@model Gymify.Application.ViewModels.UserItems.UserItemsViewModel
+
+@{
+    ViewData["Title"] = "Inventory";
+}
+
+<div id="itemModal" class="modal hidden">
+    <div class="modal-content">
+        <h2 id="modalName"></h2>
+        <div class="drop-image-containter">
+            <img id="modalImage" src="" width="150" />
+        </div>
+        <p id="modalRarity"></p>
+        <p id="modalDescription"></p>
+        <form id="openCaseForm" method="post" asp-action="GoToCasePage">
+            <input type="hidden" name="caseId" id="modalCaseId" />
+            <button type="submit" id="openCaseBtn" class="hidden">Open Case</button>
+        </form>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<div class="InventoryContainer">
+    @foreach (var group in Model.Items.GroupBy(i => i.Type))
+    {
+        <div class="InventoryBlock">
+            <h2 class="InventoryTitle">
+                @(group.Key switch
+                {
+                    1 => "Background",
+                    2 => "Border",
+                    3 => "Avatar",
+                    4 => "Title",
+                    _ => "Unknown"
+                })
+        </h2>
+        <div class="Inventory">
+            @foreach (var item in group)
+                {
+                    var isTitle = group.Key == 4;
+
+                    if (isTitle)
+                    {
+                        <div class="UserItem TitleBox"
+                             data-id="@item.Id"
+                             data-name="@item.Name"
+                             data-description="@item.Description"
+                             data-rarity="@item.RarityName"
+                             data-image="@item.ImageURL"
+                             onclick="showItemModal(this)">
+                            @item.Name
+                        </div>
+                    }
+                    else
+                    {
+                        <img src="@item.ImageURL"
+                             alt="@item.Name"
+                             class="UserItem"
+                             data-id="@item.Id"
+                             data-name="@item.Name"
+                             data-description="@item.Description"
+                             data-rarity="@item.RarityName"
+                             data-image="@item.ImageURL"
+                             onclick="showItemModal(this)" />
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    <div class="InventoryBlock">
+        <h2 class="InventoryTitle">Cases</h2>
+        <div class="Inventory">
+            @foreach (var caseEntity in Model.Cases.ToList())
+            {
+                <img src="@caseEntity.ImageUrl"
+                     alt="@caseEntity.Name"
+                     class="UserItem"
+                     data-id="@caseEntity.Id"
+                     data-name="@caseEntity.Name"
+                     data-description="@caseEntity.Description"
+                     data-image="@caseEntity.ImageUrl"
+                     data-type="case"
+                     onclick="showItemModal(this)" />
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showItemModal(element) {
+            const id = element.dataset.id;
+            const name = element.dataset.name;
+            const description = element.dataset.description;
+            const rarity = element.dataset.rarity;
+            const image = element.dataset.image;
+            const type = element.dataset.type;
+
+            const openButton = document.getElementById("openCaseBtn");
+
+            document.getElementById("modalName").textContent = name;
+            document.getElementById("modalDescription").textContent = description;
+
+            const rarityElement = document.getElementById("modalRarity");
+            if (rarity) {
+                rarityElement.textContent = `Rarity: ${rarity}`;
+                rarityElement.style.display = "block";
+            } else {
+                rarityElement.style.display = "none";
+            }
+
+            const img = document.getElementById("modalImage");
+            if (image) {
+                img.src = image;
+                img.style.display = "block";
+            } else {
+                img.style.display = "none";
+            }
+
+            const openCaseBtn = document.getElementById("openCaseBtn");
+            const modalCaseId = document.getElementById("modalCaseId");
+            if (type === "case") {
+                openCaseBtn.classList.remove("hidden");
+                modalCaseId.value = id;
+            } else {
+                openCaseBtn.classList.add("hidden");
+                modalCaseId.value = '';
+            }
+
+            document.getElementById("itemModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("itemModal").classList.add("hidden");
+        }
+    </script>
+}
+
