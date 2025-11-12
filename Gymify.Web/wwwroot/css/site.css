@@ -154,13 +154,13 @@ a {
     padding: 2px;
     background-color: var(--ButtonColor);
 }
-/*              Main            */
+/*              Home            */
 .homeTop {
     display: flex;
-    justify-content: space-around;
-    align-items: stretch;
+    justify-content: space-between;
+    align-items: flex-start;
     height: 400px;
-    margin-top: 50px;
+    margin: 50px 5% 0 5%;
 }
 
 .homeTopLeft {
@@ -168,44 +168,53 @@ a {
     flex-direction: column;
     width: 50%;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-start;
+    text-align: left;
 }
 
 .homeTitle {
     font-size: 42px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .homeText {
-    font-size: 30px;
+    font-size: 24px;
+    margin: 20px 0;
 }
 
 .homeButton {
-    font-size: 36px;
-
-    border-radius: 20px;
-    padding: 15px;
-    box-sizing: border-box;
+    font-size: 28px;
+    border-radius: 15px;
+    padding: 12px 25px;
     background-color: var(--ButtonColor);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s;
+}
+
+.scaleButton:hover {
+    transform: scale(1.05);
 }
 
 .homeTopRight {
-    width: 30%;
+    width: 35%;
     border: 2px solid;
-    border-radius: 30px;
+    border-radius: 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 20px;
 }
 
 .homeStats {
     width: 100%;
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .homeStat {
-    margin: 10px 0 0 0;
     width: 80px;
     height: 80px;
     border: 1.5px solid;
@@ -213,15 +222,16 @@ a {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 30px;
+    font-size: 28px;
 }
 
 .homeStatText {
-    margin: 20px 0 0 0;
-    font-size: 24px;
+    margin-top: 20px;
+    font-size: 22px;
 }
 
 .homeBott {
+    margin-top: 40px;
     padding: 30px 5%;
     text-align: left;
 }
@@ -230,19 +240,23 @@ a {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .homeTrain {
-    margin: 10px 0 0 0;
-    width: 15%;
+    flex: 1 1 15%;
     aspect-ratio: 1 / 1;
     border: 1.5px solid;
-    border-radius: 40px;
+    border-radius: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 30px;
+    font-size: 26px;
+    text-decoration: none;
+    color: inherit;
 }
+
 /*              Workout             */
 .workoutTop {
     height: 350px;

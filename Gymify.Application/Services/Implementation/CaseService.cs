@@ -108,7 +108,6 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 		if (!detailedItems.Any())
 			throw new Exception("Case items details not found");
 
-		// --- ЛОГІКА ВИЗНАЧЕННЯ ПЕРЕМОЖЦЯ (залишається твоя) ---
 		var roll = _random.Next(1, 33);
 		ItemRarity targetRarity;
 
@@ -133,8 +132,6 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 		int selectedIndex = _random.Next(rewardsOfSameRarity.Count);
 		var selectedReward = rewardsOfSameRarity[selectedIndex]; // Це наш переможець!
 
-		// --- НОВА ЛОГІКА: ГЕНЕРАЦІЯ СТРІЧКИ РУЛЕТКИ ---
-
 		const int stripLength = 100; // Загальна довжина стрічки (як у прикладі)
 		const int winningIndex = 78;  // Позиція, де завжди буде переможець
 
@@ -153,7 +150,6 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 			}
 		}
 
-		// Мапимо згенеровану стрічку в DTO
 		var rouletteStripDto = rouletteItems.Select(i => new ItemDto
 		{
 			Id = i.Id,
@@ -164,7 +160,6 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 			Type = (int)i.Type
 		});
 
-		// --- ЗБЕРЕЖЕННЯ РЕЗУЛЬТАТУ (залишається твоє) ---
 		var userReward = new UserItem
 		{
 			Id = Guid.NewGuid(),
@@ -177,7 +172,6 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 		await _unitOfWork.UserCaseRepository.DeleteFirstByUserIdAndCaseIdAsync(userId, caseId);
 		await _unitOfWork.SaveAsync();
 
-		// --- ПОВЕРНЕННЯ РЕЗУЛЬТАТУ ---
 		return new OpenCaseResultDto()
 		{
 			RouletteStrip = rouletteStripDto, // Повертаємо нову стрічку
