@@ -41,6 +41,8 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
             };
         }
 
+        int calculatedXP = CalculateXp(model, existingExercise);
+
         var userExercise = new UserExercise
         {
             Name = existingExercise.Name,
@@ -51,7 +53,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
             Duration = model.Duration,
             WorkoutId = model.WorkoutId,
             ExerciseId = existingExercise.Id,
-            EarnedXP = existingExercise.BaseXP
+            EarnedXP = calculatedXP 
         };
 
         await _unitOfWork.UserExerciseRepository.CreateAsync(userExercise);
@@ -69,4 +71,28 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
             EarnedXP = userExercise.EarnedXP,
         };
     }
+    public static int CalculateXp(AddUserExerciseToWorkoutRequestDto exerciseModel, Exercise userExercise)
+    {
+        int sets = exerciseModel.Sets ?? 0;
+        int reps = exerciseModel.Reps ?? 0;
+        int weight = exerciseModel.Weight ?? 0;
+        double minutes = exerciseModel.Duration?.TotalMinutes ?? 0;
+
+        double factor = 1.0;
+
+        if (weight > 0 && minutes == 0)
+        {
+            factor += (double)weight / 50.0; // кожні 50 кг — подвоєння
+        }
+        else if (minutes > 0 && weight == 0)
+        {
+            factor += minutes / 10.0; // кожні 10 хв — подвоєння
+        }
+
+        double xp = userExercise.DifficultyMultiplier * sets * Math.Max(reps, 1) * factor;
+
+        // мінімальне XP, щоб не було нуля
+        return (int)Math.Max(xp, userExercise.BaseXP);
+    }
 }
+
