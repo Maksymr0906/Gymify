@@ -1,7 +1,7 @@
 ﻿@model Gymify.Application.ViewModels.UserItems.UserItemsViewModel
 
 @{
-    ViewData["Title"] = "UserItems";
+    ViewData["Title"] = "Inventory";
 }
 
 <div id="itemModal" class="modal hidden">
@@ -20,11 +20,11 @@
     </div>
 </div>
 
-<div class="UserItemsContainer">
+<div class="InventoryContainer">
     @foreach (var group in Model.Items.GroupBy(i => i.Type))
     {
-        <div class="UserItemsBlock">
-            <h2 class="UserItemsTitle">
+        <div class="InventoryBlock">
+            <h2 class="InventoryTitle">
                 @(group.Key switch
                 {
                     1 => "Background",
@@ -34,7 +34,7 @@
                     _ => "Unknown"
                 })
         </h2>
-        <div class="UserItems">
+        <div class="Inventory">
             @foreach (var item in group)
                 {
                     var isTitle = group.Key == 4;
@@ -68,9 +68,9 @@
         </div>
     }
 
-    <div class="UserItemsBlock">
-        <h2 class="UserItemsTitle">Cases</h2>
-        <div class="UserItems">
+    <div class="InventoryBlock">
+        <h2 class="InventoryTitle">Cases</h2>
+        <div class="Inventory">
             @foreach (var caseEntity in Model.Cases.ToList())
             {
                 <img src="@caseEntity.ImageUrl" 
