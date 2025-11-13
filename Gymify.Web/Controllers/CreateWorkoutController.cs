@@ -22,7 +22,8 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GenerateWorkout(CreateWorkoutRequestDto dto)
         {
-            var workout = await _workoutService.CreateWorkoutAsync(dto);
+            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+            var workout = await _workoutService.CreateWorkoutAsync(dto, currentUserId);
 
             TempData["WorkoutId"] = workout.Id.ToString();
             return RedirectToAction("AddExercises", "AddExercise");

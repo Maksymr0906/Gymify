@@ -1,0 +1,108 @@
+﻿@model List<Gymify.Application.DTOs.WorkoutsCalendar.WorkoutDayDto>
+
+@{
+    ViewData["Title"] = "Calendar";
+}
+
+<style>
+    .day-header {
+        background: #f0f0f0;
+        padding: 10px 15px;
+        font-weight: bold;
+        cursor: pointer;
+        border-top: 1px solid #ddd;
+    }
+    .day-header:hover {
+        background: #e0e0e0;
+    }
+    .workout-list {
+        display: none; /* Сховано за замовчуванням */
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+    .workout-list a {
+        display: block;
+        padding: 8px 0;
+        text-decoration: none;
+    }
+    #load-more-btn {
+        margin-top: 20px;
+        width: 100%;
+        padding: 10px;
+    }
+</style>
+
+<h2>Моя стрічка активності</h2>
+
+<div id="workout-feed-container">
+
+    @await Html.PartialAsync("WorkoutsList", Model)
+
+</div>
+
+<button id="load-more-btn" data-page="1">
+    Завантажити ще
+</button>
+
+@section Scripts {
+        <script>
+            $(document).ready(function() {
+
+                var feedContainer = $('#workout-feed-container');
+
+                // --- 1. Логіка "Відкриття/Закриття" списку ---
+                // Ми використовуємо .on() на батьківському елементі,
+                // щоб обробник працював і для нових, завантажених через AJAX, елементів.
+
+                feedContainer.on('click', '.day-header', function() {
+                    // 'this' - це .day-header, на який клікнули
+                    // .next() знаходить наступний елемент (.workout-list)
+                    // .slideToggle() плавно його показує або ховає
+                    $(this).next('.workout-list').slideToggle();
+                });
+
+
+                // --- 2. Логіка "Завантажити ще" (Пагінація) ---
+
+                $('#load-more-btn').on('click', function() {
+                    var button = $(this);
+                    var nextPage = button.data('page'); // Отримуємо номер сторінки
+
+                    // Блокуємо кнопку
+                    button.prop('disabled', true).text('Завантаження...');
+
+                    $.ajax({
+                        url: '@Url.Action("LoadMoreWorkouts")', // Наш AJAX-метод
+                        type: 'GET',
+                        data: { page: nextPage }, // Передаємо номер сторінки
+
+                        success: function(responseHtml) {
+                            // 'responseHtml' - це HTML з нашого PartialView
+
+                            // Перевіряємо, чи сервер повернув не порожній HTML
+                            if (responseHtml.trim().length > 0) {
+
+                                // Додаємо новий HTML в кінець контейнера
+                                feedContainer.append(responseHtml);
+
+                                // Збільшуємо лічильник сторінки на кнопці
+                                button.data('page', nextPage + 1);
+
+                                // Розблоковуємо кнопку
+                                button.prop('disabled', false).text('Завантажити ще');
+                            } else {
+                                // Якщо сервер повернув порожній HTML, 
+                                // це означає, що тренувань більше немає.
+                                button.prop('disabled', true).text('Більше тренувань немає');
+                                button.hide(); // Ховаємо кнопку
+                            }
+                        },
+                        error: function() {
+                            alert('Сталася помилка. Спробуйте пізніше.');
+                            button.prop('disabled', false).text('Завантажити ще');
+                        }
+                    });
+                });
+            });
+        </script>
+}
