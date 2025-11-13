@@ -90,4 +90,22 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             UserProfileId = workout.UserProfileId,
         };
     }
+
+    public async Task<ICollection<WorkoutDto>> GetAllUserWorkoutsAsync(Guid userProfileId)
+    {
+        var workouts = await _unitOfWork.WorkoutRepository.GetAllByUserIdAsync(userProfileId);
+
+        var workoutDtos = workouts.Select(workout => new WorkoutDto
+        {
+            Id = workout.Id,
+            Name = workout.Name,
+            Description = workout.Description,
+            Conclusion = workout.Conclusion,
+            IsPrivate = workout.IsPrivate,
+            TotalXP = workout.TotalXP,
+            UserProfileId = workout.UserProfileId
+        }).ToList();
+
+        return workoutDtos;
+    }
 }
