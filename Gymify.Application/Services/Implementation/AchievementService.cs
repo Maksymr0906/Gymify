@@ -1,3 +1,4 @@
+using Gymify.Application.DTOs.Achievement;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
@@ -36,6 +37,52 @@ public class AchievementService(IUnitOfWork unitOfWork) : IAchievementService
         await _unitOfWork.SaveAsync();
 
         return newAchievements;
+    }
+
+    public async Task<ICollection<AchievementDto>> GetAllAchievementsAsync()
+    {
+        var achievements = await _unitOfWork.AchievementRepository.GetAllAsync();
+
+        return achievements.Select(a => new AchievementDto
+        {
+            AchievementId = a.Id,
+            Name = a.Name,
+            Description = a.Description,
+            IconUrl = a.IconUrl,
+            TargetProperty = a.TargetProperty,
+            TargetValue = a.TargetValue,
+            ComparisonType = a.ComparisonType,
+            RewardItemId = a.RewardItemId,
+            Progress = 0,
+            IsCompleted = false,
+            UnlockedAt = null
+        }).ToList();
+    }
+
+    public async Task<ICollection<AchievementDto>> GetUserAchievementsAsync(Guid userProfileId)
+    {
+        var achievements = await _unitOfWork.AchievementRepository.GetAllByUserId(userProfileId);
+
+        return achievements.Select(a =>
+        {
+            var userAchievement = a.UserAchievements.FirstOrDefault(ua => ua.UserProfileId == userProfileId);
+
+            return new AchievementDto
+            {
+                AchievementId = a.Id,
+                Name = a.Name,
+                Description = a.Description,
+                IconUrl = a.IconUrl,
+                TargetProperty = a.TargetProperty,
+                TargetValue = a.TargetValue,
+                ComparisonType = a.ComparisonType,
+                RewardItemId = a.RewardItemId,
+
+                Progress = userAchievement?.Progress ?? 0,
+                IsCompleted = userAchievement?.IsCompleted ?? false,
+                UnlockedAt = userAchievement?.UnlockedAt
+            };
+        }).ToList();
     }
 
     private bool IsAchievementCompleted(UserProfile user, Achievement achievement)

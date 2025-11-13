@@ -7,6 +7,11 @@ namespace Gymify.Persistence.Repositories;
 public class WorkoutRepository(GymifyDbContext context)
     : Repository<Workout>(context), IWorkoutRepository
 {
+    public async Task<ICollection<Workout>> GetAllByUserIdAsync(Guid userId)
+    {
+        return await Entities.Where(w => w.UserProfileId == userId).ToListAsync();
+    }
+
     public async Task<Workout> GetByIdWithDetailsAsync(Guid id)
     {
         var workout = await Entities
