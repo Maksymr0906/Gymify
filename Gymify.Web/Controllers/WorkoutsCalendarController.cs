@@ -35,7 +35,7 @@ namespace Gymify.Web.Controllers
             var model = await _workoutService.GetWorkoutsByDayPage(userId, page);
 
             // Повертаємо Partial View ТІЛЬКИ з новими даними
-            return PartialView("_WorkoutDayList", model);
+            return PartialView("WorkoutsList", model);
         }
     }
 
