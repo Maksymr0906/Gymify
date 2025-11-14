@@ -2,37 +2,25 @@
 
 @{
     ViewData["Title"] = "Calendar";
+    bool onlyMy = ViewBag.OnlyMy ?? true;
+    string? authorName = ViewBag.AuthorName as string ?? string.Empty;
 }
 
-<style>
-    .day-header {
-        background: #f0f0f0;
-        padding: 10px 15px;
-        font-weight: bold;
-        cursor: pointer;
-        border-top: 1px solid #ddd;
-    }
-    .day-header:hover {
-        background: #e0e0e0;
-    }
-    .workout-list {
-        display: none; /* Сховано за замовчуванням */
-        padding: 15px;
-        border-bottom: 1px solid #ddd;
-    }
-    .workout-list a {
-        display: block;
-        padding: 8px 0;
-        text-decoration: none;
-    }
-    #load-more-btn {
-        margin-top: 20px;
-        width: 100%;
-        padding: 10px;
-    }
-</style>
-
 <h2>Моя стрічка активності</h2>
+
+<form method="get" asp-controller="WorkoutsCalendar" asp-action="Index" class="search-form" style="margin-bottom:20px;">
+    <input type="text" name="authorName" placeholder="Пошук по імені автора" value="@authorName" />
+
+    <label style="margin-left:15px;">
+        <input type="checkbox" name="onlyMy" value="true" @(onlyMy ? "checked" : "") />
+
+        <input type="hidden" name="onlyMy" value="false" />
+
+        Тільки мої тренування
+    </label>
+
+    <button type="submit" style="margin-left:15px;">Пошук</button>
+</form>
 
 <div id="workout-feed-container">
 
@@ -71,26 +59,46 @@
                     }
                 });
 
-                // 2. Логіка "Завантажити ще"
+                // 2. Логіка "Завантажити ще" (з виправленням)
                 loadMoreBtn.addEventListener('click', function () {
                     var button = this;
                     var nextPage = parseInt(button.getAttribute('data-page'), 10);
+
+                    // --- ПОЧАТОК ВИПРАВЛЕННЯ ---
+
+                    // 2.1. Отримуємо поточні значення фільтрів з форми
+                    var authorNameInput = document.querySelector('input[name="authorName"]');
+                    var onlyMyCheckbox = document.querySelector('input[type="checkbox"][name="onlyMy"]');
+
+                    var authorNameValue = authorNameInput ? authorNameInput.value : '';
+                    var onlyMyValue = onlyMyCheckbox ? onlyMyCheckbox.checked : false; 
+
+                    // 2.2. Будуємо URL з усіма параметрами
+                    var params = new URLSearchParams();
+                    params.append('page', nextPage);
+                    params.append('authorName', authorNameValue);
+                    params.append('onlyMy', onlyMyValue); // Додасть 'onlyMy=true' або 'onlyMy=false'
+
+                    var url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
+
+                    // --- КІНЕЦЬ ВИПРАВЛЕННЯ ---
 
                     button.disabled = true;
                     button.textContent = 'Завантаження...';
 
                     var xhr = new XMLHttpRequest();
-                    xhr.open('GET', '@Url.Action("LoadMoreWorkouts")?page=' + nextPage, true);
+
+                    // 2.3. Використовуємо нову URL
+                    xhr.open('GET', url, true); 
+
                     xhr.onload = function () {
                         if (xhr.status >= 200 && xhr.status < 300) {
                             var responseHtml = xhr.responseText.trim();
 
                             if (responseHtml.length > 0) {
-                                // Створюємо тимчасовий контейнер для вставки HTML
                                 var tempDiv = document.createElement('div');
                                 tempDiv.innerHTML = responseHtml;
 
-                                // Додаємо всі дочірні елементи у feedContainer
                                 while (tempDiv.firstChild) {
                                     feedContainer.appendChild(tempDiv.firstChild);
                                 }

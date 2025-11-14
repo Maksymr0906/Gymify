@@ -15,26 +15,30 @@ namespace Gymify.Web.Controllers
             _workoutService = workoutService;
         }
 
-        // 1. ГОЛОВНИЙ МЕТОД: Завантажує першу сторінку (останні 28 днів)
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? authorName, bool onlyMy = true, int page = 0)
         {
-
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            // page: 0 означає "перша сторінка" (останні 28 днів)
-            var model = await _workoutService.GetWorkoutsByDayPage(userId, 0);
+
+            var model = await _workoutService.GetWorkoutsByDayPage(userId, authorName, page, onlyMy);
+
+            ViewBag.OnlyMy = onlyMy;
+            ViewBag.AuthorName = authorName;
+
             return View(model);
         }
 
-        // 2. AJAX-МЕТОД: Завантажує наступні сторінки
+
         [HttpGet]
-        public async Task<IActionResult> LoadMoreWorkouts(int page)
+        public async Task<IActionResult> LoadMoreWorkouts(string? authorName, bool onlyMy, int page)
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            // 'page' буде 1, 2, 3...
-            var model = await _workoutService.GetWorkoutsByDayPage(userId, page);
 
-            // Повертаємо Partial View ТІЛЬКИ з новими даними
+            var model = await _workoutService.GetWorkoutsByDayPage(userId, authorName, page, onlyMy);
+
+            ViewBag.OnlyMy = onlyMy;
+            ViewBag.AuthorName = authorName;
+
             return PartialView("WorkoutsList", model);
         }
     }

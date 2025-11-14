@@ -6,5 +6,5 @@ public interface IWorkoutRepository : IRepository<Workout>
 {
     Task<Workout> GetByIdWithDetailsAsync(Guid id);
     Task<ICollection<Workout>> GetAllByUserIdAsync(Guid userId);
-    Task<ICollection<Workout>> GetAllUserWorkoutsInDateRange(Guid userId, DateTime startDate, DateTime endDate);
+    Task<ICollection<Workout>> GetUserWorkoutsFilteredAsync(Guid userId, DateTime startDate, DateTime endDate, string? authorName, bool onlyMy);
 }

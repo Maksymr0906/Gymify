@@ -336,8 +336,40 @@ a {
     font-size: 30px;
 }
 
-/*          CreateWorkout           */
+/*          WorkoutsCalendar        */
 
+.day-header {
+    background: #f0f0f0;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-top: 1px solid #ddd;
+}
+
+.day-header:hover {
+    background: #e0e0e0;
+}
+
+.workout-list {
+    display: none;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+    .workout-list a {
+        display: block;
+        padding: 8px 0;
+        text-decoration: none;
+    }
+
+#load-more-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+}
+
+
+/*          CreateWorkout           */
 .createWorkoutForm {
     height: 80vh;
     padding: 15%;

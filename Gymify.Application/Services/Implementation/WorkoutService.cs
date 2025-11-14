@@ -117,47 +117,39 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         return workoutDtos;
     }
 
-    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(Guid userId, int page)
+    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(Guid userId, string? authorName, int page, bool onlyMy)
     {
         int pageSizeDays = 28;
-        // Визначаємо діапазон дат.
-        // ВИКОРИСТОВУЄМО UTC, оскільки BaseEntity.CreatedAt, 
-        // скоріш за все, зберігається в UTC (це best practice).
         var today = DateTime.UtcNow.Date;
 
-        // Вираховуємо діапазон
         var endDate = today.AddDays(-(page * pageSizeDays));
         var startDate = endDate.AddDays(-pageSizeDays + 1);
 
-        // Встановлюємо час для коректного запиту
-        // (від 00:00:00 першого дня до 23:59:59 останнього)
         var queryStartDate = startDate;
         var queryEndDate = endDate.AddDays(1).AddTicks(-1);
 
-        // 1. Отримуємо всі тренування за діапазон
-        var workouts = await _unitOfWork.WorkoutRepository.GetAllUserWorkoutsInDateRange(userId, queryStartDate, queryEndDate);
+        var workouts = await _unitOfWork.WorkoutRepository.GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy);
 
-        // 2. Групуємо їх на стороні сервера (в пам'яті)
-        //    (оскільки CreatedAt має час, групуємо по .Date)
         var groupedWorkouts = workouts
-            .GroupBy(w => w.CreatedAt.Date) // Ключ - це дата
+            .GroupBy(w => w.CreatedAt.Date)
             .Select(group => new WorkoutDayDto
             {
-                Date = group.Key, // Дата дня
-
-                // Статистика для теплокарти
-                TotalXpForDay = group.Sum(w => w.TotalXP),
-
-                // Список тренувань
+                Date = group.Key,
+                TotalXpForDay = onlyMy ? group.Sum(w => w.TotalXP) : 0,
                 Workouts = group.Select(w => new WorkoutDto
                 {
                     Id = w.Id,
-                    Name = w.Name
+                    Name = w.Name,
+                    CreatedAt = w.CreatedAt,
+                    UserProfileId = w.UserProfileId,
+                    AuthorName = w.UserProfile.ApplicationUser.UserName,
+                    TotalXP = onlyMy ? w.TotalXP : 0
                 }).ToList()
             })
-            .OrderByDescending(d => d.Date) // Найновіші дні зверху
+            .OrderByDescending(d => d.Date)
             .ToList();
 
         return groupedWorkouts;
     }
+
 }

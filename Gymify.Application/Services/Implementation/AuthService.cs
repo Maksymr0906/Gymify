@@ -27,7 +27,7 @@ public class AuthService : IAuthService
     {
         var user = new ApplicationUser
         {
-            UserName = dto.Email,
+            UserName = dto.Email, // КАКОГО ХУЯ БЛЯТЬ
             Email = dto.Email
         };
 
