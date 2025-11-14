@@ -1,8 +1,11 @@
-﻿using Gymify.Data.Entities;
+﻿using Gymify.Application.DTOs.Achievement;
+using Gymify.Data.Entities;
 
 namespace Gymify.Application.Services.Interfaces;
 
 public interface IAchievementService
 {
     Task<List<Achievement>> CheckForAchievementsAsync(Guid userProfileId);
+    Task<ICollection<AchievementDto>> GetAllAchievementsAsync();
+    Task<ICollection<AchievementDto>> GetUserAchievementsAsync(Guid userProfileId);
 }
