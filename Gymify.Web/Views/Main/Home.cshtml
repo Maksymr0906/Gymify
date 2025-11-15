@@ -1,15 +1,20 @@
-﻿@{
+﻿@model Gymify.Application.ViewModels.Home.HomeViewModel 
+@{
     ViewData["Title"] = "Home";
 }
 <div class="text-center">
 
     <div class="homeTop">
-        <div class="homeTitle">LEVEL 1</div>
+
+        <div class="homeTitle">LEVEL @Model.Level</div>
 
         <div class="progressBarContainer">
-            <div class="progressBarFill" style="width: 30%;"></div>
+            <div class="progressBarFill" style="width: @Math.Round(Model.ProgressPercentage)%;"></div>
         </div>
-        <div class="homeXPText">150 / 500 XP</div>
+
+        <div class="homeXPText">
+            @Model.XpEarnedInThisLevel / @Model.XpNeededForThisLevel XP
+        </div>
 
         <div class="homeText">Keep going strong!</div>
 

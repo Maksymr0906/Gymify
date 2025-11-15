@@ -1,6 +1,6 @@
 ﻿using Gymify.Application.DTOs.Achievement;
 using Gymify.Application.DTOs.Workout;
-using Gymify.Application.DTOs.WorkoutsCalendar;
+using Gymify.Application.DTOs.WorkoutsFeed;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;

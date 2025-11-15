@@ -23,6 +23,7 @@ public static class ApplicationExtensions
         services.AddScoped<IUserExersiceService, UserExerciseService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IWorkoutService, WorkoutService>();
+        services.AddScoped<ILevelingService, LevelingService>();
 
         return services;
     }

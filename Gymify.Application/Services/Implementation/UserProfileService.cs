@@ -1,12 +1,41 @@
 ﻿using Gymify.Application.Services.Interfaces;
+using Gymify.Application.ViewModels.Home;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class UserProfileService(IUnitOfWork unitOfWork) : IUserProfileService
+public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelingService) : IUserProfileService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ILevelingService _levelingService = levelingService;
+
+    public async Task<HomeViewModel> ReceiveUserLevelWorkouts(Guid userId)
+    {
+        var user = await _unitOfWork.UserProfileRepository.GetByIdAsync(userId);
+
+        int currentLevel = _levelingService.CalculateLevel(user.CurrentXP);
+
+        double totalXpForCurrentLevel = _levelingService.GetTotalXpForLevel(currentLevel);
+        double totalXpForNextLevel = _levelingService.GetTotalXpForLevel(currentLevel + 1);
+
+        double xpNeededForThisLevel = totalXpForNextLevel - totalXpForCurrentLevel;
+        double xpEarnedInThisLevel = user.CurrentXP - totalXpForCurrentLevel;
+
+        double progressPercentage = (xpNeededForThisLevel > 0)
+            ? (xpEarnedInThisLevel / xpNeededForThisLevel) * 100
+            : 0;
+
+        var viewModel = new HomeViewModel
+        {
+            Level = currentLevel, 
+            XpEarnedInThisLevel = (int)xpEarnedInThisLevel,
+            XpNeededForThisLevel = (int)xpNeededForThisLevel,
+            ProgressPercentage = progressPercentage
+        };
+
+        return viewModel;
+    }
 
     public async Task AddXPAsync(Guid userProfileId, int earnedXp)
     {
@@ -14,7 +43,7 @@ public class UserProfileService(IUnitOfWork unitOfWork) : IUserProfileService
 
         user.CurrentXP += earnedXp;
 
-        int newLevel = (int)Math.Floor(Math.Sqrt(user.CurrentXP / 100.0));
+        int newLevel = _levelingService.CalculateLevel(user.CurrentXP);
         user.Level = newLevel;
 
         await _unitOfWork.UserProfileRepository.UpdateAsync(user);

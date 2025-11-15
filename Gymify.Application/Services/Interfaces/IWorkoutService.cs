@@ -1,5 +1,5 @@
 ﻿using Gymify.Application.DTOs.Workout;
-using Gymify.Application.DTOs.WorkoutsCalendar;
+using Gymify.Application.DTOs.WorkoutsFeed;
 using Gymify.Data.Entities;
 using System;
 
