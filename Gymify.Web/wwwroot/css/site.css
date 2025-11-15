@@ -154,22 +154,15 @@ a {
     padding: 2px;
     background-color: var(--ButtonColor);
 }
-/*              Home            */
+/* Home */
 .homeTop {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    height: 400px;
-    margin: 50px 5% 0 5%;
-}
-
-.homeTopLeft {
-    display: flex;
     flex-direction: column;
-    width: 50%;
-    justify-content: space-between;
-    align-items: flex-start;
-    text-align: left;
+    align-items: center;
+    justify-content: center;
+    height: 400px; /* Можливо, захочеш трохи збільшити */
+    margin: 50px 5% 0 5%;
+    text-align: center;
 }
 
 .homeTitle {
@@ -177,9 +170,45 @@ a {
     font-weight: 600;
 }
 
+/* НОВІ СТИЛІ ДЛЯ ПРОГРЕС-БАРУ 
+*/
+.progressBarContainer {
+    width: 80%;
+    max-width: 500px;
+    height: 20px;
+    background-color: #e0e0e0; /* Колір "порожнього" бару */
+    border-radius: 10px;
+    margin-top: 15px; /* Відступ від "LEVEL 1" */
+    overflow: hidden; /* Ховаємо те, що виходить за межі */
+}
+
+.progressBarFill {
+    height: 100%;
+    background-color: var(--ButtonColor); /* Використовуємо твій колір */
+    border-radius: 10px;
+    transition: width 0.5s ease-out; /* Анімація заповнення */
+}
+
+.homeXPText {
+    font-size: 16px;
+    color: #555; /* Трохи темніший, ніж звичайний */
+    margin-top: 5px; /* Маленький відступ від бару */
+}
+
+
 .homeText {
     font-size: 24px;
     margin: 20px 0;
+}
+
+/* ЗМІНЕНО ДЛЯ КНОПОК 
+*/
+.homeButtonContainer {
+    display: flex;
+    flex-direction: column; /* Ставить кнопки одну на одну */
+    align-items: center; /* Центрує їх */
+    gap: 15px; /* Відстань між кнопками */
+    margin-top: 15px;
 }
 
 .homeButton {
@@ -190,44 +219,12 @@ a {
     text-decoration: none;
     color: inherit;
     transition: transform 0.2s;
+    width: 100%; /* Можна додати, щоб кнопки були однакової ширини */
+    box-sizing: border-box; /* Важливо, якщо використовуєш padding + width 100% */
 }
 
 .scaleButton:hover {
     transform: scale(1.05);
-}
-
-.homeTopRight {
-    width: 35%;
-    border: 2px solid;
-    border-radius: 25px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-}
-
-.homeStats {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.homeStat {
-    width: 80px;
-    height: 80px;
-    border: 1.5px solid;
-    border-radius: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 28px;
-}
-
-.homeStatText {
-    margin-top: 20px;
-    font-size: 22px;
 }
 
 .homeBott {

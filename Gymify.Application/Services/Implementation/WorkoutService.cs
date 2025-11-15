@@ -117,18 +117,45 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         return workoutDtos;
     }
 
-    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(Guid userId, string? authorName, int page, bool onlyMy)
+    public async Task<DateTime?> GetFirstWorkoutDate(Guid userId, bool onlyMy, string authorName)
+    {
+        return await _unitOfWork.WorkoutRepository.GetFirstWorkoutDateAsync(userId, onlyMy, authorName);
+    }
+
+    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(DateTime? anchorDate, Guid userId, string? authorName, int page, bool onlyMy, bool byDescending)
     {
         int pageSizeDays = 28;
-        var today = DateTime.UtcNow.Date;
+        DateTime queryStartDate;
+        DateTime queryEndDate;
 
-        var endDate = today.AddDays(-(page * pageSizeDays));
-        var startDate = endDate.AddDays(-pageSizeDays + 1);
+        if (byDescending)
+        {
+            // Логіка для "новіші спочатку" (залишається як є)
+            var today = DateTime.UtcNow.Date;
+            var endDate = today.AddDays(-(page * pageSizeDays));
+            var startDate = endDate.AddDays(-pageSizeDays + 1);
 
-        var queryStartDate = startDate;
-        var queryEndDate = endDate.AddDays(1).AddTicks(-1);
+            queryStartDate = startDate;
+            queryEndDate = endDate.AddDays(1).AddTicks(-1);
+        }
+        else
+        {
+            // Логіка для "старіші спочатку" (використовує anchorDate)
+            if (anchorDate == null)
+            {
+                // Якщо JS з якоїсь причини не надіслав дату, повертаємо порожній список
+                return new List<WorkoutDayDto>();
+            }
 
-        var workouts = await _unitOfWork.WorkoutRepository.GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy);
+            var startDate = anchorDate.Value.AddDays(page * pageSizeDays);
+            var endDate = startDate.AddDays(pageSizeDays - 1);
+
+            queryStartDate = startDate;
+            queryEndDate = endDate.AddDays(1).AddTicks(-1);
+        }
+
+        var workouts = await _unitOfWork.WorkoutRepository
+            .GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy,byDescending);
 
         var groupedWorkouts = workouts
             .GroupBy(w => w.CreatedAt.Date)
@@ -144,9 +171,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
                     UserProfileId = w.UserProfileId,
                     AuthorName = w.UserProfile.ApplicationUser.UserName,
                     TotalXP = onlyMy ? w.TotalXP : 0
-                }).ToList()
+                }).ToList() // Тепер тренування всередині дня також будуть відсортовані
             })
-            .OrderByDescending(d => d.Date)
             .ToList();
 
         return groupedWorkouts;

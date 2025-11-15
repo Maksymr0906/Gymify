@@ -2,21 +2,20 @@
     ViewData["Title"] = "Home";
 }
 <div class="text-center">
-    <div class="homeTop">
-        <div class="homeTopLeft">
-            <div class="homeTitle">LEVEL 1</div>
-            <div class="homeText">Keep going strong!</div>
-            <a class="homeButton scaleButton" href="/CreateWorkout/CreateWorkout">Create new workout</a>
-        </div>
 
-        <div class="homeTopRight">
-            <div class="homeStats">
-                <div class="homeStat">98%</div>
-                <div class="homeStat">34%</div>
-                <div class="homeStat">24%</div>
-                <div class="homeStat">55%</div>
-            </div>
-            <div class="homeStatText">Performance stats</div>
+    <div class="homeTop">
+        <div class="homeTitle">LEVEL 1</div>
+
+        <div class="progressBarContainer">
+            <div class="progressBarFill" style="width: 30%;"></div>
+        </div>
+        <div class="homeXPText">150 / 500 XP</div>
+
+        <div class="homeText">Keep going strong!</div>
+
+        <div class="homeButtonContainer">
+            <a class="homeButton scaleButton" href="/CreateWorkout/CreateWorkout">Create new workout</a>
+            <a class="homeButton scaleButton" href="/WorkoutsFeed">Workouts</a>
         </div>
     </div>
 

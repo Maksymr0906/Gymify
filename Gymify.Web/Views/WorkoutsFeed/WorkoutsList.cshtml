@@ -27,8 +27,8 @@
                         </a>
                         <div>
                             <small>
-                                Опубліковано: @workout.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") |
-                                Автор: @workout.AuthorName
+                                Dated: @workout.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") |
+                                Author: @workout.AuthorName
                         @if (onlyMy)
                         {
                             <text> | XP: @workout.TotalXP</text>

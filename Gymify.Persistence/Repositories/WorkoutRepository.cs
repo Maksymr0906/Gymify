@@ -26,7 +26,35 @@ public class WorkoutRepository(GymifyDbContext context)
         return await Entities.Where(w => w.UserProfileId == userId).ToListAsync();
     }
 
-    public async Task<ICollection<Workout>> GetUserWorkoutsFilteredAsync(Guid userId, DateTime startDate, DateTime endDate, string? authorName, bool onlyMy)
+    public async Task<DateTime?> GetFirstWorkoutDateAsync(Guid userId, bool onlyMy, string? authorName)
+    {
+        var query = Entities.AsQueryable();
+
+        if (onlyMy)
+        {
+            query = query.Where(w => w.UserProfileId == userId);
+        }
+        else if (!string.IsNullOrWhiteSpace(authorName))
+        {
+            var loweredName = authorName.Trim().ToLower();
+            query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
+        }
+        else
+        {
+            // Якщо !onlyMy і немає імені автора, ми показуємо всі тренування
+        }
+
+        var firstWorkoutDate = await query
+            .OrderBy(w => w.CreatedAt)
+            .Select(w => (DateTime?)w.CreatedAt.Date)
+            .FirstOrDefaultAsync();
+
+        return firstWorkoutDate;
+    }
+
+    public async Task<ICollection<Workout>> GetUserWorkoutsFilteredAsync
+        (Guid userId, DateTime startDate, DateTime endDate, 
+        string? authorName, bool onlyMy, bool byDescending)
     {
         var query = Entities
             .Include(w => w.UserProfile)
@@ -43,6 +71,15 @@ public class WorkoutRepository(GymifyDbContext context)
             query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
         }
 
-        return await query.OrderByDescending(w => w.CreatedAt).ToListAsync();
+        if (byDescending)
+        {
+            query = query.OrderByDescending(w => w.CreatedAt);
+        }
+        else
+        {
+            query = query.OrderBy(w => w.CreatedAt);
+        }
+
+        return await query.ToListAsync();
     }
 }
