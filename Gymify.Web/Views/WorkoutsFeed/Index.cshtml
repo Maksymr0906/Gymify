@@ -39,239 +39,340 @@
 </button>
 
 @section Scripts {
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
 
-        const feed = document.getElementById('workout-feed-container');
-        const loadMoreBtn = document.getElementById('load-more-btn');
+            const feed = document.getElementById('workout-feed-container');
+            const loadMoreBtn = document.getElementById('load-more-btn');
 
-        const filterType = document.getElementById('filter-type');
-        const authorSearch = document.getElementById('author-search');
-        const sortType = document.getElementById('sort-type');
+            const filterType = document.getElementById('filter-type');
+            const authorSearch = document.getElementById('author-search');
+            const sortType = document.getElementById('sort-type');
 
-        let debounceTimer;
+            let debounceTimer;
 
-        // SHOW / HIDE AUTHOR SEARCH
-        filterType.addEventListener('change', function () {
-            if (filterType.value === 'all') {
-                authorSearch.style.display = 'block';
-            } else {
-                authorSearch.style.display = 'none';
-                authorSearch.value = '';
-            }
-            reloadFeed();
-        });
-
-        // SORT CHANGE
-        sortType.addEventListener('change', function () {
-            reloadFeed();
-        });
-
-        // DEBOUNCE AUTHOR SEARCH
-        authorSearch.addEventListener('input', function () {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                reloadFeed();
-            }, 400);
-        });
-
-        // MAIN RELOAD
-            // Зроби функцію 'async'
-        async function reloadFeed() {
-
-        const onlyMy = filterType.value === 'mine';
-        const authorName = authorSearch.value;
-        const byDescending = sortType.value === 'desc';
-
-        let anchorDate = null; // Змінна для якірної дати
-
-        // НОВА ЛОГІКА:
-        // Якщо сортуємо за зростанням, нам треба спершу отримати якірну дату
-        if (!byDescending) {
-
-            let anchorParams = new URLSearchParams();
-            anchorParams.append('onlyMy', onlyMy);
-            anchorParams.append('authorName', authorName);
-
-            const anchorUrl = '@Url.Action("GetAnchorDate")?' + anchorParams.toString();
-
-            try {
-                // 1. Робимо запит за датою
-                const response = await fetch(anchorUrl);
-                const data = await response.json();
-                anchorDate = data.anchorDate; // Напр.: "2025-10-04T00:00:00" або null
-
-                if (!anchorDate) {
-                    // Якщо дата null - значить, тренувань за цими фільтрами немає
-                    feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
-                    loadMoreBtn.style.display = 'none';
-                    return; // Важливо: виходимо з функції
+            // ==========================================================
+            // 🎨 НОВА ФУНКЦІЯ: Розрахунок кольору (Red -> Green)
+            // ==========================================================
+            /**
+             * Повертає колір HSL від червоного (0) до зеленого (120)
+             * DOGparam {number} xp - Поточний XP дня
+             * DOGparam {number} min - Мінімальний XP серед усіх завантажених днів
+             * DOGparam {number} max - Максимальний XP серед усіх завантажених днів
+             */
+            function getXPColor(xp, min, max) {
+                // Якщо max і min однакові (або це єдиний день), просто робимо його зеленим
+                if (max === min) {
+                    return 'hsl(120, 75%, 90%)'; // Світло-зелений
                 }
-            } catch (e) {
-                feed.innerHTML = '<p>Error when loading.</p>';
-                return;
+
+                // Розраховуємо відсоток (0.0 = min, 1.0 = max)
+                const percentage = (xp - min) / (max - min);
+
+                // Конвертуємо відсоток у колір (0 = червоний, 120 = зелений)
+                const hue = percentage * 120;
+
+                // Повертаємо пастельний HSL колір (S=75%, L=90%)
+                return `hsl(${hue}, 75%, 90%)`;
             }
-        }
 
-        // 2. Будуємо ОСНОВНИЙ запит (як і раніше, але з дод. параметром)
-        let params = new URLSearchParams();
-        params.append('page', 0);
-        params.append('onlyMy', onlyMy);
-        params.append('byDescending', byDescending);
-        params.append('authorName', authorName);
+            // ==========================================================
+            // 🎨 НОВА ФУНКЦІЯ: Застосування "теплової карти"
+            // ==========================================================
+                function applyHeatmap() {
+                const onlyMy = filterType.value === 'mine';
 
-        if (anchorDate) {
-            params.append('anchorDate', anchorDate);
-            // Зберігаємо дату для кнопки "Load more"
-            loadMoreBtn.dataset.anchorDate = anchorDate; 
-        } else {
-            // Очищуємо, якщо повернулись до сортування за спаданням
-            loadMoreBtn.dataset.anchorDate = '';
-        }
+                // --- Очищення ---
+                // Спочатку знаходимо ВСІ елементи, які ми могли розфарбувати
+                const allDayHeaders = feed.querySelectorAll('.day-header');
+                const allWorkouts = feed.querySelectorAll('a[data-workout-xp]');
 
-        const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
+                if (!onlyMy) {
+                    // Якщо фільтр НЕ "мої", очищуємо всі кольори
+                    allDayHeaders.forEach(header => {
+                        header.style.backgroundColor = '';
+                        header.style.color = '';
+                    });
 
-        // 3. Завантажуємо стрічку (решта функції без змін)
-        fetch(url)
-            .then(r => r.text())
-            .then(html => {
-                feed.innerHTML = html;
-                loadMoreBtn.dataset.page = 1;
-                loadMoreBtn.style.display = 'block'; 
-
-                // Перевірка, чи є що ще завантажувати (опціонально, але гарна ідея)
-                if (html.trim().length === 0) {
-                         feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
-                     loadMoreBtn.style.display = 'none';
+                    allWorkouts.forEach(workout => {
+                        workout.style.backgroundColor = '';
+                        workout.style.color = '';
+                        workout.style.padding = '';
+                        workout.style.borderRadius = '';
+                    });
+                    return;
                 }
+
+                // --- Застосування кольорів (ДНІ) ---
+                const daysWithXp = feed.querySelectorAll('.day-entry[data-day-xp]');
+                if (daysWithXp.length === 0) return;
+
+                let globalMinXP = Infinity;
+                let globalMaxXP = -Infinity;
+
+                daysWithXp.forEach(day => {
+                    const xp = parseInt(day.dataset.dayXp, 10);
+                    if (!isNaN(xp)) {
+                        if (xp < globalMinXP) globalMinXP = xp;
+                        if (xp > globalMaxXP) globalMaxXP = xp;
+                    }
+                });
+
+                if (globalMinXP === Infinity) return;
+
+                // --- Головний цикл ---
+                daysWithXp.forEach(day => {
+
+                    // 1. Розфарбовуємо ЗАГОЛОВОК ДНЯ (старий код)
+                    const dayXP = parseInt(day.dataset.dayXp, 10);
+                    if (!isNaN(dayXP)) {
+                        const dayColor = getXPColor(dayXP, globalMinXP, globalMaxXP);
+                        const header = day.querySelector('.day-header');
+                        if (header) {
+                            header.style.backgroundColor = dayColor;
+                            header.style.color = '#333';
+                        }
+                    }
+
+                    // Знаходимо всі тренування ТІЛЬКИ ЦЬОГО ДНЯ
+                    const workoutsInDay = day.querySelectorAll('a[data-workout-xp]');
+                    if (workoutsInDay.length === 0) return; // (це 'continue' для forEach)
+
+                    let localMinXP = Infinity;
+                    let localMaxXP = -Infinity;
+
+                    // 2a. Знаходимо ЛОКАЛЬНИЙ min/max (тільки для цього дня)
+                    workoutsInDay.forEach(workout => {
+                        const workoutXP = parseInt(workout.dataset.workoutXp, 10);
+                        if (!isNaN(workoutXP)) {
+                            if (workoutXP < localMinXP) localMinXP = workoutXP;
+                            if (workoutXP > localMaxXP) localMaxXP = workoutXP;
+                        }
+                    });
+
+                    if (localMinXP === Infinity) return; // (це 'continue' для forEach)
+
+                    // 2b. Застосовуємо кольори до тренувань ЦЬОГО ДНЯ
+                    workoutsInDay.forEach(workout => {
+                        const workoutXP = parseInt(workout.dataset.workoutXp, 10);
+                        if (isNaN(workoutXP)) return;
+
+                        // Використовуємо ту саму функцію, але з ЛОКАЛЬНИМИ min/max
+                        const workoutColor = getXPColor(workoutXP, localMinXP, localMaxXP);
+
+                        workout.style.backgroundColor = workoutColor;
+                        workout.style.color = '#333'; // Темний текст
+                        workout.style.padding = '2px 5px'; // Трохи відступів
+                        workout.style.borderRadius = '4px'; // Заокруглення
+                        workout.style.display = 'inline-block'; // Щоб padding працював
+                    });
+                });
+            }
+
+            // SHOW / HIDE AUTHOR SEARCH
+            filterType.addEventListener('change', function () {
+                if (filterType.value === 'all') {
+                    authorSearch.style.display = 'block';
+                } else {
+                    authorSearch.style.display = 'none';
+                    authorSearch.value = '';
+                }
+                reloadFeed(); // reloadFeed сам викличе applyHeatmap
             });
-    }
 
-        // LOAD MORE
-        loadMoreBtn.addEventListener('click', function () {
+            // SORT CHANGE
+            sortType.addEventListener('change', function () {
+                reloadFeed(); // reloadFeed сам викличе applyHeatmap
+            });
 
-            const nextPage = parseInt(loadMoreBtn.dataset.page);
-            const onlyMy = filterType.value === 'mine';
-            const authorName = authorSearch.value;
-            const byDescending = sortType.value === 'desc';
+            // DEBOUNCE AUTHOR SEARCH
+            authorSearch.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    reloadFeed(); // reloadFeed сам викличе applyHeatmap
+                }, 400);
+            });
 
-            const anchorDate = loadMoreBtn.dataset.anchorDate;
+            // MAIN RELOAD
+            async function reloadFeed() {
+                // ... (весь ваш код для async/await anchorDate) ...
+                // ... (ваш код для побудови params) ...
 
-            let params = new URLSearchParams();
-            params.append('page', nextPage);
-            params.append('onlyMy', onlyMy);
-            params.append('byDescending', byDescending);
-            params.append('authorName', authorName);
+                const onlyMy = filterType.value === 'mine';
+                const authorName = authorSearch.value;
+                const byDescending = sortType.value === 'desc';
 
-            if (anchorDate) { // <-- НОВА УМОВА
-                params.append('anchorDate', anchorDate);
-            }
+                let anchorDate = null; 
 
-            const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
-
-            fetch(url)
-                .then(r => r.text())
-                .then(html => {
-
-                    if (html.trim().length === 0) {
-                        loadMoreBtn.style.display = 'none';
+                if (!byDescending) {
+                    let anchorParams = new URLSearchParams();
+                    anchorParams.append('onlyMy', onlyMy);
+                    anchorParams.append('authorName', authorName);
+                    const anchorUrl = '@Url.Action("GetAnchorDate")?' + anchorParams.toString();
+                    try {
+                        const response = await fetch(anchorUrl);
+                        const data = await response.json();
+                        anchorDate = data.anchorDate; 
+                        if (!anchorDate) {
+                            feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
+                            loadMoreBtn.style.display = 'none';
+                            return;
+                        }
+                    } catch (e) {
+                        feed.innerHTML = '<p>Error when loading.</p>';
                         return;
                     }
-
-                    let temp = document.createElement('div');
-                    temp.innerHTML = html;
-
-                    while (temp.firstChild) {
-                        feed.appendChild(temp.firstChild);
-                    }
-
-                    loadMoreBtn.dataset.page = nextPage + 1;
-                });
-        });
-
-        // COLLAPSING
-        feed.addEventListener('click', function (event) {
-
-            if (event.target.classList.contains('day-header') ||
-                event.target.closest('.day-header')) {
-
-                var header = event.target.classList.contains('day-header')
-                    ? event.target
-                    : event.target.closest('.day-header');
-
-                var workoutList = header.nextElementSibling;
-                if (!workoutList) return;
-
-                if (workoutList.style.display === 'block') {
-                    slideUp(workoutList, 300);
-                } else {
-                    slideDown(workoutList, 300);
                 }
+
+                let params = new URLSearchParams();
+                params.append('page', 0);
+                params.append('onlyMy', onlyMy);
+                params.append('byDescending', byDescending);
+                params.append('authorName', authorName);
+
+                if (anchorDate) {
+                    params.append('anchorDate', anchorDate);
+                    loadMoreBtn.dataset.anchorDate = anchorDate; 
+                } else {
+                    loadMoreBtn.dataset.anchorDate = '';
+                }
+
+                const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
+
+                fetch(url)
+                    .then(r => r.text())
+                    .then(html => {
+                        feed.innerHTML = html;
+                        loadMoreBtn.dataset.page = 1;
+                        loadMoreBtn.style.display = 'block'; 
+
+                        if (html.trim().length === 0) {
+                            feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
+                            loadMoreBtn.style.display = 'none';
+                        }
+
+                        applyHeatmap();
+                    });
             }
-        });
 
-        function slideUp(element, duration) {
-            element.style.height = element.offsetHeight + 'px';
-            element.style.transitionProperty = 'height, margin, padding';
-            element.style.transitionDuration = duration + 'ms';
-            element.style.boxSizing = 'border-box';
-            element.offsetHeight;
+            // LOAD MORE
+            loadMoreBtn.addEventListener('click', function () {
+                // ... (ваш код для nextPage, params і т.д.) ...
 
-            element.style.overflow = 'hidden';
-            element.style.height = 0;
-            element.style.paddingTop = 0;
-            element.style.paddingBottom = 0;
-            element.style.marginTop = 0;
-            element.style.marginBottom = 0;
+                const nextPage = parseInt(loadMoreBtn.dataset.page);
+                const onlyMy = filterType.value === 'mine';
+                const authorName = authorSearch.value;
+                const byDescending = sortType.value === 'desc';
+                const anchorDate = loadMoreBtn.dataset.anchorDate;
 
-            window.setTimeout(function () {
-                element.style.display = 'none';
-                element.style.removeProperty('height');
+                let params = new URLSearchParams();
+                params.append('page', nextPage);
+                params.append('onlyMy', onlyMy);
+                params.append('byDescending', byDescending);
+                params.append('authorName', authorName);
+
+                if (anchorDate) { 
+                    params.append('anchorDate', anchorDate);
+                }
+
+                const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
+
+                fetch(url)
+                    .then(r => r.text())
+                    .then(html => {
+                        if (html.trim().length === 0) {
+                            loadMoreBtn.style.display = 'none';
+                            return;
+                        }
+
+                        let temp = document.createElement('div');
+                        temp.innerHTML = html;
+
+                        while (temp.firstChild) {
+                            feed.appendChild(temp.firstChild);
+                        }
+
+                        loadMoreBtn.dataset.page = nextPage + 1;
+
+                        applyHeatmap();
+                    });
+            });
+
+            // COLLAPSING
+            feed.addEventListener('click', function (event) {
+                // ... (ваш код slideUp/slideDown) ...
+                 if (event.target.classList.contains('day-header') ||
+                    event.target.closest('.day-header')) {
+                    var header = event.target.classList.contains('day-header')
+                        ? event.target
+                        : event.target.closest('.day-header');
+                    var workoutList = header.nextElementSibling;
+                    if (!workoutList) return;
+                    if (workoutList.style.display === 'block') {
+                        slideUp(workoutList, 300);
+                    } else {
+                        slideDown(workoutList, 300);
+                    }
+                }
+            });
+
+            // ... (ваші функції slideUp / slideDown) ...
+            function slideUp(element, duration) {
+                element.style.height = element.offsetHeight + 'px';
+                element.style.transitionProperty = 'height, margin, padding';
+                element.style.transitionDuration = duration + 'ms';
+                element.style.boxSizing = 'border-box';
+                element.offsetHeight;
+                element.style.overflow = 'hidden';
+                element.style.height = 0;
+                element.style.paddingTop = 0;
+                element.style.paddingBottom = 0;
+                element.style.marginTop = 0;
+                element.style.marginBottom = 0;
+                window.setTimeout(function () {
+                    element.style.display = 'none';
+                    element.style.removeProperty('height');
+                    element.style.removeProperty('padding-top');
+                    element.style.removeProperty('padding-bottom');
+                    element.style.removeProperty('margin-top');
+                    element.style.removeProperty('margin-bottom');
+                    element.style.removeProperty('overflow');
+                    element.style.removeProperty('transition-duration');
+                    element.style.removeProperty('transition-property');
+                }, duration);
+            }
+            function slideDown(element, duration) {
+                element.style.removeProperty('display');
+                let display = window.getComputedStyle(element).display;
+                if (display === 'none') {
+                    display = 'block';
+                }
+                element.style.display = display;
+                let height = element.offsetHeight;
+                element.style.height = 0;
+                element.style.paddingTop = 0;
+                element.style.paddingBottom = 0;
+                element.style.marginTop = 0;
+                element.style.marginBottom = 0;
+                element.style.overflow = 'hidden';
+                element.offsetHeight;
+                element.style.transitionProperty = 'height, margin, padding';
+                element.style.transitionDuration = duration + 'ms';
+                element.style.height = height + 'px';
                 element.style.removeProperty('padding-top');
                 element.style.removeProperty('padding-bottom');
                 element.style.removeProperty('margin-top');
                 element.style.removeProperty('margin-bottom');
-                element.style.removeProperty('overflow');
-                element.style.removeProperty('transition-duration');
-                element.style.removeProperty('transition-property');
-            }, duration);
-        }
-
-        function slideDown(element, duration) {
-            element.style.removeProperty('display');
-            let display = window.getComputedStyle(element).display;
-
-            if (display === 'none') {
-                display = 'block';
+                window.setTimeout(function () {
+                    element.style.removeProperty('height');
+                    element.style.removeProperty('overflow');
+                    element.style.removeProperty('transition-duration');
+                    element.style.removeProperty('transition-property');
+                }, duration);
             }
-            element.style.display = display;
 
-            let height = element.offsetHeight;
-            element.style.height = 0;
-            element.style.paddingTop = 0;
-            element.style.paddingBottom = 0;
-            element.style.marginTop = 0;
-            element.style.marginBottom = 0;
-            element.style.overflow = 'hidden';
+            applyHeatmap(); 
 
-            element.offsetHeight;
-
-            element.style.transitionProperty = 'height, margin, padding';
-            element.style.transitionDuration = duration + 'ms';
-            element.style.height = height + 'px';
-            element.style.removeProperty('padding-top');
-            element.style.removeProperty('padding-bottom');
-            element.style.removeProperty('margin-top');
-            element.style.removeProperty('margin-bottom');
-
-            window.setTimeout(function () {
-                element.style.removeProperty('height');
-                element.style.removeProperty('overflow');
-                element.style.removeProperty('transition-duration');
-                element.style.removeProperty('transition-property');
-            }, duration);
-        }
-
-    });
-    </script>
+        });
+        </script>
 }
