@@ -1,5 +1,7 @@
-﻿using Gymify.Application.DTOs.Item;
+﻿using AutoMapper;
+using Gymify.Application.DTOs.Item;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
@@ -40,5 +42,47 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
         };
 
         return itemDto;
+    }
+
+    public async Task SetDefaultUserItemsAsync(Guid userProfileId)
+    {
+        var userItems = new List<UserItem>
+            {
+                new UserItem()
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    UserProfileId = userProfileId,
+                    ItemId = Guid.Parse("f1a2b3c4-d5e6-4789-9012-abcdef123456")
+                },
+                new UserItem()
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    UserProfileId = userProfileId,
+                    ItemId = Guid.Parse("f2b3c4d5-e6f7-4890-1234-bcdef1234567")
+                },
+                new UserItem()
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    UserProfileId = userProfileId,
+                    ItemId = Guid.Parse("f3c4d5e6-a7b8-4901-2345-cdef12345678")
+                },
+                new UserItem()
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    UserProfileId = userProfileId,
+                    ItemId = Guid.Parse("f4d5e6f7-b8c9-5012-3456-def123456789")
+                }
+            };
+
+        foreach (var userItem in userItems)
+        {
+            await _unitOfWork.UserItemRepository.CreateAsync(userItem);
+        }
+
+        await _unitOfWork.SaveAsync();
     }
 }
