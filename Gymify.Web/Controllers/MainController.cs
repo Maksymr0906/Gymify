@@ -1,23 +1,31 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Gymify.Data.Entities;
+using Gymify.Application.ViewModels.Home;
+using Gymify.Application.Services.Interfaces;
 
 namespace Gymify.Web.Controllers
 {
     public class MainController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IUserProfileService _userProfileService;
 
-        public MainController(SignInManager<ApplicationUser> signInManager)
+        public MainController(SignInManager<ApplicationUser> signInManager, IUserProfileService userProfileService)
         {
             _signInManager = signInManager;
+            _userProfileService = userProfileService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (_signInManager.IsSignedIn(User))
             {
-                return View("Home");
+                var user = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
+                var viewModel = await _userProfileService.ReceiveUserLevelWorkouts(user);
+
+                return View("Home", viewModel);
             }
             else
             {

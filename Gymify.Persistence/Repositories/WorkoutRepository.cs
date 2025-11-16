@@ -26,15 +26,75 @@ public class WorkoutRepository(GymifyDbContext context)
         return await Entities.Where(w => w.UserProfileId == userId).ToListAsync();
     }
 
-    public async Task<ICollection<Workout>> GetAllUserWorkoutsInDateRange(Guid userId, DateTime startDate, DateTime endDate)
+    public async Task<List<Workout>> GetLastWorkouts(Guid userId)
     {
-        var workouts = await _context.Workouts
-            .Where(w => w.UserProfileId == userId &&
-                        w.CreatedAt >= startDate && 
-                        w.CreatedAt <= endDate)    
+        int count = 3;
+        return await _context.Workouts
+            .Where(w => w.UserProfileId == userId)
             .OrderByDescending(w => w.CreatedAt)
+            .Take(count)
             .ToListAsync();
+    }
 
-        return workouts;
+    public async Task<DateTime?> GetFirstWorkoutDateAsync(Guid userId, bool onlyMy, string? authorName)
+    {
+        var query = Entities.AsQueryable();
+
+        if (onlyMy)
+        {
+            query = query.Where(w => w.UserProfileId == userId);
+        }
+        else if (!string.IsNullOrWhiteSpace(authorName))
+        {
+            var loweredName = authorName.Trim().ToLower();
+            query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
+        }
+        else
+        {
+            // Якщо !onlyMy і немає імені автора, ми показуємо всі тренування
+        }
+
+        var firstWorkoutDate = await query
+            .OrderBy(w => w.CreatedAt)
+            .Select(w => (DateTime?)w.CreatedAt.Date)
+            .FirstOrDefaultAsync();
+
+        return firstWorkoutDate;
+    }
+
+    public async Task<ICollection<Workout>> GetUserWorkoutsFilteredAsync
+        (Guid userId, DateTime startDate, DateTime endDate, 
+        string? authorName, bool onlyMy, bool byDescending)
+    {
+        var query = Entities
+            .Include(w => w.UserProfile)
+                .ThenInclude(up => up.ApplicationUser)
+            .Where(w => w.CreatedAt >= startDate && w.CreatedAt <= endDate);
+
+        if (onlyMy)
+        {
+            query = query.Where(w => w.UserProfileId == userId);
+        }
+        else
+        {
+            query = query.Where(w => w.IsPrivate == false);
+
+            if (!string.IsNullOrWhiteSpace(authorName))
+            {
+                var loweredName = authorName.Trim().ToLower();
+                query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
+            }
+        }
+
+        if (byDescending)
+        {
+            query = query.OrderByDescending(w => w.CreatedAt);
+        }
+        else
+        {
+            query = query.OrderBy(w => w.CreatedAt);
+        }
+
+        return await query.ToListAsync();
     }
 }

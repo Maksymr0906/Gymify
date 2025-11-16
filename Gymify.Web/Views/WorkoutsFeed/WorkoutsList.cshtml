@@ -1,0 +1,42 @@
+﻿@model List<Gymify.Application.DTOs.WorkoutsFeed.WorkoutDayDto>
+
+@{
+    bool onlyMy = ViewBag.OnlyMy ?? false;
+}
+
+@foreach (var day in Model)
+{
+    <div class="day-entry" @if(onlyMy) { <text>data-day-xp="@day.TotalXpForDay"</text> }>
+        <div class="day-header">
+            <span>@day.Date.ToString("dd MMMM yyyy")</span>
+            <span style="float: right;">
+                (Трен: @day.WorkoutCount
+                @if (onlyMy)
+                {
+                    <text>, XP: @day.TotalXpForDay</text>
+                })
+            </span>
+        </div>
+
+
+        <div class="workout-list">
+            @foreach (var workout in day.Workouts)
+            {
+                <a asp-controller="Workouts" asp-action="Details" asp-route-id="@workout.Id" data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
+                    @workout.Name
+                </a>
+                
+                <div>
+                    <small>
+                        Dated: @workout.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") |
+                        Author: @workout.AuthorName
+                        @if (onlyMy)
+                        {
+                            <text> | XP: @workout.TotalXP</text>
+                        }
+                    </small>
+                </div>
+            }
+        </div>
+    </div>
+}

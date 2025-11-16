@@ -1,33 +1,131 @@
-﻿@{
+﻿@model Gymify.Application.ViewModels.Home.HomeViewModel 
+@{
     ViewData["Title"] = "Home";
 }
 <div class="text-center">
+
     <div class="homeTop">
-        <div class="homeTopLeft">
-            <div class="homeTitle">LEVEL 1</div>
-            <div class="homeText">Keep going strong!</div>
-            <a class="homeButton scaleButton" href="/CreateWorkout/CreateWorkout">Create new workout</a>
+        <div class="homeTitle">LEVEL @Model.Level</div>
+
+        <div class="progressBarContainer">
+            <div class="progressBarFill" style="width: @Math.Round(Model.ProgressPercentage)%;"></div>
         </div>
 
-        <div class="homeTopRight">
-            <div class="homeStats">
-                <div class="homeStat">98%</div>
-                <div class="homeStat">34%</div>
-                <div class="homeStat">24%</div>
-                <div class="homeStat">55%</div>
-            </div>
-            <div class="homeStatText">Performance stats</div>
+        <div class="homeXPText">
+            @Model.XpEarnedInThisLevel / @Model.XpNeededForThisLevel XP
+        </div>
+
+        <div class="homeText">Keep going strong!</div>
+
+        <div class="homeButtonContainer">
+            <a class="homeButton scaleButton" href="/CreateWorkout/CreateWorkout">Create new workout</a>
+            <a class="homeButton scaleButton" href="/WorkoutsFeed">Workouts</a>
         </div>
     </div>
 
     <div class="homeBott">
-        <h2 class="homeTitle">My last trainings</h2>
-        <div class="homeTrains">
-            <a class="homeTrain" href="/Workout">98%</a>
-            <a class="homeTrain" href="/Workout">34%</a>
-            <a class="homeTrain" href="/Workout">24%</a>
-            <a class="homeTrain" href="/Workout">55%</a>
-        </div>
+    <h2 class="homeTitle">My last trainings</h2>
+
+    <div class="homeWorkouts" id="last-workouts-container">
+
+            @if (Model.LastWorkouts.Any())
+            {
+                @foreach (var workout in Model.LastWorkouts)
+                {
+                        <a class="homeWorkout" 
+                           asp-controller="Workouts" asp-action="Details" asp-route-id="@workout.Id" 
+                           title="@workout.CreatedAt.ToString("g")"
+                           data-workout-xp="@workout.TotalXP">
+
+                            <div class="homeWorkoutContent">
+                                <span class="homeWorkoutName">@workout.Name</span>
+
+                                <p class="homeWorkoutDescription">
+                                @workout.Description
+                                </p>
+
+                                <span class="homeWorkoutXP">+@workout.TotalXP XP</span>
+                                
+                                <small class="homeWorkoutDate">
+                                @workout.CreatedAt.ToString("dd MMM yyyy")
+                                </small>
+                            </div>
+                        </a>
+                }
+            }
+            else
+            {
+                <p>You haven't completed any workouts yet. Time to start!</p>
+            }
     </div>
+</div>
 
 </div>
+
+@section Scripts {
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // --- 1. Копіюємо функцію розрахунку кольору ---
+        // Ми вже використовували її у WorkoutsFeed.
+        /**
+         * Повертає колір HSL від червоного (0) до зеленого (120)
+         * DOGparam {number} xp - Поточний XP
+         * DOGparam {number} min - Мінімальний XP
+         * DOGparam {number} max - Максимальний XP
+         */
+        function getXPColor(xp, min, max) {
+            // Якщо max і min однакові, просто робимо зеленим
+            if (max === min) {
+                return 'hsl(120, 75%, 90%)'; // Світло-зелений
+            }
+
+            // Розраховуємо відсоток (0.0 = min, 1.0 = max)
+            const percentage = (xp - min) / (max - min);
+
+            // Конвертуємо відсоток у колір (0 = червоний, 120 = зелений)
+            const hue = percentage * 120;
+
+            // Повертаємо пастельний HSL колір (S=75%, L=90%)
+            return `hsl(${hue}, 75%, 90%)`;
+        }
+
+        // --- 2. Нова, проста функція для теплової карти ---
+        function applyHomeHeatmap() {
+            const container = document.getElementById('last-workouts-container');
+            if (!container) return;
+
+            // Знаходимо лише 4 тренування на цій сторінці
+            const workouts = container.querySelectorAll('a[data-workout-xp]');
+            if (workouts.length === 0) return;
+
+            let minXP = Infinity;
+            let maxXP = -Infinity;
+
+            // 3. Знаходимо min/max XP (тільки серед цих 4-х)
+            workouts.forEach(workout => {
+                const xp = parseInt(workout.dataset.workoutXp, 10);
+                if (!isNaN(xp)) {
+                    if (xp < minXP) minXP = xp;
+                    if (xp > maxXP) maxXP = xp;
+                }
+            });
+
+            if (minXP === Infinity) return; // Немає даних
+
+            // 4. Застосовуємо кольори
+            workouts.forEach(workout => {
+                const xp = parseInt(workout.dataset.workoutXp, 10);
+                if (isNaN(xp)) return;
+
+                const color = getXPColor(xp, minXP, maxXP);
+                workout.style.backgroundColor = color;
+                workout.style.color = '#333'; // Темний текст для читабельності
+            });
+        }
+
+        // 5. Викликаємо функцію
+        applyHomeHeatmap();
+    });
+    </script>
+}

@@ -27,7 +27,7 @@ public class AuthService : IAuthService
     {
         var user = new ApplicationUser
         {
-            UserName = dto.Email,
+            UserName = dto.Email, // КАКОГО ХУЯ БЛЯТЬ
             Email = dto.Email
         };
 
@@ -44,7 +44,7 @@ public class AuthService : IAuthService
                 Level = 1
             };
 
-            await _unitOfWork.UserProfileRepository.CreateAsync(profile);
+            await _unitOfWork.UserProfileRepository.CreateAsync(profile); // UserEquipment не створюється
             await _unitOfWork.SaveAsync();
 
             await _userManager.AddToRoleAsync(user, "User");

@@ -1,6 +1,6 @@
 ﻿using Gymify.Application.DTOs.Achievement;
 using Gymify.Application.DTOs.Workout;
-using Gymify.Application.DTOs.WorkoutsCalendar;
+using Gymify.Application.DTOs.WorkoutsFeed;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
@@ -117,47 +117,65 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         return workoutDtos;
     }
 
-    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(Guid userId, int page)
+    public async Task<DateTime?> GetFirstWorkoutDate(Guid userId, bool onlyMy, string authorName)
+    {
+        return await _unitOfWork.WorkoutRepository.GetFirstWorkoutDateAsync(userId, onlyMy, authorName);
+    }
+
+    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(DateTime? anchorDate, Guid userId, string? authorName, int page, bool onlyMy, bool byDescending)
     {
         int pageSizeDays = 28;
-        // Визначаємо діапазон дат.
-        // ВИКОРИСТОВУЄМО UTC, оскільки BaseEntity.CreatedAt, 
-        // скоріш за все, зберігається в UTC (це best practice).
-        var today = DateTime.UtcNow.Date;
+        DateTime queryStartDate;
+        DateTime queryEndDate;
 
-        // Вираховуємо діапазон
-        var endDate = today.AddDays(-(page * pageSizeDays));
-        var startDate = endDate.AddDays(-pageSizeDays + 1);
+        if (byDescending)
+        {
+            // Логіка для "новіші спочатку" (залишається як є)
+            var today = DateTime.UtcNow.Date;
+            var endDate = today.AddDays(-(page * pageSizeDays));
+            var startDate = endDate.AddDays(-pageSizeDays + 1);
 
-        // Встановлюємо час для коректного запиту
-        // (від 00:00:00 першого дня до 23:59:59 останнього)
-        var queryStartDate = startDate;
-        var queryEndDate = endDate.AddDays(1).AddTicks(-1);
+            queryStartDate = startDate;
+            queryEndDate = endDate.AddDays(1).AddTicks(-1);
+        }
+        else
+        {
+            // Логіка для "старіші спочатку" (використовує anchorDate)
+            if (anchorDate == null)
+            {
+                // Якщо JS з якоїсь причини не надіслав дату, повертаємо порожній список
+                return new List<WorkoutDayDto>();
+            }
 
-        // 1. Отримуємо всі тренування за діапазон
-        var workouts = await _unitOfWork.WorkoutRepository.GetAllUserWorkoutsInDateRange(userId, queryStartDate, queryEndDate);
+            var startDate = anchorDate.Value.AddDays(page * pageSizeDays);
+            var endDate = startDate.AddDays(pageSizeDays - 1);
 
-        // 2. Групуємо їх на стороні сервера (в пам'яті)
-        //    (оскільки CreatedAt має час, групуємо по .Date)
+            queryStartDate = startDate;
+            queryEndDate = endDate.AddDays(1).AddTicks(-1);
+        }
+
+        var workouts = await _unitOfWork.WorkoutRepository
+            .GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy,byDescending);
+
         var groupedWorkouts = workouts
-            .GroupBy(w => w.CreatedAt.Date) // Ключ - це дата
+            .GroupBy(w => w.CreatedAt.Date)
             .Select(group => new WorkoutDayDto
             {
-                Date = group.Key, // Дата дня
-
-                // Статистика для теплокарти
-                TotalXpForDay = group.Sum(w => w.TotalXP),
-
-                // Список тренувань
+                Date = group.Key,
+                TotalXpForDay = onlyMy ? group.Sum(w => w.TotalXP) : 0,
                 Workouts = group.Select(w => new WorkoutDto
                 {
                     Id = w.Id,
-                    Name = w.Name
-                }).ToList()
+                    Name = w.Name,
+                    CreatedAt = w.CreatedAt,
+                    UserProfileId = w.UserProfileId,
+                    AuthorName = w.UserProfile.ApplicationUser.UserName,
+                    TotalXP = onlyMy ? w.TotalXP : 0
+                }).ToList() // Тепер тренування всередині дня також будуть відсортовані
             })
-            .OrderByDescending(d => d.Date) // Найновіші дні зверху
             .ToList();
 
         return groupedWorkouts;
     }
+
 }
