@@ -6,4 +6,5 @@ public interface IItemService
 {
     Task<ICollection<ItemDto>> GetAllUserItemsAsync(Guid userProfileId);
     Task<ItemDto> GetByIdAsync(Guid itemId);
+    Task SetDefaultUserItemsAsync(Guid userProfileId);
 }
