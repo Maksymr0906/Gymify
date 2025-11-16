@@ -1,25 +1,29 @@
-﻿using Gymify.Application.Services.Interfaces;
+﻿using Gymify.Application.Services.Implementation;
+using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.UserItems;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Gymify.Web.Controllers
 {
-    // Всі дії цього контролера можна викликати через чистий URL
     [Route("")]
     public class UserController : Controller
     {
         private readonly IUserEquipmentService _userEquipmentService;
         private readonly IItemService _itemService;
         private readonly ICaseService _caseService;
+        private readonly IAchievementService _achievementService;
 
         public UserController(
             IUserEquipmentService userEquipmentService,
             IItemService itemService,
-            ICaseService caseService)
+            ICaseService caseService,
+            IAchievementService achievementService)
         {
             _userEquipmentService = userEquipmentService;
             _itemService = itemService;
             _caseService = caseService;
+            _achievementService = achievementService;
         }
 
         [HttpGet("profile")]  // URL: /profile
@@ -46,7 +50,7 @@ namespace Gymify.Web.Controllers
             return View("Inventory", userItemsViewModel);
         }
 
-        [HttpPost] // URL: /goto-case
+        [HttpPost]
         public IActionResult GoToCasePage(Guid caseId)
         {
             var caseEntity = _caseService.GetCaseDetailsAsync(caseId);
@@ -56,19 +60,21 @@ namespace Gymify.Web.Controllers
             return RedirectToAction("Details", "Case", new { caseId = caseId });
         }
 
-        [HttpGet("achievements")] // URL: /achievements
-        public IActionResult Achievements()
+        [HttpGet("achievements")]
+        public async Task<IActionResult> Achievements()
         {
-            return View("Achievements");
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
+            var achievements = await _achievementService.GetUserAchievementsAsync(userId);
+            return View("Achievements", achievements);
         }
 
-        [HttpGet("workouts")] // URL: /workouts
+        [HttpGet("workouts")]
         public IActionResult Workouts()
         {
             return View("Workouts");
         }
 
-        [HttpGet("friends")] // URL: /friends
+        [HttpGet("friends")]
         public IActionResult Friends()
         {
             return View("Friends");

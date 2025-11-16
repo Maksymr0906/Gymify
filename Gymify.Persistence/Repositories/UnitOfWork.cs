@@ -26,6 +26,7 @@ public class UnitOfWork : IUnitOfWork
         UserItemRepository = new UserItemRepository(context);
         PendingExerciseRepository = new PendingExerciseRepository(context);
         ImageRepository = new ImageRepository(context);
+        UserAchievementRepository = new UserAchievementRepository(context);
     }
 
     public UnitOfWork(GymifyDbContext context,
@@ -44,7 +45,8 @@ public class UnitOfWork : IUnitOfWork
         IUserCaseRepository userCaseRepository,
         IUserItemRepository userItemRepository,
         IPendingExerciseRepository pendingExerciseRepository,
-        IImageRepository imageRepository) 
+        IImageRepository imageRepository,
+        IUserAchievementRepository userAchievementRepository) 
     {
         _context = context;
 
@@ -64,6 +66,7 @@ public class UnitOfWork : IUnitOfWork
         UserItemRepository = userItemRepository;
         PendingExerciseRepository = pendingExerciseRepository;
         ImageRepository = imageRepository;
+        UserAchievementRepository = userAchievementRepository;
     }
 
     public IAchievementRepository AchievementRepository { get; set; }
@@ -82,6 +85,7 @@ public class UnitOfWork : IUnitOfWork
     public IUserItemRepository UserItemRepository { get; set; }
     public IPendingExerciseRepository PendingExerciseRepository { get; set; }
     public IImageRepository ImageRepository { get; set; }
+    public IUserAchievementRepository UserAchievementRepository { get; set; }
 
     public async Task SaveAsync()
     {

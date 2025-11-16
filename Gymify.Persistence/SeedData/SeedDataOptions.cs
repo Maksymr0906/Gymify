@@ -17,5 +17,6 @@ public class SeedDataOptions
     public UserItemSeedData[] UserItems { get; init; } = [];
     public UserCaseSeedData[] UserCases { get; init; } = [];
     public UserProfileSeedData[] UserProfiles { get; init; } = [];
+    public UserAchievementSeedData[] UserAchievements { get; init; } = [];
     public WorkoutSeedData[] Workouts { get; init; } = [];
 }

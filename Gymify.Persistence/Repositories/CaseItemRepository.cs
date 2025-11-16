@@ -34,6 +34,7 @@ public class CaseItemRepository(GymifyDbContext context) : ICaseItemRepository
         return entities;
     }
 
+    // remove savechanges
     public async Task<CaseItem> UpdateAsync(CaseItem entity)
     {
         _context.CaseItems.Update(entity);
@@ -41,6 +42,7 @@ public class CaseItemRepository(GymifyDbContext context) : ICaseItemRepository
         return entity;
     }
 
+    // remove savechanges
     public async Task<CaseItem> DeleteByIdAsync(Guid id)
     {
         var entity = await _context.CaseItems.FirstOrDefaultAsync(uc => uc.CaseId == id);
