@@ -160,7 +160,7 @@ a {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 400px; /* Можливо, захочеш трохи збільшити */
+    height: 400px;
     margin: 50px 5% 0 5%;
     text-align: center;
 }
@@ -170,29 +170,27 @@ a {
     font-weight: 600;
 }
 
-/* НОВІ СТИЛІ ДЛЯ ПРОГРЕС-БАРУ 
-*/
 .progressBarContainer {
     width: 80%;
     max-width: 500px;
     height: 20px;
-    background-color: #e0e0e0; /* Колір "порожнього" бару */
+    background-color: #e0e0e0;
     border-radius: 10px;
-    margin-top: 15px; /* Відступ від "LEVEL 1" */
-    overflow: hidden; /* Ховаємо те, що виходить за межі */
+    margin-top: 15px;
+    overflow: hidden;
 }
 
 .progressBarFill {
     height: 100%;
-    background-color: var(--ButtonColor); /* Використовуємо твій колір */
+    background-color: var(--ButtonColor);
     border-radius: 10px;
-    transition: width 0.5s ease-out; /* Анімація заповнення */
+    transition: width 0.5s ease-out;
 }
 
 .homeXPText {
     font-size: 16px;
-    color: #555; /* Трохи темніший, ніж звичайний */
-    margin-top: 5px; /* Маленький відступ від бару */
+    color: #555;
+    margin-top: 5px;
 }
 
 
@@ -201,13 +199,11 @@ a {
     margin: 20px 0;
 }
 
-/* ЗМІНЕНО ДЛЯ КНОПОК 
-*/
 .homeButtonContainer {
     display: flex;
-    flex-direction: column; /* Ставить кнопки одну на одну */
-    align-items: center; /* Центрує їх */
-    gap: 15px; /* Відстань між кнопками */
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
     margin-top: 15px;
 }
 
@@ -219,8 +215,8 @@ a {
     text-decoration: none;
     color: inherit;
     transition: transform 0.2s;
-    width: 100%; /* Можна додати, щоб кнопки були однакової ширини */
-    box-sizing: border-box; /* Важливо, якщо використовуєш padding + width 100% */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .scaleButton:hover {
@@ -233,25 +229,84 @@ a {
     text-align: left;
 }
 
-.homeTrains {
+.homeWorkouts {
     width: 100%;
     display: flex;
-    justify-content: space-between;
     flex-wrap: wrap;
-    gap: 20px;
+    justify-content: flex-start;
+    margin-top: 20px;
+    gap: 50px;
 }
 
-.homeTrain {
-    flex: 1 1 15%;
+.homeWorkout {
+    flex: 1 1 20%;
     aspect-ratio: 1 / 1;
-    border: 1.5px solid;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
     border-radius: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 26px;
     text-decoration: none;
     color: inherit;
+    padding: 15px;
+    box-sizing: border-box;
+    transition: transform 0.2s ease-out;
+    overflow: hidden;
+}
+
+    .homeWorkout:hover {
+        transform: scale(1.05);
+    }
+
+.homeWorkoutContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    justify-content: center;
+    height: 100%;
+}
+
+.homeWorkoutName {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.homeWorkoutDescription {
+    font-size: 16px; /* <-- Збільшено */
+    color: #555;
+    margin-top: 8px; /* <-- Відступ від назви */
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* <-- ДОЗВОЛЕНО 2 РЯДКИ */
+    -webkit-box-orient: vertical;
+}
+
+.homeWorkoutXP {
+    font-size: 18px;
+    color: #333;
+    margin-top: 10px; /* <-- Відступ від опису */
+}
+
+.homeWorkoutDate {
+    font-size: 16px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.homeWorkoutDescription {
+    font-size: 14px;
+    color: #555;
+    margin-top: 8px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
 /*              Workout             */

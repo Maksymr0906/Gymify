@@ -8,5 +8,5 @@ public class HomeViewModel
     public double ProgressPercentage { get; set; }
     public int XpEarnedInThisLevel { get; set; }
     public int XpNeededForThisLevel { get; set; }
-    public List<WorkoutDto> LastTrainings { get; set; } = new();
+    public List<WorkoutDto> LastWorkouts { get; set; } = new();
 }

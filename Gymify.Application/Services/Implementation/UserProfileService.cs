@@ -1,4 +1,5 @@
-﻿using Gymify.Application.Services.Interfaces;
+﻿using Gymify.Application.DTOs.Workout;
+using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Home;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
@@ -13,6 +14,21 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
     public async Task<HomeViewModel> ReceiveUserLevelWorkouts(Guid userId)
     {
         var user = await _unitOfWork.UserProfileRepository.GetByIdAsync(userId);
+        var userWorkouts = await _unitOfWork.WorkoutRepository.GetLastWorkouts(userId);
+
+        List<WorkoutDto> workoutsDtos = new();
+
+        foreach(var workout in userWorkouts)
+        {
+            workoutsDtos.Add(new WorkoutDto
+            {
+                Id = workout.Id,
+                Name = workout.Name,
+                Description = workout.Description,
+                CreatedAt = workout.CreatedAt,
+                TotalXP = workout.TotalXP
+            });
+        }
 
         int currentLevel = _levelingService.CalculateLevel(user.CurrentXP);
 
@@ -31,7 +47,8 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
             Level = currentLevel, 
             XpEarnedInThisLevel = (int)xpEarnedInThisLevel,
             XpNeededForThisLevel = (int)xpNeededForThisLevel,
-            ProgressPercentage = progressPercentage
+            ProgressPercentage = progressPercentage,
+            LastWorkouts = workoutsDtos
         };
 
         return viewModel;

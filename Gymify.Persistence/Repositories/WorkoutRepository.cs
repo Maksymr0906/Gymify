@@ -26,6 +26,16 @@ public class WorkoutRepository(GymifyDbContext context)
         return await Entities.Where(w => w.UserProfileId == userId).ToListAsync();
     }
 
+    public async Task<List<Workout>> GetLastWorkouts(Guid userId)
+    {
+        int count = 3;
+        return await _context.Workouts
+            .Where(w => w.UserProfileId == userId)
+            .OrderByDescending(w => w.CreatedAt)
+            .Take(count)
+            .ToListAsync();
+    }
+
     public async Task<DateTime?> GetFirstWorkoutDateAsync(Guid userId, bool onlyMy, string? authorName)
     {
         var query = Entities.AsQueryable();
@@ -65,10 +75,15 @@ public class WorkoutRepository(GymifyDbContext context)
         {
             query = query.Where(w => w.UserProfileId == userId);
         }
-        else if (!string.IsNullOrWhiteSpace(authorName))
+        else
         {
-            var loweredName = authorName.Trim().ToLower();
-            query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
+            query = query.Where(w => w.IsPrivate == false);
+
+            if (!string.IsNullOrWhiteSpace(authorName))
+            {
+                var loweredName = authorName.Trim().ToLower();
+                query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
+            }
         }
 
         if (byDescending)
