@@ -1,42 +1,44 @@
-﻿
+﻿@model Gymify.Application.ViewModels.UserProfile.UserProfileViewModel
 @{
     ViewData["Title"] = "Profile";
 }
 
-<div class="userProfileContainer">
+<div class="userProfileContainer" style="background-image: url('@Model.UserEquipmentDto.BackgroundUrl'); background-size: cover; background-position: center;">
     <div class="userProfileCustoms">
         <div class="userProfileAvatarBlock">
-            <img src="~/Images/clashRoyaleIcon.jpg" class="avatarImage" />
+            <div class="avatarFrame">
+                <img src="@Model.UserEquipmentDto.FrameUrl" alt="Frame" class="frameImage"/>
+                <img src="@Model.UserEquipmentDto.AvatarUrl" alt="Avatar" class="avatarImage"/>
+            </div>
         </div>
 
         <div class="userProfileNameBlock">
-            <div class="userProfileName">Name</div>
+            <div>
+                <div class="userProfileName">@Model.UserName</div>
+                <div class="userProfileTitle">@Model.Title</div>
+            </div>
             <a class="userProfileEditButton scaleButton">Edit</a>
         </div>
     </div>
 
     <div class="userProfileAchivmentBlock">
-        <h2 class="userProfileAchivmentTitle">Achivments</h2>
-
-        <div class="userProfileAchivments">
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
+        <h2 class="userProfileAchivmentTitle">Achievements</h2>
+        <div class="userProfileAchivmentsList">
+            @* @foreach (var url in Model.Achievements)
+            {
+                    <img class="userProfileAchivment" src="@url" />
+            } *@
         </div>
     </div>
 
     <div class="userProfileLastTrains">
         <h2 class="userProfileTrainsTitle">My last trainings</h2>
-
-        <div class="userProfileTrains">
-            <a class="userProfileTrain" href="/Workout">98%</a>
-            <a class="userProfileTrain" href="/Workout">34%</a>
-            <a class="userProfileTrain" href="/Workout">24%</a>
-            <a class="userProfileTrain" href="/Workout">55%</a>
-        </div>
+        <ul class="userProfileTrainsList">
+            @* @foreach (var percent in Model.Workouts)
+            {
+                    <li class="userProfileTrain">@percent</li>
+            } *@
+        </ul>
     </div>
 
     <div class="userProfileComments">

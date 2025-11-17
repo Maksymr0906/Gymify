@@ -1,6 +1,8 @@
 ﻿using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.UserItems;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Web.Controllers
 {
@@ -26,8 +28,9 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Profile()
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            var equipment = await _userEquipmentService.GetUserEquipmentAsync(userId);
-            return View("Profile", equipment);
+            var model = await _userEquipmentService.GetUserProfileModel(userId);
+
+            return View("Profile", model);
         }
 
         [HttpGet("inventory")] // URL: /inventory
@@ -45,6 +48,7 @@ namespace Gymify.Web.Controllers
 
             return View("Inventory", userItemsViewModel);
         }
+
 
         [HttpPost] // URL: /goto-case
         public IActionResult GoToCasePage(Guid caseId)

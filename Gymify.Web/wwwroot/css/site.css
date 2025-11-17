@@ -530,90 +530,166 @@ a {
         background: #f0f0f0;
     }
 
-/*                             UserProfile                                  */
-
-.userProfileContainer{
+.userProfileContainer {
     width: 92%;
     margin: 2% 4%;
-    height: 1100px;
-    display:flex;
+    height: auto;
+    display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 40px;
 }
-.userProfileCustoms{
-    height: 250px;
+
+.userProfileCustoms {
     display: flex;
+    align-items: center;
+    gap: 40px;
 }
-.userProfileNameBlock {
+
+.userProfileAvatarBlock {
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
+.avatarFrame {
+    position: relative;
     width: 100%;
-    margin-left: 50px;
+    height: 100%;
+}
+
+.frameImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 10px;
+}
+
+.avatarImage {
+    width: 280px;
+    height: 280px;
+    object-fit: cover;
+    position: relative;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    border-radius: 10px; 
+}
+
+.userProfileNameBlock {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
+
+    .userProfileNameBlock > div {
+        display: flex;
+        flex-direction: column;
+    }
+
 .userProfileName {
     font-size: 64px;
     color: var(--TitleColor);
+    font-weight: bold;
 }
-.userProfileEditButton{
-    width:400px;
-    border: 1px solid;
-    font-size: 50px;
-    padding: 30px;
-    height:fit-content;
-    text-align: center; 
-    background-color: var(--ButtonColor);
-    border-radius: 30px;    
 
+.userProfileTitle {
+    font-size: 28px;
+    color: var(--SubtitleColor);
+    margin-top: 6px;
 }
-.userProfileAchivmentBlock {
-    height: 20%;
-    border: 2px solid;
-    border-radius: 60px;
-    padding: 20px;
-}
-.userProfileLastTrains {
-    height: 300px;
-    border: 2px solid;
-    border-radius: 60px;
-    padding: 20px;
-}
-.userProfileComments {
-    border: 2px solid;
-    border-radius: 60px;
-    padding: 20px;
-    font-size: 72px;
+
+.userProfileEditButton {
+    width: 200px;
+    border: 1px solid;
+    font-size: 24px;
+    padding: 12px;
+    height: fit-content;
     text-align: center;
+    background-color: var(--ButtonColor);
+    border-radius: 30px;
+    cursor: pointer;
+    user-select: none;
 }
-.userProfileAvatarBlock{
-    width: 300px;
+
+.userProfileAchivmentBlock {
     border: 2px solid;
+    border-radius: 20px;
+    padding: 20px;
+    max-height: 200px;
+    overflow-x: auto;
 }
-.avatarImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.userProfileAchivmentTitle, .userProfileTrainsTitle {
+
+.userProfileAchivmentTitle {
     font-size: 40px;
     color: var(--TitleColor);
+    margin-bottom: 10px;
 }
-.userProfileTrains {
-    width: 100%;
+
+.userProfileAchivmentsList {
     display: flex;
-    justify-content: space-around;
+    gap: 15px;
+    overflow-x: auto;
+}
+
+.userProfileAchivment {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.userProfileLastTrains {
+    border: 2px solid;
+    border-radius: 20px;
+    padding: 20px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.userProfileTrainsTitle {
+    font-size: 40px;
+    color: var(--TitleColor);
+    margin-bottom: 10px;
+}
+
+.userProfileTrainsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .userProfileTrain {
-    margin: 10px 0 0 0;
-    width: 160px;
-    aspect-ratio: 1 / 1;
+    width: 100px;
+    height: 100px;
     border: 1.5px solid;
     border-radius: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 24px;
+    user-select: none;
 }
+
+.userProfileComments {
+    border: 2px solid;
+    border-radius: 20px;
+    padding: 20px;
+    font-size: 32px;
+    text-align: center;
+    color: var(--SubtitleColor);
+}
+
 
 /*              Inventory               */
 
