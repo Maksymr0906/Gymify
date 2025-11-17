@@ -12,32 +12,66 @@
             </div>
         </div>
 
-        <div class="userProfileNameBlock">
-            <div>
-                <div class="userProfileName">@Model.UserName</div>
-                <div class="userProfileTitle">@Model.Title</div>
-            </div>
-            <a class="userProfileEditButton scaleButton">Edit</a>
+        <div class="userProfileInfoBlock">
+                @if (Model.Editable == true)
+                {
+                    <button class="userProfileEditButton scaleButton">Edit</button>
+                }
+            <div class="userProfileName">@Model.UserName</div>
+            <div class="userProfileTitle">@Model.Title</div>
         </div>
     </div>
 
+
     <div class="userProfileAchivmentBlock">
-        <h2 class="userProfileAchivmentTitle">Achievements</h2>
-        <div class="userProfileAchivmentsList">
-            @* @foreach (var url in Model.Achievements)
+    <h2 class="userProfileAchivmentTitle">Achievements</h2>
+
+    <ul class="userProfileAchivmentsList">
+            @if (Model.Achievements != null && Model.Achievements.Any())
             {
-                    <img class="userProfileAchivment" src="@url" />
-            } *@
-        </div>
+                foreach (var a in Model.Achievements)
+                {
+                        <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
+                            <div class="achievementContent">
+                                <img src="@a.IconUrl" class="achievementIcon" />
+
+                                <div class="achievementText">
+                                    <span class="achievementName">@a.Name</span>
+                                    <small class="achievementDate">
+                                    @a.UnlockedAt?.ToString("dd MMM yyyy")
+                                    </small>
+                                </div>
+                            </div>
+                        </li>
+                }
+            }
+            else
+            {
+                <p>You haven't unlocked any achievements yet.</p>
+            }
+    </ul>
     </div>
 
     <div class="userProfileLastTrains">
         <h2 class="userProfileTrainsTitle">My last trainings</h2>
+
         <ul class="userProfileTrainsList">
-            @* @foreach (var percent in Model.Workouts)
+            @if (Model.Workouts != null && Model.Workouts.Any())
             {
-                    <li class="userProfileTrain">@percent</li>
-            } *@
+                foreach (var workout in Model.Workouts)
+                {
+                            <li class="userProfileTrain" title="@workout.CreatedAt.ToString("g")">
+                                <a asp-controller="Workouts" asp-action="Details" asp-route-id="@workout.Id" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center; justify-content:center; height: 100%; width: 100%;">
+                                    <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
+                                    <small style="font-size:12px; color:#666; margin-top:5px;">@workout.CreatedAt.ToString("dd MMM yyyy")</small>
+                                </a>
+                            </li>
+                }
+            }
+            else
+            {
+                    <p>You haven't completed any workouts yet. Time to start!</p>
+            }
         </ul>
     </div>
 

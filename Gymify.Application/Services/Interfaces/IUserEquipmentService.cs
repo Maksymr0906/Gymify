@@ -8,5 +8,4 @@ public interface IUserEquipmentService
     Task<UserEquipmentDto> GetUserEquipmentAsync(Guid userProfileId);
     Task UpdateUserEquipmentAsync(Guid userProfileId, UpdateUserEquipmentDto model);
     Task SetDefaultEquipment(Guid userProfileId);
-    Task<UserProfileViewModel> GetUserProfileModel(Guid userProfileId);
 }

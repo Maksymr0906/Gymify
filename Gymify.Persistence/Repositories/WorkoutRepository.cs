@@ -26,9 +26,8 @@ public class WorkoutRepository(GymifyDbContext context)
         return await Entities.Where(w => w.UserProfileId == userId).ToListAsync();
     }
 
-    public async Task<List<Workout>> GetLastWorkouts(Guid userId)
+    public async Task<ICollection<Workout>> GetLastWorkouts(Guid userId, int count = 4)
     {
-        int count = 4;
         return await _context.Workouts
             .Where(w => w.UserProfileId == userId)
             .OrderByDescending(w => w.CreatedAt)

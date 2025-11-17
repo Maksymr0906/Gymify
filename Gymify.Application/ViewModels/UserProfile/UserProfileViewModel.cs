@@ -12,8 +12,10 @@ namespace Gymify.Application.ViewModels.UserProfile;
 
 public class UserProfileViewModel
 {
+    public Guid UserProfileId { get; set; }
     public string UserName { get; set; } = "Name";
     public string Title { get; set; } = "Title";
+    public bool Editable { get; set; } = false;
     public List<AchievementDto> Achievements { get; set; }
     public List<WorkoutDto> Workouts { get; set; }
     public UserEquipmentDto UserEquipmentDto { get; set; }

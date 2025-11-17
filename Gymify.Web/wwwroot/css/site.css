@@ -530,6 +530,8 @@ a {
         background: #f0f0f0;
     }
 
+/* Profile */
+
 .userProfileContainer {
     width: 92%;
     margin: 2% 4%;
@@ -542,7 +544,7 @@ a {
 
 .userProfileCustoms {
     display: flex;
-    align-items: center;
+    align-items: center; /* вертикальне вирівнювання */
     gap: 40px;
 }
 
@@ -579,44 +581,37 @@ a {
     left: 10px;
     z-index: 1;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    border-radius: 10px; 
+    border-radius: 10px;
 }
 
-.userProfileNameBlock {
+.userProfileInfoBlock {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-    .userProfileNameBlock > div {
-        display: flex;
-        flex-direction: column;
-    }
-
-.userProfileName {
-    font-size: 64px;
-    color: var(--TitleColor);
-    font-weight: bold;
-}
-
-.userProfileTitle {
-    font-size: 28px;
-    color: var(--SubtitleColor);
-    margin-top: 6px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* текст по лівому краю */
+    gap: 10px;
 }
 
 .userProfileEditButton {
-    width: 200px;
-    border: 1px solid;
-    font-size: 24px;
-    padding: 12px;
-    height: fit-content;
-    text-align: center;
-    background-color: var(--ButtonColor);
+    width: 120px;
+    padding: 10px 15px;
+    font-size: 18px;
     border-radius: 30px;
+    border: 1px solid;
+    background-color: var(--ButtonColor);
     cursor: pointer;
     user-select: none;
+}
+
+.userProfileName {
+    font-size: 48px;
+    font-weight: bold;
+    color: var(--TitleColor);
+}
+
+.userProfileTitle {
+    font-size: 24px;
+    color: var(--SubtitleColor);
 }
 
 .userProfileAchivmentBlock {
@@ -634,16 +629,51 @@ a {
 }
 
 .userProfileAchivmentsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     display: flex;
     gap: 15px;
-    overflow-x: auto;
+    flex-wrap: wrap;
 }
 
-.userProfileAchivment {
-    width: 80px;
-    height: 80px;
+.userProfileAchivmentItem {
+    width: 140px;
+    height: 140px;
+    border: 1.5px solid;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+    flex-direction: column;
+    user-select: none;
+}
+
+.achievementContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.achievementIcon {
+    width: 60px;
+    height: 60px;
     object-fit: contain;
-    flex-shrink: 0;
+    margin-bottom: 8px;
+}
+
+.achievementName {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.achievementDate {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
 }
 
 .userProfileLastTrains {
@@ -679,6 +709,7 @@ a {
     align-items: center;
     font-size: 24px;
     user-select: none;
+    box-sizing: border-box;
 }
 
 .userProfileComments {

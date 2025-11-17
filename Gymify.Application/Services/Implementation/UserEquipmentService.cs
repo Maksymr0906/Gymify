@@ -97,15 +97,4 @@ public class UserEquipmentService(IUnitOfWork unitOfWork) : IUserEquipmentServic
         await _unitOfWork.SaveAsync();
 
     }
-    public async Task<UserProfileViewModel> GetUserProfileModel(Guid userProfileId)
-    {
-        var userEquipment = await GetUserEquipmentAsync(userProfileId); 
-        // var userName = await _unitOfWork.
-
-        return new UserProfileViewModel
-        {
-            UserEquipmentDto = userEquipment,
-            UpdateUserEquipmentDto = new()
-        };
-    }
 }

@@ -11,28 +11,29 @@ namespace Gymify.Web.Controllers
     [Route("")]
     public class UserController : Controller
     {
-        private readonly IUserEquipmentService _userEquipmentService;
+        private readonly IUserProfileService _userProfileService;
         private readonly IItemService _itemService;
         private readonly ICaseService _caseService;
         private readonly IAchievementService _achievementService;
 
         public UserController(
-            IUserEquipmentService userEquipmentService,
+            IUserProfileService userProfileService,
             IItemService itemService,
             ICaseService caseService,
             IAchievementService achievementService)
         {
-            _userEquipmentService = userEquipmentService;
+            _userProfileService = userProfileService;
             _itemService = itemService;
             _caseService = caseService;
             _achievementService = achievementService;
         }
 
         [HttpGet("profile")]  // URL: /profile
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Profile(Guid userId)
         {
-            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            var model = await _userEquipmentService.GetUserProfileModel(userId);
+            var loggedUserId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
+            var model = await _userProfileService.GetUserProfileModel(userId);
+            model.Editable = loggedUserId == userId ? true : false; 
 
             return View("Profile", model);
         }
