@@ -1,5 +1,141 @@
-﻿@{
+﻿@model ICollection<Gymify.Application.DTOs.Achievement.AchievementDto>
+
+@{
     ViewData["Title"] = "Achievements";
 }
 
-<h1>Achievements</h1>
+<h1 class="title">Achievements</h1>
+
+<div class="achievements-container">
+
+    @foreach (var a in Model)
+    {
+        var statusClass = a.IsCompleted ? "completed" : a.Progress > 0 ? "in-progress" : "locked";
+
+        <div class="achievement-card @statusClass">
+            <div class="icon">
+                <img src="@a.IconUrl" alt="@a.Name" />
+            </div>
+
+            <div class="content">
+                <h3>@a.Name</h3>
+                <p>@a.Description</p>
+
+                <div class="progress-section">
+                    @if (!a.IsCompleted)
+                    {
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:@(a.Progress / (double)a.TargetValue * 100)%"></div>
+                        </div>
+                        <span class="progress-text">@a.Progress / @a.TargetValue</span>
+                    }
+                    else
+                    {
+                        <span class="completed-text">Completed ✔</span>
+                    }
+                </div>
+
+                @if (a.UnlockedAt != null)
+                {
+                    <div class="unlocked-date">
+                        Unlocked: @a.UnlockedAt.Value.ToString("dd MMM yyyy")
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+</div>
+
+<style>
+    .title {
+        font-size: 32px;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    .achievements-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+        gap: 20px;
+    }
+
+    .achievement-card {
+        display: flex;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        gap: 16px;
+        align-items: flex-start;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        border-left: 6px solid transparent;
+        transition: 0.3s;
+    }
+
+        .achievement-card.completed {
+            border-left-color: #4caf50;
+            opacity: 1;
+        }
+
+        .achievement-card.in-progress {
+            border-left-color: #2196f3;
+        }
+
+        .achievement-card.locked {
+            border-left-color: #9e9e9e;
+            opacity: 0.7;
+        }
+
+    .icon img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .content h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .content p {
+        margin: 4px 0 10px;
+        font-size: 14px;
+        opacity: 0.85;
+    }
+
+    .progress-section {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 10px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #2196f3;
+    }
+
+    .progress-text {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .completed-text {
+        color: #4caf50;
+        font-weight: 700;
+    }
+
+    .unlocked-date {
+        margin-top: 6px;
+        font-size: 12px;
+        opacity: 0.7;
+    }
+
+</style>

@@ -1,11 +1,13 @@
-﻿using Gymify.Application.DTOs.UserEquipment;
+﻿using AutoMapper;
+using Gymify.Application.DTOs.UserEquipment;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Data.Entities;
 using Gymify.Application.ViewModels.UserProfile;
 using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class UserEquipmentService(IUnitOfWork unitOfWork): IUserEquipmentService
+public class UserEquipmentService(IUnitOfWork unitOfWork) : IUserEquipmentService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -43,6 +45,22 @@ public class UserEquipmentService(IUnitOfWork unitOfWork): IUserEquipmentService
         };
     }
 
+    public async Task SetDefaultEquipment(Guid userProfileId)
+    {
+        var userEquipment = new UserEquipment
+        {
+            Id = Guid.NewGuid(),
+            UserProfileId = userProfileId,
+            CreatedAt = DateTime.UtcNow,
+            AvatarId = Guid.Parse("f3c4d5e6-a7b8-4901-2345-cdef12345678"),
+            BackgroundId = Guid.Parse("f2b3c4d5-e6f7-4890-1234-bcdef1234567"),
+            FrameId = Guid.Parse("f1a2b3c4-d5e6-4789-9012-abcdef123456"),
+            TitleId = Guid.Parse("f4d5e6f7-b8c9-5012-3456-def123456789"),
+        };
+
+        await _unitOfWork.UserEquipmentRepository.CreateAsync(userEquipment);
+        await _unitOfWork.SaveAsync();
+    }
 
     public async Task UpdateUserEquipmentAsync(Guid userProfileId, UpdateUserEquipmentDto model)
     {

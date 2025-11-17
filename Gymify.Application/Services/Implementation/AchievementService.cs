@@ -1,3 +1,4 @@
+using AutoMapper;
 using Gymify.Application.DTOs.Achievement;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
@@ -83,6 +84,27 @@ public class AchievementService(IUnitOfWork unitOfWork) : IAchievementService
                 UnlockedAt = userAchievement?.UnlockedAt
             };
         }).ToList();
+    }
+
+    public async Task SetupUserAchievementsAsync(Guid userProfileId)
+    {
+        var achievements = await _unitOfWork.AchievementRepository.GetAllAsync();
+
+        var userAchievements = achievements.Select(a => new UserAchievement
+        {
+            UserProfileId = userProfileId,
+            AchievementId = a.Id,
+            Progress = 0,
+            IsCompleted = false,
+            UnlockedAt = DateTime.UtcNow,
+        }).ToList();
+
+        foreach (var ua in userAchievements)
+        {
+            await _unitOfWork.UserAchievementRepository.CreateAsync(ua);
+        }
+
+        await _unitOfWork.SaveAsync();
     }
 
     private bool IsAchievementCompleted(UserProfile user, Achievement achievement)
