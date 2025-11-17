@@ -88,5 +88,14 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
         // мінімальне XP, щоб не було нуля
         return (int)Math.Max(xp, userExercise.BaseXP);
     }
+
+    public async Task AddExercisesBatchAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> exercises, Guid currentUserId)
+    {
+        foreach (var dto in exercises)
+        {
+            dto.WorkoutId = workoutId;
+            await AddUserExerciseToWorkoutAsync(dto, currentUserId);
+        }
+    }
 }
 

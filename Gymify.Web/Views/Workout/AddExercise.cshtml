@@ -1,5 +1,4 @@
 ﻿@model Gymify.Application.DTOs.UserExercise.AddUserExerciseToWorkoutRequestDto
-
 @{
     ViewData["Title"] = "Add Exercise";
 }
@@ -7,79 +6,85 @@
 <div class="container mt-4">
     <h1 class="AddExerciseTitle mb-3">Add Exercise</h1>
 
-    <form asp-action="AddExercise" method="post" class="addExerciseForm">
-        <input type="hidden" asp-for="WorkoutId" value="@ViewBag.WorkoutId" />
+    <form id="exerciseForm" class="addExerciseForm" method="post" asp-action="AddExercisesBatch">
+        <input type="hidden" name="workoutId" value="@ViewBag.WorkoutId" />
+        <input type="hidden" id="exercisesJson" name="exercisesJson" />
 
+        <!-- Вибір/додавання вправи -->
         <div class="AddExerciseFormGroup position-relative mb-3">
             <label asp-for="Name" class="AddExerciseLabel">Choose Exercise</label>
-            <input asp-for="Name" id="exerciseName" class="AddExerciseInput form-control" autocomplete="off" required />
+            <input asp-for="Name" id="exerciseName" class="AddExerciseInput form-control" autocomplete="off" />
             <ul id="exerciseSuggestions" class="suggestions-list"></ul>
 
             <div id="newExerciseField" style="display:none; margin-top:10px;">
                 <label for="newExerciseName">New Exercise Name:</label>
-                <input type="text" id="newExerciseName" name="newExerciseName" class="AddExerciseInput form-control" />
+                <input type="text" id="newExerciseName" class="AddExerciseInput form-control" />
                 <p class="text-muted small">This exercise will be sent for admin approval.</p>
             </div>
         </div>
 
-        <div class="AddExerciseFormGroup mb-3">
-            <label asp-for="Weight" class="AddExerciseLabel">Weight</label>
-            <input asp-for="Weight" class="AddExerciseInput form-control" required />
+        <div class="row mb-3">
+            <div class="col">
+                <label asp-for="Weight" class="AddExerciseLabel">Weight</label>
+                <input type="number" id="exerciseWeight" class="AddExerciseInput form-control" />
+            </div>
+            <div class="col">
+                <label asp-for="Duration" class="AddExerciseLabel">Duration</label>
+                <input type="text" id="exerciseDuration" class="AddExerciseInput form-control" placeholder="e.g. 00:30:00" />
+            </div>
+            <div class="col">
+                <label asp-for="Sets" class="AddExerciseLabel">Sets</label>
+                <input type="number" id="exerciseSets" class="AddExerciseInput form-control" />
+            </div>
+            <div class="col">
+                <label asp-for="Reps" class="AddExerciseLabel">Reps</label>
+                <input type="number" id="exerciseReps" class="AddExerciseInput form-control" />
+            </div>
         </div>
 
-        <div class="AddExerciseFormGroup mb-3">
-            <label asp-for="Duration" class="AddExerciseLabel">Duration</label>
-            <input asp-for="Duration" class="AddExerciseInput form-control" required />
-        </div>
+        <button type="button" class="btn btn-success mb-3" id="addExerciseBtn">Add Exercise</button>
 
-        <div class="AddExerciseFormGroup mb-3">
-            <label asp-for="Sets" class="AddExerciseLabel">Sets</label>
-            <input asp-for="Sets" class="AddExerciseInput form-control" required />
-        </div>
+        <h4>Exercises in this workout:</h4>
+        <ul class="list-group mb-3" id="exerciseList"></ul>
 
-        <div class="AddExerciseFormGroup mb-3">
-            <label asp-for="Reps" class="AddExerciseLabel">Reps</label>
-            <input asp-for="Reps" class="AddExerciseInput form-control" required />
-        </div>
-
-        <div class="addExerciseButtons d-flex gap-3">
-            <button type="submit" name="action" value="end" class="AddExerciseButton btn btn-danger">End</button>
-            <button type="submit" name="action" value="add" class="AddExerciseButton btn btn-success">Add New Exercise</button>
-        </div>
+        <button type="submit" class="btn btn-danger">End Workout</button>
     </form>
 </div>
 
 @section Scripts {
     <script>
+        let exercises = [];
+
         document.addEventListener("DOMContentLoaded", () => {
             const input = document.getElementById("exerciseName");
             const list = document.getElementById("exerciseSuggestions");
             const newField = document.getElementById("newExerciseField");
             const newExerciseInput = document.getElementById("newExerciseName");
-
+            const addBtn = document.getElementById("addExerciseBtn");
+            const exerciseList = document.getElementById("exerciseList");
+            const exercisesJson = document.getElementById("exercisesJson");
+            const form = document.getElementById("exerciseForm");
             let timeout = null;
 
+            // Пошук вправ
             input.addEventListener("input", () => {
                 const query = input.value.trim();
                 clearTimeout(timeout);
-
                 if (query.length < 2) {
                     list.innerHTML = "";
                     newField.style.display = "none";
                     return;
                 }
-
                 timeout = setTimeout(() => {
-                    fetch(`/AddExercise/SearchExercises?query=${encodeURIComponent(query)}`)
+                    fetch(`/Workout/SearchExercises?query=${encodeURIComponent(query)}`)
                         .then(res => res.json())
                         .then(data => {
                             list.innerHTML = "";
-
                             if (data.length > 0) {
                                 data.forEach(name => {
                                     const li = document.createElement("li");
                                     li.textContent = name;
-                                    li.classList.add("suggestion-item");
+                                    li.classList.add("suggestion-item", "list-group-item");
                                     li.onclick = () => {
                                         input.value = name;
                                         list.innerHTML = "";
@@ -95,6 +100,69 @@
                         })
                         .catch(err => console.error("Error fetching exercises:", err));
                 }, 300);
+            });
+
+            // Додавання вправи локально
+            addBtn.addEventListener("click", () => {
+                const name = newExerciseInput.value || input.value;
+                const weight = document.getElementById("exerciseWeight").value || null;
+                const duration = document.getElementById("exerciseDuration").value || null;
+                const sets = document.getElementById("exerciseSets").value || null;
+                const reps = document.getElementById("exerciseReps").value || null;
+
+                if (!name) { alert("Exercise name required"); return; }
+
+                exercises.push({ name, weight, duration, sets, reps });
+                renderExercises();
+
+                // Очистка форми
+                input.value = "";
+                newExerciseInput.value = "";
+                document.getElementById("exerciseWeight").value = "";
+                document.getElementById("exerciseDuration").value = "";
+                document.getElementById("exerciseSets").value = "";
+                document.getElementById("exerciseReps").value = "";
+                list.innerHTML = "";
+                newField.style.display = "none";
+            });
+
+            function renderExercises() {
+                exerciseList.innerHTML = "";
+                exercises.forEach((ex, i) => {
+                    const li = document.createElement("li");
+                    li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+                    li.innerHTML = `${ex.name} - ${ex.reps || '-'} reps x ${ex.sets || '-'} sets (${ex.weight || '-'} kg, ${ex.duration || '-'})
+                        <span>
+                            <button type="button" class="btn btn-sm btn-warning me-1" onclick="editExercise(${i})">Edit</button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteExercise(${i})">Delete</button>
+                        </span>`;
+                    exerciseList.appendChild(li);
+                });
+                exercisesJson.value = JSON.stringify(exercises);
+            }
+
+            window.deleteExercise = function(i) {
+                exercises.splice(i, 1);
+                renderExercises();
+            }
+
+            window.editExercise = function(i) {
+                const ex = exercises[i];
+                document.getElementById("exerciseName").value = ex.name;
+                document.getElementById("exerciseWeight").value = ex.weight || "";
+                document.getElementById("exerciseDuration").value = ex.duration || "";
+                document.getElementById("exerciseSets").value = ex.sets || "";
+                document.getElementById("exerciseReps").value = ex.reps || "";
+                exercises.splice(i, 1);
+                renderExercises();
+            }
+
+            // Перед сабмітом End Workout передаємо всі вправи у hidden поле
+            form.addEventListener("submit", (e) => {
+                exercisesJson.value = JSON.stringify(exercises);
+                // прибираємо required, щоб не було валідації на порожні поля
+                const allInputs = form.querySelectorAll("input");
+                allInputs.forEach(input => input.removeAttribute("required"));
             });
         });
     </script>
@@ -114,14 +182,9 @@
             border-radius: 0.25rem;
         }
 
-        .suggestion-item {
-            padding: 8px 10px;
+        .suggestion-item:hover {
+            background: #f0f0f0;
             cursor: pointer;
-            transition: background 0.2s ease;
         }
-
-            .suggestion-item:hover {
-                background: #f0f0f0;
-            }
     </style>
 }

@@ -79,11 +79,37 @@ namespace Gymify.Web.Controllers
             return Json(exercises.Select(e => e.Name));
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddExercisesBatch(AddUserExercisesBatchRequestDto dto)
+        {
+            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
+            if (dto.Exercises != null && dto.Exercises.Any())
+            {
+                dto.Exercises.ForEach(ex => ex.WorkoutId = dto.WorkoutId);
+                await _userExerciseService.AddExercisesBatchAsync(dto.WorkoutId, dto.Exercises, currentUserId);
+            }
+
+            // Після додавання вправ редіректимо на Finish
+            return RedirectToAction("Finish", new { workoutId = dto.WorkoutId });
+        }
+
         [HttpGet]
+        public IActionResult Finish(Guid workoutId)
+        {
+            var model = new CompleteWorkoutRequestDto
+            {
+                WorkoutId = workoutId,
+                UserProfileId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString()),
+            };
+            return View(model);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
         {
             await _workoutService.CompleteWorkoutAsync(dto);
-            return View("Finish");
+            return View("Home"); // або редірект на сторінку результату
         }
     }
 }
