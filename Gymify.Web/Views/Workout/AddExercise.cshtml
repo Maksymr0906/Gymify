@@ -4,15 +4,12 @@
     ViewData["Title"] = "Add Exercise";
 }
 
-<p>Workout ID: <strong>@ViewBag.WorkoutId</strong></p>
-
 <div class="container mt-4">
     <h1 class="AddExerciseTitle mb-3">Add Exercise</h1>
 
     <form asp-action="AddExercise" method="post" class="addExerciseForm">
         <input type="hidden" asp-for="WorkoutId" value="@ViewBag.WorkoutId" />
 
-        <!-- Search / Add Exercise -->
         <div class="AddExerciseFormGroup position-relative mb-3">
             <label asp-for="Name" class="AddExerciseLabel">Choose Exercise</label>
             <input asp-for="Name" id="exerciseName" class="AddExerciseInput form-control" autocomplete="off" required />
@@ -25,19 +22,14 @@
             </div>
         </div>
 
-        <!-- Exercise Type -->
-        <div class="AddExerciseRadio mb-3">
-            <label class="AddExerciseLabelRadio me-2">Weight</label>
-            <input asp-for="ExerciseType" class="AddExerciseInputRadio" type="radio" value="1" />
-
-            <label class="AddExerciseLabelRadio ms-3 me-2">Duration</label>
-            <input asp-for="ExerciseType" class="AddExerciseInputRadio" type="radio" value="2" />
-        </div>
-
-        <!-- Sets / Reps / Weight -->
         <div class="AddExerciseFormGroup mb-3">
             <label asp-for="Weight" class="AddExerciseLabel">Weight</label>
             <input asp-for="Weight" class="AddExerciseInput form-control" required />
+        </div>
+
+        <div class="AddExerciseFormGroup mb-3">
+            <label asp-for="Duration" class="AddExerciseLabel">Duration</label>
+            <input asp-for="Duration" class="AddExerciseInput form-control" required />
         </div>
 
         <div class="AddExerciseFormGroup mb-3">
@@ -50,7 +42,6 @@
             <input asp-for="Reps" class="AddExerciseInput form-control" required />
         </div>
 
-        <!-- Buttons -->
         <div class="addExerciseButtons d-flex gap-3">
             <button type="submit" name="action" value="end" class="AddExerciseButton btn btn-danger">End</button>
             <button type="submit" name="action" value="add" class="AddExerciseButton btn btn-success">Add New Exercise</button>

@@ -38,7 +38,6 @@ public class GymifyDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
     public DbSet<UserExercise> UserExercises { get; set; }
     public DbSet<UserItem> UserItems { get; set; }
     public DbSet<Workout> Workouts { get; set; }
-    public DbSet<PendingExercise> PendingExercises { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

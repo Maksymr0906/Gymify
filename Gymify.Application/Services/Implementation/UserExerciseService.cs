@@ -18,27 +18,19 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
 
         if (existingExercise == null)
         {
-            var pendingExercise = new PendingExercise
-            {
-                Name = model.Name,
-                Type = (ExerciseType)model.ExerciseType,
-                SubmittedByUserId = currentUserId,
-                Description = null,
-                VideoURL = null,
-                IsApproved = false
-            };
-
-            await _unitOfWork.PendingExerciseRepository.CreateAsync(pendingExercise);
-
             existingExercise = new Exercise
             {
                 Id = Guid.NewGuid(),
                 Name = model.Name,
+                Description = string.Empty,
                 CreatedAt = DateTime.Now,
                 Type = (ExerciseType)model.ExerciseType,
                 BaseXP = DefaultPendingExerciseXP,
-                DifficultyMultiplier = 1.0
+                DifficultyMultiplier = 1.0,
+                IsApproved = false
             };
+
+            await _unitOfWork.ExerciseRepository.CreateAsync(existingExercise);
         }
 
         int calculatedXP = CalculateXp(model, existingExercise);
@@ -71,6 +63,8 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
             EarnedXP = userExercise.EarnedXP,
         };
     }
+
+    // переписати
     public static int CalculateXp(AddUserExerciseToWorkoutRequestDto exerciseModel, Exercise userExercise)
     {
         int sets = exerciseModel.Sets ?? 0;

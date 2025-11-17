@@ -48,21 +48,4 @@ public partial class UserExerciseConfiguration(SeedDataOptions seedDataOptions)
             })
         );
     }
-
-    private IEnumerable<UserExercise> MapSeedDataUserExercises(SeedDataOptions seedData)
-    {
-        return seedData.UserExercises.Select(ue => new UserExercise
-        {
-            Id = ue.Id,
-            CreatedAt = ue.CreatedAt,
-            Name = ue.Name,
-            Duration = ue.Duration,
-            EarnedXP = ue.EarnedXP,
-            Reps = ue.Reps,
-            Sets = ue.Sets,
-            Weight = ue.Weight,
-            WorkoutId = ue.WorkoutId,
-            Type = (ExerciseType)ue.Type
-        });
-    }
 }

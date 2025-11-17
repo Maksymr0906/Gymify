@@ -2,6 +2,7 @@
 using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Gymify.Web.Controllers
 {
@@ -22,9 +23,9 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateWorkout()
+        public IActionResult Create()
         {
-            return View("CreateWorkout");
+            return View("Create");
         }
 
         [HttpPost]
@@ -35,11 +36,11 @@ namespace Gymify.Web.Controllers
             var workout = await _workoutService.CreateWorkoutAsync(dto, userProfileId);
 
             TempData["WorkoutId"] = workout.Id.ToString();
-            return RedirectToAction("AddExercises");
+            return RedirectToAction("AddExercise", "Workout");
         }
 
         [HttpGet]
-        public IActionResult AddExercises()
+        public IActionResult AddExercise()
         {
             var workoutId = TempData["WorkoutId"]?.ToString();
             ViewBag.WorkoutId = workoutId;
@@ -60,9 +61,9 @@ namespace Gymify.Web.Controllers
             await _userExerciseService.AddUserExerciseToWorkoutAsync(dto, currentUserId);
 
             if (action == "end")
-                return RedirectToAction("FinishWorkout");
+                return RedirectToAction("Finish", "Workout");
             else if (action == "add")
-                return RedirectToAction("AddExercises");
+                return RedirectToAction("AddExercise", "Workout");
 
             return View();
         }
@@ -79,8 +80,9 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult FinishWorkout()
+        public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
         {
+            await _workoutService.CompleteWorkoutAsync(dto);
             return View("Finish");
         }
     }
