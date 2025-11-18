@@ -2,6 +2,7 @@
 using Gymify.Application.DTOs.Item;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
+using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
@@ -13,6 +14,23 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
     public async Task<ICollection<ItemDto>> GetAllUserItemsAsync(Guid userProfileId)
     {
         var userItems = await _unitOfWork.ItemRepository.GetAllItemsByUserIdAsync(userProfileId);
+
+        var itemDtos = userItems.Select(item => new ItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Description = item.Description,
+            ImageURL = item.ImageURL,
+            Type = (int)item.Type,
+            Rarity = (int)item.Rarity
+        }).ToList();
+
+        return itemDtos;
+    }
+    
+    public async Task<ICollection<ItemDto>> GetUserItemsWithTypeAsync(Guid userProfileId, ItemType itemType)
+    {
+        var userItems = await _unitOfWork.ItemRepository.GetItemsWithTypeByUserIdAsync(userProfileId, itemType);
 
         var itemDtos = userItems.Select(item => new ItemDto
         {

@@ -1,6 +1,8 @@
-﻿using Gymify.Application.Services.Implementation;
+﻿using Gymify.Application.DTOs.UserEquipment;
+using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.UserItems;
+using Gymify.Data.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,7 @@ namespace Gymify.Web.Controllers
     public class UserController : Controller
     {
         private readonly IUserProfileService _userProfileService;
+        private readonly IUserEquipmentService _userEquipmentService;
         private readonly IItemService _itemService;
         private readonly ICaseService _caseService;
         private readonly IAchievementService _achievementService;
@@ -20,12 +23,14 @@ namespace Gymify.Web.Controllers
             IUserProfileService userProfileService,
             IItemService itemService,
             ICaseService caseService,
-            IAchievementService achievementService)
+            IAchievementService achievementService,
+            IUserEquipmentService userEquipmentService)
         {
             _userProfileService = userProfileService;
             _itemService = itemService;
             _caseService = caseService;
             _achievementService = achievementService;
+            _userEquipmentService = userEquipmentService;
         }
 
         [HttpGet("profile")]  // URL: /profile
@@ -37,6 +42,45 @@ namespace Gymify.Web.Controllers
 
             return View("Profile", model);
         }
+
+        [HttpGet("userEquipment")]
+        public async Task<IActionResult> GetInventory([FromQuery] string type)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value); 
+
+            if (string.IsNullOrWhiteSpace(type))
+                return BadRequest("Missing type");
+
+            var itemType = type.ToLower() switch
+            {
+                "avatar" => ItemType.Avatar,
+                "frame" => ItemType.Frame,
+                "background" => ItemType.Background,
+                "title" => ItemType.Title,
+                _ => throw new ArgumentException("Unknown item type: " + type),
+            };
+            var items = await _itemService.GetUserItemsWithTypeAsync(userId, itemType);
+
+            var result = items.Select(i => new
+            {
+                id = i.Id,
+                url = i.ImageURL,
+                name = i.Name
+            });
+
+            return Ok(result);
+        }
+
+        [HttpPost("updateProfile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserEquipmentDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
+
+            await _userEquipmentService.UpdateUserEquipmentAsync(userId, dto);
+
+            return Ok();
+        }
+
 
         [HttpGet("inventory")] // URL: /inventory
         public async Task<IActionResult> Inventory()

@@ -18,6 +18,14 @@ public class ItemRepository(GymifyDbContext context)
             .Select(ui => ui.Item)
             .ToListAsync();
     }
+    public async Task<ICollection<Item>> GetItemsWithTypeByUserIdAsync(Guid userProfileId, ItemType itemType)
+    {
+        return await _context.UserItems
+            .Include(ui => ui.Item)
+            .Where(ui => ui.UserProfileId == userProfileId && ui.Item.Type == itemType)
+            .Select(ui => ui.Item)
+            .ToListAsync();
+    }
 
     public async Task<bool> IsOwnedByUserAsync(Guid itemId, Guid userProfileId)
     {
