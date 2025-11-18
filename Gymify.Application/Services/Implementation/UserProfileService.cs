@@ -115,6 +115,7 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
         List<AchievementDto> achievementDtos = new();
         foreach (var userAchievement in userAchievements)
         {
+            if (!userAchievement.IsCompleted) continue;
             achievementDtos.Add(new AchievementDto
             {
                 AchievementId = userAchievement.AchievementId,
