@@ -535,26 +535,25 @@ a {
 
 /* Profile */
 
-/* 1. ПОВНОЕКРАННА ОБГОРТКА ДЛЯ ФОНУ (РАНІШЕ userProfileContainer) */
-/* ID="profileRoot" має бути на цьому елементі */
+/* 1. ПОВНОЕКРАННА ОБГОРТКА ДЛЯ ФОНУ (ID="profileRoot") */
 .userProfileFullPage {
     width: 100%;
     min-height: 100vh;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    background-color: #121212; /* Суцільний темний фон (куда переходимо) */
+    background-color: #121212;
     padding-top: 40px;
     padding-bottom: 40px;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
-    position: relative; /* Необхідно для позиціонування псевдоелемента */
+    position: relative;
     overflow: hidden;
+    cursor: pointer; /* Курсор для кліку на тло */
 }
 
 /* 2. ОБМЕЖУВАЧ ШИРИНИ КОНТЕНТУ */
-/* Це центральний контейнер, де лежить весь UI */
 .userProfileContentWrapper {
     width: 100%;
     max-width: 1200px;
@@ -566,14 +565,15 @@ a {
 
 /* 3. ХЕДЕР (Аватар + Інфо) */
 .userProfileCustoms {
-    background: rgba(0, 0, 0, 0.65); /* Темна прозора підкладка */
-    backdrop-filter: blur(10px); /* Ефект розмиття */
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(10px);
     padding: 30px;
     border-radius: 20px;
     display: flex;
     align-items: center;
     gap: 40px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    cursor: default; /* Контент не повинен викликати фон */
 }
 
 /* === АВАТАР І РАМКА === */
@@ -583,12 +583,10 @@ a {
     height: 300px;
 }
 
-    /* Якщо клікабельний, показуємо курсор */
     .userProfileAvatarBlock[data-edit-type] {
         cursor: pointer;
     }
 
-/* Фрейм (Зверху, Z-Index: 10) */
 .frameImage {
     position: absolute;
     top: 0;
@@ -597,11 +595,10 @@ a {
     height: 100%;
     object-fit: contain;
     z-index: 10;
-    pointer-events: auto; /* Повинен ловити клік */
+    pointer-events: auto;
     cursor: pointer;
 }
 
-/* Аватар (Менший, Z-Index: 5) */
 .avatarImage {
     position: absolute;
     width: 84%;
@@ -610,8 +607,8 @@ a {
     left: 8%;
     object-fit: cover;
     z-index: 5;
-    border-radius: 10px; /* Знову задамо, якщо не круглі рамки */
-    pointer-events: none; /* Кліки проходять на рамку */
+    border-radius: 10px;
+    pointer-events: none;
 }
 
 /* === ІНФО БЛОК === */
@@ -629,7 +626,7 @@ a {
     padding: 8px 12px;
     font-size: 16px;
     border-radius: 8px;
-    border: none; /* Прибираємо білий бордер */
+    border: none;
     background-color: var(--ButtonColor, #2b8be6);
     color: white;
     cursor: pointer;
@@ -637,83 +634,62 @@ a {
     transition: background-color 0.2s;
 }
 
+.userProfileLevelBadge {
+    /* Робимо його маленьким прямокутним значком */
+    display: inline-block;
+    margin-top: 25px;
+    padding: 4px 10px;
+    margin-bottom: 8px; /* Відступ від імені */
+    /* Стиль тексту */
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    /* Колір та рамка */
+    color: #ffc107; /* Яскравий золотий/жовтий */
+    background-color: rgba(255, 193, 7, 0.1); /* Дуже прозорий золотий фон */
+
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    /* Ефект світіння */
+    text-shadow: 0 0 5px rgba(255, 193, 7, 0.7);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.15); /* М'яка тінь значка */
+}
+
 .userProfileNameView {
     font-size: 40px;
     font-weight: 700;
-    color: #fff; /* Білий для темного фону хедеру */
+    color: #fff;
 }
 
 .userProfileTitleView {
     font-size: 20px;
-    color: #bbb; /* Світло-сірий */
+    color: #bbb;
+    cursor: pointer;
 }
 
-.userProfileNameInput,
-.userProfileTitleInput {
+.userProfileNameInput, .userProfileTitleInput {
     font-size: 40px;
     padding: 6px 8px;
     border-radius: 8px;
     border: 1px solid #ccc;
     width: 100%;
     box-sizing: border-box;
-    color: #333; /* Чорний текст в інпуті */
+    color: #333;
 }
 
 /* 4. БІЛІ КАРТКИ (Achievements & Last Trains) */
-.userProfileAchivmentBlock,
-.userProfileLastTrains {
-    background-color: #ffffff; /* !!! БІЛИЙ ФОН !!! */
+.userProfileAchivmentBlock, .userProfileLastTrains, .userProfileComments {
+    background-color: #ffffff;
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    color: #333; /* Задаємо темний текст для всієї картки */
+    color: #333;
+    cursor: default; /* Контент не повинен викликати фон */
 }
-
-.userProfileTrainsItems {
-    /* Стилі сітки/флекса, які раніше були на ul.userProfileTrainsList */
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px; /* Замість gap: 12px */
-    list-style: none; /* Все одно залишаємо для безпеки */
-}
-
-/* === НОВА КЛІКАБЕЛЬНА КАРТКА ТРЕНУВАННЯ (замість li.userProfileTrain) === */
-.userProfileTrainLink {
-    /* Стилі, які раніше були на li.userProfileTrain */
-    background: #f4f7fa;
-    border: 1px solid #e1e8ed;
-    border-radius: 14px;
-    padding: 15px;
-    /* Обов'язково для центрування вмісту */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    /* Стилі для посилання */
-    text-decoration: none; /* Прибираємо підкреслення */
-    color: inherit; /* Успадковуємо колір тексту від білої картки */
-
-    transition: all 0.2s;
-    box-sizing: border-box;
-}
-
-    .userProfileTrainLink:hover {
-        /* ЗМІНА: Збільшення розміру */
-        transform: scale(1.03);
-        /* Тінь залишаємо для ефекту глибини */
-        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
-        /* Залишаємо вихідні кольори, щоб уникнути синьої обводки/фону */
-        background: #f4f7fa;
-        border-color: #e1e8ed;
-        /* Забезпечуємо плавність, хоча transition вже є на основному елементі */
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
 
 /* Заголовки всередині білих карток */
-.userProfileAchivmentTitle,
-.userProfileTrainsTitle {
+.userProfileAchivmentTitle, .userProfileTrainsTitle {
     font-size: 28px;
     font-weight: 800;
     color: #222;
@@ -722,99 +698,111 @@ a {
     padding-bottom: 10px;
 }
 
-/* === Achievements List === */
-.userProfileAchivmentsList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.userProfileAchivmentItem {
-    width: 140px;
-    height: 160px;
-    background: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    text-align: center;
-    box-sizing: border-box;
-    transition: transform 0.2s;
-}
-
-    /* УНІФІКАЦІЯ: Ефект наведення для досягнень */
-    .userProfileAchivmentItem:hover {
-        /* ЗМІНА: Збільшення розміру */
-        transform: scale(1.03);
-        /* Тінь залишаємо для ефекту глибини */
-        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
-        /* Забезпечуємо плавність, хоча transition вже є на основному елементі */
-        transition: transform 0.2s, box-shadow 0.2s;
-        /* Прибираємо сині обводки, якщо вони були */
-        border-color: #eee;
-    }
-
-.achievementName {
-    font-weight: 700;
-    color: #444;
-}
-
-.achievementDate {
-    color: #888;
-}
-
-/* === Last Trains List === */
-.userProfileTrainsList {
+/* === СПИСОК ТРЕНУВАНЬ (КОНТЕЙНЕР) === */
+/* ВИКОРИСТОВУЄМО ТІЛЬКИ ЦЕЙ КЛАС ДЛЯ GRID: .userProfileTrainsList */
+.userProfileTrainsList, .userProfileAchivmentsList {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    /* Використовуємо grid для кращого контролю */
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 15px;
 }
 
-.userProfileTrain {
+/* --- КЛІКАБЕЛЬНА КАРТКА ТРЕНУВАННЯ --- */
+.userProfileTrainLink {
+    /* Розміри та Вигляд */
+    aspect-ratio: 1 / 1;
+    max-height: 200px;
+    max-width: 200px; /* Обмеження розміру */
     background: #f4f7fa;
     border: 1px solid #e1e8ed;
     border-radius: 14px;
     padding: 15px;
+    box-sizing: border-box;
+    /* Layout: Центрування вмісту по вертикалі */
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    box-sizing: border-box;
-    transition: background 0.2s;
-    text-decoration: none; /* Щоб посилання було акуратним */
+    /* Текст та Анімація */
+    text-decoration: none;
     color: inherit;
-    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
 }
 
-    .userProfileTrain a {
-        color: inherit;
-        text-decoration: none;
-        display: contents; /* Щоб посилання не ламало flex */
+    .userProfileTrainLink:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        background: #f4f7fa;
+        border-color: #e1e8ed;
     }
 
-    .userProfileTrain:hover {
-        background: #eef5fc;
-        border-color: #2b8be6;
+/* --- КАРТКА ДОСЯГНЕННЯ --- */
+/* УНІФІКУЄМО ЗОВНІШНІЙ ВИГЛЯД З userProfileTrainLink */
+.userProfileAchivmentItem {
+    /* Візуальна Уніфікація */
+    background: #f4f7fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 14px;
+    padding: 15px;
+    /* Розміри та Layout */
+    aspect-ratio: 1 / 1;
+    min-width: 150px; /* Щоб помістилося в Grid */
+    max-width: 200px;
+    /* Layout: Центрування вмісту по вертикалі */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default; /* Це li, а не клікабельне посилання */
+}
+
+    /* ЕФЕКТ НАВЕДЕННЯ (Уніфіковано) */
+    .userProfileAchivmentItem:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        border-color: #e1e8ed;
     }
 
-.userProfileComments {
-    /* Робимо як білу картку */
-    background-color: #ffffff;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    color: #333; /* Темний текст */
-    font-size: 18px;
+/* --- ВНУТРІШНІ ЕЛЕМЕНТИ АЧІВОК (Фікс перенесення) --- */
+.achievementContent {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-wrap: break-word; /* Дозволяємо перенос */
+}
+
+.achievementIcon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.achievementText {
+    width: 100%;
+}
+
+.achievementName {
+    font-weight: 700;
+    display: block; /* Забезпечує перехід на новий рядок */
+    font-size: 14px;
+    word-wrap: break-word;
+    color: #444;
+}
+
+.achievementDate {
+    display: block; /* Забезпечує перехід на новий рядок */
+    font-size: 12px;
+    color: #888;
 }
 
 /* === ITEM PICKER STYLES === */
@@ -917,7 +905,7 @@ a {
 @media (max-width: 900px) {
     .userProfileCustoms {
         flex-direction: column;
-        align-items: center; /* Центруємо аватар по мобільному */
+        align-items: center;
         gap: 20px;
         padding: 20px;
     }
@@ -927,7 +915,6 @@ a {
         height: 220px;
     }
 
-    /* Зменшення аватара та рамки під новий контейнер */
     .avatarImage {
         width: 80%;
         height: 80%;
@@ -939,8 +926,7 @@ a {
         font-size: 32px;
     }
 
-    .userProfileAchivmentBlock,
-    .userProfileLastTrains {
+    .userProfileAchivmentBlock, .userProfileLastTrains {
         padding: 20px;
     }
 }

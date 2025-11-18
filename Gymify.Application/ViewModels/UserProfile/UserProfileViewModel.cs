@@ -13,6 +13,7 @@ namespace Gymify.Application.ViewModels.UserProfile;
 public class UserProfileViewModel
 {
     public Guid UserProfileId { get; set; }
+    public int Level { get; set; } = 0;
     public string UserName { get; set; } = "Name";
     public string Title { get; set; } = "Title";
     public bool Editable { get; set; } = false;

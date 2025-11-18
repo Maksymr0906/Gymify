@@ -21,12 +21,14 @@
                     <button class="userProfileEditButton" id="editToggleBtn">Edit</button>
                 }
                  <div>
+                     <span id="levelView" class="userProfileLevelBadge">Level @Model.Level</span>
+                 </div>
+                 <div>
                      <span id="nameView" class="userProfileNameView">@Model.UserName</span>
                      <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" />
                  </div>
                  <div>
                      <span id="titleView" class="userProfileTitleView" data-edit-type="title">@Model.Title</span>
-                     <input id="titleInput" class="userProfileTitleInput" value="@Model.Title" style="display:none;" />
                  </div>
             </div>
         </div>
@@ -43,7 +45,7 @@
                                         <img src="@a.IconUrl" class="achievementIcon" />
                                         <div class="achievementText">
                                             <span class="achievementName">@a.Name</span>
-                                            <small class="achievementDate">@a.UnlockedAt?.ToString("dd.MM.yyyy")</small>
+                                            <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
                                         </div>
                                     </div>
                                 </li>
@@ -68,7 +70,7 @@
                            title="@workout.CreatedAt.ToString("g")">
 
                             <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
-                            <small style="font-size:12px; color:#888; margin-top:5px;">@workout.CreatedAt.ToString("dd MMM yyyy")</small>
+                            <small style="font-size:12px; color:#888; margin-top:5px;">@workout.CreatedAt.ToString("g")</small>
                         </a>
                     }
                 }
@@ -117,6 +119,9 @@
     let pickerSelectedItemId = null;
     let pickerSelectedItemUrl = null;
     let pickerSelectedItemName = null;
+
+    let tempAvatarSelection = { id: null, url: null, name: null }; 
+    let tempFrameSelection = { id: null, url: null, name: null };
 
     // Оригінали
     const original = {
@@ -171,6 +176,9 @@
 
     // 3. Блокуємо спливання на Картці Тренувань
     document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
+
+    // 4. Блокуємо спливання на Коментах
+    document.querySelector('.userProfileComments').addEventListener('click', stopPropagationHandler);
 
     // === ОБРОБНИК КЛІКІВ ===
     document.querySelectorAll('[data-edit-type]').forEach(el => {
@@ -245,14 +253,21 @@
 
     // === ЗАВАНТАЖЕННЯ ДАНИХ (Fetch) ===
     async function loadItemsIntoPicker(type) {
-        pickerCurrentMode = type; // Запам'ятовуємо, що ми зараз вибираємо
-        pickerSelectedItemId = null;
+        // --- 1. ЗБЕРЕЖЕННЯ ПОПЕРЕДНЬОГО ВИБОРУ ---
+        // Якщо ми міняємо вкладку, зберігаємо поточний тимчасовий вибір
+        if (pickerCurrentMode === 'avatar') {
+            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+        } else if (pickerCurrentMode === 'frame') {
+            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+        }
+
+        pickerCurrentMode = type; // Встановлюємо новий режим
+        pickerSelectedItemId = null; // Скидаємо поточний вибір (буде відновлений нижче)
 
         const list = document.getElementById('itemPickerList');
         const overlay = document.getElementById('itemPickerOverlay');
         const titleLabel = document.getElementById('itemPickerTitle');
 
-        // Оновлюємо заголовок
         titleLabel.innerText = 'Choose ' + type;
         list.innerHTML = '<div style="padding:20px;">Loading...</div>';
         overlay.style.display = 'block';
@@ -267,7 +282,16 @@
                 return;
             }
 
+            // --- 2. ВИЗНАЧЕННЯ АКТИВНОГО ВИБОРУ ДЛЯ ПОТОЧНОЇ ВКЛАДКИ ---
+            let activeSelection = { id: null };
+            if (type === 'avatar') {
+                activeSelection = tempAvatarSelection;
+            } else if (type === 'frame') {
+                activeSelection = tempFrameSelection;
+            }
+
             items.forEach(it => {
+                // ... (створення елемента el, як раніше) ...
                 let el;
                 if (type === 'title') {
                     el = document.createElement('div');
@@ -280,6 +304,17 @@
                 }
 
                 el.title = it.name || '';
+
+                // --- 3. ВІДНОВЛЕННЯ ВИДІЛЕННЯ (якщо елемент був вибраний раніше) ---
+                if (it.id === activeSelection.id) {
+                    el.classList.add('selected');
+                    // Оновлюємо поточні змінні пікера відновленим вибором
+                    pickerSelectedItemId = it.id;
+                    pickerSelectedItemUrl = it.url;
+                    pickerSelectedItemName = it.name;
+                }
+
+                // Логіка кліку
                 el.addEventListener('click', () => {
                     list.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
                     el.classList.add('selected');
@@ -289,27 +324,63 @@
                 });
                 list.appendChild(el);
             });
+
         } catch (err) {
             console.error(err);
             list.innerHTML = '<div style="color:#f88">Error loading items</div>';
         }
     }
 
+    // --- ФУНКЦІЯ ПОВНОГО СКИДАННЯ СТАНУ МОДАЛА ---
+    function resetPickerModalState() {
+        // Скидаємо кеш для табів
+        tempAvatarSelection = { id: null, url: null, name: null };
+        tempFrameSelection = { id: null, url: null, name: null };
+
+        // Скидаємо загальні змінні модала
+        pickerSelectedItemId = null;
+        pickerSelectedItemUrl = null;
+        pickerSelectedItemName = null;
+        pickerCurrentMode = null; 
+
+        // Ховаємо модальне вікно
+        document.getElementById('itemPickerOverlay').style.display = 'none';
+    }
+
     // === APPLY ===
     document.getElementById('itemPickerApply').addEventListener('click', () => {
-        if (!pickerSelectedItemId) {
-            alert('Select an item first');
-            return;
+        // Ми не перевіряємо, чи вибрано хоча б щось, бо можливо, юзер міняв аватар і фрейм
+
+        // Зберігаємо останній зроблений вибір перед закриттям
+        if (pickerCurrentMode === 'avatar') {
+            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+        } else if (pickerCurrentMode === 'frame') {
+            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
         }
 
-        // Використовуємо pickerCurrentMode, щоб зрозуміти, що ми вибрали
-        applyPickedItem(pickerCurrentMode, pickerSelectedItemId, pickerSelectedItemUrl, pickerSelectedItemName);
+        // --- 1. Застосовуємо Аватар ---
+        if (tempAvatarSelection.id) {
+             applyPickedItem('avatar', tempAvatarSelection.id, tempAvatarSelection.url, tempAvatarSelection.name);
+        }
 
-        document.getElementById('itemPickerOverlay').style.display = 'none';
+        // --- 2. Застосовуємо Фрейм ---
+        if (tempFrameSelection.id) {
+             applyPickedItem('frame', tempFrameSelection.id, tempFrameSelection.url, tempFrameSelection.name);
+        }
+
+        // --- 3. Застосовуємо Титул / Фон (якщо ми їх міняли) ---
+        // Якщо ми були в режимі Title/Background, applyPickedItem викликався одразу.
+        // Але для надійності, якщо юзер був у режимі Title/Background і натиснув apply:
+        if (pickerCurrentMode === 'title' || pickerCurrentMode === 'background') {
+             if (pickerSelectedItemId) {
+                 applyPickedItem(pickerCurrentMode, pickerSelectedItemId, pickerSelectedItemUrl, pickerSelectedItemName);
+             }
+        }
+        resetPickerModalState();
     });
 
     document.getElementById('itemPickerCancel').addEventListener('click', () => {
-        document.getElementById('itemPickerOverlay').style.display = 'none';
+        resetPickerModalState();
     });
 
     function applyPickedItem(type, id, url, name) {

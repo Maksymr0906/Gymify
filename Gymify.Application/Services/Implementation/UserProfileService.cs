@@ -168,6 +168,7 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
 
         return new UserProfileViewModel
         {
+            Level = userCredentials.Level,
             UserName = userCredentials.ApplicationUser!.UserName ?? "Name",
             Title = userEquipment.TitleText,
             Achievements = userAchievements,
