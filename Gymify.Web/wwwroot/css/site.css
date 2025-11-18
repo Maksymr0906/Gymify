@@ -645,13 +645,11 @@ a {
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    /* Колір та рамка */
     color: #ffc107; /* Яскравий золотий/жовтий */
     background-color: rgba(255, 193, 7, 0.1); /* Дуже прозорий золотий фон */
 
     border: 1px solid #ffc107;
     border-radius: 8px;
-    /* Ефект світіння */
     text-shadow: 0 0 5px rgba(255, 193, 7, 0.7);
     box-shadow: 0 0 10px rgba(255, 193, 7, 0.15); /* М'яка тінь значка */
 }
