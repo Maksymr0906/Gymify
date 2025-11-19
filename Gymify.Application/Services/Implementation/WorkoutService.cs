@@ -41,6 +41,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         var levelsUp = newLevel - oldLevel;
 
         await _userProfileService.UpdateStatsAsync(workout.UserProfileId, workout.Id);
+
         await _caseService.GiveRewardByLevelUp(userProfile.Id, levelsUp);
         
         var newAchievements = await _achievementService.UpdateUserAchievementsAsync(userProfile.Id);

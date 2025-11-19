@@ -12,54 +12,6 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly Random _random = new Random();
 
-    public async Task GenerateRewardsAsync(Guid userProfileId, List<Achievement> newAchievements, bool isLevelUp)
-    {
-        var userProfile = await _unitOfWork.UserProfileRepository.GetByIdAsync(userProfileId);
-        if (userProfile == null)
-            throw new Exception("UserProfile not found");
-
-        
-        foreach (var achievement in newAchievements)
-        {
-            var itemToGive = await _unitOfWork.ItemRepository
-                    .GetByIdAsync(achievement.RewardItemId);
-
-            if (itemToGive != null)
-            {
-                var userItem = new UserItem
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.Now,
-                    UserProfileId = userProfile.Id,
-                    ItemId = itemToGive.Id
-                };
-
-                await _unitOfWork.UserItemRepository.CreateAsync(userItem);
-            }
-        }
-
-        if (isLevelUp)
-        {
-            var allCases = (await _unitOfWork.CaseRepository.GetAllAsync()).ToList();
-            if (allCases.Any())
-            {
-                var randomCase = allCases[_random.Next(allCases.Count)];
-
-                var userCase = new UserCase
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.Now,
-                    UserProfileId = userProfile.Id,
-                    CaseId = randomCase.Id
-                };
-
-                await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
-            }
-        }
-
-
-        await _unitOfWork.SaveAsync();
-    }
     public async Task<ICollection<CaseInfoDto>> GetAllUserCasesAsync(Guid userProfileId)
     {
         var userCases = await _unitOfWork.CaseRepository.GetAllCasesByUserIdAsync(userProfileId);

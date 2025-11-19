@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Gymify.Application.DTOs.Achievement;
+﻿using Gymify.Application.DTOs.Achievement;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
@@ -14,45 +13,37 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
     public async Task<List<Achievement>> UpdateUserAchievementsAsync(Guid userProfileId)
     {
         var achievements = await _unitOfWork.AchievementRepository.GetAllByUserId(userProfileId);
+        var completedAchievements = new List<Achievement>();
         var user = await _unitOfWork.UserProfileRepository.GetByIdAsync(userProfileId);
 
         foreach (var achievement in achievements)
         {
-
             var userAchievement = achievement
                 .UserAchievements
                 .FirstOrDefault(ua => ua.UserProfileId == userProfileId);
-
+         
             if (userAchievement is null)
                 continue;
 
-            var property = typeof(UserProfile).GetProperty(achievement.TargetProperty);
-            if (property == null)
-
-                if (property is null)
+            double? progress = GetUserPropertyValue(user, achievement.TargetProperty);
+            if (progress == null)
                 continue;
 
-            var userValue = property.GetValue(user);
-
-            if (userValue is null)
-                continue;
-
-            double numericValue = Convert.ToDouble(userValue);
-
-            userAchievement.Progress = numericValue;
+            userAchievement.Progress = progress.Value;
 
             bool isCompleted = achievement.ComparisonType switch
             {
-                ">=" => numericValue >= achievement.TargetValue,
-                ">" => numericValue > achievement.TargetValue,
-                "==" => Math.Abs(numericValue - achievement.TargetValue) < 0.0001,
-                "<=" => numericValue <= achievement.TargetValue,
-                "<" => numericValue < achievement.TargetValue,
+                ">=" => progress.Value >= achievement.TargetValue,
+                ">" => progress.Value > achievement.TargetValue,
+                "==" => Math.Abs(progress.Value - achievement.TargetValue) < 0.0001,
+                "<=" => progress.Value <= achievement.TargetValue,
+                "<" => progress.Value < achievement.TargetValue,
                 _ => false
             };
 
             if (isCompleted && !userAchievement.IsCompleted)
             {
+                completedAchievements.Add(achievement);
                 userAchievement.IsCompleted = true;
                 userAchievement.UnlockedAt = DateTime.UtcNow;
                 await _caseService.GiveRewardByAchievement(user.Id, achievement.RewardItemId);
@@ -65,7 +56,7 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
 
         await _unitOfWork.SaveAsync();
 
-        return achievements.ToList();
+        return completedAchievements;
     }
 
     public async Task<ICollection<AchievementDto>> GetAllAchievementsAsync()
@@ -135,23 +126,17 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
         await _unitOfWork.SaveAsync();
     }
 
-    private bool IsAchievementCompleted(UserProfile user, Achievement achievement)
+    private double? GetUserPropertyValue(UserProfile user, string propertyName)
     {
-        var property = typeof(UserProfile).GetProperty(achievement.TargetProperty);
+        var property = typeof(UserProfile).GetProperty(propertyName);
         if (property == null)
-            return false;
+            return null;
 
-        var currentValue = Convert.ToDouble(property.GetValue(user) ?? 0);
-        var targetValue = achievement.TargetValue;
+        var value = property.GetValue(user);
+        if (value == null)
+            return null;
 
-        return achievement.ComparisonType switch
-        {
-            ">=" => currentValue >= targetValue,
-            ">" => currentValue > targetValue,
-            "==" => Math.Abs(currentValue - targetValue) < 0.0001,
-            "<=" => currentValue <= targetValue,
-            "<" => currentValue < targetValue,
-            _ => false
-        };
+        return Convert.ToDouble(value);
     }
+
 }
