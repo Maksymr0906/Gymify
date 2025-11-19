@@ -7,6 +7,6 @@ public class AddUserExerciseToWorkoutRequestDto
     public int? Sets { get; set; } = 0;
     public int? Reps { get; set; } = 0;
     public int? Weight { get; set; } = 0;
-    public TimeSpan? Duration { get; set; }
+    public int? Duration { get; set; }
     public int ExerciseType { get; set; } = 1;
 }

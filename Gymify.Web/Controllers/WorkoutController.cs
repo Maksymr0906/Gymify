@@ -1,7 +1,8 @@
-﻿using Gymify.Application.DTOs.Workout;
-using Gymify.Application.DTOs.UserExercise;
+﻿using Gymify.Application.DTOs.UserExercise;
+using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Gymify.Web.Controllers
@@ -80,19 +81,18 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddExercisesBatch(AddUserExercisesBatchRequestDto dto)
+        public async Task<IActionResult> AddExercisesBatch([FromForm] Guid workoutId, [FromForm] string exercisesJson)
         {
             var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
 
-            if (dto.Exercises != null && dto.Exercises.Any())
-            {
-                dto.Exercises.ForEach(ex => ex.WorkoutId = dto.WorkoutId);
-                await _userExerciseService.AddExercisesBatchAsync(dto.WorkoutId, dto.Exercises, currentUserId);
-            }
+            var exercises = JsonConvert.DeserializeObject<List<AddUserExerciseToWorkoutRequestDto>>(exercisesJson);
 
-            // Після додавання вправ редіректимо на Finish
-            return RedirectToAction("Finish", new { workoutId = dto.WorkoutId });
+            if (exercises != null && exercises.Any())
+                await _userExerciseService.AddExercisesBatchAsync(workoutId, exercises, currentUserId);
+
+            return RedirectToAction("Finish", new { workoutId });
         }
+
 
         [HttpGet]
         public IActionResult Finish(Guid workoutId)
@@ -109,7 +109,7 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
         {
             await _workoutService.CompleteWorkoutAsync(dto);
-            return View("Home"); // або редірект на сторінку результату
+            return RedirectToAction("Home", "Main");
         }
     }
 }

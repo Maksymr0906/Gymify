@@ -37,15 +37,16 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
 
         var userExercise = new UserExercise
         {
+            Id = Guid.NewGuid(),
             Name = existingExercise.Name,
             Type = existingExercise.Type,
             Sets = model.Sets,
             Reps = model.Reps,
             Weight = model.Weight,
-            Duration = model.Duration,
+            Duration = new TimeSpan(0, 0, model.Duration ?? 0, 0),
             WorkoutId = model.WorkoutId,
             ExerciseId = existingExercise.Id,
-            EarnedXP = calculatedXP 
+            EarnedXP = calculatedXP
         };
 
         await _unitOfWork.UserExerciseRepository.CreateAsync(userExercise);
@@ -70,7 +71,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
         int sets = exerciseModel.Sets ?? 0;
         int reps = exerciseModel.Reps ?? 0;
         int weight = exerciseModel.Weight ?? 0;
-        double minutes = exerciseModel.Duration?.TotalMinutes ?? 0;
+        double minutes = exerciseModel.Duration ?? 0;
 
         double factor = 1.0;
 

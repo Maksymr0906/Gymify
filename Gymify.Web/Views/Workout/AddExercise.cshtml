@@ -30,7 +30,7 @@
             </div>
             <div class="col">
                 <label asp-for="Duration" class="AddExerciseLabel">Duration</label>
-                <input type="text" id="exerciseDuration" class="AddExerciseInput form-control" placeholder="e.g. 00:30:00" />
+                <input type="number" id="exerciseDuration" class="AddExerciseInput form-control" placeholder="minutes" min="1" />
             </div>
             <div class="col">
                 <label asp-for="Sets" class="AddExerciseLabel">Sets</label>
@@ -106,7 +106,8 @@
             addBtn.addEventListener("click", () => {
                 const name = newExerciseInput.value || input.value;
                 const weight = document.getElementById("exerciseWeight").value || null;
-                const duration = document.getElementById("exerciseDuration").value || null;
+                const durationValue = document.getElementById("exerciseDuration").value;
+                const duration = durationValue ? parseInt(durationValue, 10) : null;
                 const sets = document.getElementById("exerciseSets").value || null;
                 const reps = document.getElementById("exerciseReps").value || null;
 
@@ -131,11 +132,12 @@
                 exercises.forEach((ex, i) => {
                     const li = document.createElement("li");
                     li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
-                    li.innerHTML = `${ex.name} - ${ex.reps || '-'} reps x ${ex.sets || '-'} sets (${ex.weight || '-'} kg, ${ex.duration || '-'})
+                    li.innerHTML = `${ex.name} - ${ex.reps || '-'} reps x ${ex.sets || '-'} sets (${ex.weight || '-'} kg, ${ex.duration ? ex.duration + ' min' : '-'})
                         <span>
                             <button type="button" class="btn btn-sm btn-warning me-1" onclick="editExercise(${i})">Edit</button>
                             <button type="button" class="btn btn-sm btn-danger" onclick="deleteExercise(${i})">Delete</button>
                         </span>`;
+
                     exerciseList.appendChild(li);
                 });
                 exercisesJson.value = JSON.stringify(exercises);
