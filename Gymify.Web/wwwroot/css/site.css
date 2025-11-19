@@ -599,10 +599,11 @@ a {
 /*          CreateWorkout           */
 .createWorkoutForm {
     height: 80vh;
-    padding: 15%;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* по горизонталі */
+    justify-content: center; /* по вертикалі */
 }
 .createWorkoutLabel {
     font-size: 44px;
