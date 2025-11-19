@@ -391,37 +391,209 @@ a {
     font-size: 30px;
 }
 
-/*          WorkoutsFeed        */
+/* ==================================================================== */
+/* === WORKOUTS FEED: ОПТИМІЗОВАНІ СТИЛІ === */
+/* ==================================================================== */
 
-.day-header {
-    background: #f0f0f0;
-    padding: 10px 15px;
-    font-weight: bold;
-    cursor: pointer;
-    border-top: 1px solid #ddd;
+/* Загальний контейнер для стрічки */
+#workout-feed-container {
+    padding: 0 10px;
 }
 
-.day-header:hover {
-    background: #e0e0e0;
+/* === ФІЛЬТРИ ТА КЕРУВАННЯ === */
+#filters-container {
+    background-color: #ffffff; /* Змінено на білий */
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Легка тінь */
 }
 
-.workout-list {
-    display: none;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
+#filter-type, #sort-type, #author-search {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+    font-size: 16px;
+    box-shadow: none;
 }
 
-    .workout-list a {
-        display: block;
-        padding: 8px 0;
-        text-decoration: none;
+    #filter-type:focus, #sort-type:focus, #author-search:focus {
+        border-color: var(--ButtonColor); /* Акцентний колір */
+        outline: none;
     }
 
-#load-more-btn {
-    margin-top: 20px;
-    width: 100%;
-    padding: 10px;
+/* === КАРТКА ДНЯ (day-entry) === */
+.day-entry {
+    background-color: #ffffff;
+    margin-bottom: 20px; /* Збільшено відступ між днями */
+    border-radius: 15px; /* Більше заокруглення */
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Більш виразна тінь */
+    transition: box-shadow 0.3s;
 }
+
+/* === ЗАГОЛОВОК ДНЯ (day-header) === */
+.day-header {
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 20px; /* Збільшено шрифт */
+    color: #222;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0; /* Темніша лінія */
+}
+
+/* Загальний контейнер для стрічки */
+#workout-feed-container {
+    padding: 0 10px;
+}
+
+/* === ФІЛЬТРИ ТА КЕРУВАННЯ === */
+#filters-container {
+    background-color: #ffffff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px; /* Забезпечення відступу, якщо в основній вью його прибрали */
+}
+
+#filter-type, #sort-type, #author-search {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+    font-size: 16px;
+    box-shadow: none;
+    padding: 6px 10px;
+}
+
+    #filter-type:focus, #sort-type:focus, #author-search:focus {
+        border-color: var(--ButtonColor);
+        outline: none;
+    }
+
+/* === КАРТКА ДНЯ (day-entry) === */
+.day-entry {
+    background-color: #ffffff;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+
+/* === ЗАГОЛОВОК ДНЯ (day-header) === */
+.day-header {
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 20px;
+    color: #222;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* === СПИСОК ТРЕНУВАНЬ (workout-list) === */
+.workout-list {
+    padding: 0 20px; /* Прибираємо вертикальний padding, залишимо його на рядках */
+    display: none;
+}
+
+/* === КАРТКА ТРЕНУВАННЯ (workout-card-row) - Єдиний горизонтальний рядок === */
+.workout-card-row {
+    display: flex; /* Головний контейнер - Flex */
+    justify-content: space-between; /* Розтягуємо елементи в сторони */
+    align-items: center;
+    padding: 15px 0; /* Внутрішній відступ для рядка */
+    text-decoration: none;
+    color: inherit;
+    font-size: 16px;
+    border-bottom: 1px solid #eee; /* Роздільник між рядками */
+    transition: background-color 0.15s;
+}
+
+    .workout-card-row:last-child {
+        border-bottom: none; /* Прибираємо лінію під останнім елементом */
+    }
+
+    .workout-card-row:hover {
+        background-color: #f5f5f5;
+    }
+
+/* ЛІВИЙ БЛОК: Назва + XP */
+.card-left-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1; /* Дозволяємо займати більшість простору */
+    min-width: 0; /* Важливо для ellipsis */
+    padding-right: 20px;
+}
+
+.workout-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Обрізаємо довгу назву */
+    max-width: 100%;
+}
+
+.workout-xp {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ButtonColor);
+    margin-top: 4px;
+}
+
+/* ПРАВИЙ БЛОК: Дата та Автор */
+.card-right-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Вирівнюємо текст по правому краю */
+    font-size: 13px;
+    color: #777;
+    white-space: nowrap; /* Не дозволяємо метаданим переноситися */
+}
+
+.workout-meta-date {
+    font-weight: 500;
+    color: #555;
+}
+
+.workout-meta-author {
+    margin-top: 2px;
+}
+
+/* === СТИЛІ ДЛЯ HEATMAP (Застосовуються до всього клікабельного рядка) === */
+.workout-card-row[data-workout-xp] {
+    /* Тут JS додасть стилі: background-color, padding, border-radius, etc. */
+}
+/* Щоб Heatmap правильно забарвлював фон, ми повинні скинути inline стилі, 
+   які додавалися до внутрішніх елементів у попередньому рефакторингу, 
+   або дозволити їм застосовуватися до всього <a>. 
+   Оскільки JS малює лише <a>, це має працювати коректно. */
+
+
+/* === КНОПКА "LOAD MORE" === */
+#load-more-btn {
+    width: 100%;
+    max-width: 400px;
+    display: block;
+    margin: 30px auto 50px auto !important;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--ButtonColor);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    #load-more-btn:hover {
+        background-color: #ff8c00;
+        transform: scale(1.02);
+    }
 
 
 /*          CreateWorkout           */

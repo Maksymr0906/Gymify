@@ -130,20 +130,17 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         if (byDescending)
         {
-            // Логіка для "новіші спочатку" (залишається як є)
-            var today = DateTime.UtcNow.Date;
-            var endDate = today.AddDays(-(page * pageSizeDays));
-            var startDate = endDate.AddDays(-pageSizeDays + 1);
+            DateTime startPoint = DateTime.UtcNow.Date;
 
-            queryStartDate = startDate;
-            queryEndDate = endDate.AddDays(1).AddTicks(-1);
+            queryEndDate = startPoint.AddDays(-(page * pageSizeDays));
+            queryStartDate = queryEndDate.AddDays(-pageSizeDays + 1);
+
+            queryEndDate = queryEndDate.AddDays(1).AddTicks(-1);
         }
         else
         {
-            // Логіка для "старіші спочатку" (використовує anchorDate)
             if (anchorDate == null)
             {
-                // Якщо JS з якоїсь причини не надіслав дату, повертаємо порожній список
                 return new List<WorkoutDayDto>();
             }
 
@@ -155,7 +152,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         }
 
         var workouts = await _unitOfWork.WorkoutRepository
-            .GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy,byDescending);
+            .GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy, byDescending);
 
         var groupedWorkouts = workouts
             .GroupBy(w => w.CreatedAt.Date)
@@ -163,19 +160,20 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             {
                 Date = group.Key,
                 TotalXpForDay = onlyMy ? group.Sum(w => w.TotalXP) : 0,
-                Workouts = group.Select(w => new WorkoutDto
-                {
-                    Id = w.Id,
-                    Name = w.Name,
-                    CreatedAt = w.CreatedAt,
-                    UserProfileId = w.UserProfileId,
-                    AuthorName = w.UserProfile.ApplicationUser.UserName,
-                    TotalXP = onlyMy ? w.TotalXP : 0
-                }).ToList() // Тепер тренування всередині дня також будуть відсортовані
+                Workouts = group
+                    .OrderByDescending(w => w.CreatedAt)
+                    .Select(w => new WorkoutDto
+                    {
+                        Id = w.Id,
+                        Name = w.Name,
+                        CreatedAt = w.CreatedAt,
+                        UserProfileId = w.UserProfileId,
+                        AuthorName = w.UserProfile.ApplicationUser.UserName,
+                        TotalXP = onlyMy ? w.TotalXP : 0
+                    }).ToList()
             })
             .ToList();
 
         return groupedWorkouts;
     }
-
 }

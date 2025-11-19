@@ -37,22 +37,27 @@ public class WorkoutRepository(GymifyDbContext context)
 
     public async Task<DateTime?> GetFirstWorkoutDateAsync(Guid userId, bool onlyMy, string? authorName)
     {
-        var query = Entities.AsQueryable();
+        var query = Entities
+            .Include(w => w.UserProfile)
+            .ThenInclude(up => up.ApplicationUser)
+            .AsQueryable();
 
         if (onlyMy)
         {
             query = query.Where(w => w.UserProfileId == userId);
         }
-        else if (!string.IsNullOrWhiteSpace(authorName))
+        else // Показуємо всі публічні, або фільтруємо по автору
         {
-            var loweredName = authorName.Trim().ToLower();
-            query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
-        }
-        else
-        {
-            // Якщо !onlyMy і немає імені автора, ми показуємо всі тренування
+            query = query.Where(w => w.IsPrivate == false);
+
+            if (!string.IsNullOrWhiteSpace(authorName))
+            {
+                var loweredName = authorName.Trim().ToLower();
+                query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
+            }
         }
 
+        // Повертаємо НАЙСТАРІШУ дату
         var firstWorkoutDate = await query
             .OrderBy(w => w.CreatedAt)
             .Select(w => (DateTime?)w.CreatedAt.Date)

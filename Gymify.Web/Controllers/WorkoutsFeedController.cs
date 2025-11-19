@@ -31,17 +31,17 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> GetAnchorDate(string? authorName, bool onlyMy)
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            var date = await _workoutService.GetFirstWorkoutDate(userId, onlyMy, authorName); 
+            var date = await _workoutService.GetFirstWorkoutDate(userId, onlyMy, authorName);
 
             return Json(new { anchorDate = date });
         }
 
         [HttpGet]
-        public async Task<IActionResult> LoadMoreWorkouts(DateTime? anchorDate, string? authorName, bool onlyMy, bool byDescending, int page) 
+        public async Task<IActionResult> LoadMoreWorkouts(DateTime? anchorDate, string? authorName, bool onlyMy, bool byDescending, int page)
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
 
-            var model = await _workoutService.GetWorkoutsByDayPage(anchorDate, userId, authorName, page, onlyMy, byDescending); 
+            var model = await _workoutService.GetWorkoutsByDayPage(anchorDate, userId, authorName, page, onlyMy, byDescending);
 
             ViewBag.OnlyMy = onlyMy;
 

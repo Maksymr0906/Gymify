@@ -5,38 +5,50 @@
 }
 
 @foreach (var day in Model)
-{
-    <div class="day-entry" @if(onlyMy) { <text>data-day-xp="@day.TotalXpForDay"</text> }>
-        <div class="day-header">
-            <span>@day.Date.ToString("dd MMMM yyyy")</span>
-            <span style="float: right;">
-                (Трен: @day.WorkoutCount
+{Brow
+        <div class="day-entry" @if (onlyMy)
+    {
+        <text>data-day-xp="@day.TotalXpForDay"</text>
+    }>
+            <div class="day-header">
+                <span>@day.Date.ToString("dd MMMM yyyy")</span>
+                <span style="float: right;">
+                Workouts:@day.WorkoutCount
                 @if (onlyMy)
                 {
-                    <text>, XP: @day.TotalXpForDay</text>
-                })
-            </span>
-        </div>
+                    <text>| XP:@day.TotalXpForDay</text>
+                }
+                </span>
+            </div>
 
 
-        <div class="workout-list">
+            <div class="workout-list">
             @foreach (var workout in day.Workouts)
             {
-                <a asp-controller="Workouts" asp-action="Details" asp-route-id="@workout.Id" data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
-                    @workout.Name
-                </a>
-                
-                <div>
-                    <small>
-                        Dated: @workout.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") |
-                        Author: @workout.AuthorName
+                        <a class="workout-card-row"
+                           asp-controller="Workouts"
+                           asp-action="Details"
+                           asp-route-id="@workout.Id"
+                           data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
+
+                            <div class="card-left-info">
+                                <span class="workout-name">@workout.Name</span>
                         @if (onlyMy)
                         {
-                            <text> | XP: @workout.TotalXP</text>
+                                        <span class="workout-xp">XP: @workout.TotalXP</span>
                         }
-                    </small>
-                </div>
+                            </div>
+
+                            <div class="card-right-meta">
+                                <span class="workout-meta-date">
+                            @workout.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                                </span>
+                                <span class="workout-meta-author">
+                            @workout.AuthorName
+                                </span>
+                            </div>
+                        </a>
             }
+            </div>
         </div>
-    </div>
 }
