@@ -1,5 +1,20 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Gymify.Application.DTOs.Workout.CompleteWorkoutRequestDto
 @{
+    ViewData["Title"] = "Finish Workout";
 }
+
+<div class="container mt-4">
+    <h1>Finish Workout</h1>
+
+    <form method="post" asp-action="Finish">
+        <input type="hidden" asp-for="WorkoutId" />
+        <input type="hidden" asp-for="UserProfileId" />
+
+        <div class="mb-3">
+            <label asp-for="Conclusions" class="form-label">Conclusions</label>
+            <textarea asp-for="Conclusions" class="form-control" rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Complete Workout</button>
+    </form>
+</div>

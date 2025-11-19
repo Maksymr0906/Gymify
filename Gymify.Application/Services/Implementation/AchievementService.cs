@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Gymify.Application.DTOs.Achievement;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
@@ -6,38 +6,66 @@ using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class AchievementService(IUnitOfWork unitOfWork) : IAchievementService
+public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService) : IAchievementService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ICaseService _caseService = caseService;
 
-    public async Task<List<Achievement>> CheckForAchievementsAsync(Guid userProfileId)
+    public async Task<List<Achievement>> UpdateUserAchievementsAsync(Guid userProfileId)
     {
+        var achievements = await _unitOfWork.AchievementRepository.GetAllByUserId(userProfileId);
         var user = await _unitOfWork.UserProfileRepository.GetByIdAsync(userProfileId);
-        var achievements = await _unitOfWork.AchievementRepository.GetAllAsync();
-
-        var newAchievements = new List<Achievement>();
 
         foreach (var achievement in achievements)
         {
-            bool alreadyUnlocked = user.UserAchievements.Any(ua => ua.AchievementId == achievement.Id);
-            if (alreadyUnlocked) continue;
 
-            if (IsAchievementCompleted(user, achievement))
+            var userAchievement = achievement
+                .UserAchievements
+                .FirstOrDefault(ua => ua.UserProfileId == userProfileId);
+
+            if (userAchievement is null)
+                continue;
+
+            var property = typeof(UserProfile).GetProperty(achievement.TargetProperty);
+            if (property == null)
+
+                if (property is null)
+                continue;
+
+            var userValue = property.GetValue(user);
+
+            if (userValue is null)
+                continue;
+
+            double numericValue = Convert.ToDouble(userValue);
+
+            userAchievement.Progress = numericValue;
+
+            bool isCompleted = achievement.ComparisonType switch
             {
-                user.UserAchievements.Add(new UserAchievement
-                {
-                    UserProfileId = user.Id,
-                    AchievementId = achievement.Id,
-                    UnlockedAt = DateTime.UtcNow
-                });
-                newAchievements.Add(achievement);
+                ">=" => numericValue >= achievement.TargetValue,
+                ">" => numericValue > achievement.TargetValue,
+                "==" => Math.Abs(numericValue - achievement.TargetValue) < 0.0001,
+                "<=" => numericValue <= achievement.TargetValue,
+                "<" => numericValue < achievement.TargetValue,
+                _ => false
+            };
+
+            if (isCompleted && !userAchievement.IsCompleted)
+            {
+                userAchievement.IsCompleted = true;
+                userAchievement.UnlockedAt = DateTime.UtcNow;
+                await _caseService.GiveRewardByAchievement(user.Id, achievement.RewardItemId);
+            }
+            else if (!isCompleted)
+            {
+                userAchievement.IsCompleted = false;
             }
         }
 
-        await _unitOfWork.UserProfileRepository.UpdateAsync(user);
         await _unitOfWork.SaveAsync();
 
-        return newAchievements;
+        return achievements.ToList();
     }
 
     public async Task<ICollection<AchievementDto>> GetAllAchievementsAsync()

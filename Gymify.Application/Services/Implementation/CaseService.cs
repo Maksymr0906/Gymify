@@ -75,6 +75,7 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
         return casesDtos;
     }
+
     public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
     {
         var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
@@ -89,7 +90,50 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
         };
     }
 
-	public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
+    
+
+    public async Task GiveRewardByLevelUp(Guid userProfileId, int levelsUp)
+    {
+        var allCases = (await _unitOfWork.CaseRepository.GetAllAsync()).ToList();
+
+        for (int i = 0; i < levelsUp; i++)
+        {
+            if (allCases.Any())
+            {
+                var randomCase = allCases[_random.Next(allCases.Count)];
+
+                var userCase = new UserCase
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.Now,
+                    UserProfileId = userProfileId,
+                    CaseId = randomCase.Id
+                };
+
+                await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
+            }
+        }
+            
+        await _unitOfWork.SaveAsync();
+    }
+
+    public async Task GiveRewardByAchievement(Guid userProfileId, Guid rewardItemId)
+    {
+        var reward = await _unitOfWork.CaseRepository.GetByIdAsync(rewardItemId);
+
+        var userCase = new UserCase
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.Now,
+            UserProfileId = userProfileId,
+            CaseId = rewardItemId
+        };
+
+        await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
+        await _unitOfWork.SaveAsync();
+    }
+
+    public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
 	{
 		var userCase = await _unitOfWork.UserCaseRepository
 			.GetFirstByUserIdAndCaseIdAsync(userId, caseId);

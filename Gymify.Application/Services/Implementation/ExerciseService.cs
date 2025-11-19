@@ -16,10 +16,15 @@ public class ExerciseService(IUnitOfWork unitOfWork) : IExerciseService
 
         var exercises = await _unitOfWork.ExerciseRepository.FindByNameAsync(name);
 
-        if (exercises == null || exercises.Count() == 0)
+        if (exercises == null || !exercises.Any())
             return Enumerable.Empty<ExerciseDto>();
 
-        return exercises.Select(e => new ExerciseDto
+        var approved = exercises.Where(e => e.IsApproved);
+
+        if (!approved.Any())
+            return Enumerable.Empty<ExerciseDto>();
+
+        return approved.Select(e => new ExerciseDto
         {
             Id = e.Id,
             Name = e.Name,
@@ -28,6 +33,7 @@ public class ExerciseService(IUnitOfWork unitOfWork) : IExerciseService
             VideoURL = e.VideoURL,
         });
     }
+
 
     public Task<int> GetBaseXpForExerciseAsync(string name)
     {
