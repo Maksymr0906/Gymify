@@ -1,43 +1,62 @@
-using AutoMapper;
-using Gymify.Application.DTOs.Achievement;
+﻿using Gymify.Application.DTOs.Achievement;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class AchievementService(IUnitOfWork unitOfWork) : IAchievementService
+public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService) : IAchievementService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ICaseService _caseService = caseService;
 
-    public async Task<List<Achievement>> CheckForAchievementsAsync(Guid userProfileId)
+    public async Task<List<Achievement>> UpdateUserAchievementsAsync(Guid userProfileId)
     {
+        var achievements = await _unitOfWork.AchievementRepository.GetAllByUserId(userProfileId);
+        var completedAchievements = new List<Achievement>();
         var user = await _unitOfWork.UserProfileRepository.GetByIdAsync(userProfileId);
-        var achievements = await _unitOfWork.AchievementRepository.GetAllAsync();
-
-        var newAchievements = new List<Achievement>();
 
         foreach (var achievement in achievements)
         {
-            bool alreadyUnlocked = user.UserAchievements.Any(ua => ua.AchievementId == achievement.Id);
-            if (alreadyUnlocked) continue;
+            var userAchievement = achievement
+                .UserAchievements
+                .FirstOrDefault(ua => ua.UserProfileId == userProfileId);
+         
+            if (userAchievement is null)
+                continue;
 
-            if (IsAchievementCompleted(user, achievement))
+            double? progress = GetUserPropertyValue(user, achievement.TargetProperty);
+            if (progress == null)
+                continue;
+
+            userAchievement.Progress = progress.Value;
+
+            bool isCompleted = achievement.ComparisonType switch
             {
-                user.UserAchievements.Add(new UserAchievement
-                {
-                    UserProfileId = user.Id,
-                    AchievementId = achievement.Id,
-                    UnlockedAt = DateTime.UtcNow
-                });
-                newAchievements.Add(achievement);
+                ">=" => progress.Value >= achievement.TargetValue,
+                ">" => progress.Value > achievement.TargetValue,
+                "==" => Math.Abs(progress.Value - achievement.TargetValue) < 0.0001,
+                "<=" => progress.Value <= achievement.TargetValue,
+                "<" => progress.Value < achievement.TargetValue,
+                _ => false
+            };
+
+            if (isCompleted && !userAchievement.IsCompleted)
+            {
+                completedAchievements.Add(achievement);
+                userAchievement.IsCompleted = true;
+                userAchievement.UnlockedAt = DateTime.UtcNow;
+                await _caseService.GiveRewardByAchievement(user.Id, achievement.RewardItemId);
+            }
+            else if (!isCompleted)
+            {
+                userAchievement.IsCompleted = false;
             }
         }
 
-        await _unitOfWork.UserProfileRepository.UpdateAsync(user);
         await _unitOfWork.SaveAsync();
 
-        return newAchievements;
+        return completedAchievements;
     }
 
     public async Task<ICollection<AchievementDto>> GetAllAchievementsAsync()
@@ -107,23 +126,17 @@ public class AchievementService(IUnitOfWork unitOfWork) : IAchievementService
         await _unitOfWork.SaveAsync();
     }
 
-    private bool IsAchievementCompleted(UserProfile user, Achievement achievement)
+    private double? GetUserPropertyValue(UserProfile user, string propertyName)
     {
-        var property = typeof(UserProfile).GetProperty(achievement.TargetProperty);
+        var property = typeof(UserProfile).GetProperty(propertyName);
         if (property == null)
-            return false;
+            return null;
 
-        var currentValue = Convert.ToDouble(property.GetValue(user) ?? 0);
-        var targetValue = achievement.TargetValue;
+        var value = property.GetValue(user);
+        if (value == null)
+            return null;
 
-        return achievement.ComparisonType switch
-        {
-            ">=" => currentValue >= targetValue,
-            ">" => currentValue > targetValue,
-            "==" => Math.Abs(currentValue - targetValue) < 0.0001,
-            "<=" => currentValue <= targetValue,
-            "<" => currentValue < targetValue,
-            _ => false
-        };
+        return Convert.ToDouble(value);
     }
+
 }

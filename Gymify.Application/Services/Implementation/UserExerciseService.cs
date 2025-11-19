@@ -18,42 +18,35 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
 
         if (existingExercise == null)
         {
-            var pendingExercise = new PendingExercise
-            {
-                Name = model.Name,
-                Type = (ExerciseType)model.ExerciseType,
-                SubmittedByUserId = currentUserId,
-                Description = null,
-                VideoURL = null,
-                IsApproved = false
-            };
-
-            await _unitOfWork.PendingExerciseRepository.CreateAsync(pendingExercise);
-
             existingExercise = new Exercise
             {
                 Id = Guid.NewGuid(),
                 Name = model.Name,
+                Description = string.Empty,
                 CreatedAt = DateTime.Now,
                 Type = (ExerciseType)model.ExerciseType,
                 BaseXP = DefaultPendingExerciseXP,
-                DifficultyMultiplier = 1.0
+                DifficultyMultiplier = 1.0,
+                IsApproved = false
             };
+
+            await _unitOfWork.ExerciseRepository.CreateAsync(existingExercise);
         }
 
         int calculatedXP = CalculateXp(model, existingExercise);
 
         var userExercise = new UserExercise
         {
+            Id = Guid.NewGuid(),
             Name = existingExercise.Name,
             Type = existingExercise.Type,
             Sets = model.Sets,
             Reps = model.Reps,
             Weight = model.Weight,
-            Duration = model.Duration,
+            Duration = new TimeSpan(0, 0, model.Duration ?? 0, 0),
             WorkoutId = model.WorkoutId,
             ExerciseId = existingExercise.Id,
-            EarnedXP = calculatedXP 
+            EarnedXP = calculatedXP
         };
 
         await _unitOfWork.UserExerciseRepository.CreateAsync(userExercise);
@@ -71,12 +64,14 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
             EarnedXP = userExercise.EarnedXP,
         };
     }
+
+    // переписати
     public static int CalculateXp(AddUserExerciseToWorkoutRequestDto exerciseModel, Exercise userExercise)
     {
         int sets = exerciseModel.Sets ?? 0;
         int reps = exerciseModel.Reps ?? 0;
         int weight = exerciseModel.Weight ?? 0;
-        double minutes = exerciseModel.Duration?.TotalMinutes ?? 0;
+        double minutes = exerciseModel.Duration ?? 0;
 
         double factor = 1.0;
 
@@ -93,6 +88,15 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
 
         // мінімальне XP, щоб не було нуля
         return (int)Math.Max(xp, userExercise.BaseXP);
+    }
+
+    public async Task AddExercisesBatchAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> exercises, Guid currentUserId)
+    {
+        foreach (var dto in exercises)
+        {
+            dto.WorkoutId = workoutId;
+            await AddUserExerciseToWorkoutAsync(dto, currentUserId);
+        }
     }
 }
 

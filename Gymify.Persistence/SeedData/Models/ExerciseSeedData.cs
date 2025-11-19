@@ -10,4 +10,5 @@ public record class ExerciseSeedData
     public required string VideoURL { get; init; }
     public required int BaseXP { get; init; }
     public required double DifficultyMultiplier { get; init; }
+    public required bool IsApproved { get; init; }
 }

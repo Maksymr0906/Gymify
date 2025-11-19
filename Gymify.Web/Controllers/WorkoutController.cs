@@ -1,7 +1,9 @@
-﻿using Gymify.Application.DTOs.Workout;
-using Gymify.Application.DTOs.UserExercise;
+﻿using Gymify.Application.DTOs.UserExercise;
+using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Gymify.Web.Controllers
 {
@@ -22,9 +24,9 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateWorkout()
+        public IActionResult Create()
         {
-            return View("CreateWorkout");
+            return View("Create");
         }
 
         [HttpPost]
@@ -35,11 +37,11 @@ namespace Gymify.Web.Controllers
             var workout = await _workoutService.CreateWorkoutAsync(dto, userProfileId);
 
             TempData["WorkoutId"] = workout.Id.ToString();
-            return RedirectToAction("AddExercises");
+            return RedirectToAction("AddExercise", "Workout");
         }
 
         [HttpGet]
-        public IActionResult AddExercises()
+        public IActionResult AddExercise()
         {
             var workoutId = TempData["WorkoutId"]?.ToString();
             ViewBag.WorkoutId = workoutId;
@@ -60,9 +62,9 @@ namespace Gymify.Web.Controllers
             await _userExerciseService.AddUserExerciseToWorkoutAsync(dto, currentUserId);
 
             if (action == "end")
-                return RedirectToAction("FinishWorkout");
+                return RedirectToAction("Finish", "Workout");
             else if (action == "add")
-                return RedirectToAction("AddExercises");
+                return RedirectToAction("AddExercise", "Workout");
 
             return View();
         }
@@ -78,10 +80,36 @@ namespace Gymify.Web.Controllers
             return Json(exercises.Select(e => e.Name));
         }
 
-        [HttpGet]
-        public IActionResult FinishWorkout()
+        [HttpPost]
+        public async Task<IActionResult> AddExercisesBatch([FromForm] Guid workoutId, [FromForm] string exercisesJson)
         {
-            return View("Finish");
+            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
+            var exercises = JsonConvert.DeserializeObject<List<AddUserExerciseToWorkoutRequestDto>>(exercisesJson);
+
+            if (exercises != null && exercises.Any())
+                await _userExerciseService.AddExercisesBatchAsync(workoutId, exercises, currentUserId);
+
+            return RedirectToAction("Finish", new { workoutId });
+        }
+
+
+        [HttpGet]
+        public IActionResult Finish(Guid workoutId)
+        {
+            var model = new CompleteWorkoutRequestDto
+            {
+                WorkoutId = workoutId,
+                UserProfileId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString()),
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
+        {
+            await _workoutService.CompleteWorkoutAsync(dto);
+            return RedirectToAction("Home", "Main");
         }
     }
 }

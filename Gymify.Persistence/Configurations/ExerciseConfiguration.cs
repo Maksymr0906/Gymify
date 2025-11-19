@@ -46,7 +46,8 @@ public partial class ExerciseConfiguration(SeedDataOptions seedDataOptions)
                 BaseXP = e.BaseXP,
                 Description = e.Description,
                 DifficultyMultiplier = e.DifficultyMultiplier,
-                Type = (ExerciseType)e.Type
+                Type = (ExerciseType)e.Type,
+                IsApproved = e.IsApproved
             })
         );
     }

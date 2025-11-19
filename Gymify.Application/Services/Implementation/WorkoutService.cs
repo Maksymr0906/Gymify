@@ -34,14 +34,17 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         var oldLevel = userProfile.Level;
         await _userProfileService.AddXPAsync(workout.UserProfileId, totalXp);
+
+        userProfile = await _unitOfWork.UserProfileRepository.GetByIdAsync(workout.UserProfileId);
+        var newLevel = userProfile.Level;
+
+        var levelsUp = newLevel - oldLevel;
+
         await _userProfileService.UpdateStatsAsync(workout.UserProfileId, workout.Id);
 
-        bool isLevelUp = userProfile.Level > oldLevel;
-
-        var newAchievements = await _achievementService.CheckForAchievementsAsync(userProfile.Id);
-
-        // Вернути тіп кейса
-        await _caseService.GenerateRewardsAsync(userProfile.Id, newAchievements, isLevelUp);
+        await _caseService.GiveRewardByLevelUp(userProfile.Id, levelsUp);
+        
+        var newAchievements = await _achievementService.UpdateUserAchievementsAsync(userProfile.Id);
 
         await _unitOfWork.SaveAsync();
 

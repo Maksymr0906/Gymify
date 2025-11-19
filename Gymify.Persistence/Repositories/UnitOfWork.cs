@@ -24,7 +24,6 @@ public class UnitOfWork : IUnitOfWork
         WorkoutRepository = new WorkoutRepository(context);
         UserCaseRepository = new UserCaseRepository(context);
         UserItemRepository = new UserItemRepository(context);
-        PendingExerciseRepository = new PendingExerciseRepository(context);
         ImageRepository = new ImageRepository(context);
         UserAchievementRepository = new UserAchievementRepository(context);
     }
@@ -44,7 +43,6 @@ public class UnitOfWork : IUnitOfWork
         IWorkoutRepository workoutRepository,
         IUserCaseRepository userCaseRepository,
         IUserItemRepository userItemRepository,
-        IPendingExerciseRepository pendingExerciseRepository,
         IImageRepository imageRepository,
         IUserAchievementRepository userAchievementRepository) 
     {
@@ -64,7 +62,6 @@ public class UnitOfWork : IUnitOfWork
         WorkoutRepository = workoutRepository;
         UserCaseRepository = userCaseRepository;
         UserItemRepository = userItemRepository;
-        PendingExerciseRepository = pendingExerciseRepository;
         ImageRepository = imageRepository;
         UserAchievementRepository = userAchievementRepository;
     }
@@ -83,7 +80,6 @@ public class UnitOfWork : IUnitOfWork
     public IWorkoutRepository WorkoutRepository { get; set; }
     public IUserCaseRepository UserCaseRepository { get; set; }
     public IUserItemRepository UserItemRepository { get; set; }
-    public IPendingExerciseRepository PendingExerciseRepository { get; set; }
     public IImageRepository ImageRepository { get; set; }
     public IUserAchievementRepository UserAchievementRepository { get; set; }
 
