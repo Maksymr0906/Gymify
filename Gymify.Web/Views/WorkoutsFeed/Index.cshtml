@@ -39,9 +39,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            // ==========================================================
-            // 🏋️ КОНСТАНТИ ТА ЕЛЕМЕНТИ DOM
-            // ==========================================================
             const feed = document.getElementById('workout-feed-container');
             const loadMoreBtn = document.getElementById('load-more-btn');
             const filterType = document.getElementById('filter-type');
@@ -50,10 +47,6 @@
 
             let debounceTimer;
 
-            // ==========================================================
-            // 🎨 ФУНКЦІЇ "ТЕПЛОВОЇ КАРТИ" (Heatmap)
-            // ==========================================================
-            
             /**
              * Повертає колір HSL від червоного (0) до зеленого (120)
              * param {number} xp - Поточний XP
@@ -67,13 +60,12 @@
                     return 'hsl(120, 75%, 90%)'; // Світло-зелений
                 }
 
-                // Нормалізація XP до відсотка [0.0, 1.0]
+
                 const percentage = (xp - min) / (max - min);
 
-                // Конвертація відсотка у відтінок (Hue) [0 (Red), 120 (Green)]
+
                 const hue = percentage * 120;
 
-                // Повертаємо пастельний HSL колір
                 return `hsl(${hue}, 75%, 90%)`;
             }
 
@@ -147,14 +139,12 @@
 
                     if (localMinXP === Infinity) return;
 
-                    // Застосовуємо кольори до тренувань
                     workoutsInDay.forEach(workout => {
                         const workoutXP = parseInt(workout.dataset.workoutXp, 10);
                         if (isNaN(workoutXP)) return;
 
                         const workoutColor = getXPColor(workoutXP, localMinXP, localMaxXP);
 
-                        // Стилізація
                         workout.style.backgroundColor = workoutColor;
                         workout.style.color = '#333'; 
                         workout.style.padding = '2px 5px';
@@ -164,40 +154,19 @@
                 });
             }
 
-            // ==========================================================
-            // 📥 ФУНКЦІЇ ОТРИМАННЯ ДАНИХ
-            // ==========================================================
-            
-            /**
-             * Універсальна функція для збору поточних параметрів фільтрації.
-             * returns {{onlyMy: boolean, authorName: string, byDescending: boolean, page: number, anchorDate: string}}
-             */
             function getFilterParams() {
                 return {
                     onlyMy: filterType.value === 'mine',
                     authorName: authorSearch.value.trim(),
                     byDescending: sortType.value === 'desc',
-                    // Оскільки ця функція використовується перед початковим завантаженням/перезавантаженням, сторінка завжди 0
                     page: 0,
                     anchorDate: loadMoreBtn.dataset.anchorDate || ''
                 };
             }
 
-            /**
-             * Виконує перезавантаження всього фідe, скидаючи сторінку на 0.
-             */
             async function reloadFeed() {
                 const { onlyMy, authorName, byDescending } = getFilterParams();
                 let anchorDate = null;
-
-                // 1. ЗАПИТ НА ПОЧАТКОВУ ДАТУ (ЯКІР) ДЛЯ ВИЗНАЧЕННЯ НАЯВНОСТІ ДАНИХ (УНІФІКАЦІЯ)
-                // Ми використовуємо GetAnchorDate для отримання найстарішої дати, 
-                // щоб визначити, чи є взагалі дані, незалежно від сортування.
-                let anchorParams = new URLSearchParams();
-                anchorParams.append('onlyMy', onlyMy);
-                anchorParams.append('authorName', authorName);
-                // Примітка: GetAnchorDate не потребує byDescending, оскільки він має повернути
-                // НАЙСТАРІШУ дату для визначення початку фідy.
                 const anchorUrl = '@Url.Action("GetAnchorDate")?' + anchorParams.toString();
 
                 try {
@@ -227,12 +196,9 @@
                 params.append('onlyMy', onlyMy);
                 params.append('byDescending', byDescending);
                 params.append('authorName', authorName);
-                // Для сортування byDescending, GetWorkoutsByDayPage використає поточну дату.
-                // Для !byDescending, GetWorkoutsByDayPage використає цю дату як старт.
+
                 params.append('anchorDate', anchorDate); 
 
-                // Зберігаємо ЯКІР (найстарішу дату) для наступних запитів "старіші спочатку" (asc).
-                // Для "новіші спочатку" (desc) він буде перевизначений на сервері.
                 loadMoreBtn.dataset.anchorDate = anchorDate; 
 
                 const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
@@ -267,10 +233,7 @@
                 const nextPage = parseInt(loadMoreBtn.dataset.page);
                 const { onlyMy, authorName, byDescending, anchorDate } = getFilterParams();
                 
-                // Якщо при сортуванні asc anchorDate не встановлено, це помилка
                 if (!byDescending && !anchorDate) {
-                    // Це означає, що reloadFeed не знайшов жодного тренування,
-                    // тому кнопка "Load more" повинна була бути прихована.
                     loadMoreBtn.style.display = 'none';
                     return; 
                 }
@@ -312,11 +275,6 @@
                 }
             }
 
-
-            // ==========================================================
-            // 💡 ОБРОБНИКИ ПОДІЙ
-            // ==========================================================
-
             // SHOW / HIDE AUTHOR SEARCH & RELOAD
             filterType.addEventListener('change', function () {
                 if (filterType.value === 'all') {
@@ -354,11 +312,6 @@
                     }
                 }
             });
-
-
-            // ==========================================================
-            // 📐 ДОПОМІЖНІ ФУНКЦІЇ (SLIDE UP/DOWN)
-            // ==========================================================
 
             /**
              * Плавне приховування елемента.
@@ -425,11 +378,6 @@
                 }, duration);
             }
 
-            // ==========================================================
-            // 🏁 ІНІЦІАЛІЗАЦІЯ
-            // ==========================================================
-
-            // Застосувати "теплову карту" до початково завантажених даних
             applyHeatmap(); 
         });
     </script>

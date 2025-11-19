@@ -30,9 +30,9 @@ services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 
 services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Auth/Login";
-    options.LogoutPath = "/Auth/Logout";
-    options.AccessDeniedPath = "/Auth/AccessDenied";
+    options.LoginPath = "/Login";
+    options.LogoutPath = "/Logout";
+    options.AccessDeniedPath = "/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });

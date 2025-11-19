@@ -1,12 +1,15 @@
 ﻿using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Gymify.Web.Controllers
 {
+
+    [Authorize]
     public class WorkoutController : Controller
     {
         private readonly IWorkoutService _workoutService;
@@ -109,7 +112,7 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
         {
             await _workoutService.CompleteWorkoutAsync(dto);
-            return RedirectToAction("Home", "Main");
+            return RedirectToAction("Index", "Main");
         }
     }
 }

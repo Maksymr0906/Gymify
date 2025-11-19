@@ -3,6 +3,7 @@ using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.UserItems;
 using Gymify.Data.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 namespace Gymify.Web.Controllers
 {
     [Route("")]
+    [Authorize]
     public class UserController : Controller
     {
         private readonly IUserProfileService _userProfileService;
@@ -80,7 +82,6 @@ namespace Gymify.Web.Controllers
 
             return Ok();
         }
-
 
         [HttpGet("inventory")] // URL: /inventory
         public async Task<IActionResult> Inventory()

@@ -46,7 +46,7 @@ public class WorkoutRepository(GymifyDbContext context)
         {
             query = query.Where(w => w.UserProfileId == userId);
         }
-        else // Показуємо всі публічні, або фільтруємо по автору
+        else 
         {
             query = query.Where(w => w.IsPrivate == false);
 
@@ -57,7 +57,6 @@ public class WorkoutRepository(GymifyDbContext context)
             }
         }
 
-        // Повертаємо НАЙСТАРІШУ дату
         var firstWorkoutDate = await query
             .OrderBy(w => w.CreatedAt)
             .Select(w => (DateTime?)w.CreatedAt.Date)

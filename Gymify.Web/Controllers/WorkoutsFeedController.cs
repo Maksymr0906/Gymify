@@ -1,11 +1,14 @@
 ﻿using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Web.Controllers
 {
+
+    [Authorize]
     public class WorkoutsFeedController : Controller
     {
         public IWorkoutService _workoutService;
