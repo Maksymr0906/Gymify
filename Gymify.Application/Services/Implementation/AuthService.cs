@@ -11,15 +11,24 @@ public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IAchievementService _achievementService;
+    private readonly IItemService _itemService;
+    private readonly IUserEquipmentService _equipmentService;
     private readonly IUnitOfWork _unitOfWork;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
+        IAchievementService achievementService,
+        IItemService itemService,
+        IUserEquipmentService equipmentService,
         IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _achievementService = achievementService;
+        _itemService = itemService;
+        _equipmentService = equipmentService;
         _unitOfWork = unitOfWork;
     }
 
@@ -27,7 +36,7 @@ public class AuthService : IAuthService
     {
         var user = new ApplicationUser
         {
-            UserName = dto.Email, // КАКОГО ХУЯ БЛЯТЬ
+            UserName = dto.UserName,
             Email = dto.Email
         };
 
@@ -44,8 +53,17 @@ public class AuthService : IAuthService
                 Level = 1
             };
 
-            await _unitOfWork.UserProfileRepository.CreateAsync(profile); // UserEquipment не створюється
+            await _unitOfWork.UserProfileRepository.CreateAsync(profile);
             await _unitOfWork.SaveAsync();
+
+            user.UserProfileId = profile.Id;
+            await _userManager.UpdateAsync(user);
+
+            await _itemService.SetDefaultUserItemsAsync(profile.Id);
+
+            await _equipmentService.SetDefaultEquipment(profile.Id);
+
+            await _achievementService.SetupUserAchievementsAsync(profile.Id);
 
             await _userManager.AddToRoleAsync(user, "User");
 

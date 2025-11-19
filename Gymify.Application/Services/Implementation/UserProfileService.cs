@@ -1,15 +1,18 @@
-﻿using Gymify.Application.DTOs.Workout;
+﻿using Gymify.Application.DTOs.Achievement;
+using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Home;
+using Gymify.Application.ViewModels.UserProfile;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelingService) : IUserProfileService
+public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelingService, IUserEquipmentService userEquipmentService) : IUserProfileService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ILevelingService _levelingService = levelingService;
+    private readonly IUserEquipmentService _userEquipmentService = userEquipmentService;
 
     public async Task<HomeViewModel> ReceiveUserLevelWorkouts(Guid userId)
     {
@@ -104,4 +107,75 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
         await _unitOfWork.UserProfileRepository.UpdateAsync(user);
         await _unitOfWork.SaveAsync();
     }
+
+    public async Task<List<AchievementDto>> GetCompletedAchivementsOfUser(Guid userProfileId)
+    {
+        var userAchievements = await _unitOfWork.UserAchievementRepository.GetAllByUserId(userProfileId);
+
+        List<AchievementDto> achievementDtos = new();
+        foreach (var userAchievement in userAchievements)
+        {
+            if (!userAchievement.IsCompleted) continue;
+            achievementDtos.Add(new AchievementDto
+            {
+                AchievementId = userAchievement.AchievementId,
+                Name = userAchievement.Achievement.Name,
+                Description = userAchievement.Achievement.Description,
+                IconUrl = userAchievement.Achievement.IconUrl,
+                ComparisonType = userAchievement.Achievement.ComparisonType,
+                RewardItemId = userAchievement.Achievement.RewardItemId,
+                Progress = userAchievement.Progress,
+                TargetProperty = userAchievement.Achievement.TargetProperty,
+                TargetValue = userAchievement.Achievement.TargetValue,
+                IsCompleted = userAchievement.IsCompleted,
+                UnlockedAt = userAchievement.UnlockedAt
+            });
+        }
+
+        return achievementDtos;
+    }
+
+    public async Task<List<WorkoutDto>> GetLastWorkoutsOfUser(Guid userProfileId)
+    {
+        var userWorkouts = await _unitOfWork.WorkoutRepository.GetLastWorkouts(userProfileId, 28);
+
+        List<WorkoutDto> workoutsDtos = new();
+
+        foreach (var workout in userWorkouts)
+        {
+            workoutsDtos.Add(new WorkoutDto
+            {
+                Id = workout.Id,
+                Name = workout.Name,
+                Description = workout.Description,
+                CreatedAt = workout.CreatedAt,
+                TotalXP = workout.TotalXP
+            });
+        }
+
+        return workoutsDtos;
+    }
+
+
+    public async Task<UserProfileViewModel> GetUserProfileModel(Guid userProfileId)
+    {
+        var userCredentials = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userProfileId);
+        if (userCredentials == null) throw new NullReferenceException($"When we were looking for userCredentials by '{userProfileId}' id we not found according application user");
+
+        var userEquipment = await _userEquipmentService.GetUserEquipmentAsync(userProfileId);
+        var userAchievements = await GetCompletedAchivementsOfUser(userProfileId);
+        var userWorkouts = await GetLastWorkoutsOfUser(userProfileId);
+
+        return new UserProfileViewModel
+        {
+            Level = userCredentials.Level,
+            UserName = userCredentials.ApplicationUser!.UserName ?? "Name",
+            Title = userEquipment.TitleText,
+            Achievements = userAchievements,
+            Workouts = userWorkouts,
+            UserEquipmentDto = userEquipment,
+            UpdateUserEquipmentDto = new()
+        };
+    }
+
 }

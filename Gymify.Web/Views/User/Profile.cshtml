@@ -1,45 +1,451 @@
-﻿
+﻿@model Gymify.Application.ViewModels.UserProfile.UserProfileViewModel
 @{
     ViewData["Title"] = "Profile";
 }
 
-<div class="userProfileContainer">
-    <div class="userProfileCustoms">
-        <div class="userProfileAvatarBlock">
-            <img src="~/Images/clashRoyaleIcon.jpg" class="avatarImage" />
+<div id="profileRoot" class="userProfileFullPage" 
+     style="background-image: url('@Model.UserEquipmentDto.BackgroundUrl');"
+     data-edit-type="background" title="Click empty space to change background">
+
+    <div class="userProfileContentWrapper">
+
+        <div class="userProfileCustoms">
+            <div class="userProfileAvatarBlock" id="avatarBlock" data-edit-type="avatar-setup">
+                <img src="@Model.UserEquipmentDto.FrameUrl" class="frameImage" id="frameImage" alt="Frame" />
+                <img src="@Model.UserEquipmentDto.AvatarUrl" class="avatarImage" id="avatarImage" alt="Avatar" />
+            </div>
+
+            <div class="userProfileInfoBlock">
+                @if (Model.Editable == true)
+                {
+                    <button class="userProfileEditButton" id="editToggleBtn">Edit</button>
+                }
+                 <div>
+                     <span id="levelView" class="userProfileLevelBadge">Level @Model.Level</span>
+                 </div>
+                 <div>
+                     <span id="nameView" class="userProfileNameView">@Model.UserName</span>
+                     <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" />
+                 </div>
+                 <div>
+                     <span id="titleView" class="userProfileTitleView" data-edit-type="title">@Model.Title</span>
+                 </div>
+            </div>
         </div>
 
-        <div class="userProfileNameBlock">
-            <div class="userProfileName">Name</div>
-            <a class="userProfileEditButton scaleButton">Edit</a>
+        <div class="userProfileAchivmentBlock">
+            <h2 class="userProfileAchivmentTitle">Achievements</h2>
+            <ul class="userProfileAchivmentsList" id="achievementsList">
+                @if (Model.Achievements != null && Model.Achievements.Any())
+                {
+                    foreach (var a in Model.Achievements)
+                    {
+                                <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
+                                    <div class="achievementContent">
+                                        <img src="@a.IconUrl" class="achievementIcon" />
+                                        <div class="achievementText">
+                                            <span class="achievementName">@a.Name</span>
+                                            <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
+                                        </div>
+                                    </div>
+                                </li>
+                    }
+                }
+                else
+                {
+                        <p style="color:#666;">You haven't unlocked any achievements yet.</p>
+                }
+            </ul>
         </div>
-    </div>
 
-    <div class="userProfileAchivmentBlock">
-        <h2 class="userProfileAchivmentTitle">Achivments</h2>
+        <div class="userProfileLastTrains">
+            <h2 class="userProfileTrainsTitle">My last trainings</h2>
+            <ul class="userProfileTrainsList">
+                @if (Model.Workouts != null && Model.Workouts.Any())
+                {
+                    foreach (var workout in Model.Workouts)
+                    {
+                        <a asp-controller="Workouts" asp-action="Details" asp-route-id="@workout.Id" 
+                           class="userProfileTrainLink" 
+                           title="@workout.CreatedAt.ToString("g")">
 
-        <div class="userProfileAchivments">
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
-            <img class="userProfileAchivment" src="" />
+                            <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
+                            <small style="font-size:12px; color:#888; margin-top:5px;">@workout.CreatedAt.ToString("g")</small>
+                        </a>
+                    }
+                }
+                else
+                {
+                        <p style="color:#666;">No workouts yet.</p>
+                }
+            </ul>
         </div>
-    </div>
 
-    <div class="userProfileLastTrains">
-        <h2 class="userProfileTrainsTitle">My last trainings</h2>
-
-        <div class="userProfileTrains">
-            <a class="userProfileTrain" href="/Workout">98%</a>
-            <a class="userProfileTrain" href="/Workout">34%</a>
-            <a class="userProfileTrain" href="/Workout">24%</a>
-            <a class="userProfileTrain" href="/Workout">55%</a>
+        <div class="userProfileComments">
+            Comments Section Here...
         </div>
-    </div>
 
-    <div class="userProfileComments">
-        Comments Soon...
     </div>
 </div>
+
+<div id="itemPickerOverlay" aria-hidden="true" style="display:none;">
+    <div id="itemPickerHeader">
+        <div id="itemPickerTitle">Choose item</div>
+
+        <div id="pickerTabs" style="display:flex; gap:10px; margin: 10px 0;"></div>
+
+        <div>
+            <button id="itemPickerCancel" class="userProfileEditButton" style="background:#666; margin-right:8px;">Cancel</button>
+            <button id="itemPickerApply" class="userProfileEditButton" style="background:var(--ButtonColor,#2b8be6);">Apply</button>
+        </div>
+    </div>
+    <div id="itemPickerList"></div>
+</div>
+
+<script>
+/* ====== Profile edit script (Final Consolidated Version) ====== */
+/* ====== Profile edit script (Tabs Version) ====== */
+(() => {
+    let isEditMode = false;
+
+    // ID вибраних предметів
+    let selectedAvatarId = null;
+    let selectedFrameId = null;
+    let selectedBackgroundId = null;
+    let selectedTitleId = null;
+
+    // Змінні пікера
+    let pickerCurrentMode = null; // 'avatar', 'frame', 'background', 'title'
+    let pickerSelectedItemId = null;
+    let pickerSelectedItemUrl = null;
+    let pickerSelectedItemName = null;
+
+    let tempAvatarSelection = { id: null, url: null, name: null }; 
+    let tempFrameSelection = { id: null, url: null, name: null };
+
+    // Оригінали
+    const original = {
+        name: document.getElementById('nameView').innerText.trim(),
+        titleText: document.getElementById('titleView').innerText.trim(),
+        avatarUrl: document.getElementById('avatarImage').src,
+        frameUrl: document.getElementById('frameImage').src,
+        backgroundUrl: document.getElementById('profileRoot').style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
+    };
+
+    function enterEditMode() {
+        if (isEditMode) return;
+        isEditMode = true;
+        document.getElementById('nameView').style.display = 'none';
+        document.getElementById('nameInput').style.display = 'block';
+
+        document.getElementById('titleView').style.cursor = 'pointer';
+        document.getElementById('titleView').title = "Change Title";
+
+        document.getElementById('profileRoot').style.cursor = 'pointer';
+        document.getElementById('profileRoot').title = "Change Background";
+
+        // Додаємо підказку для аватара
+        document.getElementById('avatarBlock').title = "Change Avatar or Frame";
+
+        const btn = document.getElementById('editToggleBtn');
+        if (btn) { btn.innerText = 'Save changes'; btn.style.background = '#ff9f1c'; }
+    }
+
+    function exitEditMode() {
+        isEditMode = false;
+        document.getElementById('nameView').style.display = 'block';
+        document.getElementById('nameInput').style.display = 'none';
+        document.getElementById('titleView').style.cursor = 'default';
+        document.getElementById('profileRoot').style.cursor = 'default';
+        document.getElementById('avatarBlock').title = "";
+
+        const btn = document.getElementById('editToggleBtn');
+        if (btn) { btn.innerText = 'Edit'; btn.style.background = ''; }
+    }
+
+    function stopPropagationHandler(e) {
+        // Зупиняє подальше спливання події до батьків (зокрема, до profileRoot)
+        e.stopPropagation();
+    }
+
+    // 1. Блокуємо спливання на Хедері (Avatar/Info)
+    document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
+
+    // 2. Блокуємо спливання на Картці Досягнень
+    document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
+
+    // 3. Блокуємо спливання на Картці Тренувань
+    document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
+
+    // 4. Блокуємо спливання на Коментах
+    document.querySelector('.userProfileComments').addEventListener('click', stopPropagationHandler);
+
+    // === ОБРОБНИК КЛІКІВ ===
+    document.querySelectorAll('[data-edit-type]').forEach(el => {
+        el.addEventListener('click', (ev) => {
+            if (!isEditMode) return;
+            ev.stopPropagation(); // Зупиняємо спливання
+
+            const type = el.getAttribute('data-edit-type');
+
+            if (type === 'avatar-setup') {
+                openPickerWithTabs();
+            } else {
+                openPickerSimple(type);
+            }
+        });
+    });
+
+    // Клік по фону (окремо)
+    document.getElementById('profileRoot').addEventListener('click', (ev) => {
+        if (!isEditMode) return;
+
+        // Обробляємо тільки якщо клік по самому background, не по внутрішніх елементах
+        if (ev.target !== ev.currentTarget) return;
+
+        openPickerSimple('background');
+    });
+
+
+    // === ФУНКЦІЇ ВІДКРИТТЯ ПІКЕРА ===
+
+    // 1. Просте відкриття (для Фону або Титулу)
+    function openPickerSimple(type) {
+        const tabsDiv = document.getElementById('pickerTabs');
+        tabsDiv.innerHTML = ''; // Очищаємо таби
+        loadItemsIntoPicker(type);
+    }
+
+    // 2. Відкриття з табами (для Аватара/Рамки)
+    function openPickerWithTabs() {
+        const tabsDiv = document.getElementById('pickerTabs');
+        tabsDiv.innerHTML = ''; // Очистка
+
+        // Створюємо кнопку "Avatars"
+        const btnAvatar = document.createElement('button');
+        btnAvatar.innerText = 'Avatars';
+        btnAvatar.className = 'pickerTabBtn active';
+
+        // Створюємо кнопку "Frames"
+        const btnFrame = document.createElement('button');
+        btnFrame.innerText = 'Frames';
+        btnFrame.className = 'pickerTabBtn';
+
+        // Логіка перемикання
+        btnAvatar.onclick = () => {
+            btnAvatar.classList.add('active');
+            btnFrame.classList.remove('active');
+            loadItemsIntoPicker('avatar');
+        };
+
+        btnFrame.onclick = () => {
+            btnFrame.classList.add('active');
+            btnAvatar.classList.remove('active');
+            loadItemsIntoPicker('frame');
+        };
+
+        tabsDiv.appendChild(btnAvatar);
+        tabsDiv.appendChild(btnFrame);
+
+        // За замовчуванням вантажимо аватари
+        loadItemsIntoPicker('avatar');
+    }
+
+    // === ЗАВАНТАЖЕННЯ ДАНИХ (Fetch) ===
+    async function loadItemsIntoPicker(type) {
+        // --- 1. ЗБЕРЕЖЕННЯ ПОПЕРЕДНЬОГО ВИБОРУ ---
+        // Якщо ми міняємо вкладку, зберігаємо поточний тимчасовий вибір
+        if (pickerCurrentMode === 'avatar') {
+            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+        } else if (pickerCurrentMode === 'frame') {
+            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+        }
+
+        pickerCurrentMode = type; // Встановлюємо новий режим
+        pickerSelectedItemId = null; // Скидаємо поточний вибір (буде відновлений нижче)
+
+        const list = document.getElementById('itemPickerList');
+        const overlay = document.getElementById('itemPickerOverlay');
+        const titleLabel = document.getElementById('itemPickerTitle');
+
+        titleLabel.innerText = 'Choose ' + type;
+        list.innerHTML = '<div style="padding:20px;">Loading...</div>';
+        overlay.style.display = 'block';
+
+        try {
+            const resp = await fetch(`/userEquipment?type=${encodeURIComponent(type)}`);
+            const items = await resp.json();
+
+            list.innerHTML = '';
+            if (!items || items.length === 0) {
+                list.innerHTML = '<div style="color:#ccc">No items found</div>';
+                return;
+            }
+
+            // --- 2. ВИЗНАЧЕННЯ АКТИВНОГО ВИБОРУ ДЛЯ ПОТОЧНОЇ ВКЛАДКИ ---
+            let activeSelection = { id: null };
+            if (type === 'avatar') {
+                activeSelection = tempAvatarSelection;
+            } else if (type === 'frame') {
+                activeSelection = tempFrameSelection;
+            }
+
+            items.forEach(it => {
+                // ... (створення елемента el, як раніше) ...
+                let el;
+                if (type === 'title') {
+                    el = document.createElement('div');
+                    el.className = 'titleItem';
+                    el.innerText = it.name;
+                } else {
+                    el = document.createElement('img');
+                    el.className = 'pickerItem';
+                    el.src = it.url;
+                }
+
+                el.title = it.name || '';
+
+                // --- 3. ВІДНОВЛЕННЯ ВИДІЛЕННЯ (якщо елемент був вибраний раніше) ---
+                if (it.id === activeSelection.id) {
+                    el.classList.add('selected');
+                    // Оновлюємо поточні змінні пікера відновленим вибором
+                    pickerSelectedItemId = it.id;
+                    pickerSelectedItemUrl = it.url;
+                    pickerSelectedItemName = it.name;
+                }
+
+                // Логіка кліку
+                el.addEventListener('click', () => {
+                    list.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
+                    el.classList.add('selected');
+                    pickerSelectedItemId = it.id;
+                    pickerSelectedItemUrl = it.url;
+                    pickerSelectedItemName = it.name;
+                });
+                list.appendChild(el);
+            });
+
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = '<div style="color:#f88">Error loading items</div>';
+        }
+    }
+
+    // --- ФУНКЦІЯ ПОВНОГО СКИДАННЯ СТАНУ МОДАЛА ---
+    function resetPickerModalState() {
+        // Скидаємо кеш для табів
+        tempAvatarSelection = { id: null, url: null, name: null };
+        tempFrameSelection = { id: null, url: null, name: null };
+
+        // Скидаємо загальні змінні модала
+        pickerSelectedItemId = null;
+        pickerSelectedItemUrl = null;
+        pickerSelectedItemName = null;
+        pickerCurrentMode = null; 
+
+        // Ховаємо модальне вікно
+        document.getElementById('itemPickerOverlay').style.display = 'none';
+    }
+
+    // === APPLY ===
+    document.getElementById('itemPickerApply').addEventListener('click', () => {
+        // Ми не перевіряємо, чи вибрано хоча б щось, бо можливо, юзер міняв аватар і фрейм
+
+        // Зберігаємо останній зроблений вибір перед закриттям
+        if (pickerCurrentMode === 'avatar') {
+            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+        } else if (pickerCurrentMode === 'frame') {
+            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+        }
+
+        // --- 1. Застосовуємо Аватар ---
+        if (tempAvatarSelection.id) {
+             applyPickedItem('avatar', tempAvatarSelection.id, tempAvatarSelection.url, tempAvatarSelection.name);
+        }
+
+        // --- 2. Застосовуємо Фрейм ---
+        if (tempFrameSelection.id) {
+             applyPickedItem('frame', tempFrameSelection.id, tempFrameSelection.url, tempFrameSelection.name);
+        }
+
+        // --- 3. Застосовуємо Титул / Фон (якщо ми їх міняли) ---
+        // Якщо ми були в режимі Title/Background, applyPickedItem викликався одразу.
+        // Але для надійності, якщо юзер був у режимі Title/Background і натиснув apply:
+        if (pickerCurrentMode === 'title' || pickerCurrentMode === 'background') {
+             if (pickerSelectedItemId) {
+                 applyPickedItem(pickerCurrentMode, pickerSelectedItemId, pickerSelectedItemUrl, pickerSelectedItemName);
+             }
+        }
+        resetPickerModalState();
+    });
+
+    document.getElementById('itemPickerCancel').addEventListener('click', () => {
+        resetPickerModalState();
+    });
+
+    function applyPickedItem(type, id, url, name) {
+        if (type === 'avatar') {
+            document.getElementById('avatarImage').src = url;
+            selectedAvatarId = id;
+        } else if (type === 'frame') {
+            document.getElementById('frameImage').src = url;
+            selectedFrameId = id;
+        } else if (type === 'background') {
+            document.getElementById('profileRoot').style.backgroundImage = `url('${url}')`;
+            selectedBackgroundId = id;
+        } else if (type === 'title') {
+            document.getElementById('titleView').innerText = name;
+            selectedTitleId = id;
+        }
+    }
+
+    // === SAVE / CANCEL LOGIC ===
+    const editBtn = document.getElementById('editToggleBtn');
+    if (editBtn) {
+        editBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!isEditMode) { enterEditMode(); return; }
+
+            editBtn.disabled = true;
+            editBtn.innerText = 'Saving...';
+
+            const payload = {
+                name: document.getElementById('nameInput').value.trim(),
+                titleId: selectedTitleId,
+                avatarId: selectedAvatarId,
+                frameId: selectedFrameId,
+                backgroundId: selectedBackgroundId
+            };
+
+            try {
+                const res = await fetch('/updateProfile', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error(await res.text());
+                location.reload();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                editBtn.disabled = false;
+                editBtn.innerText = 'Save failed';
+            }
+        });
+
+        editBtn.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            if (!isEditMode) return;
+            // Restore logic
+            document.getElementById('nameInput').value = original.name;
+            document.getElementById('titleView').innerText = original.titleText;
+            document.getElementById('avatarImage').src = original.avatarUrl;
+            document.getElementById('frameImage').src = original.frameUrl;
+            document.getElementById('profileRoot').style.backgroundImage = `url('${original.backgroundUrl}')`;
+            selectedAvatarId = null; selectedFrameId = null; selectedBackgroundId = null; selectedTitleId = null;
+            exitEditMode();
+        });
+    }
+
+    exitEditMode();
+})();
+</script>

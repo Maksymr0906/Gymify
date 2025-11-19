@@ -11,4 +11,12 @@ public class UserProfileRepository(GymifyDbContext context)
     {
         return await Entities.FirstOrDefaultAsync(x => x.ApplicationUserId == applicationUserId);
     }
+
+    public async Task<UserProfile?> GetAllCredentialsAboutUserByIdAsync(Guid userProfileId)
+    {
+        return await Entities
+            .Include(u => u.ApplicationUser) 
+            .FirstOrDefaultAsync(u => u.Id == userProfileId);
+    }
+
 }
