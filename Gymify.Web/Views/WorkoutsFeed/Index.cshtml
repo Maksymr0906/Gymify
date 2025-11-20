@@ -76,19 +76,24 @@
             function applyHeatmap() {
                 const onlyMy = filterType.value === 'mine';
                 const allDayEntries = feed.querySelectorAll('.day-entry');
-                
-                // 1. ОЧИЩЕННЯ
-                if (!onlyMy) {
-                    allDayEntries.forEach(day => {
-                        const header = day.querySelector('.day-header');
-                        if (header) {
-                            header.style.backgroundColor = '';
-                            header.style.color = '';
-                        }
-                        day.querySelectorAll('a[data-workout-xp]').forEach(workout => {
-                            workout.style.cssText = ''; // Скидання всіх inline стилів
-                        });
+
+                // 1. ОЧИЩЕННЯ (Видаляємо класи та інлайн-стилі)
+                allDayEntries.forEach(day => {
+                    const header = day.querySelector('.day-header');
+                    if (header) {
+                        // Видаляємо клас і скидаємо колір фону
+                        header.classList.remove('heatmap-day-active');
+                        header.style.backgroundColor = ''; 
+                    }
+                    day.querySelectorAll('a[data-workout-xp]').forEach(workout => {
+                        // Видаляємо клас і скидаємо колір фону
+                        workout.classList.remove('heatmap-workout-active');
+                        workout.style.backgroundColor = '';
+                        workout.style.cssText = ''; // Залишаємо це для гарантованого скидання
                     });
+                });
+
+                if (!onlyMy) {
                     return;
                 }
 
@@ -110,15 +115,15 @@
                 if (globalMinXP === Infinity) return;
 
 
-                // 3. ЗАСТОСУВАННЯ КОЛЬОРІВ
+                // 3. ЗАСТОСУВАННЯ КОЛЬОРІВ ТА КЛАСІВ
                 daysWithXp.forEach(day => {
                     const dayXP = parseInt(day.dataset.dayXp, 10);
                     const header = day.querySelector('.day-header');
-                    
+
                     if (!isNaN(dayXP) && header) {
                         // 3a. КОЛІР ДНЯ (на основі ГЛОБАЛЬНОГО діапазону)
                         header.style.backgroundColor = getXPColor(dayXP, globalMinXP, globalMaxXP);
-                        header.style.color = '#333';
+                        header.classList.add('heatmap-day-active'); // Додаємо клас для color: #333
                     }
 
                     // 3b. КОЛІР ТРЕНУВАНЬ (на основі ЛОКАЛЬНОГО діапазону дня)
@@ -146,10 +151,8 @@
                         const workoutColor = getXPColor(workoutXP, localMinXP, localMaxXP);
 
                         workout.style.backgroundColor = workoutColor;
-                        workout.style.color = '#333'; 
-                        workout.style.padding = '2px 5px';
-                        workout.style.borderRadius = '4px';
-                        workout.style.display = 'inline-block';
+
+                        workout.classList.add('heatmap-workout-active');
                     });
                 });
             }
@@ -213,11 +216,9 @@
                         return;
                     }
 
-                    // 1. Створення тимчасового елемента для парсингу HTML
                     let temp = document.createElement('div');
                     temp.innerHTML = html;
 
-                    // 2. Отримання всіх нових записів днів
                     const newDayEntries = temp.querySelectorAll('.day-entry');
 
                     newDayEntries.forEach(newDay => {
@@ -231,60 +232,48 @@
                         const existingDay = feed.querySelector(`.day-entry[data-day-id='${dayId}']`); 
 
                         if (existingDay) {
-                            // *** 3. КОРЕКТНЕ ОБ'ЄДНАННЯ (Merge) З ПІДСУМОВУВАННЯМ XP І КІЛЬКОСТІ ***
 
                             const newWorkoutList = newDay.querySelector('.workout-list');
                             const existingWorkoutList = existingDay.querySelector('.workout-list');
 
                             if (newWorkoutList && existingWorkoutList) {
 
-                                // --- 3a. Обчислення сумарного XP ---
                                 const existingDayXP = parseInt(existingDay.dataset.dayXp, 10) || 0;
                                 const newDayXP = parseInt(newDay.dataset.dayXp, 10) || 0;
                                 const totalXP = existingDayXP + newDayXP;
 
-                                // --- 3b. Обчислення сумарної кількості тренувань ---
                                 const existingHeaderSpan = existingDay.querySelector('.day-header span:nth-child(2)');
 
-                                // Парсимо поточний лічильник з існуючого заголовка
                                 const existingMatch = existingHeaderSpan.textContent.match(/Workouts:(\d+)/);
                                 const existingWorkoutCount = existingMatch ? parseInt(existingMatch[1], 10) : 0;
 
-                                // Парсимо лічильник з нового заголовка (це кількість тренувань у новому блоці)
                                 const newMatch = newDay.querySelector('.day-header span:nth-child(2)').textContent.match(/Workouts:(\d+)/);
                                 const newWorkoutCountInBatch = newMatch ? parseInt(newMatch[1], 10) : 0;
 
                                 const totalWorkoutCount = existingWorkoutCount + newWorkoutCountInBatch;
 
-                                // --- 3c. Оновлення DOM та даних ---
-
-                                // Переміщуємо всі тренування з нового списку до існуючого
                                 while (newWorkoutList.firstChild) {
                                     existingWorkoutList.appendChild(newWorkoutList.firstChild);
                                 }
 
-                                // ⚠️ Оновлюємо data-day-xp на СУМАРНЕ значення
                                 if (onlyMy) {
                                     existingDay.dataset.dayXp = totalXP;
                                 }
 
-                                // Оновлюємо текст заголовка дня
                                 if (existingHeaderSpan) {
                                      existingHeaderSpan.innerHTML = `Workouts:${totalWorkoutCount} ${onlyMy ? `| XP:${totalXP}` : ''}`;
                                 }
                             }
 
-                            // Видаляємо новий, вже оброблений (об'єднаний) елемент дня
                             newDay.remove(); 
                         } else {
-                            // *** 4. ДОДАВАННЯ (Append) ***
                             feed.appendChild(newDay);
                         }
                     });
 
 
                     loadMoreBtn.dataset.page = nextPage + 1;
-                    applyHeatmap(); // Повторне застосування теплової карти (вона використовуватиме нове totalXP)
+                    applyHeatmap(); 
 
                     while (temp.firstChild) {
                         feed.appendChild(temp.firstChild); 

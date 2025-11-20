@@ -400,59 +400,13 @@ a {
     padding: 0 10px;
 }
 
-/* === ФІЛЬТРИ ТА КЕРУВАННЯ === */
-#filters-container {
-    background-color: #ffffff; /* Змінено на білий */
-    padding: 15px 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Легка тінь */
-}
-
-#filter-type, #sort-type, #author-search {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    transition: border-color 0.2s;
-    font-size: 16px;
-    box-shadow: none;
-}
-
-    #filter-type:focus, #sort-type:focus, #author-search:focus {
-        border-color: var(--ButtonColor); /* Акцентний колір */
-        outline: none;
-    }
-
-/* === КАРТКА ДНЯ (day-entry) === */
-.day-entry {
-    background-color: #ffffff;
-    margin-bottom: 20px; /* Збільшено відступ між днями */
-    border-radius: 15px; /* Більше заокруглення */
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Більш виразна тінь */
-    transition: box-shadow 0.3s;
-}
-
-/* === ЗАГОЛОВОК ДНЯ (day-header) === */
-.day-header {
-    padding: 15px 20px;
-    font-weight: 600;
-    font-size: 20px; /* Збільшено шрифт */
-    color: #222;
-    cursor: pointer;
-    border-bottom: 1px solid #e0e0e0; /* Темніша лінія */
-}
-
-/* Загальний контейнер для стрічки */
-#workout-feed-container {
-    padding: 0 10px;
-}
-
-/* === ФІЛЬТРИ ТА КЕРУВАННЯ === */
+/* --- ФІЛЬТРИ ТА КЕРУВАННЯ --- */
 #filters-container {
     background-color: #ffffff;
     padding: 15px 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px; /* Забезпечення відступу, якщо в основній вью його прибрали */
+    margin-bottom: 20px;
 }
 
 #filter-type, #sort-type, #author-search {
@@ -469,7 +423,7 @@ a {
         outline: none;
     }
 
-/* === КАРТКА ДНЯ (day-entry) === */
+/* --- КАРТКА ДНЯ (day-entry) --- */
 .day-entry {
     background-color: #ffffff;
     margin-bottom: 20px;
@@ -479,7 +433,7 @@ a {
     transition: box-shadow 0.3s;
 }
 
-/* === ЗАГОЛОВОК ДНЯ (day-header) === */
+/* --- ЗАГОЛОВОК ДНЯ (day-header) --- */
 .day-header {
     padding: 15px 20px;
     font-weight: 600;
@@ -489,31 +443,36 @@ a {
     border-bottom: 1px solid #e0e0e0;
 }
 
-/* === СПИСОК ТРЕНУВАНЬ (workout-list) === */
+/* --- СПИСОК ТРЕНУВАНЬ (workout-list) --- */
+/* УВАГА: display: none контролюється функціями slideUp/slideDown */
 .workout-list {
-    padding: 0 20px; /* Прибираємо вертикальний padding, залишимо його на рядках */
     display: none;
 }
 
-/* === КАРТКА ТРЕНУВАННЯ (workout-card-row) - Єдиний горизонтальний рядок === */
+/* --- КАРТКА ТРЕНУВАННЯ (workout-card-row) - РЯДКОВИЙ ВИГЛЯД --- */
 .workout-card-row {
-    display: flex; /* Головний контейнер - Flex */
-    justify-content: space-between; /* Розтягуємо елементи в сторони */
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 15px 0; /* Внутрішній відступ для рядка */
+    padding: 15px;
     text-decoration: none;
     color: inherit;
     font-size: 16px;
-    border-bottom: 1px solid #eee; /* Роздільник між рядками */
-    transition: background-color 0.15s;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.15s, filter 0.15s; /* Додаємо transition для filter */
 }
 
     .workout-card-row:last-child {
-        border-bottom: none; /* Прибираємо лінію під останнім елементом */
+        border-bottom: none;
     }
 
     .workout-card-row:hover {
-        background-color: #f5f5f5;
+        /* Цей колір може працювати, коли немає heatmap, але ми покладаємося на filter */
+        background-color: #FFFFFF;
+        /* 🔥 КЛЮЧОВИЙ РЯДОК: Затемнюємо елемент на 10% при наведенні */
+        filter: brightness(0.95);
     }
 
 /* ЛІВИЙ БЛОК: Назва + XP */
@@ -521,18 +480,19 @@ a {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    flex-grow: 1; /* Дозволяємо займати більшість простору */
-    min-width: 0; /* Важливо для ellipsis */
+    flex-grow: 1;
+    min-width: 0;
     padding-right: 20px;
 }
 
 .workout-name {
+    padding 20px;
     font-size: 18px;
     font-weight: 600;
     color: #333;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Обрізаємо довгу назву */
+    text-overflow: ellipsis;
     max-width: 100%;
 }
 
@@ -547,10 +507,10 @@ a {
 .card-right-meta {
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Вирівнюємо текст по правому краю */
+    align-items: flex-end;
     font-size: 13px;
     color: #777;
-    white-space: nowrap; /* Не дозволяємо метаданим переноситися */
+    white-space: nowrap;
 }
 
 .workout-meta-date {
@@ -562,17 +522,24 @@ a {
     margin-top: 2px;
 }
 
-/* === СТИЛІ ДЛЯ HEATMAP (Застосовуються до всього клікабельного рядка) === */
-.workout-card-row[data-workout-xp] {
-    /* Тут JS додасть стилі: background-color, padding, border-radius, etc. */
+/* Стилі, що застосовуються, коли активовано фільтр "Show my workouts" */
+
+/* 1. Стилі для заголовка дня (постійні) */
+.heatmap-day-active {
+    /* Колір тексту для фону Heatmap */
+    color: #333 !important;
+    /* !important тут потрібен, якщо інший CSS має вищий пріоритет */
 }
-/* Щоб Heatmap правильно забарвлював фон, ми повинні скинути inline стилі, 
-   які додавалися до внутрішніх елементів у попередньому рефакторингу, 
-   або дозволити їм застосовуватися до всього <a>. 
-   Оскільки JS малює лише <a>, це має працювати коректно. */
 
+/* 2. Стилі для рядка тренування (постійні) */
+.heatmap-workout-active {
+    /* Постійні стилі Heatmap */
+    color: #333 !important;
+    padding: 15px !important; /* Мінімум для відображення інлайн-XP */
+    border-radius: 4px;
+}
 
-/* === КНОПКА "LOAD MORE" === */
+/* --- КНОПКА "LOAD MORE" --- */
 #load-more-btn {
     width: 100%;
     max-width: 400px;
