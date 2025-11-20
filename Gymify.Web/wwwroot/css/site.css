@@ -64,7 +64,7 @@ a {
     border-color: var(--ButtonHoverColor);
 }
 .startPageContainer {
-    padding-top: 100px;
+    padding-bottom: 50px;
 }
 .mainTitle {
     font-size: 212px;
@@ -114,7 +114,7 @@ a {
 /*              Auth            */
 .authForm {
     height: 80vh;
-    padding: 15%;
+    padding: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
