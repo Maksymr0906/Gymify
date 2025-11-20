@@ -107,18 +107,16 @@ public class WorkoutRepository(GymifyDbContext context)
         bool onlyMy,
         bool byDescending)
     {
-        // 1. Ініціалізація та Include
         var query = Entities
             .Include(w => w.UserProfile)
                 .ThenInclude(up => up.ApplicationUser)
             .AsQueryable();
 
-        // 2. Фільтрація за користувачем та автором
         if (onlyMy)
         {
             query = query.Where(w => w.UserProfileId == userId);
         }
-        else // Показуємо всі публічні, або фільтруємо по автору
+        else 
         {
             query = query.Where(w => w.IsPrivate == false);
 
@@ -129,7 +127,6 @@ public class WorkoutRepository(GymifyDbContext context)
             }
         }
 
-        // 3. Сортування
         if (byDescending)
         {
             query = query.OrderByDescending(w => w.CreatedAt);
@@ -150,10 +147,8 @@ public class WorkoutRepository(GymifyDbContext context)
         int page,
         int pageSize)
     {
-        // Отримуємо базовий запит
         var query = GetWorkoutsQuery(userId, authorName, onlyMy, byDescending);
-
-        // Застосовуємо пагінацію Skip/Take
+        
         return await query
             .Skip(page * pageSize)
             .Take(pageSize)

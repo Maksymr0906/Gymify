@@ -47,15 +47,8 @@
 
             let debounceTimer;
 
-            /**
-             * Повертає колір HSL від червоного (0) до зеленого (120)
-             * param {number} xp - Поточний XP
-             * param {number} min - Мінімальний XP у діапазоні
-             * param {number} max - Максимальний XP у діапазоні
-             * returns {string} HSL колір (e.g., 'hsl(120, 75%, 90%)')
-             */
             function getXPColor(xp, min, max) {
-                // Запобігання ділення на нуль, якщо всі значення однакові
+                
                 if (max <= min) {
                     return 'hsl(120, 75%, 90%)'; // Світло-зелений
                 }
@@ -69,27 +62,20 @@
                 return `hsl(${hue}, 75%, 90%)`;
             }
 
-            /**
-             * Застосовує кольорову "теплову карту" на основі XP до днів і тренувань.
-             * Працює лише при вибраному фільтрі "Show my workouts".
-             */
             function applyHeatmap() {
                 const onlyMy = filterType.value === 'mine';
                 const allDayEntries = feed.querySelectorAll('.day-entry');
 
-                // 1. ОЧИЩЕННЯ (Видаляємо класи та інлайн-стилі)
                 allDayEntries.forEach(day => {
                     const header = day.querySelector('.day-header');
                     if (header) {
-                        // Видаляємо клас і скидаємо колір фону
                         header.classList.remove('heatmap-day-active');
                         header.style.backgroundColor = ''; 
                     }
                     day.querySelectorAll('a[data-workout-xp]').forEach(workout => {
-                        // Видаляємо клас і скидаємо колір фону
                         workout.classList.remove('heatmap-workout-active');
                         workout.style.backgroundColor = '';
-                        workout.style.cssText = ''; // Залишаємо це для гарантованого скидання
+                        workout.style.cssText = ''; 
                     });
                 });
 
@@ -97,7 +83,6 @@
                     return;
                 }
 
-                // 2. ЗБІР ГЛОБАЛЬНОГО ДІАПАЗОНУ (для заголовків днів)
                 const daysWithXp = Array.from(allDayEntries).filter(day => day.dataset.dayXp);
                 if (daysWithXp.length === 0) return;
 
@@ -115,25 +100,22 @@
                 if (globalMinXP === Infinity) return;
 
 
-                // 3. ЗАСТОСУВАННЯ КОЛЬОРІВ ТА КЛАСІВ
                 daysWithXp.forEach(day => {
                     const dayXP = parseInt(day.dataset.dayXp, 10);
                     const header = day.querySelector('.day-header');
 
                     if (!isNaN(dayXP) && header) {
-                        // 3a. КОЛІР ДНЯ (на основі ГЛОБАЛЬНОГО діапазону)
+                      
                         header.style.backgroundColor = getXPColor(dayXP, globalMinXP, globalMaxXP);
                         header.classList.add('heatmap-day-active'); // Додаємо клас для color: #333
                     }
 
-                    // 3b. КОЛІР ТРЕНУВАНЬ (на основі ЛОКАЛЬНОГО діапазону дня)
                     const workoutsInDay = day.querySelectorAll('a[data-workout-xp]');
                     if (workoutsInDay.length === 0) return;
 
                     let localMinXP = Infinity;
                     let localMaxXP = -Infinity;
 
-                    // Знаходимо ЛОКАЛЬНИЙ min/max
                     workoutsInDay.forEach(workout => {
                         const workoutXP = parseInt(workout.dataset.workoutXp, 10);
                         if (!isNaN(workoutXP)) {
@@ -284,7 +266,6 @@
                 }
             }
 
-            // SHOW / HIDE AUTHOR SEARCH & RELOAD
             filterType.addEventListener('change', function () {
                 if (filterType.value === 'all') {
                     authorSearch.style.display = 'block';
@@ -295,19 +276,15 @@
                 reloadFeed();
             });
 
-            // SORT CHANGE & RELOAD
             sortType.addEventListener('change', reloadFeed);
 
-            // DEBOUNCE AUTHOR SEARCH & RELOAD
             authorSearch.addEventListener('input', function () {
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(reloadFeed, 400);
             });
 
-            // LOAD MORE CLICK
             loadMoreBtn.addEventListener('click', loadMoreWorkouts);
 
-            // COLLAPSING / EXPANDING DAYS
             feed.addEventListener('click', function (event) {
                 const header = event.target.closest('.day-header');
                 if (header) {
@@ -322,11 +299,6 @@
                 }
             });
 
-            /**
-             * Плавне приховування елемента.
-             * param {HTMLElement} element
-             * param {number} duration
-             */
             function slideUp(element, duration) {
                 element.style.height = element.offsetHeight + 'px';
                 element.style.transitionProperty = 'height, margin, padding';
@@ -352,11 +324,6 @@
                 }, duration);
             }
 
-            /**
-             * Плавне відображення елемента.
-             * param {HTMLElement} element
-             * param {number} duration
-             */
             function slideDown(element, duration) {
                 element.style.removeProperty('display');
                 let display = window.getComputedStyle(element).display;
@@ -371,7 +338,7 @@
                 element.style.marginTop = 0;
                 element.style.marginBottom = 0;
                 element.style.overflow = 'hidden';
-                element.offsetHeight; // force repaint
+                element.offsetHeight; 
                 element.style.transitionProperty = 'height, margin, padding';
                 element.style.transitionDuration = duration + 'ms';
                 element.style.height = height + 'px';

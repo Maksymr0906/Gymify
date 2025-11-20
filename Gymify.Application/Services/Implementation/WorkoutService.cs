@@ -120,67 +120,6 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         return workoutDtos;
     }
 
-    public async Task<DateTime?> GetFirstWorkoutDate(Guid userId, bool onlyMy, string authorName)
-    {
-        return await _unitOfWork.WorkoutRepository.GetFirstWorkoutDateAsync(userId, onlyMy, authorName);
-    }
-
-    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(DateTime? anchorDate, Guid userId, string? authorName, int page, bool onlyMy, bool byDescending)
-    {
-        int pageSizeDays = 28;
-        DateTime queryStartDate;
-        DateTime queryEndDate;
-
-        if (byDescending)
-        {
-            DateTime startPoint = DateTime.UtcNow.Date;
-
-            queryEndDate = startPoint.AddDays(-(page * pageSizeDays));
-            queryStartDate = queryEndDate.AddDays(-pageSizeDays + 1);
-
-            queryEndDate = queryEndDate.AddDays(1).AddTicks(-1);
-        }
-        else
-        {
-            if (anchorDate == null)
-            {
-                return new List<WorkoutDayDto>();
-            }
-
-            var startDate = anchorDate.Value.AddDays(page * pageSizeDays);
-            var endDate = startDate.AddDays(pageSizeDays - 1);
-
-            queryStartDate = startDate;
-            queryEndDate = endDate.AddDays(1).AddTicks(-1);
-        }
-
-        var workouts = await _unitOfWork.WorkoutRepository
-            .GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy, byDescending);
-
-        var groupedWorkouts = workouts
-            .GroupBy(w => w.CreatedAt.Date)
-            .Select(group => new WorkoutDayDto
-            {
-                Date = group.Key,
-                TotalXpForDay = onlyMy ? group.Sum(w => w.TotalXP) : 0,
-                Workouts = group
-                    .OrderByDescending(w => w.CreatedAt)
-                    .Select(w => new WorkoutDto
-                    {
-                        Id = w.Id,
-                        Name = w.Name,
-                        CreatedAt = w.CreatedAt,
-                        UserProfileId = w.UserProfileId,
-                        AuthorName = w.UserProfile.ApplicationUser.UserName,
-                        TotalXP = onlyMy ? w.TotalXP : 0
-                    }).ToList()
-            })
-            .ToList();
-
-        return groupedWorkouts;
-    }
-
-    // WorkoutService.cs
 
     public async Task<List<WorkoutDayDto>> GetWorkoutsPage(
         Guid userId,
@@ -189,7 +128,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         bool byDescending,
         int page)
     {
-        int pageSize = 1; 
+        int pageSize = 10; 
 
         var workouts = await _unitOfWork.WorkoutRepository
             .GetWorkoutsPageAsync(userId, authorName, onlyMy, byDescending, page, pageSize);
@@ -199,7 +138,6 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             return new List<WorkoutDayDto>();
         }
 
-        // 2. Групування тренувань за днями
         var groupedWorkouts = workouts
             .GroupBy(w => w.CreatedAt.Date)
             .Select(group => new WorkoutDayDto
