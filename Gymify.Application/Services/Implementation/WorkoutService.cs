@@ -179,4 +179,93 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         return groupedWorkouts;
     }
+
+    // WorkoutService.cs
+
+    public async Task<List<WorkoutDayDto>> GetWorkoutsPage(
+        Guid userId,
+        string? authorName,
+        bool onlyMy,
+        bool byDescending,
+        int page)
+    {
+        // Фіксований розмір блоку, який ми намагаємося взяти
+        int pageSize = 1;
+
+        // Отримуємо базовий IQueryable запит з фільтрами та сортуванням.
+        // Припускається, що GetWorkoutsQuery існує у WorkoutRepository.
+        var baseQuery = _unitOfWork.WorkoutRepository.GetWorkoutsQuery(
+            userId, authorName, onlyMy, byDescending);
+
+        int skipCount = page * pageSize;
+
+        // 1. Беремо перший блок (pageSize)
+        var initialWorkouts = await baseQuery
+            .Skip(skipCount)
+            .Take(pageSize)
+            .ToListAsync();
+
+        if (initialWorkouts.Count == 0)
+        {
+            return new List<WorkoutDayDto>();
+        }
+
+        // 2. Визначаємо дату стику (Дата останнього тренування у початковому блоці)
+        DateTime lastDayInBlock = initialWorkouts.Last().CreatedAt.Date;
+
+        // 3. Динамічне розширення Take: Перевіряємо, чи є наступний елемент
+        var nextWorkoutCheck = await baseQuery
+            .Skip(skipCount + pageSize) // Пропускаємо весь початковий блок
+            .FirstOrDefaultAsync();
+
+        // 4. Якщо наступний елемент існує і належить до ТОГО Ж ДНЯ,
+        // ми повинні знайти усі інші тренування цього дня, які залишилися.
+        if (nextWorkoutCheck != null && nextWorkoutCheck.CreatedAt.Date == lastDayInBlock)
+        {
+            // 5. Запитуємо всі тренування цього дня, починаючи з позиції після початкового Take.
+
+            // Створюємо новий запит, який шукає тренування з датою стику, 
+            // що йдуть за межами початкового блоку.
+            var allRemainingWorkouts = await baseQuery
+                 .Skip(skipCount + pageSize) // Пропускаємо вже завантажені
+                 .Where(w => w.CreatedAt.Date == lastDayInBlock) // Фільтруємо за датою стику
+                 .ToListAsync();
+
+            // 6. Додаємо ці "додаткові" тренування до нашого початкового списку
+            initialWorkouts.AddRange(allRemainingWorkouts);
+        }
+
+        // 7. Групування та повернення результату (Логіка групування не змінюється)
+        var groupedWorkouts = initialWorkouts
+            .GroupBy(w => w.CreatedAt.Date)
+            .Select(group => new WorkoutDayDto
+            {
+                Date = group.Key,
+                TotalXpForDay = onlyMy ? group.Sum(w => w.TotalXP) : 0,
+                Workouts = group
+                    .OrderByDescending(w => w.CreatedAt)
+                    .Select(w => new WorkoutDto
+                    {
+                        Id = w.Id,
+                        Name = w.Name,
+                        CreatedAt = w.CreatedAt,
+                        UserProfileId = w.UserProfileId,
+                        AuthorName = w.UserProfile?.ApplicationUser?.UserName,
+                        TotalXP = onlyMy ? w.TotalXP : 0
+                    }).ToList()
+            })
+            .ToList();
+
+        // Фінальне сортування днів для відображення
+        if (byDescending)
+        {
+            groupedWorkouts = groupedWorkouts.OrderByDescending(d => d.Date).ToList();
+        }
+        else
+        {
+            groupedWorkouts = groupedWorkouts.OrderBy(d => d.Date).ToList();
+        }
+
+        return groupedWorkouts;
+    }
 }

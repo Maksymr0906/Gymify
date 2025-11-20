@@ -100,4 +100,66 @@ public class WorkoutRepository(GymifyDbContext context)
 
         return await query.ToListAsync();
     }
+
+    public IQueryable<Workout> GetWorkoutsQuery(
+        Guid userId,
+        string? authorName,
+        bool onlyMy,
+        bool byDescending)
+    {
+        // 1. Ініціалізація та Include
+        var query = Entities
+            .Include(w => w.UserProfile)
+                .ThenInclude(up => up.ApplicationUser)
+            .AsQueryable();
+
+        // 2. Фільтрація за користувачем та автором
+        if (onlyMy)
+        {
+            query = query.Where(w => w.UserProfileId == userId);
+        }
+        else // Показуємо всі публічні, або фільтруємо по автору
+        {
+            query = query.Where(w => w.IsPrivate == false);
+
+            if (!string.IsNullOrWhiteSpace(authorName))
+            {
+                var loweredName = authorName.Trim().ToLower();
+                query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
+            }
+        }
+
+        // 3. Сортування
+        if (byDescending)
+        {
+            query = query.OrderByDescending(w => w.CreatedAt);
+        }
+        else
+        {
+            query = query.OrderBy(w => w.CreatedAt);
+        }
+
+        return query;
+    }
+
+    /**
+     * Асинхронний метод для виконання запиту з пагінацією Skip/Take.
+     */
+    public async Task<ICollection<Workout>> GetWorkoutsPageAsync(
+        Guid userId,
+        string? authorName,
+        bool onlyMy,
+        bool byDescending,
+        int page,
+        int pageSize)
+    {
+        // Отримуємо базовий запит
+        var query = GetWorkoutsQuery(userId, authorName, onlyMy, byDescending);
+
+        // Застосовуємо пагінацію Skip/Take
+        return await query
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
 }

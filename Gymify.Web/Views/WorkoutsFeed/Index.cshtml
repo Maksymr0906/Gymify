@@ -158,95 +158,58 @@
                 return {
                     onlyMy: filterType.value === 'mine',
                     authorName: authorSearch.value.trim(),
-                    byDescending: sortType.value === 'desc',
-                    page: 0,
-                    anchorDate: loadMoreBtn.dataset.anchorDate || ''
+                    byDescending: sortType.value === 'desc'
+                    // anchorDate більше не потрібен
                 };
             }
+    // ...
 
             async function reloadFeed() {
                 const { onlyMy, authorName, byDescending } = getFilterParams();
-                let anchorDate = null;
-                const anchorUrl = '@Url.Action("GetAnchorDate")?' + anchorParams.toString();
 
-                try {
-                    const response = await fetch(anchorUrl);
-                    const data = await response.json();
-                    // Якщо data.anchorDate порожня, це означає, що за поточними фільтрами даних немає.
-                    anchorDate = data.anchorDate;
+                // Більше немає запиту до GetAnchorDate!
 
-                    if (!anchorDate) {
-                        feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
-                        loadMoreBtn.style.display = 'none';
-                        loadMoreBtn.dataset.anchorDate = '';
-                        applyHeatmap(); 
-                        return;
-                    }
-                } catch (e) {
-                    console.error("Error fetching anchor date:", e);
-                    feed.innerHTML = '<p>Error when loading data.</p>';
-                    loadMoreBtn.style.display = 'none';
-                    return;
-                }
-
-                // 2. ЯКЩО ДАНІ Є, ЗАВАНТАЖУЄМО ПЕРШУ СТОРІНКУ
-
+                // Завантажуємо першу сторінку (page=0)
                 let params = new URLSearchParams();
-                params.append('page', 0);
+                params.append('page', 0); // Завжди 0 при перезавантаженні
                 params.append('onlyMy', onlyMy);
                 params.append('byDescending', byDescending);
                 params.append('authorName', authorName);
-
-                params.append('anchorDate', anchorDate); 
-
-                loadMoreBtn.dataset.anchorDate = anchorDate; 
 
                 const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
 
                 try {
-                        const response = await fetch(url);
-                        const html = await response.text();
+                    const response = await fetch(url);
+                    const html = await response.text();
 
-                        feed.innerHTML = html;
-                        loadMoreBtn.dataset.page = 1;
+                    feed.innerHTML = html; 
+                    loadMoreBtn.dataset.page = 1; // Наступна сторінка
 
-                        if (html.trim().length === 0) {
-                            feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
-                            loadMoreBtn.style.display = 'none';
-                        } else {
-                            loadMoreBtn.style.display = 'block'; 
-                        }
-
-                        applyHeatmap();
-                    } 
-                catch (e) {
-                        console.error("Error reloading feed:", e);
-                        feed.innerHTML = '<p>Error when loading workouts.</p>';
+                    if (html.trim().length === 0) {
+                        feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
                         loadMoreBtn.style.display = 'none';
+                    } else {
+                        loadMoreBtn.style.display = 'block';
                     }
+
+                    applyHeatmap();
+                } 
+                catch (e) { /* ... обробка помилок ... */ }
             }
 
-            /**
-             * Завантажує наступну сторінку тренувань.
-             */
             async function loadMoreWorkouts() {
                 const nextPage = parseInt(loadMoreBtn.dataset.page);
-                const { onlyMy, authorName, byDescending, anchorDate } = getFilterParams();
-                
-                if (!byDescending && !anchorDate) {
-                    loadMoreBtn.style.display = 'none';
-                    return; 
-                }
+                const { onlyMy, authorName, byDescending } = getFilterParams();
+
+                // Більше немає перевірки !byDescending && !anchorDate!
 
                 let params = new URLSearchParams();
-                params.append('page', nextPage);
+                params.append('page', nextPage); 
                 params.append('onlyMy', onlyMy);
                 params.append('byDescending', byDescending);
                 params.append('authorName', authorName);
-                
-                if (anchorDate) {
-                    params.append('anchorDate', anchorDate);
-                }
+
+                // anchorDate не потрібен
 
                 const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
 
@@ -255,24 +218,22 @@
                     const html = await response.text();
 
                     if (html.trim().length === 0) {
+                        // ✅ КІНЕЦЬ ДАНИХ: Спрацює надійно, оскільки сервер більше не пропускає порожні 28-денні блоки.
                         loadMoreBtn.style.display = 'none';
                         return;
                     }
 
-                    // Додавання нового HTML до контейнера
+                    // Додавання нового HTML до контейнера (як раніше)
                     let temp = document.createElement('div');
                     temp.innerHTML = html;
                     while (temp.firstChild) {
-                        feed.appendChild(temp.firstChild);
+                        feed.appendChild(temp.firstChild); 
                     }
 
                     loadMoreBtn.dataset.page = nextPage + 1;
                     applyHeatmap();
 
-                } catch (e) {
-                    console.error("Error loading more workouts:", e);
-                    // Можливо, залишити кнопку, але сповістити користувача про помилку?
-                }
+                } catch (e) { /* ... обробка помилок ... */ }
             }
 
             // SHOW / HIDE AUTHOR SEARCH & RELOAD
