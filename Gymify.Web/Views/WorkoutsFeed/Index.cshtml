@@ -159,19 +159,14 @@
                     onlyMy: filterType.value === 'mine',
                     authorName: authorSearch.value.trim(),
                     byDescending: sortType.value === 'desc'
-                    // anchorDate більше не потрібен
                 };
             }
-    // ...
 
             async function reloadFeed() {
                 const { onlyMy, authorName, byDescending } = getFilterParams();
 
-                // Більше немає запиту до GetAnchorDate!
-
-                // Завантажуємо першу сторінку (page=0)
                 let params = new URLSearchParams();
-                params.append('page', 0); // Завжди 0 при перезавантаженні
+                params.append('page', 0); 
                 params.append('onlyMy', onlyMy);
                 params.append('byDescending', byDescending);
                 params.append('authorName', authorName);
@@ -183,7 +178,7 @@
                     const html = await response.text();
 
                     feed.innerHTML = html; 
-                    loadMoreBtn.dataset.page = 1; // Наступна сторінка
+                    loadMoreBtn.dataset.page = 1; 
 
                     if (html.trim().length === 0) {
                         feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
@@ -201,15 +196,11 @@
                 const nextPage = parseInt(loadMoreBtn.dataset.page);
                 const { onlyMy, authorName, byDescending } = getFilterParams();
 
-                // Більше немає перевірки !byDescending && !anchorDate!
-
                 let params = new URLSearchParams();
-                params.append('page', nextPage); 
+                params.append('page', nextPage);
                 params.append('onlyMy', onlyMy);
                 params.append('byDescending', byDescending);
                 params.append('authorName', authorName);
-
-                // anchorDate не потрібен
 
                 const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
 
@@ -218,22 +209,90 @@
                     const html = await response.text();
 
                     if (html.trim().length === 0) {
-                        // ✅ КІНЕЦЬ ДАНИХ: Спрацює надійно, оскільки сервер більше не пропускає порожні 28-денні блоки.
                         loadMoreBtn.style.display = 'none';
                         return;
                     }
 
-                    // Додавання нового HTML до контейнера (як раніше)
+                    // 1. Створення тимчасового елемента для парсингу HTML
                     let temp = document.createElement('div');
                     temp.innerHTML = html;
+
+                    // 2. Отримання всіх нових записів днів
+                    const newDayEntries = temp.querySelectorAll('.day-entry');
+
+                    newDayEntries.forEach(newDay => {
+                        const dayId = newDay.dataset.dayId; 
+
+                        if (!dayId) {
+                            feed.appendChild(newDay);
+                            return;
+                        }
+
+                        const existingDay = feed.querySelector(`.day-entry[data-day-id='${dayId}']`); 
+
+                        if (existingDay) {
+                            // *** 3. КОРЕКТНЕ ОБ'ЄДНАННЯ (Merge) З ПІДСУМОВУВАННЯМ XP І КІЛЬКОСТІ ***
+
+                            const newWorkoutList = newDay.querySelector('.workout-list');
+                            const existingWorkoutList = existingDay.querySelector('.workout-list');
+
+                            if (newWorkoutList && existingWorkoutList) {
+
+                                // --- 3a. Обчислення сумарного XP ---
+                                const existingDayXP = parseInt(existingDay.dataset.dayXp, 10) || 0;
+                                const newDayXP = parseInt(newDay.dataset.dayXp, 10) || 0;
+                                const totalXP = existingDayXP + newDayXP;
+
+                                // --- 3b. Обчислення сумарної кількості тренувань ---
+                                const existingHeaderSpan = existingDay.querySelector('.day-header span:nth-child(2)');
+
+                                // Парсимо поточний лічильник з існуючого заголовка
+                                const existingMatch = existingHeaderSpan.textContent.match(/Workouts:(\d+)/);
+                                const existingWorkoutCount = existingMatch ? parseInt(existingMatch[1], 10) : 0;
+
+                                // Парсимо лічильник з нового заголовка (це кількість тренувань у новому блоці)
+                                const newMatch = newDay.querySelector('.day-header span:nth-child(2)').textContent.match(/Workouts:(\d+)/);
+                                const newWorkoutCountInBatch = newMatch ? parseInt(newMatch[1], 10) : 0;
+
+                                const totalWorkoutCount = existingWorkoutCount + newWorkoutCountInBatch;
+
+                                // --- 3c. Оновлення DOM та даних ---
+
+                                // Переміщуємо всі тренування з нового списку до існуючого
+                                while (newWorkoutList.firstChild) {
+                                    existingWorkoutList.appendChild(newWorkoutList.firstChild);
+                                }
+
+                                // ⚠️ Оновлюємо data-day-xp на СУМАРНЕ значення
+                                if (onlyMy) {
+                                    existingDay.dataset.dayXp = totalXP;
+                                }
+
+                                // Оновлюємо текст заголовка дня
+                                if (existingHeaderSpan) {
+                                     existingHeaderSpan.innerHTML = `Workouts:${totalWorkoutCount} ${onlyMy ? `| XP:${totalXP}` : ''}`;
+                                }
+                            }
+
+                            // Видаляємо новий, вже оброблений (об'єднаний) елемент дня
+                            newDay.remove(); 
+                        } else {
+                            // *** 4. ДОДАВАННЯ (Append) ***
+                            feed.appendChild(newDay);
+                        }
+                    });
+
+
+                    loadMoreBtn.dataset.page = nextPage + 1;
+                    applyHeatmap(); // Повторне застосування теплової карти (вона використовуватиме нове totalXP)
+
                     while (temp.firstChild) {
                         feed.appendChild(temp.firstChild); 
                     }
 
-                    loadMoreBtn.dataset.page = nextPage + 1;
-                    applyHeatmap();
-
-                } catch (e) { /* ... обробка помилок ... */ }
+                } catch (e) { 
+                    console.error("Error loading more workouts:", e);
+                }
             }
 
             // SHOW / HIDE AUTHOR SEARCH & RELOAD

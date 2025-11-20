@@ -189,9 +189,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         bool byDescending,
         int page)
     {
-        int pageSize = 28; // Фіксований розмір сторінки для запиту до БД
+        int pageSize = 1; 
 
-        // 1. Отримання пагінованого блоку тренувань з репозиторію
         var workouts = await _unitOfWork.WorkoutRepository
             .GetWorkoutsPageAsync(userId, authorName, onlyMy, byDescending, page, pageSize);
 
@@ -206,11 +205,9 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             .Select(group => new WorkoutDayDto
             {
                 Date = group.Key,
-                // Для Heatmap обчислюємо XP лише для своїх тренувань
+                WorkoutCount = group.Count(),
                 TotalXpForDay = onlyMy ? group.Sum(w => w.TotalXP) : 0,
-                // Кількість тренувань у цьому дні
                 Workouts = group
-                    // Тренування в межах дня сортуються від найновішого
                     .OrderByDescending(w => w.CreatedAt)
                     .Select(w => new WorkoutDto
                     {
@@ -219,13 +216,11 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
                         CreatedAt = w.CreatedAt,
                         UserProfileId = w.UserProfileId,
                         AuthorName = w.UserProfile?.ApplicationUser?.UserName,
-                        TotalXP = onlyMy ? w.TotalXP : 0 // XP показуємо лише для своїх
+                        TotalXP = onlyMy ? w.TotalXP : 0 
                     }).ToList()
             })
             .ToList();
 
-        // 3. Фінальне сортування днів для відображення
-        // Якщо сортування за спаданням (desc), новіші дні мають йти першими.
         if (byDescending)
         {
             groupedWorkouts = groupedWorkouts.OrderByDescending(d => d.Date).ToList();

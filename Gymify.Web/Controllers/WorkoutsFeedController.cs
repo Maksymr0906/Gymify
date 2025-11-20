@@ -33,19 +33,15 @@ namespace Gymify.Web.Controllers
             return View(model);
         }
 
-        // ВИДАЛИТИ: [HttpGet] public async Task<IActionResult> GetAnchorDate(...)
-
         [HttpGet]
         public async Task<IActionResult> LoadMoreWorkouts(string? authorName, bool onlyMy, bool byDescending, int page)
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
 
-            // Викликаємо новий простий метод пагінації
             var model = await _workoutService.GetWorkoutsPage(userId, authorName, onlyMy, byDescending, page);
 
             ViewBag.OnlyMy = onlyMy;
 
-            // Повертаємо PartialView. Якщо model.Count == 0, фронтенд знає, що це кінець.
             return PartialView("WorkoutsList", model);
         }
 

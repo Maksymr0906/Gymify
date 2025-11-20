@@ -142,9 +142,6 @@ public class WorkoutRepository(GymifyDbContext context)
         return query;
     }
 
-    /**
-     * Асинхронний метод для виконання запиту з пагінацією Skip/Take.
-     */
     public async Task<ICollection<Workout>> GetWorkoutsPageAsync(
         Guid userId,
         string? authorName,
