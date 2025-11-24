@@ -33,7 +33,7 @@
                 @foreach (var workout in Model.LastWorkouts)
                 {
                         <a class="homeWorkout" 
-                           asp-controller="Workouts" asp-action="Details" asp-route-id="@workout.Id" 
+                                   asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id" 
                            title="@workout.CreatedAt.ToString("g")"
                            data-workout-xp="@workout.TotalXP">
 

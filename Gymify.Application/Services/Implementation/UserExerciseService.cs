@@ -166,6 +166,30 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
         await _unitOfWork.SaveAsync();
     }
 
+    public async Task<List<UserExerciseDto>> GetAllWorkoutExercisesAsync(Guid workoutId)
+    {
+        var userExercises = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
+
+        List<UserExerciseDto> userExerciseDtos = new();
+
+        foreach(var userExercise in userExercises)
+        {
+            userExerciseDtos.Add(new UserExerciseDto
+            {
+                Id = userExercise.Id,
+                WorkoutId = userExercise.WorkoutId,
+                Name = userExercise.Name,
+                Type = (int)userExercise.Type,
+                Sets = userExercise.Sets,
+                Reps = userExercise.Reps,
+                Weight = userExercise.Weight,
+                Duration = userExercise.Duration,
+                EarnedXP = userExercise.EarnedXP,
+            });
+        }
+        return userExerciseDtos;
+    }
+
     // переписати
     public static int CalculateXp(AddUserExerciseToWorkoutRequestDto exerciseModel, Exercise userExercise)
     {

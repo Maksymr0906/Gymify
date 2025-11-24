@@ -1,0 +1,39 @@
+﻿@using Gymify.Application.DTOs.UserExercise
+@model List<UserExerciseDto>
+
+@if (!Model.Any())
+{
+        <div class="text-center text-muted py-4 border rounded bg-light">
+            No exercises added yet.
+        </div>
+}
+else
+{
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        @foreach (var ex in Model)
+        {
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary fw-bold">@ex.Name</h5>
+                                <hr class="my-2 opacity-25">
+                                <div class="d-flex justify-content-between text-muted small mt-3">
+                                    <span><i class="bi bi-layers"></i> <strong>@ex.Sets</strong> sets</span>
+                                    <span><i class="bi bi-arrow-repeat"></i> <strong>@ex.Reps</strong> reps</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small mt-2">
+                            @if (ex.Weight > 0)
+                            {
+                                            <span><i class="bi bi-hdd"></i> @ex.Weight kg</span>
+                            }
+                            @if (ex.DurationMinutes > 0)
+                            {
+                                            <span><i class="bi bi-clock"></i> @ex.DurationMinutes min</span>
+                            }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        }
+        </div>
+}

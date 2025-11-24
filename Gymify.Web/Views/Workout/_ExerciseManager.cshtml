@@ -2,10 +2,8 @@
 @model List<UserExerciseDto>
 
 @{
-    // Отримуємо ID воркауту. 
-    // Якщо модуль викликається з Details, там передається ViewData["WorkoutId"].
-    // Якщо з AddExercise, там ViewBag.WorkoutId.
     var workoutId = ViewData["WorkoutId"] ?? ViewBag.WorkoutId;
+    var hideButtons = ViewData["HideSaveButtons"] as bool? ?? false;
 }
 
 <div class="em-module">
@@ -37,25 +35,25 @@
         </div>
     </div>
 
-    <form id ="mgrForm" method="post" asp-action="AddExercisesBatch" asp-controller="Workout">
-        <input type="hidden" name="workoutId" value="@workoutId" />
+    <form id="mgrForm" method="post" asp-action="AddExercisesBatch" asp-controller="Workout">
+    <input type="hidden" name="workoutId" value="@workoutId" />
 
-        <div id="mgrList" class="em-list">
-            <div id="mgrEmpty" style="display:none; grid-column: 1/-1; text-align:center; color:#999; padding:20px;">
-                No exercises added yet.
-            </div>
+    <div id="mgrList" class="em-list">
+        <div id="mgrEmpty" style="display:none; grid-column: 1/-1; text-align:center; color:#999; padding:20px;">
+            No exercises added yet.
+        </div>
 
             @for (int i = 0; i < Model.Count; i++)
             {
                 <div class="em-card">
                     <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
                     <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
-                    
+
                     <div class="em-card-header">
                         <span>@Model[i].Name</span>
                         <button type="button" class="em-btn em-btn-remove">Remove</button>
                     </div>
-                    
+
                     <div class="em-card-body">
                         <div class="em-form-group">
                             <label class="em-label">Sets</label>
@@ -78,10 +76,15 @@
             }
         </div>
 
-        <div style="text-align: right; margin-top: 20px;">
-            <button type="button" id="mgrBtnCancel" class="em-btn em-btn-cancel">Cancel</button>
-            <button type="submit" class="em-btn em-btn-save">Save Changes</button>
-        </div>
+        @if (!hideButtons)
+        {
+            <div style="text-align: right; margin-top: 20px; display: flex; align-items: center; justify-content: flex-end;">
+                <span id="mgrSaveStatus" style="display:none; font-weight:bold; margin-right: 15px;"></span>
+
+                <button type="button" id="mgrBtnCancel" class="em-btn em-btn-cancel">Cancel</button>
+                <button type="submit" id="mgrBtnSave" class="em-btn em-btn-save">Save Changes</button>
+            </div>
+        }
     </form>
 </div>
 
@@ -106,102 +109,110 @@
 
 <script>
     (function() {
-        // Отримуємо елементи
         const container = document.getElementById("mgrList");
         const emptyMsg = document.getElementById("mgrEmpty");
         const template = document.getElementById("mgrTemplate");
-        
+        const form = document.getElementById("mgrForm");
+
         const inName = document.getElementById("mgrName");
         const suggestions = document.getElementById("mgrSuggestions");
         const btnAdd = document.getElementById("mgrBtnAdd");
 
-        // Ініціалізація
+        const btnSave = document.getElementById("mgrBtnSave");
+        const statusMsg = document.getElementById("mgrSaveStatus");
+
+        // --- Ініціалізація ---
         checkEmpty();
-        
-        // Підв'язка видалення для вже існуючих (серверних) карток
-        container.querySelectorAll(".em-btn-remove").forEach(btn => {
-            btn.addEventListener("click", removeCard);
-        });
 
-        // --- ЛОГІКА ПОШУКУ ---
+        // Прив'язка подій для існуючих кнопок "Remove"
+        if(container) {
+            container.querySelectorAll(".em-btn-remove").forEach(btn => {
+                btn.addEventListener("click", removeCard);
+            });
+        }
+
+        // --- ПОШУК ---
         let timeout;
-        inName.addEventListener("input", function() {
-            const q = this.value.trim();
-            clearTimeout(timeout);
-            if (q.length < 2) { suggestions.style.display = "none"; return; }
+        if(inName) {
+            inName.addEventListener("input", function() {
+                const q = this.value.trim();
+                clearTimeout(timeout);
+                if (q.length < 2) { suggestions.style.display = "none"; return; }
 
-            timeout = setTimeout(() => {
-                fetch(`/Workout/SearchExercises?query=${encodeURIComponent(q)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        suggestions.innerHTML = "";
-                        if (data.length) {
-                            suggestions.style.display = "block";
-                            data.forEach(name => {
-                                const li = document.createElement("li");
-                                li.textContent = name;
-                                li.onclick = () => {
-                                    inName.value = name;
-                                    suggestions.style.display = "none";
-                                };
-                                suggestions.appendChild(li);
-                            });
-                        } else {
-                            suggestions.style.display = "none";
-                        }
-                    });
-            }, 300);
-        });
+                timeout = setTimeout(() => {
+                    fetch(`/Workout/SearchExercises?query=${encodeURIComponent(q)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            suggestions.innerHTML = "";
+                            if (data.length) {
+                                suggestions.style.display = "block";
+                                data.forEach(name => {
+                                    const li = document.createElement("li");
+                                    li.textContent = name;
+                                    li.onclick = () => {
+                                        inName.value = name;
+                                        suggestions.style.display = "none";
+                                    };
+                                    suggestions.appendChild(li);
+                                });
+                            } else {
+                                suggestions.style.display = "none";
+                            }
+                        })
+                        .catch(e => console.error(e));
+                }, 300);
+            });
 
-        document.addEventListener("click", e => {
-            if (e.target !== inName) suggestions.style.display = "none";
-        });
+            document.addEventListener("click", e => {
+                if (e.target !== inName && suggestions) suggestions.style.display = "none";
+            });
+        }
 
-        // --- ГЕНЕРАЦІЯ UUID (КЛЮЧОВИЙ МОМЕНТ ДЛЯ UPSERT) ---
+        // --- ГЕНЕРАЦІЯ UUID ---
         function generateUUID() {
-            if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+            if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+                return crypto.randomUUID();
+            }
             return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
                 (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
             );
         }
 
-        // --- ДОДАВАННЯ КАРТКИ ---
-        btnAdd.addEventListener("click", () => {
-            const name = inName.value.trim();
-            if (!name) return;
+        // --- ДОДАВАННЯ ---
+        if(btnAdd) {
+            btnAdd.addEventListener("click", () => {
+                const name = inName.value.trim();
+                if (!name) return;
 
-            const data = {
-                id: generateUUID(), // Генеруємо ID на клієнті
-                name: name,
-                sets: document.getElementById("mgrSets").value,
-                reps: document.getElementById("mgrReps").value,
-                weight: document.getElementById("mgrWeight").value,
-                duration: document.getElementById("mgrDuration").value
-            };
+                const data = {
+                    id: generateUUID(),
+                    name: name,
+                    sets: document.getElementById("mgrSets").value,
+                    reps: document.getElementById("mgrReps").value,
+                    weight: document.getElementById("mgrWeight").value,
+                    duration: document.getElementById("mgrDuration").value
+                };
 
-            const clone = template.content.cloneNode(true);
-            const card = clone.querySelector(".em-card");
+                const clone = template.content.cloneNode(true);
+                const card = clone.querySelector(".em-card");
 
-            // Заповнення значень
-            card.querySelector(".card-title-text").textContent = data.name;
-            card.querySelector(".inp-id").value = data.id;
-            card.querySelector(".inp-name").value = data.name;
-            card.querySelector(".inp-sets").value = data.sets;
-            card.querySelector(".inp-reps").value = data.reps;
-            card.querySelector(".inp-weight").value = data.weight;
-            card.querySelector(".inp-duration").value = data.duration;
+                card.querySelector(".card-title-text").textContent = data.name;
+                card.querySelector(".inp-id").value = data.id;
+                card.querySelector(".inp-name").value = data.name;
+                card.querySelector(".inp-sets").value = data.sets;
+                card.querySelector(".inp-reps").value = data.reps;
+                card.querySelector(".inp-weight").value = data.weight;
+                card.querySelector(".inp-duration").value = data.duration;
 
-            // Подія видалення
-            card.querySelector(".em-btn-remove").addEventListener("click", removeCard);
+                card.querySelector(".em-btn-remove").addEventListener("click", removeCard);
 
-            container.appendChild(card);
-            
-            // Очистка панелі
-            inName.value = "";
-            
-            reindex();
-            checkEmpty();
-        });
+                container.appendChild(card);
+                inName.value = "";
+
+                reindex();
+                checkEmpty();
+            });
+        }
 
         function removeCard(e) {
             e.target.closest(".em-card").remove();
@@ -209,8 +220,7 @@
             checkEmpty();
         }
 
-        // --- REINDEXING (ДЛЯ ASP.NET BINDING) ---
-        // Переписує name="exercises[0].Name", name="exercises[1].Name" і т.д.
+        // --- REINDEXING ---
         function reindex() {
             const cards = container.querySelectorAll(".em-card");
             cards.forEach((card, index) => {
@@ -229,44 +239,66 @@
         }
 
         function checkEmpty() {
+            if(!container) return;
             const hasItems = container.querySelectorAll(".em-card").length > 0;
-            emptyMsg.style.display = hasItems ? "none" : "block";
+            if(emptyMsg) emptyMsg.style.display = hasItems ? "none" : "block";
         }
 
-        form.addEventListener("submit", function(e) {
-            e.preventDefault();
+        // --- AJAX ЗБЕРЕЖЕННЯ (FIXED) ---
+        if(form) {
+            form.addEventListener("submit", function(e) {
+                e.preventDefault();
 
-            const originalText = btnSave.textContent;
-            btnSave.textContent = "Saving...";
-            btnSave.disabled = true;
-            statusMsg.style.display = "none";
+                // 1. Підготовка UI
+                // Якщо кнопки немає (наприклад на AddExercise сторінці), просто йдемо далі
+                if (btnSave) {
+                    btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+                    btnSave.disabled = true;
+                }
+                if (statusMsg) statusMsg.style.display = "none";
 
-            const formData = new FormData(form);
+                // 2. Гарантуємо правильні індекси перед відправкою
+                reindex();
 
-            fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => {
-                if(res.ok) return res.json();
-                throw new Error("Server Error");
-            })
-            .then(data => {
-                statusMsg.style.display = "inline-block";
-                statusMsg.style.color = "#28a745"; // Green
-                statusMsg.textContent = "Saved Successfully!";
-                setTimeout(() => { statusMsg.style.display = "none"; }, 3000);
-            })
-            .catch(err => {
-                statusMsg.style.display = "inline-block";
-                statusMsg.style.color = "#dc3545"; // Red
-                statusMsg.textContent = "Error saving!";
-                console.error(err);
-            })
-            .finally(() => {
-                btnSave.textContent = originalText;
-                btnSave.disabled = false;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => {
+                    if (res.ok) return res.json();
+                    throw new Error("Server Error");
+                })
+                .then(data => {
+                    // 3. Успіх
+                    if (statusMsg) {
+                        statusMsg.style.display = "inline-block";
+                        statusMsg.style.color = "#28a745"; // Green
+                        statusMsg.innerHTML = '<i class="bi bi-check-circle"></i> Saved!';
+                        setTimeout(() => { statusMsg.style.display = "none"; }, 2000);
+                    }
+
+                    // Повідомляємо батьківську сторінку (Details.cshtml), щоб оновила перегляд
+                    document.dispatchEvent(new CustomEvent('exercises-saved'));
+                })
+                .catch(err => {
+                    // 4. Помилка
+                    console.error(err);
+                    if (statusMsg) {
+                        statusMsg.style.display = "inline-block";
+                        statusMsg.style.color = "#dc3545"; // Red
+                        statusMsg.textContent = "Error saving!";
+                    }
+                })
+                .finally(() => {
+                    // 5. СКИДАННЯ КНОПКИ (Обов'язково)
+                    if (btnSave) {
+                        btnSave.innerHTML = "Save Changes"; // Примусово вертаємо текст
+                        btnSave.disabled = false;
+                    }
+                });
             });
-        });
+        }
     })();
 </script>

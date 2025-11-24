@@ -33,9 +33,9 @@
             @foreach (var workout in day.Workouts)
             {
                                 <a class="workout-card-row"
-                                   asp-controller="Workouts"
+                                   asp-controller="Workout"
                                    asp-action="Details"
-                                   asp-route-id="@workout.Id"
+                                           asp-route-workoutId="@workout.Id"
                                    data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
 
                                     <div class="card-left-info">

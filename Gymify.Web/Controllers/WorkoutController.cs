@@ -107,5 +107,13 @@ namespace Gymify.Web.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetExercisesPartial(Guid workoutId)
+        {
+            var exerciseDtos = await _userExerciseService.GetAllWorkoutExercisesAsync(workoutId);
+
+            return PartialView("_ExerciseListReadOnly", exerciseDtos);
+        }
     }
 }
