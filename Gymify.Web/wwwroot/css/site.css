@@ -955,7 +955,6 @@ a {
 
 /* ExerciseManager */
 
-/* Випадайка пошуку (специфічна для менеджера) */
 .ae-suggestions {
     position: absolute;
     top: 100%;
@@ -983,22 +982,32 @@ a {
             background-color: #f8f9fa;
         }
 
-/* Адаптивна панель додавання */
 .ae-add-panel {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     align-items: flex-end;
     padding-bottom: 20px;
-    /* border-bottom: 1px dashed #ccc;*/
-    margin-bottom: 0px;
+    margin-bottom: 20px;
 }
 
-/* Поля введення в картці */
 .ae-card-inputs-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+}
+
+.ae-empty-state {
+    display: none;
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+    background-color: #fdfdfd;
+    font-weight: 500;
+    margin-bottom: 20px;
 }
 
 
