@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Workout\_EditWorkoutInfo.cshtml" />
     <Content Remove="wwwroot\Images\autumnBackground.gif" />
     <Content Remove="wwwroot\Images\bigWingsGuyIcon.jpg" />
     <Content Remove="wwwroot\Images\blackHoleBackground.gif" />
@@ -65,6 +66,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Workout\_EditWorkoutInfo.cshtml" />
     <None Include="wwwroot\Images\autumnBackground.gif" />
     <None Include="wwwroot\Images\bigWingsGuyIcon.jpg" />
     <None Include="wwwroot\Images\blackHoleBackground.gif" />
@@ -139,6 +141,14 @@
     <ProjectReference Include="..\Gymify.Data\Gymify.Data.csproj" />
     <ProjectReference Include="..\Gymify.Infrastructure\Gymify.Infrastructure.csproj" />
     <ProjectReference Include="..\Gymify.Persistence\Gymify.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Workout\_EditWorkoutInfo.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Workout\_EditWorkoutInfo.cshtml" />
   </ItemGroup>
 
 </Project>

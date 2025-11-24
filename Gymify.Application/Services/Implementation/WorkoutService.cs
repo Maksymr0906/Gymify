@@ -202,6 +202,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             WorkoutId = workout.Id,
             Name = workout.Name,
             Description = workout.Description,
+            Conclusion = workout.Conclusion,
             AuthorName = workout.UserProfile?.ApplicationUser?.UserName ?? "Unknown",
             AuthorId = workout.UserProfileId,
             CreatedAt = workout.CreatedAt,
@@ -220,6 +221,20 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
                 // Items = await _commentService.GetCommentsAsync(workout.Id) 
             }
         };
+    }
+    public async Task UpdateWorkoutInfoAsync(UpdateWorkoutRequestDto dto, Guid userId)
+    {
+        var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(dto.Id);
 
+        if (workout == null) throw new Exception("Workout not found");
+        if (workout.UserProfileId != userId) throw new Exception("Access denied");
+
+        workout.Name = dto.Name;
+        workout.Description = dto.Description;
+        workout.Conclusion = dto.Conclusion;
+        workout.IsPrivate = dto.IsPrivate;
+
+        await _unitOfWork.WorkoutRepository.UpdateAsync(workout);
+        await _unitOfWork.SaveAsync();
     }
 }

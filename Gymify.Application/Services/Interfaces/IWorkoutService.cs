@@ -18,4 +18,5 @@ public interface IWorkoutService
     bool byDescending,
     int page);
     Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentUserId, Guid workoutId);
+    Task UpdateWorkoutInfoAsync(UpdateWorkoutRequestDto dto, Guid userId);
 }

@@ -115,5 +115,20 @@ namespace Gymify.Web.Controllers
 
             return PartialView("_ExerciseListReadOnly", exerciseDtos);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateWorkoutInfo([FromBody] UpdateWorkoutRequestDto dto)
+        {
+            try
+            {
+                var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                await _workoutService.UpdateWorkoutInfoAsync(dto, currentUserId);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

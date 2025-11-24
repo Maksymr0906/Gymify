@@ -13,6 +13,7 @@ public class WorkoutDetailsViewModel
     public string AuthorName { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Conclusion { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public int TotalXP { get; set; }
     public bool IsPrivate { get; set; }

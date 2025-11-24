@@ -65,7 +65,7 @@
                 {
                     foreach (var workout in Model.Workouts)
                     {
-                        <a asp-controller="Workouts" asp-action="Details" asp-route-id="@workout.Id" 
+                        <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id" 
                            class="userProfileTrainLink" 
                            title="@workout.CreatedAt.ToString("g")">
 
