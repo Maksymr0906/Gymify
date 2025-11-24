@@ -272,12 +272,12 @@
                 })
                 .then(data => {
                     // 3. Успіх
-                    if (statusMsg) {
-                        statusMsg.style.display = "inline-block";
-                        statusMsg.style.color = "#28a745"; // Green
-                        statusMsg.innerHTML = '<i class="bi bi-check-circle"></i> Saved!';
-                        setTimeout(() => { statusMsg.style.display = "none"; }, 2000);
-                    }
+                    //if (statusMsg) {
+                    //    statusMsg.style.display = "inline-block";
+                    //    statusMsg.style.color = "#28a745"; // Green
+                    //    statusMsg.innerHTML = '<i class="bi bi-check-circle"></i> Saved!';
+                    //    setTimeout(() => { statusMsg.style.display = "none"; }, 2000);
+                    //}
 
                     // Повідомляємо батьківську сторінку (Details.cshtml), щоб оновила перегляд
                     document.dispatchEvent(new CustomEvent('exercises-saved'));

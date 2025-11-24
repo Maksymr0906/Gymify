@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Add Exercises";
     var workoutId = ViewBag.WorkoutId;
-    var detailsUrl = Url.Action("Details", "Workout", new { workoutId = workoutId });
+    var detailsUrl = Url.Action("Finish", "Workout", new { workoutId = workoutId });
 }
 
 <div class="container py-5">
