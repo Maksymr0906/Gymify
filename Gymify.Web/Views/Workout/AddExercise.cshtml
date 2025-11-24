@@ -10,18 +10,11 @@
         <div class="col-lg-10">
 
             <div class="text-center mb-4">
-                <h1 class="display-6">Наповнення воркауту</h1>
-                <p class="text-muted">Додайте вправи, щоб завершити створення тренування.</p>
+                <h1 class="display-6">Workout exercises</h1>
+                <p class="text-muted">Add exercises, to acomplish workout creation.</p>
             </div>
 
             <partial name="_ExerciseManager" model="Model" />
-
-            <div class="text-center mt-4">
-                <a asp-action="Details" asp-route-workoutId="@ViewBag.WorkoutId" class="text-decoration-none text-secondary">
-                    Завершити пізніше (Перейти до перегляду) &rarr;
-                </a>
-            </div>
-
         </div>
     </div>
 </div>

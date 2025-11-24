@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    <form method="post" asp-action="AddExercisesBatch" asp-controller="Workout">
+    <form id ="mgrForm" method="post" asp-action="AddExercisesBatch" asp-controller="Workout">
         <input type="hidden" name="workoutId" value="@workoutId" />
 
         <div id="mgrList" class="em-list">
@@ -232,5 +232,41 @@
             const hasItems = container.querySelectorAll(".em-card").length > 0;
             emptyMsg.style.display = hasItems ? "none" : "block";
         }
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const originalText = btnSave.textContent;
+            btnSave.textContent = "Saving...";
+            btnSave.disabled = true;
+            statusMsg.style.display = "none";
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if(res.ok) return res.json();
+                throw new Error("Server Error");
+            })
+            .then(data => {
+                statusMsg.style.display = "inline-block";
+                statusMsg.style.color = "#28a745"; // Green
+                statusMsg.textContent = "Saved Successfully!";
+                setTimeout(() => { statusMsg.style.display = "none"; }, 3000);
+            })
+            .catch(err => {
+                statusMsg.style.display = "inline-block";
+                statusMsg.style.color = "#dc3545"; // Red
+                statusMsg.textContent = "Error saving!";
+                console.error(err);
+            })
+            .finally(() => {
+                btnSave.textContent = originalText;
+                btnSave.disabled = false;
+            });
+        });
     })();
 </script>

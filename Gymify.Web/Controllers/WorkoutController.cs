@@ -55,15 +55,19 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddExercisesBatch(Guid workoutId, List<UserExerciseDto> exercises)
+        public async Task<IActionResult> AddExercisesBatch(Guid workoutId, [FromForm] List<UserExerciseDto> exercises)
         {
-            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+            try
+            {
+                var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId);
 
-            // Викликаємо твій сервіс, який робить Upsert (оновлює існуючі, додає нові, видаляє зайві)
-            await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId);
-
-            // Після збереження перекидаємо на сторінку перегляду воркауту
-            return RedirectToAction("Finish");
+                return Ok(new { success = true, message = "Exercise saved!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = "Error when saving: " + ex.Message });
+            }
         }
 
         [HttpGet]
