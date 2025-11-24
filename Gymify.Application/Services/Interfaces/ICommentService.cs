@@ -4,6 +4,6 @@ namespace Gymify.Application.Services.Interfaces;
 
 public interface ICommentService
 {
-    Task CreateCommentAsync(CreateCommentRequestDto model);
+    Task CreateCommentAsync(CommentDto model);
     Task DeleteCommentByIdAsync(Guid commentId);
 }

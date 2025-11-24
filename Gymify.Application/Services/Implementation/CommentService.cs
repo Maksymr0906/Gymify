@@ -9,7 +9,7 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task CreateCommentAsync(CreateCommentRequestDto model)
+    public async Task CreateCommentAsync(CommentDto model)
     {
         var comment = new Comment
         {

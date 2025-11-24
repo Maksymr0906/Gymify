@@ -2,7 +2,7 @@
 
 namespace Gymify.Application.DTOs.Comment;
 
-public class CreateCommentRequestDto
+public class CommentDto
 {
     public string Content { get; set; } = string.Empty;
     public Guid AuthorId { get; set; }

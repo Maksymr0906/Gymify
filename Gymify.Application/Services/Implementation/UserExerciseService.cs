@@ -56,13 +56,76 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
         {
             Id = userExercise.Id,
             Name = userExercise.Name,
-            Type = (int)userExercise.Type,
+            ExerciseType = (int)userExercise.Type,
             Sets = userExercise.Sets,
             Reps = userExercise.Reps,
             Weight = userExercise.Weight,
             Duration = userExercise.Duration,
             EarnedXP = userExercise.EarnedXP,
         };
+    }
+
+    public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> dtos, Guid userId)
+    {
+        var currentExercises = await _unitOfWork.UserExerciseRepository
+            .GetAllAsync(ue => ue.WorkoutId == workoutId);
+
+        var incomingIds = dtos
+            .Where(d => d.Id.HasValue)
+            .Select(d => d.Id.Value)
+            .ToList();
+
+        var exercisesToDelete = currentExercises
+            .Where(dbEx => !incomingIds.Contains(dbEx.Id))
+            .ToList();
+
+        if (exercisesToDelete.Any())
+        {
+            _unitOfWork.UserExerciseRepository.DeleteRange(exercisesToDelete);
+        }
+
+        foreach (var dto in dtos)
+        {
+            dto.WorkoutId = workoutId;
+
+            if (dto.Id.HasValue)
+            {
+                var existingEntity = currentExercises.FirstOrDefault(e => e.Id == dto.Id.Value);
+
+                if (existingEntity != null)
+                {
+                    existingEntity.Sets = dto.Sets;
+                    existingEntity.Reps = dto.Reps;
+                    existingEntity.Weight = dto.Weight; 
+
+                    existingEntity.Duration = dto.Duration.HasValue
+                        ? TimeSpan.FromMinutes(dto.Duration.Value)
+                        : TimeSpan.Zero;
+
+                    if (existingEntity.Exercise != null)
+                    {
+                        existingEntity.EarnedXP = CalculateXp(dto, existingEntity.Exercise);
+                    }
+
+                    await _unitOfWork.UserExerciseRepository.UpdateAsync(existingEntity);
+                }
+            }
+            else
+            {
+                await AddUserExerciseToWorkoutAsync(dto, userId);
+            }
+        }
+
+        await _unitOfWork.SaveAsync();
+    }
+
+    public async Task AddExercisesBatchAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> exercises, Guid currentUserId)
+    {
+        foreach (var dto in exercises)
+        {
+            dto.WorkoutId = workoutId;
+            await AddUserExerciseToWorkoutAsync(dto, currentUserId);
+        }
     }
 
     // переписати
@@ -88,15 +151,6 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
 
         // мінімальне XP, щоб не було нуля
         return (int)Math.Max(xp, userExercise.BaseXP);
-    }
-
-    public async Task AddExercisesBatchAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> exercises, Guid currentUserId)
-    {
-        foreach (var dto in exercises)
-        {
-            dto.WorkoutId = workoutId;
-            await AddUserExerciseToWorkoutAsync(dto, currentUserId);
-        }
     }
 }
 
