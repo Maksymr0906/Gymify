@@ -673,6 +673,167 @@ a {
         background: #f0f0f0;
     }
 
+/* ExerciseManager */
+
+/* Стилі тільки для цього модуля */
+.em-module {
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    font-family: sans-serif;
+}
+
+/* Панель додавання */
+.em-add-panel {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #ccc;
+}
+
+.em-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.em-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.em-input {
+    /* Основні візуальні стилі */
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    /* 👇 ОЦІ ТРИ РЯДКИ ВИРІШУЮТЬ ПРОБЛЕМУ: */
+    width: 100%; /* Займає всю доступну ширину */
+    box-sizing: border-box; /* Рамки та відступи входять у ці 100% (не додаються ззовні) */
+    max-width: 100%; /* Запобіжник, щоб точно не виліз */
+}
+
+    .em-input:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+.em-input-name {
+    width: 250px;
+    flex-grow: 1;
+}
+
+.em-input-small {
+    width: 70px;
+}
+
+.em-btn {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+}
+
+.em-btn-add {
+    background-color: #28a745;
+}
+
+    .em-btn-add:hover {
+        background-color: #218838;
+    }
+
+.em-btn-save {
+    background-color: #007bff;
+    font-size: 16px;
+    padding: 12px 24px;
+}
+
+.em-btn-cancel {
+    background-color: #6c757d;
+    margin-right: 10px;
+}
+
+.em-btn-remove {
+    background-color: #dc3545;
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-left: auto;
+}
+
+/* Список карток */
+.em-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.em-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.em-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    color: #333;
+}
+
+.em-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+/* Пошук */
+.em-search-wrapper {
+    position: relative;
+}
+
+.em-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+    .em-suggestions li {
+        padding: 8px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .em-suggestions li:hover {
+            background-color: #f8f9fa;
+        }
+
+
 /* Profile */
 
 /* 1. ПОВНОЕКРАННА ОБГОРТКА ДЛЯ ФОНУ (ID="profileRoot") */

@@ -1,0 +1,236 @@
+﻿@using Gymify.Application.DTOs.UserExercise
+@model List<UserExerciseDto>
+
+@{
+    // Отримуємо ID воркауту. 
+    // Якщо модуль викликається з Details, там передається ViewData["WorkoutId"].
+    // Якщо з AddExercise, там ViewBag.WorkoutId.
+    var workoutId = ViewData["WorkoutId"] ?? ViewBag.WorkoutId;
+}
+
+<div class="em-module">
+    <div class="em-add-panel">
+        <div class="em-form-group em-search-wrapper" style="flex-grow:1;">
+            <label class="em-label">Exercise Name</label>
+            <input type="text" id="mgrName" class="em-input em-input-name" placeholder="Search..." autocomplete="off">
+            <ul id="mgrSuggestions" class="em-suggestions" style="display:none;"></ul>
+        </div>
+        <div class="em-form-group">
+            <label class="em-label">Sets</label>
+            <input type="number" id="mgrSets" class="em-input em-input-small" value="3">
+        </div>
+        <div class="em-form-group">
+            <label class="em-label">Reps</label>
+            <input type="number" id="mgrReps" class="em-input em-input-small" value="12">
+        </div>
+        <div class="em-form-group">
+            <label class="em-label">Kg</label>
+            <input type="number" id="mgrWeight" class="em-input em-input-small" value="0" step="0.5">
+        </div>
+        <div class="em-form-group">
+            <label class="em-label">Min</label>
+            <input type="number" id="mgrDuration" class="em-input em-input-small" value="0">
+        </div>
+        <div class="em-form-group">
+             <label class="em-label">&nbsp;</label>
+             <button type="button" id="mgrBtnAdd" class="em-btn em-btn-add">Add</button>
+        </div>
+    </div>
+
+    <form method="post" asp-action="AddExercisesBatch" asp-controller="Workout">
+        <input type="hidden" name="workoutId" value="@workoutId" />
+
+        <div id="mgrList" class="em-list">
+            <div id="mgrEmpty" style="display:none; grid-column: 1/-1; text-align:center; color:#999; padding:20px;">
+                No exercises added yet.
+            </div>
+
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <div class="em-card">
+                    <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
+                    <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
+                    
+                    <div class="em-card-header">
+                        <span>@Model[i].Name</span>
+                        <button type="button" class="em-btn em-btn-remove">Remove</button>
+                    </div>
+                    
+                    <div class="em-card-body">
+                        <div class="em-form-group">
+                            <label class="em-label">Sets</label>
+                            <input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="em-input inp-sets" />
+                        </div>
+                        <div class="em-form-group">
+                            <label class="em-label">Reps</label>
+                            <input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="em-input inp-reps" />
+                        </div>
+                        <div class="em-form-group">
+                            <label class="em-label">Kg</label>
+                            <input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="em-input inp-weight" step="0.5" />
+                        </div>
+                        <div class="em-form-group">
+                            <label class="em-label">Min</label>
+                            <input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="em-input inp-duration" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div style="text-align: right; margin-top: 20px;">
+            <button type="button" id="mgrBtnCancel" class="em-btn em-btn-cancel">Cancel</button>
+            <button type="submit" class="em-btn em-btn-save">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<template id="mgrTemplate">
+    <div class="em-card">
+        <input type="hidden" class="inp-id">
+        <input type="hidden" class="inp-name">
+        
+        <div class="em-card-header">
+            <span class="card-title-text"></span>
+            <button type="button" class="em-btn em-btn-remove">Remove</button>
+        </div>
+        
+        <div class="em-card-body">
+            <div class="em-form-group"><label class="em-label">Sets</label><input type="number" class="em-input inp-sets"></div>
+            <div class="em-form-group"><label class="em-label">Reps</label><input type="number" class="em-input inp-reps"></div>
+            <div class="em-form-group"><label class="em-label">Kg</label><input type="number" class="em-input inp-weight" step="0.5"></div>
+            <div class="em-form-group"><label class="em-label">Min</label><input type="number" class="em-input inp-duration"></div>
+        </div>
+    </div>
+</template>
+
+<script>
+    (function() {
+        // Отримуємо елементи
+        const container = document.getElementById("mgrList");
+        const emptyMsg = document.getElementById("mgrEmpty");
+        const template = document.getElementById("mgrTemplate");
+        
+        const inName = document.getElementById("mgrName");
+        const suggestions = document.getElementById("mgrSuggestions");
+        const btnAdd = document.getElementById("mgrBtnAdd");
+
+        // Ініціалізація
+        checkEmpty();
+        
+        // Підв'язка видалення для вже існуючих (серверних) карток
+        container.querySelectorAll(".em-btn-remove").forEach(btn => {
+            btn.addEventListener("click", removeCard);
+        });
+
+        // --- ЛОГІКА ПОШУКУ ---
+        let timeout;
+        inName.addEventListener("input", function() {
+            const q = this.value.trim();
+            clearTimeout(timeout);
+            if (q.length < 2) { suggestions.style.display = "none"; return; }
+
+            timeout = setTimeout(() => {
+                fetch(`/Workout/SearchExercises?query=${encodeURIComponent(q)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestions.innerHTML = "";
+                        if (data.length) {
+                            suggestions.style.display = "block";
+                            data.forEach(name => {
+                                const li = document.createElement("li");
+                                li.textContent = name;
+                                li.onclick = () => {
+                                    inName.value = name;
+                                    suggestions.style.display = "none";
+                                };
+                                suggestions.appendChild(li);
+                            });
+                        } else {
+                            suggestions.style.display = "none";
+                        }
+                    });
+            }, 300);
+        });
+
+        document.addEventListener("click", e => {
+            if (e.target !== inName) suggestions.style.display = "none";
+        });
+
+        // --- ГЕНЕРАЦІЯ UUID (КЛЮЧОВИЙ МОМЕНТ ДЛЯ UPSERT) ---
+        function generateUUID() {
+            if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+
+        // --- ДОДАВАННЯ КАРТКИ ---
+        btnAdd.addEventListener("click", () => {
+            const name = inName.value.trim();
+            if (!name) return;
+
+            const data = {
+                id: generateUUID(), // Генеруємо ID на клієнті
+                name: name,
+                sets: document.getElementById("mgrSets").value,
+                reps: document.getElementById("mgrReps").value,
+                weight: document.getElementById("mgrWeight").value,
+                duration: document.getElementById("mgrDuration").value
+            };
+
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector(".em-card");
+
+            // Заповнення значень
+            card.querySelector(".card-title-text").textContent = data.name;
+            card.querySelector(".inp-id").value = data.id;
+            card.querySelector(".inp-name").value = data.name;
+            card.querySelector(".inp-sets").value = data.sets;
+            card.querySelector(".inp-reps").value = data.reps;
+            card.querySelector(".inp-weight").value = data.weight;
+            card.querySelector(".inp-duration").value = data.duration;
+
+            // Подія видалення
+            card.querySelector(".em-btn-remove").addEventListener("click", removeCard);
+
+            container.appendChild(card);
+            
+            // Очистка панелі
+            inName.value = "";
+            
+            reindex();
+            checkEmpty();
+        });
+
+        function removeCard(e) {
+            e.target.closest(".em-card").remove();
+            reindex();
+            checkEmpty();
+        }
+
+        // --- REINDEXING (ДЛЯ ASP.NET BINDING) ---
+        // Переписує name="exercises[0].Name", name="exercises[1].Name" і т.д.
+        function reindex() {
+            const cards = container.querySelectorAll(".em-card");
+            cards.forEach((card, index) => {
+                setName(card, ".inp-id", `exercises[${index}].Id`);
+                setName(card, ".inp-name", `exercises[${index}].Name`);
+                setName(card, ".inp-sets", `exercises[${index}].Sets`);
+                setName(card, ".inp-reps", `exercises[${index}].Reps`);
+                setName(card, ".inp-weight", `exercises[${index}].Weight`);
+                setName(card, ".inp-duration", `exercises[${index}].DurationMinutes`);
+            });
+        }
+
+        function setName(parent, selector, newName) {
+            const el = parent.querySelector(selector);
+            if (el) el.name = newName;
+        }
+
+        function checkEmpty() {
+            const hasItems = container.querySelectorAll(".em-card").length > 0;
+            emptyMsg.style.display = hasItems ? "none" : "block";
+        }
+    })();
+</script>

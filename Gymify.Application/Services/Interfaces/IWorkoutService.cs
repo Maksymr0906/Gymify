@@ -1,5 +1,6 @@
 ﻿using Gymify.Application.DTOs.Workout;
 using Gymify.Application.DTOs.WorkoutsFeed;
+using Gymify.Application.ViewModels.Workout;
 using Gymify.Data.Entities;
 using System;
 
@@ -16,4 +17,5 @@ public interface IWorkoutService
     bool onlyMy,
     bool byDescending,
     int page);
+    Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentUserId, Guid workoutId);
 }

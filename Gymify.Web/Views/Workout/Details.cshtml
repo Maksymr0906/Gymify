@@ -1,0 +1,132 @@
+﻿@using Gymify.Application.ViewModels.Workout
+@model WorkoutDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container py-4">
+    <div class="mb-5 border-bottom pb-4">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="display-5 fw-bold">@Model.Name</h1>
+                <div class="text-muted mb-3">
+                    Created by <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-success fs-6">XP: @Model.TotalXP</span>
+                    @if (Model.IsPrivate)
+                    {
+                        <span class="badge bg-secondary fs-6"><i class="bi bi-lock"></i> Private</span>
+                    }
+                </div>
+            </div>
+
+            @if (Model.IsOwner)
+            {
+                <button class="btn btn-outline-secondary btn-sm">Edit Info</button>
+            }
+        </div>
+        <p class="lead mt-4">@Model.Description</p>
+    </div>
+
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Workout Plan</h3>
+
+            @if (Model.IsOwner)
+            {
+                <button id="btnToggleEdit" class="btn btn-warning px-4">
+                    <i class="bi bi-pencil-square"></i> Edit Exercises
+                </button>
+            }
+        </div>
+
+        <div id="viewModeContainer">
+            @if (!Model.Exercises.Any())
+            {
+                <div class="text-center text-muted py-4 border rounded bg-light">
+                    No exercises added yet.
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                    @foreach (var ex in Model.Exercises)
+                    {
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary fw-bold">@ex.Name</h5>
+                                    <hr class="my-2 opacity-25">
+                                    <div class="d-flex justify-content-between text-muted small mt-3">
+                                        <span><i class="bi bi-layers"></i> <strong>@ex.Sets</strong> sets</span>
+                                        <span><i class="bi bi-arrow-repeat"></i> <strong>@ex.Reps</strong> reps</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-muted small mt-2">
+                                        @if (ex.Weight > 0)
+                                        {
+                                            <span><i class="bi bi-hdd"></i> @ex.Weight kg</span>
+                                        }
+                                        @if (ex.DurationMinutes > 0)
+                                        {
+                                            <span><i class="bi bi-clock"></i> @ex.DurationMinutes min</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div id="editModeContainer" style="display: none;">
+            @if (Model.IsOwner)
+            {
+                <partial name="_ExerciseManager"
+                         model="Model.Exercises"
+                         view-data='@new ViewDataDictionary(ViewData) { ["WorkoutId"] = Model.WorkoutId }' />
+            }
+        </div>
+    </div>
+
+    <div class="mt-5 pt-4 border-top">
+        <h3>Comments</h3>
+        <p class="text-muted">Comments module placeholder...</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btnToggle = document.getElementById("btnToggleEdit");
+            const viewContainer = document.getElementById("viewModeContainer");
+            const editContainer = document.getElementById("editModeContainer");
+
+            // Знаходимо кнопку Cancel всередині Partial View (вона має ID mgrBtnCancel)
+            // Оскільки Partial рендериться сервером, елемент вже є в DOM
+            const btnCancelInternal = document.getElementById("mgrBtnCancel");
+
+            if (btnToggle) {
+                btnToggle.addEventListener("click", () => {
+                    // Ховаємо перегляд, показуємо редактор, ховаємо кнопку Edit
+                    viewContainer.style.display = "none";
+                    editContainer.style.display = "block";
+                    btnToggle.style.display = "none";
+                });
+            }
+
+            if (btnCancelInternal) {
+                btnCancelInternal.addEventListener("click", () => {
+                    // Повертаємо все назад
+                    // Примітка: зміни в інпутах залишаться, поки сторінка не перезавантажиться.
+                    // Якщо треба скинути - window.location.reload();
+                    viewContainer.style.display = "block";
+                    editContainer.style.display = "none";
+                    btnToggle.style.display = "block";
+                });
+            }
+        });
+    </script>
+}

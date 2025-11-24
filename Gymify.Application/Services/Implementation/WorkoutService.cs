@@ -1,7 +1,9 @@
 ﻿using Gymify.Application.DTOs.Achievement;
+using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.DTOs.Workout;
 using Gymify.Application.DTOs.WorkoutsFeed;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Application.ViewModels.Workout;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -169,5 +171,55 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         }
 
         return groupedWorkouts;
+    }
+
+    public async Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentUserId, Guid workoutId)
+    {
+        var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
+        if (workout == null) return null; // це треба якось хендлити на фронті
+
+        if (workout.IsPrivate && workout.UserProfileId != currentUserId)
+        {
+            return null; // це треба якось хендлити на фронті
+        }
+        var exerciseEntities = await _unitOfWork.UserExerciseRepository
+            .GetAllByWorkoutIdAsync(workoutId);
+
+        var exerciseDtos = exerciseEntities.Select(e => new UserExerciseDto
+        {
+            Id = e.Id,
+            WorkoutId = e.WorkoutId,
+            Name = e.Name,
+            Sets = e.Sets,
+            Reps = e.Reps,
+            Weight = e.Weight,
+            Duration = e.Duration,
+            EarnedXP = e.EarnedXP
+        }).ToList();
+
+        return new WorkoutDetailsViewModel
+        {
+            WorkoutId = workout.Id,
+            Name = workout.Name,
+            Description = workout.Description,
+            AuthorName = workout.UserProfile?.ApplicationUser?.UserName ?? "Unknown",
+            AuthorId = workout.UserProfileId,
+            CreatedAt = workout.CreatedAt,
+            TotalXP = workout.TotalXP,
+            IsPrivate = workout.IsPrivate,
+
+            IsOwner = (workout.UserProfileId == currentUserId),
+
+            Exercises = exerciseDtos,
+
+            Comments = new CommentsSectionViewModel
+            {
+                EntityId = workout.Id,
+                EntityType = "Workout",
+                // Тут ти пізніше викличеш сервіс коментарів:
+                // Items = await _commentService.GetCommentsAsync(workout.Id) 
+            }
+        };
+
     }
 }

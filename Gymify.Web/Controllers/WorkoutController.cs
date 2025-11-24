@@ -1,6 +1,7 @@
 ﻿using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Application.ViewModels.Workout;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -58,9 +59,11 @@ namespace Gymify.Web.Controllers
         {
             var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
 
+            // Викликаємо твій сервіс, який робить Upsert (оновлює існуючі, додає нові, видаляє зайві)
             await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId);
 
-            return RedirectToAction("Finish", new { workoutId });
+            // Після збереження перекидаємо на сторінку перегляду воркауту
+            return RedirectToAction("Finish");
         }
 
         [HttpGet]
@@ -89,6 +92,16 @@ namespace Gymify.Web.Controllers
         {
             await _workoutService.CompleteWorkoutAsync(dto);
             return RedirectToAction("Index", "Main");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid workoutId)
+        {
+            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
+            var model = await _workoutService.GetWorkoutDetailsViewModel(currentUserId, workoutId);
+
+            return View(model);
         }
     }
 }
