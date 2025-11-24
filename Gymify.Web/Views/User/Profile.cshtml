@@ -406,29 +406,61 @@
             e.stopPropagation();
             if (!isEditMode) { enterEditMode(); return; }
 
+            // Блокуємо кнопку
             editBtn.disabled = true;
             editBtn.innerText = 'Saving...';
 
-            const payload = {
-                name: document.getElementById('nameInput').value.trim(),
-                titleId: selectedTitleId,
-                avatarId: selectedAvatarId,
-                frameId: selectedFrameId,
-                backgroundId: selectedBackgroundId
-            };
-
+            // Отримуємо поточні значення
+            const currentName = document.getElementById('nameInput').value.trim();
+            
             try {
-                const res = await fetch('/updateProfile', {
+                // ---------------------------------------------------------
+                // 1. ОНОВЛЕННЯ ІМЕНІ (Якщо воно змінилось)
+                // ---------------------------------------------------------
+                if (currentName !== original.name) {
+                    // Використовуємо FormData для передачі простого рядка
+                    const nameData = new FormData();
+                    nameData.append('updatedUserName', currentName);
+
+                    // Замініть '/UserProfile/UpdateName' на правильний шлях до вашого контролера
+                    const nameRes = await fetch('/updateUserName', {
+                        method: 'POST',
+                        body: nameData
+                    });
+
+                    if (!nameRes.ok) throw new Error("Failed to update name");
+                }
+
+                // ---------------------------------------------------------
+                // 2. ОНОВЛЕННЯ ЕКІПІРУВАННЯ (Аватар, Рамка, Фон, Титул)
+                // ---------------------------------------------------------
+                // Перевіряємо, чи були зміни в візуалі, щоб не слати зайвий запит (опціонально)
+                // Але поки лишаємо як було, щоб зберегти логіку пікера
+                
+                const equipmentPayload = {
+                    // name: currentName, // Ім'я ми вже оновили окремо, тут можна не слати або слати як дубль
+                    titleId: selectedTitleId,
+                    avatarId: selectedAvatarId,
+                    frameId: selectedFrameId,
+                    backgroundId: selectedBackgroundId
+                };
+
+                const equipRes = await fetch('/updateProfile', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(equipmentPayload)
                 });
-                if (!res.ok) throw new Error(await res.text());
+
+                if (!equipRes.ok) throw new Error(await equipRes.text());
+
+                // Успіх - перезавантажуємо сторінку
                 location.reload();
+
             } catch (err) {
+                console.error(err);
                 alert('Error: ' + err.message);
                 editBtn.disabled = false;
-                editBtn.innerText = 'Save failed';
+                editBtn.innerText = 'Save changes'; // Повертаємо текст кнопки
             }
         });
 

@@ -19,4 +19,16 @@ public class UserProfileRepository(GymifyDbContext context)
             .FirstOrDefaultAsync(u => u.Id == userProfileId);
     }
 
+    public async Task UpdateUserNameAsync(Guid userProfileId, string userName)
+    {
+        var user = await Entities
+            .Include(u => u.ApplicationUser)
+            .FirstOrDefaultAsync(u => u.Id == userProfileId);
+
+        if (user == null) throw new Exception("When we searched for application user by profileId we get null, in UpdateUserNameAsync()");
+
+        user.ApplicationUser!.UserName = userName;
+
+        await UpdateAsync(user); // це не так робиться, треба applicationUserRepo
+    }
 }

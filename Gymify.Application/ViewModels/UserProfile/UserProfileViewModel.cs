@@ -15,6 +15,7 @@ public class UserProfileViewModel
     public Guid UserProfileId { get; set; }
     public int Level { get; set; } = 0;
     public string UserName { get; set; } = "Name";
+    public string UpdatedUserName { get; set; } = "New Name";
     public string Title { get; set; } = "Title";
     public bool Editable { get; set; } = false;
     public List<AchievementDto> Achievements { get; set; }

@@ -178,4 +178,8 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
         };
     }
 
+    public async Task UpdateUserNameAsync(Guid userProfileId, string userName)
+    {
+        await _unitOfWork.UserProfileRepository.UpdateUserNameAsync(userProfileId, userName);
+    }
 }

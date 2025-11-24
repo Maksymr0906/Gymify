@@ -73,6 +73,22 @@ namespace Gymify.Web.Controllers
             return Ok(result);
         }
 
+        [HttpPost("updateUserName")]
+        public async Task<IActionResult> UpdateName([FromForm] string updatedUserName)
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                await _userProfileService.UpdateUserNameAsync(userId, updatedUserName);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("updateProfile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserEquipmentDto dto)
         {
