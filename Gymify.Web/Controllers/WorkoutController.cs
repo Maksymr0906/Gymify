@@ -40,6 +40,23 @@ namespace Gymify.Web.Controllers
             TempData["WorkoutId"] = workout.Id.ToString();
             return RedirectToAction("AddExercise");
         }
+        
+        [HttpPost]
+        public async Task<IActionResult> RemoveWorkout(Guid workoutId)
+        {
+            try
+            {
+                var userProfileId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
+                await _workoutService.RemoveWorkoutAsync(userProfileId, workoutId);
+
+                return RedirectToAction("Index", "Main");
+            }
+            catch
+            {
+                return RedirectToAction("Index", "Main"); // треба якось хендлити
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> AddExercise(Guid? workoutId)

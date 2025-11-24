@@ -3,18 +3,34 @@
     ViewData["Title"] = "Finish Workout";
 }
 
-<div class="container mt-4">
-    <h1>Finish Workout</h1>
+<div class="ae-page-container">
+    <div style="max-width: 600px; margin: 0 auto;">
 
-    <form method="post" asp-action="Finish">
-        <input type="hidden" asp-for="WorkoutId" />
-        <input type="hidden" asp-for="UserProfileId" />
-
-        <div class="mb-3">
-            <label asp-for="Conclusions" class="form-label">Conclusions</label>
-            <textarea asp-for="Conclusions" class="form-control" rows="4"></textarea>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 class="ae-page-title">Finish Workout</h1>
+            <p class="ae-lead-text ae-text-muted">Great job! Summarize your session before finishing.</p>
         </div>
 
-        <button type="submit" class="authButton">Complete Workout</button>
-    </form>
+        <div class="ae-card-item" style="padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <form method="post" asp-action="Finish">
+                <input type="hidden" asp-for="WorkoutId" />
+                <input type="hidden" asp-for="UserProfileId" />
+
+                <div class="ae-mb-20">
+                    <label asp-for="Conclusions" class="ae-text-muted" style="font-weight: 600; margin-bottom: 8px; display: block;">
+                        Conclusions (Optional)
+                    </label>
+                    <textarea asp-for="Conclusions" 
+                              class="ae-input-std ae-textarea-std" 
+                              rows="6" 
+                              placeholder="Write your thoughts here (e.g., 'Personal best on bench press', 'Need to improve form on squats')..."></textarea>
+                </div>
+
+                <button type="submit" class="ae-btn ae-btn-success ae-w-100" style="padding: 12px; font-size: 1.1rem;">
+                    Complete Workout <i class="bi bi-trophy-fill" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+        </div>
+
+    </div>
 </div>

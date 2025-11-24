@@ -237,4 +237,13 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         await _unitOfWork.WorkoutRepository.UpdateAsync(workout);
         await _unitOfWork.SaveAsync();
     }
+    
+    public async Task RemoveWorkoutAsync(Guid userId, Guid workoutId)
+    {
+        var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
+        if (workout.UserProfileId != userId) throw new Exception("Access denided");
+
+        await _unitOfWork.WorkoutRepository.DeleteByIdAsync(workoutId);
+        await _unitOfWork.SaveAsync();
+    }
 }
