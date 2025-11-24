@@ -5,6 +5,6 @@ namespace Gymify.Application.Services.Interfaces;
 public interface IUserExersiceService
 {
     Task<UserExerciseDto> AddUserExerciseToWorkoutAsync(AddUserExerciseToWorkoutRequestDto model, Guid currentUserId);
-    Task SyncWorkoutExercisesAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> exercises, Guid userId);
+    Task SyncWorkoutExercisesAsync(Guid workoutId, List<UserExerciseDto> exercises, Guid userId);
     Task AddExercisesBatchAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> exercises, Guid currentUserId);
 }
