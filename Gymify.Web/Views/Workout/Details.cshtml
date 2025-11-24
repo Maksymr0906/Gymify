@@ -6,69 +6,69 @@
     ViewData["Title"] = Model.Name;
 }
 
-<div class="container py-4">
+<div class="ae-page-container">
 
-    <div class="mb-5 border-bottom pb-4">
-        <div class="d-flex justify-content-between align-items-start">
-            <div style="flex-grow: 1; margin-right: 20px;">
+    <div class="ae-header-section">
+        <div class="ae-flex-row ae-justify-between ae-align-start">
+            <div style="flex: 1; margin-right: 20px;">
 
-                <h1 id="viewName" class="display-5 fw-bold text-primary mb-2">@Model.Name</h1>
-                <input id="inputName" type="text" class="form-control form-control-lg mb-2" value="@Model.Name" style="display:none;" placeholder="Workout Name" />
+                <h1 id="viewName" class="ae-page-title">@Model.Name</h1>
+                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="Workout Name" />
 
-                <div class="text-muted mb-3 d-flex align-items-center gap-2">
-                    <span>Created by <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                <div class="ae-text-muted ae-mt-20">
+                    Created by <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
                 </div>
 
-                <div class="d-flex gap-2 align-items-center mb-3">
-                    <span class="badge bg-success fs-6">XP: @Model.TotalXP</span>
+                <div class="ae-flex-row ae-align-center ae-gap-sm ae-mt-20">
+                    <span class="ae-badge ae-badge-xp">XP: @Model.TotalXP</span>
 
-                    <span id="viewPrivacy" class="badge bg-secondary fs-6" style="@(Model.IsPrivate ? "" : "display:none")">
-                        <i class="bi bi-lock-fill"></i> Private
+                    <span id="viewPrivacy" class="ae-badge ae-badge-private @(Model.IsPrivate ? "" : "ae-hidden")">
+                        Private
                     </span>
 
-                    <div id="inputPrivacyWrapper" class="form-check form-switch" style="display:none;">
-                        <input class="form-check-input" type="checkbox" id="inputPrivacy" @(Model.IsPrivate ? "checked" : "")>
-                        <label class="form-check-label small text-muted" for="inputPrivacy">Private (Visible only to me)</label>
+                    <div id="inputPrivacyWrapper" class="ae-toggle-wrapper ae-hidden">
+                        <input type="checkbox" id="inputPrivacy" class="ae-toggle-input" @(Model.IsPrivate ? "checked" : "")>
+                        <label for="inputPrivacy" class="ae-text-muted">Private Mode</label>
                     </div>
                 </div>
             </div>
 
             @if (Model.IsOwner)
             {
-                    <div class="d-flex gap-2">
-                        <button id="btnCancelInfo" class="btn btn-secondary btn-sm" style="display:none;">Cancel</button>
-                        <button id="btnEditInfo" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-pencil"></i> Edit Info
-                        </button>
+                    <div class="ae-flex-row ae-gap-sm">
+                        <button id="btnCancelInfo" class="ae-btn ae-btn-outline ae-hidden">Cancel</button>
+                        <button id="btnEditInfo" class="ae-btn ae-btn-outline">Edit Info</button>
                     </div>
             }
         </div>
 
-        <div class="mt-4">
-            <div id="viewDescription" class="lead" style="white-space: pre-wrap;">@Model.Description</div>
-            <textarea id="inputDescription" class="form-control mb-3" rows="3" style="display:none;" placeholder="Describe your workout...">@Model.Description</textarea>
+        <div class="ae-mt-20">
+            <div id="viewDescription" class="ae-lead-text" style="white-space: pre-wrap;">@Model.Description</div>
+            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="Description...">@Model.Description</textarea>
         </div>
 
-        <div class="mt-3">
-            <div id="viewConclusionWrapper" class="alert alert-light border" style="@(string.IsNullOrEmpty(Model.Conclusion) ? "display:none" : "")">
-                <h6 class="fw-bold text-muted"><i class="bi bi-chat-left-quote"></i> Conclusion:</h6>
-                <p id="viewConclusion" class="mb-0 fst-italic" style="white-space: pre-wrap;">@Model.Conclusion</p>
+        <div class="ae-mt-20">
+            <div id="viewConclusionWrapper" class="ae-conclusion-box @(string.IsNullOrEmpty(Model.Conclusion) ? "ae-hidden" : "")">
+                <strong class="ae-text-muted">Conclusion:</strong>
+                <p id="viewConclusion" style="margin: 5px 0 0 0; font-style: italic;">@Model.Conclusion</p>
             </div>
 
-            <div id="inputConclusionWrapper" style="display:none;">
-                <label class="form-label fw-bold text-muted small">Conclusion</label>
-                <textarea id="inputConclusion" class="form-control" rows="2" placeholder="How did it go?">@Model.Conclusion</textarea>
+            <div id="inputConclusionWrapper" class="ae-hidden">
+                <label class="ae-text-muted" style="font-size:0.85rem; font-weight:bold;">Conclusion</label>
+                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="How did it go?">@Model.Conclusion</textarea>
             </div>
         </div>
     </div>
 
-    <div class="mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3>Workout Plan</h3>
+    <div class="ae-separator"></div>
+
+    <div class="ae-exercises-section">
+        <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20">
+            <h3 class="ae-section-title">Workout Plan</h3>
             @if (Model.IsOwner)
             {
-                    <button id="btnToggleEdit" class="btn btn-warning px-4">
-                        <i class="bi bi-pencil-square"></i> Edit Exercises
+                    <button id="btnToggleEdit" class="ae-btn ae-btn-warning">
+                        Edit Exercises
                     </button>
             }
         </div>
@@ -77,7 +77,7 @@
             <partial name="_ExerciseListReadOnly" model="Model.Exercises" />
         </div>
 
-        <div id="editModeContainer" style="display: none;">
+        <div id="editModeContainer" class="ae-hidden">
             @if (Model.IsOwner)
             {
                     <partial name="_ExerciseManager" 
@@ -87,20 +87,20 @@
         </div>
     </div>
 
-    <div class="mt-5 pt-4 border-top">
-        <h3>Comments</h3>
-        <p class="text-muted">Comments module placeholder...</p>
+    <div class="ae-separator"></div>
+
+    <div class="ae-comments-section">
+        <h3 class="ae-section-title ae-mb-20">Comments</h3>
+        <p class="ae-text-muted">Comments module placeholder...</p>
     </div>
 </div>
 
 @section Scripts {
         <script>
             document.addEventListener("DOMContentLoaded", () => {
-                // --- 1. ЛОГІКА РЕДАГУВАННЯ ІНФО (HEADER) ---
                 const btnEdit = document.getElementById("btnEditInfo");
                 const btnCancel = document.getElementById("btnCancelInfo");
 
-                // Елементи (View / Input)
                 const els = {
                     name: { view: document.getElementById("viewName"), input: document.getElementById("inputName") },
                     desc: { view: document.getElementById("viewDescription"), input: document.getElementById("inputDescription") },
@@ -108,22 +108,13 @@
                     priv: { view: document.getElementById("viewPrivacy"), inputWrapper: document.getElementById("inputPrivacyWrapper"), input: document.getElementById("inputPrivacy") }
                 };
 
-                let isEditing = false;
-                // Зберігаємо оригінальні значення для Cancel
-                const originalValues = {
-                    name: els.name.input.value,
-                    desc: els.desc.input.value,
-                    conc: els.conc.input.value,
-                    priv: els.priv.input.checked
-                };
+                let originalValues = {};
 
                 if (btnEdit) {
                     btnEdit.addEventListener("click", async () => {
-                        if (!isEditing) {
-                            // >>> ВХІД У РЕЖИМ РЕДАГУВАННЯ
+                        if (btnEdit.innerText === "Edit Info") {
                             enterEditMode();
                         } else {
-                            // >>> ЗБЕРЕЖЕННЯ (SAVE)
                             await saveChanges();
                         }
                     });
@@ -131,65 +122,74 @@
 
                 if (btnCancel) {
                     btnCancel.addEventListener("click", () => {
-                        // Відновлюємо старі значення
-                        els.name.input.value = originalValues.name;
-                        els.desc.input.value = originalValues.desc;
-                        els.conc.input.value = originalValues.conc;
-                        els.priv.input.checked = originalValues.priv;
+                        restoreValues();
                         exitEditMode();
                     });
                 }
 
                 function enterEditMode() {
-                    isEditing = true;
+                    originalValues = {
+                        name: els.name.input.value,
+                        desc: els.desc.input.value,
+                        conc: els.conc.input.value,
+                        priv: els.priv.input.checked
+                    };
 
-                    // Перемикання видимості
-                    toggleVisibility(true);
-
-                    // Зміна кнопок
-                    btnEdit.innerHTML = '<i class="bi bi-check-lg"></i> Save Info';
-                    btnEdit.classList.replace("btn-outline-secondary", "btn-success");
-                    btnCancel.style.display = "inline-block";
+                    toggleVis(true);
+                    btnEdit.innerText = "Save Info";
+                    btnEdit.classList.remove("ae-btn-outline");
+                    btnEdit.classList.add("ae-btn-success");
+                    btnCancel.classList.remove("ae-hidden");
                 }
 
                 function exitEditMode() {
-                    isEditing = false;
-
-                    // Перемикання видимості назад
-                    toggleVisibility(false);
-
-                    // Повернення кнопок
-                    btnEdit.innerHTML = '<i class="bi bi-pencil"></i> Edit Info';
-                    btnEdit.classList.replace("btn-success", "btn-outline-secondary");
+                    toggleVis(false);
+                    btnEdit.innerText = "Edit Info";
+                    btnEdit.classList.add("ae-btn-outline");
+                    btnEdit.classList.remove("ae-btn-success");
                     btnEdit.disabled = false;
-                    btnCancel.style.display = "none";
+                    btnCancel.classList.add("ae-hidden");
                 }
 
-                function toggleVisibility(editMode) {
-                    // Name
-                    els.name.view.style.display = editMode ? "none" : "block";
-                    els.name.input.style.display = editMode ? "block" : "none";
+                function toggleVis(isEdit) {
+                    els.name.view.classList.toggle("ae-hidden", isEdit);
+                    els.name.input.classList.toggle("ae-hidden", !isEdit);
 
-                    // Desc
-                    els.desc.view.style.display = editMode ? "none" : "block";
-                    els.desc.input.style.display = editMode ? "block" : "none";
+                    els.desc.view.classList.toggle("ae-hidden", isEdit);
+                    els.desc.input.classList.toggle("ae-hidden", !isEdit);
 
-                    // Conclusion (View ховаємо, якщо пусто, але в Edit завжди показуємо Input)
-                    els.conc.viewWrapper.style.display = (!editMode && originalValues.conc) ? "block" : "none";
-                    els.conc.inputWrapper.style.display = editMode ? "block" : "none";
+                    if(isEdit) {
+                        els.conc.viewWrapper.classList.add("ae-hidden");
+                        els.conc.inputWrapper.classList.remove("ae-hidden");
+                    } else {
+                        if(els.conc.input.value.trim()) els.conc.viewWrapper.classList.remove("ae-hidden");
+                        else els.conc.viewWrapper.classList.add("ae-hidden");
+                        els.conc.inputWrapper.classList.add("ae-hidden");
+                    }
 
-                    // Privacy
-                    els.priv.view.style.display = (!editMode && els.priv.input.checked) ? "inline-block" : "none";
-                    els.priv.inputWrapper.style.display = editMode ? "block" : "none";
+                    if(isEdit) {
+                        els.priv.view.classList.add("ae-hidden");
+                        els.priv.inputWrapper.classList.remove("ae-hidden");
+                    } else {
+                        if(els.priv.input.checked) els.priv.view.classList.remove("ae-hidden");
+                        else els.priv.view.classList.add("ae-hidden");
+                        els.priv.inputWrapper.classList.add("ae-hidden");
+                    }
+                }
+
+                function restoreValues() {
+                    els.name.input.value = originalValues.name;
+                    els.desc.input.value = originalValues.desc;
+                    els.conc.input.value = originalValues.conc;
+                    els.priv.input.checked = originalValues.priv;
                 }
 
                 async function saveChanges() {
                     const nameVal = els.name.input.value.trim();
-                    if (!nameVal) { alert("Workout name is required!"); return; }
+                    if (!nameVal) { alert("Name is required"); return; }
 
-                    // UI: Loading state
+                    btnEdit.innerText = "Saving...";
                     btnEdit.disabled = true;
-                    btnEdit.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
 
                     const payload = {
                         id: "@Model.WorkoutId",
@@ -205,26 +205,21 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-
                         if (res.ok) {
-                            // Успіх - перезавантажуємо сторінку, щоб оновити всі дані
                             window.location.reload();
                         } else {
-                            const errData = await res.json();
-                            alert("Error: " + (errData.message || "Update failed"));
+                            alert("Update failed");
                             btnEdit.disabled = false;
-                            btnEdit.innerHTML = '<i class="bi bi-check-lg"></i> Save Info';
+                            btnEdit.innerText = "Save Info";
                         }
-                    } catch (err) {
-                        console.error(err);
-                        alert("Network error");
+                    } catch (e) {
+                        console.error(e);
+                        alert("Error");
                         btnEdit.disabled = false;
-                        btnEdit.innerHTML = '<i class="bi bi-check-lg"></i> Save Info';
+                        btnEdit.innerText = "Save Info";
                     }
                 }
 
-
-                // --- 2. ЛОГІКА ВПРАВ (EXERCISES) - Твій старий код ---
                 const btnToggle = document.getElementById("btnToggleEdit");
                 const viewContainer = document.getElementById("viewModeContainer");
                 const editContainer = document.getElementById("editModeContainer");
@@ -233,28 +228,28 @@
 
                 if (btnToggle) {
                     btnToggle.addEventListener("click", () => {
-                        viewContainer.style.display = "none";
-                        editContainer.style.display = "block";
-                        btnToggle.style.display = "none";
+                        viewContainer.classList.add("ae-hidden");
+                        editContainer.classList.remove("ae-hidden");
+                        btnToggle.classList.add("ae-hidden");
                     });
                 }
                 if (btnCancelInternal) {
                     btnCancelInternal.addEventListener("click", () => {
-                        viewContainer.style.display = "block";
-                        editContainer.style.display = "none";
-                        btnToggle.style.display = "block";
+                        viewContainer.classList.remove("ae-hidden");
+                        editContainer.classList.add("ae-hidden");
+                        btnToggle.classList.remove("ae-hidden");
                     });
                 }
+
                 document.addEventListener('exercises-saved', function () {
                     fetch(`/Workout/GetExercisesPartial?workoutId=${workoutId}`)
                         .then(r => r.text())
                         .then(html => {
                             viewContainer.innerHTML = html;
-                            viewContainer.style.display = "block";
-                            editContainer.style.display = "none";
-                            btnToggle.style.display = "block";
-                        })
-                        .catch(console.error);
+                            viewContainer.classList.remove("ae-hidden");
+                            editContainer.classList.add("ae-hidden");
+                            btnToggle.classList.remove("ae-hidden");
+                        });
                 });
             });
         </script>

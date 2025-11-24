@@ -1,114 +1,117 @@
 ﻿@using Gymify.Application.DTOs.UserExercise
+@using System.Text.Json
 @model List<UserExerciseDto>
 
 @{
     var workoutId = ViewData["WorkoutId"] ?? ViewBag.WorkoutId;
     var hideButtons = ViewData["HideSaveButtons"] as bool? ?? false;
+
+    // Серіалізуємо модель в JSON рядок, щоб JS міг його прочитати
+    // Використовуємо налаштування, щоб імена властивостей були camelCase (name, sets) або PascalCase як в C#
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var initialJson = JsonSerializer.Serialize(Model, jsonOptions);
 }
 
-<div class="em-module">
-    <div class="em-add-panel">
-        <div class="em-form-group em-search-wrapper" style="flex-grow:1;">
-            <label class="em-label">Exercise Name</label>
-            <input type="text" id="mgrName" class="em-input em-input-name" placeholder="Search..." autocomplete="off">
-            <ul id="mgrSuggestions" class="em-suggestions" style="display:none;"></ul>
+<style>
+    /* Стилі ті самі, що й були */
+    .ae-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; list-style: none; padding: 0; margin: 0; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .ae-suggestions li { padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+    .ae-suggestions li:hover { background-color: #f8f9fa; }
+    .ae-add-panel { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; padding-bottom: 20px; margin-bottom: 20px; }
+    .ae-card-inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ae-empty-state { display: none; grid-column: 1 / -1; text-align: center; color: #999; padding: 40px; border: 2px dashed #e0e0e0; border-radius: 12px; background-color: #fdfdfd; font-weight: 500; margin-bottom: 20px; }
+</style>
+
+<div class="ae-card-item" style="background-color: #fcfcfc;"> 
+
+    <div class="ae-add-panel">
+        <div style="flex-grow: 1; min-width: 200px; position: relative;">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Exercise Name</label>
+            <input type="text" id="mgrName" class="ae-input-std" placeholder="Search..." autocomplete="off">
+            <ul id="mgrSuggestions" class="ae-suggestions" style="display:none;"></ul>
         </div>
-        <div class="em-form-group">
-            <label class="em-label">Sets</label>
-            <input type="number" id="mgrSets" class="em-input em-input-small" value="3">
+        <div class="ae-group-small" style="width: 70px;">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Sets</label>
+            <input type="number" id="mgrSets" class="ae-input-std" value="3">
         </div>
-        <div class="em-form-group">
-            <label class="em-label">Reps</label>
-            <input type="number" id="mgrReps" class="em-input em-input-small" value="12">
+        <div class="ae-group-small" style="width: 70px;">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Reps</label>
+            <input type="number" id="mgrReps" class="ae-input-std" value="12">
         </div>
-        <div class="em-form-group">
-            <label class="em-label">Kg</label>
-            <input type="number" id="mgrWeight" class="em-input em-input-small" value="0" step="0.5">
+        <div class="ae-group-small" style="width: 70px;">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Kg</label>
+            <input type="number" id="mgrWeight" class="ae-input-std" value="0" step="0.5">
         </div>
-        <div class="em-form-group">
-            <label class="em-label">Min</label>
-            <input type="number" id="mgrDuration" class="em-input em-input-small" value="0">
+        <div class="ae-group-small" style="width: 70px;">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Min</label>
+            <input type="number" id="mgrDuration" class="ae-input-std" value="0">
         </div>
-        <div class="em-form-group">
-             <label class="em-label">&nbsp;</label>
-             <button type="button" id="mgrBtnAdd" class="em-btn em-btn-add">Add</button>
+        <div>
+             <button type="button" id="mgrBtnAdd" class="ae-btn ae-btn-success" style="height: 42px;">+</button>
         </div>
     </div>
 
-    <form id="mgrForm" method="post" asp-action="AddExercisesBatch" asp-controller="Workout">
-    <input type="hidden" name="workoutId" value="@workoutId" />
+    <form id="mgrForm" method="post" action="@Url.Action("AddExercisesBatch", "Workout")">
+        <input type="hidden" name="workoutId" value="@workoutId" />
 
-    <div id="mgrList" class="em-list">
-        <div id="mgrEmpty" style="display:none; grid-column: 1/-1; text-align:center; color:#999; padding:20px;">
-            No exercises added yet.
-        </div>
-
+        <div id="mgrList" class="ae-cards-grid">
+            <div id="mgrEmpty" class="ae-empty-state">
+                No exercises added yet.
+            </div>
             @for (int i = 0; i < Model.Count; i++)
             {
-                <div class="em-card">
-                    <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
-                    <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
-
-                    <div class="em-card-header">
-                        <span>@Model[i].Name</span>
-                        <button type="button" class="em-btn em-btn-remove">Remove</button>
-                    </div>
-
-                    <div class="em-card-body">
-                        <div class="em-form-group">
-                            <label class="em-label">Sets</label>
-                            <input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="em-input inp-sets" />
+                    <div class="ae-card-item">
+                        <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
+                        <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
+                        <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                            <span class="card-title-text" style="font-weight:bold; color:#2c3e50;">@Model[i].Name</span>
+                            <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">Remove</button>
                         </div>
-                        <div class="em-form-group">
-                            <label class="em-label">Reps</label>
-                            <input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="em-input inp-reps" />
-                        </div>
-                        <div class="em-form-group">
-                            <label class="em-label">Kg</label>
-                            <input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="em-input inp-weight" step="0.5" />
-                        </div>
-                        <div class="em-form-group">
-                            <label class="em-label">Min</label>
-                            <input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="em-input inp-duration" />
+                        <div class="ae-card-inputs-grid">
+                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Sets</label><input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" /></div>
+                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Reps</label><input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" /></div>
+                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Kg</label><input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" /></div>
+                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Min</label><input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" /></div>
                         </div>
                     </div>
-                </div>
             }
         </div>
 
         @if (!hideButtons)
         {
-            <div style="text-align: right; margin-top: 20px; display: flex; align-items: center; justify-content: flex-end;">
-                <span id="mgrSaveStatus" style="display:none; font-weight:bold; margin-right: 15px;"></span>
+                <div class="ae-mt-20" style="text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                    <span id="mgrSaveStatus" style="display:none; font-weight:bold; color: #27ae60;"></span>
 
-                <button type="button" id="mgrBtnCancel" class="em-btn em-btn-cancel">Cancel</button>
-                <button type="submit" id="mgrBtnSave" class="em-btn em-btn-save">Save Changes</button>
-            </div>
+                    <button type="button" id="mgrBtnCancel" class="ae-btn ae-btn-outline">Cancel</button>
+                    <button type="submit" id="mgrBtnSave" class="ae-btn ae-btn-primary">Save Changes</button>
+                </div>
         }
     </form>
 </div>
 
 <template id="mgrTemplate">
-    <div class="em-card">
+    <div class="ae-card-item">
         <input type="hidden" class="inp-id">
         <input type="hidden" class="inp-name">
-        
-        <div class="em-card-header">
-            <span class="card-title-text"></span>
-            <button type="button" class="em-btn em-btn-remove">Remove</button>
+        <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+            <span class="card-title-text" style="font-weight:bold; color:#2c3e50;"></span>
+            <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">Remove</button>
         </div>
-        
-        <div class="em-card-body">
-            <div class="em-form-group"><label class="em-label">Sets</label><input type="number" class="em-input inp-sets"></div>
-            <div class="em-form-group"><label class="em-label">Reps</label><input type="number" class="em-input inp-reps"></div>
-            <div class="em-form-group"><label class="em-label">Kg</label><input type="number" class="em-input inp-weight" step="0.5"></div>
-            <div class="em-form-group"><label class="em-label">Min</label><input type="number" class="em-input inp-duration"></div>
+        <div class="ae-card-inputs-grid">
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">Sets</label><input type="number" class="ae-input-std inp-sets"></div>
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">Reps</label><input type="number" class="ae-input-std inp-reps"></div>
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">Kg</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">Min</label><input type="number" class="ae-input-std inp-duration"></div>
         </div>
     </div>
 </template>
 
 <script>
     (function() {
+        // --- 1. ОТРИМУЄМО ПОЧАТКОВІ ДАНІ З СЕРВЕРА ---
+        // Html.Raw важливий, щоб не екранувати лапки
+        const initialData = @Html.Raw(initialJson);
+
         const container = document.getElementById("mgrList");
         const emptyMsg = document.getElementById("mgrEmpty");
         const template = document.getElementById("mgrTemplate");
@@ -119,16 +122,67 @@
         const btnAdd = document.getElementById("mgrBtnAdd");
 
         const btnSave = document.getElementById("mgrBtnSave");
+        const btnCancel = document.getElementById("mgrBtnCancel");
         const statusMsg = document.getElementById("mgrSaveStatus");
 
-        // --- Ініціалізація ---
+        // Підв'язуємо події видалення для того, що прийшло з сервера
+        bindRemoveEvents();
         checkEmpty();
 
-        // Прив'язка подій для існуючих кнопок "Remove"
-        if(container) {
-            container.querySelectorAll(".em-btn-remove").forEach(btn => {
-                btn.addEventListener("click", removeCard);
+        // --- 2. ЛОГІКА ВІДНОВЛЕННЯ (CANCEL) ---
+        if (btnCancel) {
+            btnCancel.addEventListener("click", function() {
+                // Замість reload, ми робимо Restore
+                restoreInitialState();
+
+                // І ховаємо редактор (якщо це Details page)
+                // Для цього ми просто "клікаємо" кнопку Cancel всередині Details логіки, 
+                // або кидаємо подію, або просто лишаємо це на Details.cshtml
+                // Але оскільки Details.cshtml слухає клік по цьому ID, там все спрацює само.
             });
+        }
+
+        function restoreInitialState() {
+            console.log("Restoring state...", initialData);
+
+            // 1. Очищаємо контейнер (лишаємо тільки emptyMsg)
+            // Найбезпечніше: видалити всі .ae-card-item
+            container.querySelectorAll(".ae-card-item").forEach(el => el.remove());
+
+            // 2. Перебудовуємо з initialData
+            initialData.forEach(item => {
+                createCardDOM(item);
+            });
+
+            // 3. Скидаємо інпути додавання
+            inName.value = "";
+            document.getElementById("mgrSets").value = 3;
+            document.getElementById("mgrReps").value = 12;
+
+            reindex();
+            checkEmpty();
+        }
+
+        // --- УНІВЕРСАЛЬНА ФУНКЦІЯ СТВОРЕННЯ КАРТКИ (DOM) ---
+        function createCardDOM(data) {
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector(".ae-card-item");
+
+            // Заповнюємо
+            card.querySelector(".card-title-text").textContent = data.name;
+            card.querySelector(".inp-id").value = data.id;
+            card.querySelector(".inp-name").value = data.name;
+
+            // Важливо: дані можуть приходити як з сервера (camelCase через JSON options), так і з input
+            // Перевіряємо обидва варіанти або приводимо до спільного
+            card.querySelector(".inp-sets").value = data.sets;
+            card.querySelector(".inp-reps").value = data.reps;
+            card.querySelector(".inp-weight").value = data.weight || 0;
+            // durationMinutes (C#) vs duration (JS input)
+            card.querySelector(".inp-duration").value = data.durationMinutes !== undefined ? data.durationMinutes : (data.duration || 0);
+
+            card.querySelector(".ae-btn-remove").addEventListener("click", removeCard);
+            container.appendChild(card);
         }
 
         // --- ПОШУК ---
@@ -149,33 +203,20 @@
                                 data.forEach(name => {
                                     const li = document.createElement("li");
                                     li.textContent = name;
-                                    li.onclick = () => {
-                                        inName.value = name;
-                                        suggestions.style.display = "none";
-                                    };
+                                    li.onclick = () => { inName.value = name; suggestions.style.display = "none"; };
                                     suggestions.appendChild(li);
                                 });
-                            } else {
-                                suggestions.style.display = "none";
-                            }
-                        })
-                        .catch(e => console.error(e));
+                            } else suggestions.style.display = "none";
+                        }).catch(console.error);
                 }, 300);
             });
-
-            document.addEventListener("click", e => {
-                if (e.target !== inName && suggestions) suggestions.style.display = "none";
-            });
+            document.addEventListener("click", e => { if (e.target !== inName && suggestions) suggestions.style.display = "none"; });
         }
 
         // --- ГЕНЕРАЦІЯ UUID ---
         function generateUUID() {
-            if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-                return crypto.randomUUID();
-            }
-            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-            );
+            if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
         }
 
         // --- ДОДАВАННЯ ---
@@ -193,36 +234,31 @@
                     duration: document.getElementById("mgrDuration").value
                 };
 
-                const clone = template.content.cloneNode(true);
-                const card = clone.querySelector(".em-card");
+                createCardDOM(data);
 
-                card.querySelector(".card-title-text").textContent = data.name;
-                card.querySelector(".inp-id").value = data.id;
-                card.querySelector(".inp-name").value = data.name;
-                card.querySelector(".inp-sets").value = data.sets;
-                card.querySelector(".inp-reps").value = data.reps;
-                card.querySelector(".inp-weight").value = data.weight;
-                card.querySelector(".inp-duration").value = data.duration;
-
-                card.querySelector(".em-btn-remove").addEventListener("click", removeCard);
-
-                container.appendChild(card);
-                inName.value = "";
-
+                inName.value = ""; // Очистка поля пошуку
                 reindex();
                 checkEmpty();
             });
         }
 
         function removeCard(e) {
-            e.target.closest(".em-card").remove();
+            e.target.closest(".ae-card-item").remove();
             reindex();
             checkEmpty();
         }
 
-        // --- REINDEXING ---
+        function bindRemoveEvents() {
+            if(container) {
+                container.querySelectorAll(".ae-btn-remove").forEach(btn => {
+                    btn.removeEventListener("click", removeCard); // На всяк випадок, щоб не дублювати
+                    btn.addEventListener("click", removeCard);
+                });
+            }
+        }
+
         function reindex() {
-            const cards = container.querySelectorAll(".em-card");
+            const cards = container.querySelectorAll(".ae-card-item");
             cards.forEach((card, index) => {
                 setName(card, ".inp-id", `exercises[${index}].Id`);
                 setName(card, ".inp-name", `exercises[${index}].Name`);
@@ -240,63 +276,51 @@
 
         function checkEmpty() {
             if(!container) return;
-            const hasItems = container.querySelectorAll(".em-card").length > 0;
-            if(emptyMsg) emptyMsg.style.display = hasItems ? "none" : "block";
+            const hasItems = container.querySelectorAll(".ae-card-item").length > 0;
+            if(emptyMsg) emptyMsg.style.display = hasItems ? "none" : "block"; // Grid/Block fix
         }
 
-        // --- AJAX ЗБЕРЕЖЕННЯ (FIXED) ---
+        // --- AJAX SAVE ---
         if(form) {
             form.addEventListener("submit", function(e) {
                 e.preventDefault();
-
-                // 1. Підготовка UI
-                // Якщо кнопки немає (наприклад на AddExercise сторінці), просто йдемо далі
-                if (btnSave) {
-                    btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-                    btnSave.disabled = true;
-                }
+                if (btnSave) { btnSave.innerHTML = 'Saving...'; btnSave.disabled = true; }
                 if (statusMsg) statusMsg.style.display = "none";
 
-                // 2. Гарантуємо правильні індекси перед відправкою
                 reindex();
-
                 const formData = new FormData(form);
 
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                })
+                fetch(form.action, { method: 'POST', body: formData })
                 .then(res => {
                     if (res.ok) return res.json();
                     throw new Error("Server Error");
                 })
                 .then(data => {
-                    // 3. Успіх
-                    //if (statusMsg) {
-                    //    statusMsg.style.display = "inline-block";
-                    //    statusMsg.style.color = "#28a745"; // Green
-                    //    statusMsg.innerHTML = '<i class="bi bi-check-circle"></i> Saved!';
-                    //    setTimeout(() => { statusMsg.style.display = "none"; }, 2000);
-                    //}
+                    if (statusMsg) {
+                        statusMsg.style.display = "inline-block";
+                        statusMsg.style.color = "#28a745";
+                        statusMsg.innerHTML = '<i class="bi bi-check-circle"></i> Saved!';
+                        setTimeout(() => { statusMsg.style.display = "none"; }, 2000);
+                    }
 
-                    // Повідомляємо батьківську сторінку (Details.cshtml), щоб оновила перегляд
+                    // ❗ ВАЖЛИВО: Оновлюємо "знімок" даних
+                    // Тепер "оригінальні" дані - це те, що ми щойно зберегли.
+                    // Це треба, щоб якщо натиснути Cancel ПІСЛЯ Save, воно не відкотилось до старту сесії.
+                    // Ми могли б оновити initialData з форми, але простіше перезавантажити сторінку подією
+                    // або просто залишити як є (Details перезавантажить вюшку)
+
                     document.dispatchEvent(new CustomEvent('exercises-saved'));
                 })
                 .catch(err => {
-                    // 4. Помилка
                     console.error(err);
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
-                        statusMsg.style.color = "#dc3545"; // Red
+                        statusMsg.style.color = "#dc3545";
                         statusMsg.textContent = "Error saving!";
                     }
                 })
                 .finally(() => {
-                    // 5. СКИДАННЯ КНОПКИ (Обов'язково)
-                    if (btnSave) {
-                        btnSave.innerHTML = "Save Changes"; // Примусово вертаємо текст
-                        btnSave.disabled = false;
-                    }
+                    if (btnSave) { btnSave.innerHTML = "Save Changes"; btnSave.disabled = false; }
                 });
             });
         }
