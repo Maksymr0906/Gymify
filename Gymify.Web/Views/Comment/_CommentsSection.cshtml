@@ -1,0 +1,171 @@
+﻿@using Gymify.Web.ViewModels
+@using Gymify.Web.ViewModels.Comment
+@model CommentsSectionViewModel
+
+<style>
+    @Html.Raw("@keyframes co-fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }")
+</style>
+
+<div class="co-container">
+    
+    <div class="co-form-wrapper">
+        <img src="@Model.CurrentUserAvatarUrl" class="co-avatar" alt="User">
+        <div class="co-input-block">
+            <form id="coCommentForm">
+                <input type="hidden" name="targetId" value="@Model.TargetId" />
+                <input type="hidden" name="targetType" value="@Model.TargetType" />
+                
+                <textarea name="content" id="coContentInput" 
+                          class="co-textarea" 
+                          placeholder="Write a comment..."></textarea>
+                
+                <div style="text-align: right; margin-top: 8px;">
+                    <button type="submit" id="coBtnPost" class="co-btn co-btn-primary" disabled>
+                        Post Comment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="coCommentsList" class="co-list">
+        @if (Model.Comments != null && Model.Comments.Any())
+        {
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="co-item" id="comment-el-@comment.GetHashCode()"> 
+                    <img src="@comment.AuthorAvatarUrl" class="co-avatar" alt="Avatar">
+                    <div class="co-content">
+                        <div class="co-header">
+                            <div>
+                                <span class="co-author">@comment.AuthorName</span>
+                                <span class="co-date">&bull; @comment.CreatedAt.ToString("g")</span>
+                            </div>
+                            @if (comment.CanDelete)
+                            {
+                                <button class="co-delete-btn" onclick="deleteCommentNode(this, 'REAL_ID_HERE')">Delete</button>
+                            }
+                        </div>
+                        <div class="co-text">@comment.Content</div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div id="coNoComments" class="co-empty-msg">
+                Be the first to comment!
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    (function() {
+        const form = document.getElementById('coCommentForm');
+        const input = document.getElementById('coContentInput');
+        const btn = document.getElementById('coBtnPost');
+        const list = document.getElementById('coCommentsList');
+        const emptyMsg = document.getElementById('coNoComments');
+
+        // Активація кнопки
+        input.addEventListener('input', () => {
+            btn.disabled = input.value.trim().length === 0;
+        });
+
+        // --- AJAX POST ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const originalText = btn.innerText;
+            
+            btn.disabled = true;
+            btn.innerText = "Posting...";
+
+            try {
+                // Заміни на свій реальний шлях
+                const res = await fetch('/Comment/AddComment', { 
+                    method: 'POST', 
+                    body: formData 
+                });
+
+                if (res.ok) {
+                    const newComment = await res.json();
+                    appendCommentDOM(newComment);
+                    input.value = "";
+                } else {
+                    alert("Error posting comment");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Request failed");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = true; // Знову вимикаємо, бо інпут пустий
+            }
+        });
+
+        // --- ДОДАВАННЯ В DOM ---
+        function appendCommentDOM(c) {
+            if(emptyMsg) emptyMsg.style.display = 'none';
+
+            // Генеруємо ID для DOM елемента (якщо сервер не повернув ID, генеруємо тимчасовий)
+            // Важливо: c.Id має приходити з сервера (JSON)
+            const domId = 'comment-el-' + (c.id || Date.now()); 
+
+            // Формуємо HTML з класами co-
+            const html = `
+                <div class="co-item" id="${domId}">
+                    <img src="${c.authorAvatarUrl || '/images/default-avatar.png'}" class="co-avatar" alt="User">
+                    <div class="co-content">
+                        <div class="co-header">
+                            <div>
+                                <span class="co-author">${escapeHtml(c.authorName)}</span>
+                                <span class="co-date">&bull; Just now</span>
+                            </div>
+                            <button class="co-delete-btn" onclick="deleteCommentNode(this, '${c.id}')">Delete</button>
+                        </div>
+                        <div class="co-text">${escapeHtml(c.content)}</div>
+                    </div>
+                </div>
+            `;
+            
+            list.insertAdjacentHTML('afterbegin', html);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // --- ВИДАЛЕННЯ ---
+        // Робимо функцію глобальною, щоб працювала в onclick
+        window.deleteCommentNode = async function(btn, id) {
+            if(!confirm("Delete comment?")) return;
+            
+            // Знаходимо батьківський елемент .co-item
+            const item = btn.closest('.co-item');
+
+            try {
+                // Заміни на реальний шлях
+                const res = await fetch(`/Comment/DeleteComment?commentId=${id}`, { method: 'POST' });
+                
+                if(res.ok) {
+                    item.remove();
+                    // Якщо список пустий - показати emptyMsg
+                    if (list.children.length === 0 && emptyMsg) {
+                        emptyMsg.style.display = 'block';
+                    }
+                } else {
+                    alert("Failed to delete");
+                }
+            } catch(e) { console.error(e); }
+        };
+    })();
+</script>

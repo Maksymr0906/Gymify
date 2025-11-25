@@ -1,9 +1,15 @@
 ﻿using Gymify.Application.DTOs.Comment;
+using Gymify.Data.Enums;
+
+namespace Gymify.Web.ViewModels.Comment;
 
 public class CommentsSectionViewModel
 {
-    public Guid EntityId { get; set; }
-    public string EntityType { get; set; } = string.Empty;
-    public List<CommentDto> Items { get; set; } = new();
-    public string NewCommentContent { get; set; } = string.Empty;
+    public Guid TargetId { get; set; }
+
+    public CommentTargetType TargetType { get; set; }
+
+    public List<CommentDto> Comments { get; set; } = new();
+
+    public string CurrentUserAvatarUrl { get; set; } = "/images/default-avatar.png";
 }

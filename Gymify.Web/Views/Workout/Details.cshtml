@@ -91,7 +91,18 @@
 
     <div class="ae-comments-section">
         <h3 class="ae-section-title ae-mb-20">Comments</h3>
-        <p class="ae-text-muted">Comments module placeholder...</p>
+
+        @{
+            var commentsVm = new Gymify.Web.ViewModels.Comment.CommentsSectionViewModel
+            {
+                TargetId = Model.WorkoutId,
+                TargetType = Gymify.Data.Enums.CommentTargetType.Workout, // Enum
+                Comments = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                CurrentUserAvatarUrl = "/images/default.png" // Або з UserEquipment
+            };
+        }
+
+        <partial name="_CommentsSection" model="commentsVm" />
     </div>
 </div>
 

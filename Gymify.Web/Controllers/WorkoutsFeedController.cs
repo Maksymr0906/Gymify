@@ -21,7 +21,6 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string? authorName, bool onlyMy = true, bool byDescending = true)
         {
-            // Запускаємо першу сторінку (page=0)
             var model = await _workoutService.GetWorkoutsPage(
                 Guid.Parse(User.FindFirst("UserProfileId")!.Value),
                 authorName,

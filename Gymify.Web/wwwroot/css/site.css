@@ -602,80 +602,153 @@ a {
     background-color: var(--ButtonColor);
 }
 
-/*              AddExercise           */
+/* Comments */
+/* --- CO- STYLES (Comments Module) --- */
 
-/*.AddExerciseTitle{
-    color:var(--TitleColor);
-    font-size: 60px;
-    margin: 2% 4%
+.co-container {
+    max-width: 800px;
+    margin-top: 20px;
+    font-family: 'Segoe UI', sans-serif;
 }
-.addExerciseForm{
-    margin: 0 4%;
-    width: 92%;
+
+/* Форма додавання */
+.co-form-wrapper {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: flex-start;
+}
+
+.co-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.co-input-block {
+    flex-grow: 1;
+    position: relative;
+}
+
+.co-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+    .co-textarea:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+
+/* Кнопки (локальні стилі) */
+.co-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    transition: opacity 0.2s;
+}
+
+    .co-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.co-btn-primary {
+    background-color: #3498db;
+}
+
+    .co-btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+/* Список коментарів */
+.co-list {
     display: flex;
     flex-direction: column;
-    justify-content:space-between;
-    height: 50vh;
+    gap: 20px;
 }
-.AddExerciseFormGroup{
-    width: 100%;
+
+/* Окремий коментар */
+.co-item {
+    display: flex;
+    gap: 15px;
+    animation: co-fadeIn 0.3s ease-out;
 }
-.AddExerciseLabel {
-    color: var(--TitleColor);
-    font-size: 50px;
+
+.co-content {
+    flex-grow: 1;
+    background: #f8f9fa;
+    padding: 12px 15px;
+    border-radius: 0 12px 12px 12px;
+    position: relative;
+    border: 1px solid #f0f0f0;
 }
-.AddExerciseInput {
-    width: 100%;
-    height: 50px;
-    font-size:30px;
-    padding: 10px;
-    border-radius: 30px;
-}
-.addExerciseButtons{
+
+.co-header {
     display: flex;
     justify-content: space-between;
-    margin: 40px 0 0;
-}
-.AddExerciseButton{
-    width:350px;
-    padding: 20px;
-    background-color: var(--ButtonColor);
-    border-radius: 30px;
-    font-size: 30px;
-}
-.AddExerciseLabelRadio {
-    font-size: 40px;
-    margin: 20px 10px 20px 50px;
-}
-.AddExerciseInputRadio {
-    width: 20px;
-    height: 20px;
+    align-items: center;
+    margin-bottom: 6px;
 }
 
-.suggestions-list {
-    list-style: none;
-    position: absolute;
-    background: #fff;
-    width: 100%;
-    border: 1px solid #ccc;
-    max-height: 150px;
-    overflow-y: auto;
-    z-index: 1000;
-    margin-top: 2px;
-    padding-left: 0;
-    border-radius: 0.25rem;
+.co-author {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    margin-right: 8px;
 }
 
-.suggestion-item {
-    padding: 8px 10px;
+.co-date {
+    font-size: 0.8rem;
+    color: #95a5a6;
+}
+
+.co-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #333;
+    white-space: pre-wrap; /* Зберігає переноси рядків */
+    word-break: break-word;
+}
+
+.co-delete-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: background 0.2s ease;
+    opacity: 0.6;
+    padding: 0;
 }
 
-    .suggestion-item:hover {
-        background: #f0f0f0;
-    }*/
+    .co-delete-btn:hover {
+        opacity: 1;
+        text-decoration: underline;
+    }
 
+.co-empty-msg {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+    font-style: italic;
+}
+
+/*              AddExercise           */
 /* --- GLOBAL LAYOUT --- */
 .ae-page-container {
     max-width: 1100px;

@@ -1,4 +1,5 @@
 ﻿using Gymify.Application.DTOs.UserExercise;
+using Gymify.Web.ViewModels.Comment;
 using System;
 using System.Collections.Generic;
 using System.Linq;
