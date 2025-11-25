@@ -2,7 +2,7 @@
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Enums;
-using Gymify.Web.ViewModels; // Де лежить ViewModel
+using Gymify.Application.ViewModels; // Де лежить ViewModel
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
