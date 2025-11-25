@@ -73,7 +73,10 @@ a {
 
 .mainDescription {
     color: white;
+    text-align: center;
+    flex: auto;
     width: 70%;
+    margin-bottom: 20px;
 }
 
 .mainRegistration {
