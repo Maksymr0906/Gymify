@@ -9,11 +9,9 @@ namespace Gymify.Tests.Services
 
         public LevelingServiceTests()
         {
-            // Сервіс не має залежностей, тому просто створюємо його (new)
             _service = new LevelingService();
         }
 
-        // Використовуємо [Theory] для перевірки багатьох сценаріїв одним методом
         [Theory]
         [InlineData(0, 0)]       // 0 XP -> 0 Level
         [InlineData(50, 0)]      // 50 XP -> 0 Level (ще не набрав на 1-й)

@@ -36,7 +36,6 @@ namespace Gymify.Tests.Services
                 userStore.Object, null, null, null, null, null, null, null, null);
 
             // --- НАЛАШТУВАННЯ SIGN IN MANAGER ---
-            // Просто створюємо мок нашого класу. Всі складні аргументи заховані всередині FakeSignInManager.
             _mockSignInManager = new Mock<FakeSignInManager>();
 
             // --- ІНШІ СЕРВІСИ ---
@@ -51,7 +50,7 @@ namespace Gymify.Tests.Services
             // --- ІНІЦІАЛІЗАЦІЯ TEST SUBJECT ---
             _service = new AuthService(
                 _mockUserManager.Object,
-                _mockSignInManager.Object, // Передаємо об'єкт нашого фейку
+                _mockSignInManager.Object, 
                 _mockAchievementService.Object,
                 _mockItemService.Object,
                 _mockEquipmentService.Object,
@@ -70,7 +69,6 @@ namespace Gymify.Tests.Services
                 Password = "Password123!"
             };
 
-            // Налаштовуємо успішні відповіді від UserManager
             _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), dto.Password))
                 .ReturnsAsync(IdentityResult.Success);
 
@@ -83,11 +81,9 @@ namespace Gymify.Tests.Services
             _mockUserManager.Setup(x => x.AddClaimsAsync(It.IsAny<ApplicationUser>(), It.IsAny<IEnumerable<Claim>>()))
                 .ReturnsAsync(IdentityResult.Success);
 
-            // Налаштовуємо репозиторій
             _mockUserProfileRepo.Setup(x => x.CreateAsync(It.IsAny<UserProfile>()))
                 .ReturnsAsync((UserProfile up) => up);
 
-            // Налаштовуємо SignInManager (важливо!)
             _mockSignInManager.Setup(x => x.SignInAsync(It.IsAny<ApplicationUser>(), false, null))
                 .Returns(Task.CompletedTask);
 
@@ -97,10 +93,8 @@ namespace Gymify.Tests.Services
             // ASSERT
             Assert.True(result.Succeeded);
 
-            // Перевіряємо виклик SignInAsync
             _mockSignInManager.Verify(x => x.SignInAsync(It.IsAny<ApplicationUser>(), false, null), Times.Once);
 
-            // Перевіряємо збереження
             _mockUow.Verify(x => x.SaveAsync(), Times.Once);
         }
 

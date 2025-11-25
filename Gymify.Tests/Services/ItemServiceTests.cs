@@ -75,7 +75,6 @@ namespace Gymify.Tests.Services
             Assert.Single(result);
             Assert.Equal("Avatar 1", result.First().Name);
 
-            // Перевіряємо, що викликався правильний метод репозиторію
             _mockItemRepo.Verify(r => r.GetItemsWithTypeByUserIdAsync(userId, type), Times.Once);
         }
 
@@ -112,14 +111,11 @@ namespace Gymify.Tests.Services
             // ARRANGE
             var itemId = Guid.NewGuid();
             _mockItemRepo.Setup(r => r.GetByIdAsync(itemId))
-                .ReturnsAsync((Item)null); // Репозиторій повернув null
+                .ReturnsAsync((Item)null); 
 
-            // ACT & ASSERT
-            // ❗ Ми змінили тип очікуваної помилки на KeyNotFoundException
             var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() =>
                 _service.GetByIdAsync(itemId));
 
-            // (Опціонально) Можна навіть перевірити текст помилки
             Assert.Contains(itemId.ToString(), exception.Message);
         }
 
@@ -129,7 +125,6 @@ namespace Gymify.Tests.Services
             // ARRANGE
             var userId = Guid.NewGuid();
 
-            // Налаштовуємо CreateAsync, щоб він просто повертав Task (успіх)
             _mockUserItemRepo.Setup(r => r.CreateAsync(It.IsAny<UserItem>()))
                 .ReturnsAsync((UserItem ui) => ui);
 
@@ -137,10 +132,9 @@ namespace Gymify.Tests.Services
             await _service.SetDefaultUserItemsAsync(userId);
 
             // ASSERT
-            // У твоєму коді хардкодом прописано 4 предмети. Перевіряємо, що ми додали саме 4.
             _mockUserItemRepo.Verify(r => r.CreateAsync(It.Is<UserItem>(ui =>
                 ui.UserProfileId == userId &&
-                ui.ItemId != Guid.Empty // Перевіряємо, що ID предмета валідний
+                ui.ItemId != Guid.Empty 
             )), Times.Exactly(4));
 
             _mockUow.Verify(u => u.SaveAsync(), Times.Once);
