@@ -182,8 +182,14 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         {
             return null; // це треба якось хендлити на фронті
         }
+
+        var workoutAuthor = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(workout.UserProfileId);
+
+        if (workoutAuthor != null) workout.UserProfile = workoutAuthor;
+
         var exerciseEntities = await _unitOfWork.UserExerciseRepository
             .GetAllByWorkoutIdAsync(workoutId);
+
 
         var exerciseDtos = exerciseEntities.Select(e => new UserExerciseDto
         {

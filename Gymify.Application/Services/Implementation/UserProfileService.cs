@@ -3,16 +3,20 @@ using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Home;
 using Gymify.Application.ViewModels.UserProfile;
+using Gymify.Data.Entities;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelingService, IUserEquipmentService userEquipmentService) : IUserProfileService
+public class UserProfileService
+    (IUnitOfWork unitOfWork, ILevelingService levelingService, IUserEquipmentService userEquipmentService, UserManager<ApplicationUser> userManager) : IUserProfileService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ILevelingService _levelingService = levelingService;
     private readonly IUserEquipmentService _userEquipmentService = userEquipmentService;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
 
     public async Task<HomeViewModel> ReceiveUserLevelWorkouts(Guid userId)
     {
@@ -180,6 +184,42 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
 
     public async Task UpdateUserNameAsync(Guid userProfileId, string userName)
     {
-        await _unitOfWork.UserProfileRepository.UpdateUserNameAsync(userProfileId, userName);
+        var userProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userProfileId);
+
+        if (userProfile == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        var user = await _userManager.FindByIdAsync(userProfile.ApplicationUserId.ToString());
+
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        // 2. Перевірка: чи не намагаємось ми встановити те саме ім'я
+        if (user.UserName == userName)
+        {
+            return;
+        }
+
+        // 3. Перевірка: чи не зайняте ім'я (UserManager зробить це сам, але можна і вручну)
+        var existingUser = await _userManager.FindByNameAsync(userName);
+        if (existingUser != null)
+        {
+            throw new Exception($"Username '{userName}' is already taken.");
+        }
+
+        // 4. НАЙГОЛОВНІШЕ: Використовуємо метод SetUserNameAsync
+        // Цей метод оновить UserName ТА NormalizedUserName
+        var result = await _userManager.SetUserNameAsync(user, userName);
+
+        if (!result.Succeeded)
+        {
+            // Збираємо помилки (наприклад, "Ім'я містить недопустимі символи")
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new Exception($"Failed to update username: {errors}");
+        }
     }
 }
