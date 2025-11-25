@@ -29,9 +29,9 @@
     </div>
 
     <div id="coCommentsList" class="co-list">
-        @if (Model.Comments != null && Model.Comments.Any())
+        @if (Model.Items != null && Model.Items.Any())
         {
-            @foreach (var comment in Model.Comments)
+            @foreach (var comment in Model.Items)
             {
                 <div class="co-item" id="comment-el-@comment.GetHashCode()"> 
                     <img src="@comment.AuthorAvatarUrl" class="co-avatar" alt="Avatar">

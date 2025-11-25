@@ -97,7 +97,7 @@
             {
                 TargetId = Model.WorkoutId,
                 TargetType = Gymify.Data.Enums.CommentTargetType.Workout, // Enum
-                Comments = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
                 CurrentUserAvatarUrl = "/images/default.png" // Або з UserEquipment
             };
         }

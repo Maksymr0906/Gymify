@@ -6,6 +6,7 @@ using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Workout;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
+using Gymify.Application.ViewModels.Comment;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
@@ -221,10 +222,9 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
             Comments = new CommentsSectionViewModel
             {
-                EntityId = workout.Id,
-                EntityType = "Workout",
-                // Тут ти пізніше викличеш сервіс коментарів:
-                // Items = await _commentService.GetCommentsAsync(workout.Id) 
+                TargetId = workout.Id,
+                TargetType = Data.Enums.CommentTargetType.Workout,
+                //Items = await _unitOfWork.CommentRepository.(workout.Id) 
             }
         };
     }
