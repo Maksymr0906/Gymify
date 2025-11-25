@@ -12,6 +12,7 @@ public class WorkoutDetailsViewModel
     public Guid AuthorId { get; set; } 
     public Guid WorkoutId { get; set; }
     public string AuthorName { get; set; } = string.Empty;
+    public string CurrentUserAvatarUrl { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Conclusion { get; set; } = string.Empty;

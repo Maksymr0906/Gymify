@@ -11,12 +11,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICaseService caseService)
+public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICommentService commentService, ICaseService caseService)
     : IWorkoutService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IUserProfileService _userProfileService = userProfileService;
     private readonly IAchievementService _achievementService = achievementService;
+    private readonly ICommentService _commentService = commentService;
     private readonly ICaseService _caseService = caseService;
 
     public async Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model)
@@ -174,12 +175,12 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         return groupedWorkouts;
     }
 
-    public async Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentUserId, Guid workoutId)
+    public async Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentProfileUserId, Guid workoutId)
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
         if (workout == null) return null; // це треба якось хендлити на фронті
 
-        if (workout.IsPrivate && workout.UserProfileId != currentUserId)
+        if (workout.IsPrivate && workout.UserProfileId != currentProfileUserId)
         {
             return null; // це треба якось хендлити на фронті
         }
@@ -187,6 +188,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         var workoutAuthor = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(workout.UserProfileId);
 
         if (workoutAuthor == null) throw new NullReferenceException("workoutAuthor was null");
+
+        var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(workoutAuthor.Equipment.AvatarId);
 
         var exerciseEntities = await _unitOfWork.UserExerciseRepository
             .GetAllByWorkoutIdAsync(workoutId);
@@ -204,6 +207,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             EarnedXP = e.EarnedXP
         }).ToList();
 
+
         return new WorkoutDetailsViewModel
         {
             WorkoutId = workout.Id,
@@ -211,20 +215,23 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Description = workout.Description,
             Conclusion = workout.Conclusion,
             AuthorName = workoutAuthor?.ApplicationUser?.UserName ?? "Unknown",
+            CurrentUserAvatarUrl = avatar.ImageURL,
             AuthorId = workout.UserProfileId,
             CreatedAt = workout.CreatedAt,
             TotalXP = workout.TotalXP,
             IsPrivate = workout.IsPrivate,
 
-            IsOwner = (workout.UserProfileId == currentUserId),
+            IsOwner = (workout.UserProfileId == currentProfileUserId),
 
             Exercises = exerciseDtos,
+
 
             Comments = new CommentsSectionViewModel
             {
                 TargetId = workout.Id,
                 TargetType = Data.Enums.CommentTargetType.Workout,
-                //Items = await _unitOfWork.CommentRepository.(workout.Id) 
+                Items = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
+                CurrentUserAvatarUrl = avatar.ImageURL,
             }
         };
     }

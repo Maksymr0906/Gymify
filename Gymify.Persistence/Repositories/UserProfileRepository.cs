@@ -16,6 +16,7 @@ public class UserProfileRepository(GymifyDbContext context)
     {
         return await Entities
             .Include(u => u.ApplicationUser) 
+            .Include(u => u.Equipment)
             .FirstOrDefaultAsync(u => u.Id == userProfileId);
     }
 }

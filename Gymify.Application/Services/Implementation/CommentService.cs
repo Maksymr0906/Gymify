@@ -10,6 +10,33 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
+    public async Task<List<CommentDto>> GetCommentDtos(Guid currentProfileUserId,Guid targetId, CommentTargetType targetType)
+    {
+        var comments = await _unitOfWork.CommentRepository.GetCommentsByTargetIdAndTypeAsync(targetId, targetType);
+
+        List<CommentDto> commentDtos = new();
+
+        foreach (var comment in comments)
+        {
+            var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(comment.Author.Equipment.AvatarId);
+
+            commentDtos.Add(new CommentDto
+            {
+                Id = comment.Id,
+                AuthorId = comment.AuthorId,
+                Content = comment.Content,
+                CreatedAt = comment.CreatedAt,
+                AuthorName = comment.Author.ApplicationUser.UserName,
+                AuthorAvatarUrl = avatar.ImageURL,
+                CanDelete = true ? comment.Author.Id == currentProfileUserId : false,
+                TargetId = targetId,
+                TargetType = targetType
+            });
+        }
+
+        return commentDtos;
+    }
+
     public async Task<CommentDto> UploadComment(Guid userId, Guid targetId, CommentTargetType targetType, string content)
     {
         var comment = new CommentDto
