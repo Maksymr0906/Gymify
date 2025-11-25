@@ -118,11 +118,24 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid workoutId)
         {
-            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-
-            var model = await _workoutService.GetWorkoutDetailsViewModel(currentUserId, workoutId);
-
-            return View(model);
+            try
+            {
+                var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value);
+                var model = await _workoutService.GetWorkoutDetailsViewModel(userId, workoutId);
+                return View(model);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(); // 404 Page
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid(); // 403 Page (або Redirect на Home з помилкою)
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message); // 400 Bad Request
+            }
         }
 
         [HttpGet]

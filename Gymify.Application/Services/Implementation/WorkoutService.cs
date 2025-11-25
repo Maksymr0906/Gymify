@@ -178,25 +178,26 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
     public async Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentProfileUserId, Guid workoutId)
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
-        if (workout == null) return null; // це треба якось хендлити на фронті
 
+        // 1. Якщо воркауту немає - кидаємо помилку "Не знайдено"
+        if (workout == null)
+            throw new KeyNotFoundException($"Workout with ID {workoutId} not found.");
+
+        // 2. Якщо приватний і не власник - кидаємо помилку "Доступ заборонено"
         if (workout.IsPrivate && workout.UserProfileId != currentProfileUserId)
         {
-            return null; // це треба якось хендлити на фронті
+            throw new UnauthorizedAccessException("Access to this private workout is denied.");
         }
 
         var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentProfileUserId);
+        if (currentUser == null) throw new Exception("Current user profile not found"); // Бажано теж перевірити
 
         var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(currentUser.Equipment.AvatarId);
 
         var workoutAuthor = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(workout.UserProfileId);
+        if (workoutAuthor == null) throw new NullReferenceException("Workout author profile not found");
 
-        if (workoutAuthor == null) throw new NullReferenceException("workoutAuthor was null");
-
-
-        var exerciseEntities = await _unitOfWork.UserExerciseRepository
-            .GetAllByWorkoutIdAsync(workoutId);
-
+        var exerciseEntities = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
 
         var exerciseDtos = exerciseEntities.Select(e => new UserExerciseDto
         {
@@ -210,31 +211,26 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             EarnedXP = e.EarnedXP
         }).ToList();
 
-
         return new WorkoutDetailsViewModel
         {
             WorkoutId = workout.Id,
             Name = workout.Name,
             Description = workout.Description,
             Conclusion = workout.Conclusion,
-            AuthorName = workoutAuthor?.ApplicationUser?.UserName ?? "Unknown",
-            CurrentUserAvatarUrl = avatar.ImageURL,
+            AuthorName = workoutAuthor.ApplicationUser?.UserName ?? "Unknown",
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png", // Null-safe
             AuthorId = workout.UserProfileId,
             CreatedAt = workout.CreatedAt,
             TotalXP = workout.TotalXP,
             IsPrivate = workout.IsPrivate,
-
             IsOwner = (workout.UserProfileId == currentProfileUserId),
-
             Exercises = exerciseDtos,
-
-
             Comments = new CommentsSectionViewModel
             {
                 TargetId = workout.Id,
                 TargetType = Data.Enums.CommentTargetType.Workout,
                 Items = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
-                CurrentUserAvatarUrl = avatar.ImageURL,
+                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
             }
         };
     }

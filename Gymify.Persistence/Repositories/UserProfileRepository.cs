@@ -15,8 +15,8 @@ public class UserProfileRepository(GymifyDbContext context)
     public async Task<UserProfile?> GetAllCredentialsAboutUserByIdAsync(Guid userProfileId)
     {
         return await Entities
-            .Include(u => u.ApplicationUser) 
-            .Include(u => u.Equipment)
+            .Include(u => u.ApplicationUser)
+            .Include(u => u.Equipment).ThenInclude(ue => ue.Avatar)
             .FirstOrDefaultAsync(u => u.Id == userProfileId);
     }
 }

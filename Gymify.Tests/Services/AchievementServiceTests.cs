@@ -198,8 +198,9 @@ namespace Gymify.Tests.Services
             _mockAchievementRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(achievements);
 
             // Setup для CreateAsync (просто повертає Task)
-            _mockUserAchievementRepo.Setup(r => r.CreateAsync(It.IsAny<UserAchievement>()))
-                .Returns((UserAchievement ue) => ue);
+            _mockUserAchievementRepo
+                .Setup(r => r.CreateAsync(It.IsAny<UserAchievement>()))
+                .ReturnsAsync((UserAchievement ua) => ua);
 
             // ACT
             await _service.SetupUserAchievementsAsync(userId);

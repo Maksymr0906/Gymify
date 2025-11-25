@@ -10,54 +10,64 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<List<CommentDto>> GetCommentDtos(Guid currentProfileUserId,Guid targetId, CommentTargetType targetType)
+    public async Task<List<CommentDto>> GetCommentDtos(Guid currentProfileUserId, Guid targetId, CommentTargetType targetType)
     {
+        // Цей метод репозиторію ВЖЕ має робити Include(x => x.Author.UserEquipment.Avatar)
         var comments = await _unitOfWork.CommentRepository.GetCommentsByTargetIdAndTypeAsync(targetId, targetType);
 
-        List<CommentDto> commentDtos = new();
-
-        foreach (var comment in comments)
+        // Мапимо дані в пам'яті (швидко)
+        var commentDtos = comments.Select(comment => new CommentDto
         {
-            var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(comment.Author.Equipment.AvatarId);
+            Id = comment.Id,
+            AuthorId = comment.AuthorId,
+            Content = comment.Content,
+            CreatedAt = comment.CreatedAt,
 
-            commentDtos.Add(new CommentDto
-            {
-                Id = comment.Id,
-                AuthorId = comment.AuthorId,
-                Content = comment.Content,
-                CreatedAt = comment.CreatedAt,
-                AuthorName = comment.Author.ApplicationUser.UserName,
-                AuthorAvatarUrl = avatar.ImageURL,
-                CanDelete = true ? comment.Author.Id == currentProfileUserId : false,
-                TargetId = targetId,
-                TargetType = targetType
-            });
-        }
+            // Безпечний доступ до імені (Author може бути null, якщо юзера видалили, хоча це рідкість)
+            AuthorName = comment.Author?.ApplicationUser?.UserName ?? "Unknown User",
+
+            // ✅ БЕРЕМО АВАТАР З НАВІГАЦІЙНИХ ВЛАСТИВОСТЕЙ (БЕЗ ЗАЙВИХ ЗАПИТІВ)
+            // Припускаємо, що навігаційна властивість в UserProfile називається 'UserEquipment' або 'Equipment'
+            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
+
+            // Спрощена логіка CanDelete
+            CanDelete = comment.AuthorId == currentProfileUserId,
+
+            TargetId = targetId,
+            TargetType = targetType
+        }).ToList();
 
         return commentDtos;
     }
 
     public async Task<CommentDto> UploadComment(Guid currentProfileUserId, Guid targetId, CommentTargetType targetType, string content)
     {
+        // Отримуємо дані автора, включаючи Equipment та Avatar
+        // Переконайтесь, що GetAllCredentials... робить Include(UserEquipment.Avatar)
         var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentProfileUserId);
 
-        var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(currentUser.Equipment.AvatarId);
+        if (currentUser == null) throw new Exception("User not found");
 
-        var comment = new CommentDto
+        // Дістаємо URL безпечно
+        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png";
+
+        var commentDto = new CommentDto
         {
             Id = Guid.NewGuid(),
             Content = content,
             AuthorId = currentProfileUserId,
-            AuthorName = currentUser.ApplicationUser.UserName,
-            AuthorAvatarUrl = avatar.ImageURL,
+            AuthorName = currentUser.ApplicationUser?.UserName ?? "Unknown",
+            AuthorAvatarUrl = avatarUrl,
             TargetId = targetId,
             TargetType = targetType,
             CreatedAt = DateTime.UtcNow,
+            CanDelete = true // Автор завжди може видалити свій коментар
         };
 
-        await CreateCommentAsync(comment);
+        // Зберігаємо
+        await CreateCommentAsync(commentDto);
 
-        return comment;
+        return commentDto;
     }
 
     public async Task CreateCommentAsync(CommentDto model)
@@ -67,8 +77,8 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
             Id = model.Id,
             Content = model.Content,
             AuthorId = model.AuthorId,
-            TargetId = model.TargetId,
-            TargetType = model.TargetType,
+            TargetId = model.TargetId,     // Просто GUID
+            TargetType = model.TargetType, // Enum
             CreatedAt = model.CreatedAt,
         };
 
@@ -79,13 +89,14 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
         }
         catch (Exception ex)
         {
-            // Це допоможе вам побачити реальну причину помилки в консолі
+            // Логування внутрішньої помилки для дебагу
             throw new Exception($"Database Error: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
 
     public async Task DeleteCommentByIdAsync(Guid commentId)
     {
+        // Тут можна додати перевірку прав, якщо потрібно
         await _unitOfWork.CommentRepository.DeleteByIdAsync(commentId);
         await _unitOfWork.SaveAsync();
     }

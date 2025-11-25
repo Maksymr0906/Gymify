@@ -49,6 +49,12 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
     {
         var item = await _unitOfWork.ItemRepository.GetByIdAsync(itemId);
 
+        // ✅ Явна перевірка
+        if (item == null)
+        {
+            throw new KeyNotFoundException($"Item with ID {itemId} not found.");
+        }
+
         var itemDto = new ItemDto
         {
             Id = itemId,
