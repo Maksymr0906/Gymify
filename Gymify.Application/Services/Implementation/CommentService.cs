@@ -37,13 +37,19 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
         return commentDtos;
     }
 
-    public async Task<CommentDto> UploadComment(Guid userId, Guid targetId, CommentTargetType targetType, string content)
+    public async Task<CommentDto> UploadComment(Guid currentProfileUserId, Guid targetId, CommentTargetType targetType, string content)
     {
+        var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentProfileUserId);
+
+        var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(currentUser.Equipment.AvatarId);
+
         var comment = new CommentDto
         {
             Id = Guid.NewGuid(),
             Content = content,
-            AuthorId = userId,
+            AuthorId = currentProfileUserId,
+            AuthorName = currentUser.ApplicationUser.UserName,
+            AuthorAvatarUrl = avatar.ImageURL,
             TargetId = targetId,
             TargetType = targetType,
             CreatedAt = DateTime.UtcNow,

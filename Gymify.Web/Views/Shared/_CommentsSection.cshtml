@@ -43,7 +43,7 @@
                             </div>
                             @if (comment.CanDelete)
                             {
-                                <button class="co-delete-btn" onclick="deleteCommentNode(this, 'REAL_ID_HERE')">Delete</button>
+                                <button class="co-delete-btn" onclick="deleteCommentNode(this, '@comment.Id')">Delete</button>
                             }
                         </div>
                         <div class="co-text">@comment.Content</div>

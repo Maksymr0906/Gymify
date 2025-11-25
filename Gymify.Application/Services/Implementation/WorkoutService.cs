@@ -185,11 +185,14 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             return null; // це треба якось хендлити на фронті
         }
 
+        var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentProfileUserId);
+
+        var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(currentUser.Equipment.AvatarId);
+
         var workoutAuthor = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(workout.UserProfileId);
 
         if (workoutAuthor == null) throw new NullReferenceException("workoutAuthor was null");
 
-        var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(workoutAuthor.Equipment.AvatarId);
 
         var exerciseEntities = await _unitOfWork.UserExerciseRepository
             .GetAllByWorkoutIdAsync(workoutId);
