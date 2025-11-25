@@ -186,7 +186,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         var workoutAuthor = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(workout.UserProfileId);
 
-        if (workoutAuthor != null) workout.UserProfile = workoutAuthor;
+        if (workoutAuthor == null) throw new NullReferenceException("workoutAuthor was null");
 
         var exerciseEntities = await _unitOfWork.UserExerciseRepository
             .GetAllByWorkoutIdAsync(workoutId);
@@ -210,7 +210,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Name = workout.Name,
             Description = workout.Description,
             Conclusion = workout.Conclusion,
-            AuthorName = workout.UserProfile?.ApplicationUser?.UserName ?? "Unknown",
+            AuthorName = workoutAuthor?.ApplicationUser?.UserName ?? "Unknown",
             AuthorId = workout.UserProfileId,
             CreatedAt = workout.CreatedAt,
             TotalXP = workout.TotalXP,

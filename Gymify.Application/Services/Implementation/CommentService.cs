@@ -39,8 +39,16 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
             CreatedAt = model.CreatedAt,
         };
 
-        await _unitOfWork.CommentRepository.CreateAsync(comment);
-        await _unitOfWork.SaveAsync();
+        try
+        {
+            await _unitOfWork.CommentRepository.CreateAsync(comment);
+            await _unitOfWork.SaveAsync();
+        }
+        catch (Exception ex)
+        {
+            // Це допоможе вам побачити реальну причину помилки в консолі
+            throw new Exception($"Database Error: {ex.InnerException?.Message ?? ex.Message}");
+        }
     }
 
     public async Task DeleteCommentByIdAsync(Guid commentId)

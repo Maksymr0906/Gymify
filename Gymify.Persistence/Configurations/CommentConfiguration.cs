@@ -23,21 +23,11 @@ public partial class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(c => c.TargetId)
             .IsRequired();
 
+        builder.HasIndex(c => c.TargetId);
+
         builder.HasOne(c => c.Author)
             .WithMany(u => u.Comments)
             .HasForeignKey(c => c.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(c => c.UserProfile)
-            .WithMany(u => u.ReceivedComments)
-            .HasForeignKey(c => c.TargetId)
-            .OnDelete(DeleteBehavior.Cascade)
-            .IsRequired(false);
-
-        builder.HasOne(c => c.Workout)
-            .WithMany(w => w.Comments)
-            .HasForeignKey(c => c.TargetId)
-            .OnDelete(DeleteBehavior.Cascade)
-            .IsRequired(false);
     }
 }

@@ -95,7 +95,17 @@
                     appendCommentDOM(newComment);
                     input.value = "";
                 } else {
-                    alert("Error posting comment");
+                    // 👇 ОСЬ ТУТ МИ ЧИТАЄМО РЕАЛЬНУ ПОМИЛКУ З СЕРВЕРА 👇
+                    const errorText = await res.text();
+                    console.error("Server Error:", errorText); // Для F12 Console
+
+                    // Спробуємо розпарсити JSON, якщо сервер віддав JSON з message
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        alert("Error: " + (errorJson.message || errorText));
+                    } catch {
+                        alert("Server Error: " + errorText);
+                    }
                 }
             } catch (err) {
                 console.error(err);
