@@ -6,9 +6,10 @@ using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class CommentService(IUnitOfWork unitOfWork) : ICommentService
+public class CommentService(IUnitOfWork unitOfWork, INotificationService notificationService) : ICommentService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<List<CommentDto>> GetCommentDtos(Guid currentProfileUserId, Guid targetId, CommentTargetType targetType)
     {
@@ -66,6 +67,32 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
 
         // Зберігаємо
         await CreateCommentAsync(commentDto);
+
+        Guid receiverId = Guid.Empty;
+
+        if (targetType == CommentTargetType.UserProfile)
+        {
+            receiverId = targetId;
+        }
+        else if (targetType == CommentTargetType.Workout)
+        {
+            var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(targetId);
+            receiverId = workout.UserProfileId;
+        }
+
+        // Перевірка: не сповіщати, якщо коментуєш сам себе
+        if (receiverId != Guid.Empty && receiverId != currentProfileUserId)
+        {
+            var senderName = currentUser.ApplicationUser?.UserName ?? "Someone";
+            var message = $"{senderName} прокоментував ваш допис.";
+
+            // Формуємо посилання, куди перейде юзер при кліку
+            string link = targetType == CommentTargetType.Workout
+                ? $"/Workout/Details?workoutId={targetId}"
+                : $"/profile?userId={targetId}";
+
+            await _notificationService.SendNotificationAsync(receiverId, message, link);
+        }
 
         return commentDto;
     }

@@ -1,8 +1,11 @@
 using Gymify.Application.Extensions;
+using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Persistence;
 using Gymify.Persistence.SeedData;
+using Gymify.Web.Hubs;
 using Gymify.Web.Seed;
+using Gymify.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 
@@ -15,7 +18,10 @@ services.Configure<SeedDataOptions>(configuration.GetSection("SeedDataOptions"))
 
 services
     .AddPersistence(configuration)
-    .AddApplication();
+    .AddApplication()
+    .AddSignalR();
+
+services.AddScoped<INotifierService, SignalRNotifierService>();
 
 services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 {
@@ -70,5 +76,6 @@ app.MapControllerRoute(
     pattern: "{controller=Main}/{action=Index}/{id?}"
 );
 
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

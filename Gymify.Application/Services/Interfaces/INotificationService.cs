@@ -2,4 +2,5 @@
 
 public interface INotificationService
 {
+    Task SendNotificationAsync(Guid targetUserId, string message, string link);
 }

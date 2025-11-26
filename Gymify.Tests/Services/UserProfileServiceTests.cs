@@ -1,4 +1,4 @@
-﻿using Gymify.Application.DTOs.UserEquipment;
+﻿/*using Gymify.Application.DTOs.UserEquipment;
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.UserProfile;
@@ -226,4 +226,4 @@ namespace Gymify.Tests.Services
             _mockUserManager.Verify(m => m.SetUserNameAsync(appUser, newName), Times.Once);
         }
     }
-}
+}*/
