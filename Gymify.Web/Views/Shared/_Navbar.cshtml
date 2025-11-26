@@ -20,6 +20,11 @@
                 </li>
             </ul>
 
+            @if (User.Identity.IsAuthenticated)
+            {
+                <vc:notification-bell />
+            }
+
             <partial name="_LoginPartial" />
         </div>
     </div>

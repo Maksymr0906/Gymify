@@ -37,24 +37,40 @@
                     .withAutomaticReconnect() // Перепідключатись при втраті інтернету
                     .build();
 
-                // Слухач подій від сервера
-                connection.on("ReceiveNotification", function (data) {
-                    console.log("🔔 SignalR Notification:", data);
+                    connection.on("ReceiveNotification", function (data) {
+                    console.log("🔔 New:", data);
 
-                    // 1. Показуємо просте повідомлення (для тесту)
-                    // У майбутньому заміни це на гарний "Toast" (спливаюче вікно)
-                    // alert("Нове сповіщення: " + data.message); 
-
-                    // 2. Оновлюємо лічильник дзвіночка (якщо ти реалізував ViewComponent)
-                    const badge = document.getElementById("notificationBadge");
+                    // 1. Оновити лічильник
+                    const badge = document.getElementById("ntBadge");
                     if (badge) {
                         let count = parseInt(badge.innerText) || 0;
                         count++;
                         badge.innerText = count;
-                        badge.style.display = "block"; // Показати, якщо був схований
+                        badge.style.display = "flex"; // Показати
+
+                        // Анімація пульсації (опціонально)
+                        badge.style.transform = "scale(1.2)";
+                        setTimeout(() => badge.style.transform = "scale(1)", 200);
                     }
 
-                    // 3. Додаємо в список (якщо він відкритий), логіку можна додати в компонент дзвіночка
+                    // 2. Додати в список
+                    const list = document.getElementById("ntList");
+                    if (list) {
+                        // Прибираємо напис "пусто", якщо він є
+                        const empty = list.querySelector('.nt-empty');
+                        if(empty) empty.remove();
+
+                        // Генеруємо HTML нового елемента
+                        const html = `
+                            <a href="${data.link}" class="nt-item unread" onclick="readNotification('${data.id}')">
+                                <span class="nt-msg">${data.message}</span>
+                                <span class="nt-time">Just now</span>
+                            </a>
+                        `;
+
+                        // Вставляємо на початок
+                        list.insertAdjacentHTML('afterbegin', html);
+                    }
                 });
 
                 // Старт з'єднання
