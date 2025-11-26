@@ -1,5 +1,4 @@
-﻿@using Gymify.Application.ViewModels
-@using Gymify.Application.ViewModels.Comment
+﻿@using Gymify.Application.ViewModels.Comment
 @model CommentsSectionViewModel
 
 <style>
@@ -7,22 +6,17 @@
 </style>
 
 <div class="co-container">
-    
     <div class="co-form-wrapper">
-        <img src="@Model.CurrentUserAvatarUrl" class="co-avatar" alt="User">
+        <a href="@Url.Action("Profile", "User", new { userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString()) })">
+            <img src="@Model.CurrentUserAvatarUrl" class="co-avatar" alt="User">
+        </a>
         <div class="co-input-block">
             <form id="coCommentForm">
                 <input type="hidden" name="targetId" value="@Model.TargetId" />
                 <input type="hidden" name="targetType" value="@Model.TargetType" />
-                
-                <textarea name="content" id="coContentInput" 
-                          class="co-textarea" 
-                          placeholder="Write a comment..."></textarea>
-                
+                <textarea name="content" id="coContentInput" class="co-textarea" placeholder="Write a comment..."></textarea>
                 <div style="text-align: right; margin-top: 8px;">
-                    <button type="submit" id="coBtnPost" class="co-btn co-btn-primary" disabled>
-                        Post Comment
-                    </button>
+                    <button type="submit" id="coBtnPost" class="co-btn co-btn-primary" disabled>Post Comment</button>
                 </div>
             </form>
         </div>
@@ -33,29 +27,41 @@
         {
             @foreach (var comment in Model.Items)
             {
-                <div class="co-item" id="comment-el-@comment.GetHashCode()"> 
-                    <img src="@comment.AuthorAvatarUrl" class="co-avatar" alt="Avatar">
-                    <div class="co-content">
-                        <div class="co-header">
-                            <div>
-                                <span class="co-author">@comment.AuthorName</span>
-                                <span class="co-date">&bull; @comment.CreatedAt.ToString("g")</span>
-                            </div>
+                        <div class="co-item" id="comment-el-@comment.Id">
+                            <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })">
+                                <img src="@comment.AuthorAvatarUrl" class="co-avatar" alt="Avatar">
+                            </a>
+                            <div class="co-content">
+                                <div class="co-header">
+                                    <div>
+                                        <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })" class="co-author-link">@comment.AuthorName</a>
+                                        <span class="co-date">&bull; @comment.CreatedAt.ToString("g")</span>
+                                    </div>
                             @if (comment.CanDelete)
                             {
-                                <button class="co-delete-btn" onclick="deleteCommentNode(this, '@comment.Id')">Delete</button>
+                                            <div class="co-actions">
+                                                <button class="co-action-btn" onclick="editCommentStart('@comment.Id')">Edit</button>
+                                                <button class="co-action-btn delete" onclick="deleteCommentNode(this, '@comment.Id')">Delete</button>
+                                            </div>
                             }
+                                </div>
+
+                                <div class="co-text" id="text-@comment.Id">@comment.Content</div>
+
+                                <div class="co-edit-area hidden" id="edit-area-@comment.Id">
+                                    <textarea class="co-edit-textarea" id="input-@comment.Id">@comment.Content</textarea>
+                                    <div class="co-edit-controls">
+                                        <button class="co-btn co-btn-sm co-btn-cancel" onclick="editCommentCancel('@comment.Id')">Cancel</button>
+                                        <button class="co-btn co-btn-sm co-btn-primary" onclick="editCommentSave('@comment.Id')">Save</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="co-text">@comment.Content</div>
-                    </div>
-                </div>
             }
         }
         else
         {
-            <div id="coNoComments" class="co-empty-msg">
-                Be the first to comment!
-            </div>
+                <div id="coNoComments" class="co-empty-msg">Be the first to comment!</div>
         }
     </div>
 </div>
@@ -68,113 +74,112 @@
         const list = document.getElementById('coCommentsList');
         const emptyMsg = document.getElementById('coNoComments');
 
-        // Активація кнопки
-        input.addEventListener('input', () => {
-            btn.disabled = input.value.trim().length === 0;
-        });
+        input.addEventListener('input', () => { btn.disabled = input.value.trim().length === 0; });
 
-        // --- AJAX POST ---
+        // --- POST COMMENT ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const formData = new FormData(form);
             const originalText = btn.innerText;
-            
-            btn.disabled = true;
-            btn.innerText = "Posting...";
+            btn.disabled = true; btn.innerText = "Posting...";
 
             try {
-                // Заміни на свій реальний шлях
-                const res = await fetch('/Comment/AddComment', { 
-                    method: 'POST', 
-                    body: formData 
-                });
-
+                const res = await fetch('/Comment/AddComment', { method: 'POST', body: formData });
                 if (res.ok) {
                     const newComment = await res.json();
                     appendCommentDOM(newComment);
                     input.value = "";
                 } else {
-                    // 👇 ОСЬ ТУТ МИ ЧИТАЄМО РЕАЛЬНУ ПОМИЛКУ З СЕРВЕРА 👇
-                    const errorText = await res.text();
-                    console.error("Server Error:", errorText); // Для F12 Console
-
-                    // Спробуємо розпарсити JSON, якщо сервер віддав JSON з message
-                    try {
-                        const errorJson = JSON.parse(errorText);
-                        alert("Error: " + (errorJson.message || errorText));
-                    } catch {
-                        alert("Server Error: " + errorText);
-                    }
+                    alert("Error posting comment");
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Request failed");
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = true; // Знову вимикаємо, бо інпут пустий
-            }
+            } catch (err) { console.error(err); } 
+            finally { btn.innerText = originalText; btn.disabled = true; }
         });
 
-        // --- ДОДАВАННЯ В DOM ---
         function appendCommentDOM(c) {
             if(emptyMsg) emptyMsg.style.display = 'none';
+            const domId = 'comment-el-' + (c.id || Date.now());
 
-            // Генеруємо ID для DOM елемента (якщо сервер не повернув ID, генеруємо тимчасовий)
-            // Важливо: c.Id має приходити з сервера (JSON)
-            const domId = 'comment-el-' + (c.id || Date.now()); 
+            // Посилання на профіль
+            const profileUrl = `/profile?userId=${c.authorId}`; // Або згенерувати через JS, якщо є шаблон
 
-            // Формуємо HTML з класами co-
             const html = `
                 <div class="co-item" id="${domId}">
-                    <img src="${c.authorAvatarUrl || '/images/default-avatar.png'}" class="co-avatar" alt="User">
+                    <a href="${profileUrl}"><img src="${c.authorAvatarUrl || '/images/default-avatar.png'}" class="co-avatar" alt="User"></a>
                     <div class="co-content">
                         <div class="co-header">
                             <div>
-                                <span class="co-author">${escapeHtml(c.authorName)}</span>
+                                <a href="${profileUrl}" class="co-author-link">${escapeHtml(c.authorName)}</a>
                                 <span class="co-date">&bull; Just now</span>
                             </div>
-                            <button class="co-delete-btn" onclick="deleteCommentNode(this, '${c.id}')">Delete</button>
+                            <div class="co-actions">
+                                <button class="co-action-btn" onclick="editCommentStart('${c.id}')">Edit</button>
+                                <button class="co-action-btn delete" onclick="deleteCommentNode(this, '${c.id}')">Delete</button>
+                            </div>
                         </div>
-                        <div class="co-text">${escapeHtml(c.content)}</div>
+                        <div class="co-text" id="text-${c.id}">${escapeHtml(c.content)}</div>
+                        <div class="co-edit-area hidden" id="edit-area-${c.id}">
+                            <textarea class="co-edit-textarea" id="input-${c.id}">${escapeHtml(c.content)}</textarea>
+                            <div class="co-edit-controls">
+                                <button class="co-btn co-btn-sm co-btn-cancel" onclick="editCommentCancel('${c.id}')">Cancel</button>
+                                <button class="co-btn co-btn-sm co-btn-primary" onclick="editCommentSave('${c.id}')">Save</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
-            
             list.insertAdjacentHTML('afterbegin', html);
         }
 
         function escapeHtml(text) {
             if (!text) return "";
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // --- ВИДАЛЕННЯ ---
-        // Робимо функцію глобальною, щоб працювала в onclick
-        window.deleteCommentNode = async function(btn, id) {
-            if(!confirm("Delete comment?")) return;
-            
-            // Знаходимо батьківський елемент .co-item
-            const item = btn.closest('.co-item');
+        // --- EDIT LOGIC ---
+        window.editCommentStart = function(id) {
+            document.getElementById(`text-${id}`).classList.add('hidden');
+            document.getElementById(`edit-area-${id}`).classList.remove('hidden');
+        };
+
+        window.editCommentCancel = function(id) {
+            document.getElementById(`text-${id}`).classList.remove('hidden');
+            document.getElementById(`edit-area-${id}`).classList.add('hidden');
+            // Скидаємо текст в textarea до оригінального
+            const originalText = document.getElementById(`text-${id}`).innerText;
+            document.getElementById(`input-${id}`).value = originalText;
+        };
+
+        window.editCommentSave = async function(id) {
+            const newContent = document.getElementById(`input-${id}`).value.trim();
+            if (!newContent) { alert("Comment cannot be empty"); return; }
+
+            const formData = new FormData();
+            formData.append('commentId', id);
+            formData.append('newContent', newContent);
 
             try {
-                // Заміни на реальний шлях
+                const res = await fetch('/Comment/EditComment', { method: 'POST', body: formData });
+                if (res.ok) {
+                    // Оновлюємо UI
+                    document.getElementById(`text-${id}`).innerText = newContent;
+                    editCommentCancel(id); // Закриваємо редактор
+                } else {
+                    alert("Failed to update comment");
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        // --- DELETE LOGIC ---
+        window.deleteCommentNode = async function(btn, id) {
+            if(!confirm("Delete comment?")) return;
+            const item = btn.closest('.co-item');
+            try {
                 const res = await fetch(`/Comment/DeleteComment?commentId=${id}`, { method: 'POST' });
-                
                 if(res.ok) {
                     item.remove();
-                    // Якщо список пустий - показати emptyMsg
-                    if (list.children.length === 0 && emptyMsg) {
-                        emptyMsg.style.display = 'block';
-                    }
-                } else {
-                    alert("Failed to delete");
-                }
+                    if (list.children.length === 0 && emptyMsg) emptyMsg.style.display = 'block';
+                } else alert("Failed to delete");
             } catch(e) { console.error(e); }
         };
     })();

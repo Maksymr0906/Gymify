@@ -39,6 +39,24 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> EditComment(Guid commentId, string newContent)
+        {
+            if (string.IsNullOrWhiteSpace(newContent)) return BadRequest("Content required");
+
+            try
+            {
+                var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                // Припускаємо, що у тебе є метод в сервісі, який перевіряє права і оновлює
+                await _commentService.UpdateCommentAsync(commentId, userId, newContent);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> DeleteComment(Guid commentId)
         {
             await _commentService.DeleteCommentByIdAsync(commentId);

@@ -94,6 +94,17 @@ public class CommentService(IUnitOfWork unitOfWork) : ICommentService
         }
     }
 
+    public async Task UpdateCommentAsync(Guid commentId, Guid userId, string content)
+    {
+        var comment = await _unitOfWork.CommentRepository.GetByIdAsync(commentId);
+        if (comment == null) throw new Exception("Comment not found");
+        if (comment.AuthorId != userId) throw new Exception("Access denied");
+
+        comment.Content = content;
+        await _unitOfWork.CommentRepository.UpdateAsync(comment);
+        await _unitOfWork.SaveAsync();
+    }
+
     public async Task DeleteCommentByIdAsync(Guid commentId)
     {
         // Тут можна додати перевірку прав, якщо потрібно
