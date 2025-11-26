@@ -39,7 +39,7 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Profile(Guid userId)
         {
             var loggedUserId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            var model = await _userProfileService.GetUserProfileModel(userId);
+            var model = await _userProfileService.GetUserProfileModel(loggedUserId, userId);
             model.Editable = loggedUserId == userId ? true : false; 
 
             return View("Profile", model);

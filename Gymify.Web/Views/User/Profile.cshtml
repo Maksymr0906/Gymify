@@ -82,7 +82,21 @@
         </div>
 
         <div class="userProfileComments">
-            Comments Section Here...
+            <div class="ae-comments-section">
+                <h3 class="ae-section-title ae-mb-20">Comments</h3>
+
+                        @{
+                            var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
+                            {
+                                TargetId = Model.UserProfileId,
+                                TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile, 
+                                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl 
+                            };
+                        }
+
+                <partial  name="_CommentsSection" model="commentsVm" />
+            </div>
         </div>
 
     </div>

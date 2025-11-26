@@ -59,7 +59,7 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddExercise(Guid? workoutId)
+        public IActionResult AddExercise(Guid? workoutId)
         {
             var id = workoutId ?? (TempData["WorkoutId"] != null ? Guid.Parse(TempData["WorkoutId"].ToString()) : Guid.Empty);
 

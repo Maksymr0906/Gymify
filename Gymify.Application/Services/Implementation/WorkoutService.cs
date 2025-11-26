@@ -218,7 +218,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Description = workout.Description,
             Conclusion = workout.Conclusion,
             AuthorName = workoutAuthor.ApplicationUser?.UserName ?? "Unknown",
-            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png", // Null-safe
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png", 
             AuthorId = workout.UserProfileId,
             CreatedAt = workout.CreatedAt,
             TotalXP = workout.TotalXP,
