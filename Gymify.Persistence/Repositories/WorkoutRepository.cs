@@ -26,9 +26,8 @@ public class WorkoutRepository(GymifyDbContext context)
         return await Entities.Where(w => w.UserProfileId == userId).ToListAsync();
     }
 
-    public async Task<List<Workout>> GetLastWorkouts(Guid userId)
+    public async Task<ICollection<Workout>> GetLastWorkouts(Guid userId, int count = 4)
     {
-        int count = 3;
         return await _context.Workouts
             .Where(w => w.UserProfileId == userId)
             .OrderByDescending(w => w.CreatedAt)
@@ -36,46 +35,23 @@ public class WorkoutRepository(GymifyDbContext context)
             .ToListAsync();
     }
 
-    public async Task<DateTime?> GetFirstWorkoutDateAsync(Guid userId, bool onlyMy, string? authorName)
-    {
-        var query = Entities.AsQueryable();
 
-        if (onlyMy)
-        {
-            query = query.Where(w => w.UserProfileId == userId);
-        }
-        else if (!string.IsNullOrWhiteSpace(authorName))
-        {
-            var loweredName = authorName.Trim().ToLower();
-            query = query.Where(w => w.UserProfile.ApplicationUser.UserName.ToLower().Contains(loweredName));
-        }
-        else
-        {
-            // Якщо !onlyMy і немає імені автора, ми показуємо всі тренування
-        }
-
-        var firstWorkoutDate = await query
-            .OrderBy(w => w.CreatedAt)
-            .Select(w => (DateTime?)w.CreatedAt.Date)
-            .FirstOrDefaultAsync();
-
-        return firstWorkoutDate;
-    }
-
-    public async Task<ICollection<Workout>> GetUserWorkoutsFilteredAsync
-        (Guid userId, DateTime startDate, DateTime endDate, 
-        string? authorName, bool onlyMy, bool byDescending)
+    public IQueryable<Workout> GetWorkoutsQuery(
+        Guid userId,
+        string? authorName,
+        bool onlyMy,
+        bool byDescending)
     {
         var query = Entities
             .Include(w => w.UserProfile)
                 .ThenInclude(up => up.ApplicationUser)
-            .Where(w => w.CreatedAt >= startDate && w.CreatedAt <= endDate);
+            .AsQueryable();
 
         if (onlyMy)
         {
             query = query.Where(w => w.UserProfileId == userId);
         }
-        else
+        else 
         {
             query = query.Where(w => w.IsPrivate == false);
 
@@ -95,6 +71,22 @@ public class WorkoutRepository(GymifyDbContext context)
             query = query.OrderBy(w => w.CreatedAt);
         }
 
-        return await query.ToListAsync();
+        return query;
+    }
+
+    public async Task<ICollection<Workout>> GetWorkoutsPageAsync(
+        Guid userId,
+        string? authorName,
+        bool onlyMy,
+        bool byDescending,
+        int page,
+        int pageSize)
+    {
+        var query = GetWorkoutsQuery(userId, authorName, onlyMy, byDescending);
+        
+        return await query
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
 }

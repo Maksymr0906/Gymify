@@ -1,0 +1,212 @@
+﻿@model Gymify.Application.ViewModels.NotificationBell.NotificationBellViewModel
+
+<style>
+    /* Контейнер дзвіночка */
+    .nt-container {
+        position: relative;
+        display: inline-block;
+        margin-left: 20px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Кнопка-іконка */
+    .nt-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        color: #555;
+        padding: 8px;
+        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .nt-btn:hover { color: #3498db; }
+
+    /* SVG Іконка */
+    .nt-icon {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* Червоний кружечок (Бейдж) */
+    .nt-badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background-color: #e74c3c;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        height: 16px;
+        min-width: 16px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        border: 2px solid #fff; /* Біла обводка, щоб відділити від іконки */
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Випадаючий список */
+    .nt-dropdown {
+        display: none; /* Приховано */
+        position: absolute;
+        right: -10px; /* Вирівнювання по правому краю */
+        top: 120%;
+        width: 320px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border: 1px solid #eee;
+        z-index: 1000;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    /* Клас для відкриття */
+    .nt-dropdown.active {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Заголовок списку */
+    .nt-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        font-weight: 700;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fafafa;
+    }
+    .nt-mark-all { font-size: 11px; color: #3498db; cursor: pointer; text-decoration: none; }
+    .nt-mark-all:hover { text-decoration: underline; }
+
+    /* Список елементів */
+    .nt-list {
+        max-height: 350px;
+        overflow-y: auto;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Елемент списку */
+    .nt-item {
+        display: block;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f5f5f5;
+        text-decoration: none;
+        color: #444;
+        transition: background 0.1s;
+        position: relative;
+    }
+    .nt-item:hover { background-color: #f8f9fa; }
+
+    /* Непрочитаний елемент */
+    .nt-item.unread {
+        background-color: #eef7fe;
+    }
+    .nt-item.unread::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background-color: #3498db;
+    }
+
+    .nt-msg { font-size: 13px; line-height: 1.4; display: block; }
+    .nt-time { font-size: 11px; color: #999; margin-top: 4px; display: block; }
+
+    .nt-empty {
+        padding: 30px;
+        text-align: center;
+        color: #aaa;
+        font-size: 13px;
+    }
+
+    @Html.Raw("@keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }")
+</style>
+
+<div class="nt-container" id="ntContainer">
+
+    <button class="nt-btn" id="ntBtn" onclick="toggleNotifications()">
+        <svg class="nt-icon" viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+
+        <span id="ntBadge" class="nt-badge" style="@(Model.UnreadCount > 0 ? "" : "display:none")">
+            @Model.UnreadCount
+        </span>
+    </button>
+
+    <div class="nt-dropdown" id="ntDropdown">
+        <div class="nt-header">
+            <span>Notifications</span>
+            <span class="nt-mark-all" onclick="markAllRead()">Mark all read</span>
+        </div>
+
+        <div class="nt-list" id="ntList">
+            @if (Model.Notifications.Any())
+            {
+                foreach (var n in Model.Notifications)
+                {
+                    // Клік по повідомленню позначає прочитаним і переходить
+                            <a href="@n.Link" class="nt-item @(n.IsRead ? "" : "unread")" onclick="readNotification('@n.Id')">
+                                <span class="nt-msg">@n.Content</span>
+                                <span class="nt-time">@n.CreatedAt.ToString("g")</span>
+                            </a>
+                }
+            }
+            else
+            {
+                    <div class="nt-empty">No new notifications</div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    // Логіка перемикання
+    function toggleNotifications() {
+        const dd = document.getElementById('ntDropdown');
+        dd.classList.toggle('active');
+    }
+
+    // Закриття при кліку зовні
+    window.addEventListener('click', function(e) {
+        const container = document.getElementById('ntContainer');
+        if (!container.contains(e.target)) {
+            document.getElementById('ntDropdown').classList.remove('active');
+        }
+    });
+
+    // AJAX: Позначити як прочитане (при кліку)
+    function readNotification(id) {
+        // Не чекаємо відповіді (fire-and-forget), щоб перехід був швидким
+        fetch(`/Notification/Read?id=${id}`, { method: "POST" });
+    }
+
+    // AJAX: Позначити все
+    function markAllRead() {
+        fetch(`/Notification/ReadAll`, { method: "POST" })
+            .then(() => {
+                // Візуально прибираємо бейдж і класи unread
+                document.getElementById('ntBadge').style.display = 'none';
+                document.querySelectorAll('.nt-item.unread').forEach(el => el.classList.remove('unread'));
+            });
+    }
+</script>

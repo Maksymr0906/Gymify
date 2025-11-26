@@ -42,9 +42,18 @@ public class UserAchievementRepository(GymifyDbContext context) : IUserAchieveme
            .ToListAsync();
     }
 
+    public async Task<ICollection<UserAchievement>> GetAllByUserId(Guid userProfileId)
+    {
+        return await _context.UserAchievements
+            .Include(ua => ua.Achievement)
+            .Where(ua => ua.UserProfileId == userProfileId)
+            .ToListAsync();
+    } 
+
     public async Task<UserAchievement> UpdateAsync(UserAchievement entity)
     {
         _context.UserAchievements.Update(entity);
         return entity;
     }
+
 }

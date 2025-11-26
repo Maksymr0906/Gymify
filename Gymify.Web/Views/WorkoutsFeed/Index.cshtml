@@ -10,18 +10,15 @@
 
     <div style="display:flex; gap:20px; align-items:center;">
 
-        <!-- Filter type -->
         <select id="filter-type" style="padding:6px 10px;">
             <option value="mine">Show my workouts</option>
             <option value="all">Show all workouts</option>
         </select>
 
-        <!-- Search by author (hidden by default) -->
         <input type="text" id="author-search"
                placeholder="Search by author"
                style="padding:6px 10px; display:none; width:200px;" />
 
-        <!-- Sort direction -->
         <select id="sort-type" style="padding:6px 10px;">
             <option value="desc">The newest first</option>
             <option value="asc">The oldest first</option>
@@ -31,7 +28,7 @@
 </div>
 
 <div id="workout-feed-container">
-    @await Html.PartialAsync("WorkoutsList", Model)
+    @await Html.PartialAsync("WorkoutsList", Model) 
 </div>
 
 <button id="load-more-btn" data-page="1" style="margin-top:20px;">
@@ -39,72 +36,54 @@
 </button>
 
 @section Scripts {
-        <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
 
             const feed = document.getElementById('workout-feed-container');
             const loadMoreBtn = document.getElementById('load-more-btn');
-
             const filterType = document.getElementById('filter-type');
             const authorSearch = document.getElementById('author-search');
             const sortType = document.getElementById('sort-type');
 
             let debounceTimer;
 
-            // ==========================================================
-            // 🎨 НОВА ФУНКЦІЯ: Розрахунок кольору (Red -> Green)
-            // ==========================================================
-            /**
-             * Повертає колір HSL від червоного (0) до зеленого (120)
-             * DOGparam {number} xp - Поточний XP дня
-             * DOGparam {number} min - Мінімальний XP серед усіх завантажених днів
-             * DOGparam {number} max - Максимальний XP серед усіх завантажених днів
-             */
             function getXPColor(xp, min, max) {
-                // Якщо max і min однакові (або це єдиний день), просто робимо його зеленим
-                if (max === min) {
+                
+                if (max <= min) {
                     return 'hsl(120, 75%, 90%)'; // Світло-зелений
                 }
 
-                // Розраховуємо відсоток (0.0 = min, 1.0 = max)
+
                 const percentage = (xp - min) / (max - min);
 
-                // Конвертуємо відсоток у колір (0 = червоний, 120 = зелений)
+
                 const hue = percentage * 120;
 
-                // Повертаємо пастельний HSL колір (S=75%, L=90%)
                 return `hsl(${hue}, 75%, 90%)`;
             }
 
-            // ==========================================================
-            // 🎨 НОВА ФУНКЦІЯ: Застосування "теплової карти"
-            // ==========================================================
-                function applyHeatmap() {
+            function applyHeatmap() {
                 const onlyMy = filterType.value === 'mine';
+                const allDayEntries = feed.querySelectorAll('.day-entry');
 
-                // --- Очищення ---
-                // Спочатку знаходимо ВСІ елементи, які ми могли розфарбувати
-                const allDayHeaders = feed.querySelectorAll('.day-header');
-                const allWorkouts = feed.querySelectorAll('a[data-workout-xp]');
+                allDayEntries.forEach(day => {
+                    const header = day.querySelector('.day-header');
+                    if (header) {
+                        header.classList.remove('heatmap-day-active');
+                        header.style.backgroundColor = ''; 
+                    }
+                    day.querySelectorAll('a[data-workout-xp]').forEach(workout => {
+                        workout.classList.remove('heatmap-workout-active');
+                        workout.style.backgroundColor = '';
+                        workout.style.cssText = ''; 
+                    });
+                });
 
                 if (!onlyMy) {
-                    // Якщо фільтр НЕ "мої", очищуємо всі кольори
-                    allDayHeaders.forEach(header => {
-                        header.style.backgroundColor = '';
-                        header.style.color = '';
-                    });
-
-                    allWorkouts.forEach(workout => {
-                        workout.style.backgroundColor = '';
-                        workout.style.color = '';
-                        workout.style.padding = '';
-                        workout.style.borderRadius = '';
-                    });
                     return;
                 }
 
-                // --- Застосування кольорів (ДНІ) ---
-                const daysWithXp = feed.querySelectorAll('.day-entry[data-day-xp]');
+                const daysWithXp = Array.from(allDayEntries).filter(day => day.dataset.dayXp);
                 if (daysWithXp.length === 0) return;
 
                 let globalMinXP = Infinity;
@@ -113,157 +92,94 @@
                 daysWithXp.forEach(day => {
                     const xp = parseInt(day.dataset.dayXp, 10);
                     if (!isNaN(xp)) {
-                        if (xp < globalMinXP) globalMinXP = xp;
-                        if (xp > globalMaxXP) globalMaxXP = xp;
+                        globalMinXP = Math.min(globalMinXP, xp);
+                        globalMaxXP = Math.max(globalMaxXP, xp);
                     }
                 });
 
                 if (globalMinXP === Infinity) return;
 
-                // --- Головний цикл ---
-                daysWithXp.forEach(day => {
 
-                    // 1. Розфарбовуємо ЗАГОЛОВОК ДНЯ (старий код)
+                daysWithXp.forEach(day => {
                     const dayXP = parseInt(day.dataset.dayXp, 10);
-                    if (!isNaN(dayXP)) {
-                        const dayColor = getXPColor(dayXP, globalMinXP, globalMaxXP);
-                        const header = day.querySelector('.day-header');
-                        if (header) {
-                            header.style.backgroundColor = dayColor;
-                            header.style.color = '#333';
-                        }
+                    const header = day.querySelector('.day-header');
+
+                    if (!isNaN(dayXP) && header) {
+                      
+                        header.style.backgroundColor = getXPColor(dayXP, globalMinXP, globalMaxXP);
+                        header.classList.add('heatmap-day-active'); // Додаємо клас для color: #333
                     }
 
-                    // Знаходимо всі тренування ТІЛЬКИ ЦЬОГО ДНЯ
                     const workoutsInDay = day.querySelectorAll('a[data-workout-xp]');
-                    if (workoutsInDay.length === 0) return; // (це 'continue' для forEach)
+                    if (workoutsInDay.length === 0) return;
 
                     let localMinXP = Infinity;
                     let localMaxXP = -Infinity;
 
-                    // 2a. Знаходимо ЛОКАЛЬНИЙ min/max (тільки для цього дня)
                     workoutsInDay.forEach(workout => {
                         const workoutXP = parseInt(workout.dataset.workoutXp, 10);
                         if (!isNaN(workoutXP)) {
-                            if (workoutXP < localMinXP) localMinXP = workoutXP;
-                            if (workoutXP > localMaxXP) localMaxXP = workoutXP;
+                            localMinXP = Math.min(localMinXP, workoutXP);
+                            localMaxXP = Math.max(localMaxXP, workoutXP);
                         }
                     });
 
-                    if (localMinXP === Infinity) return; // (це 'continue' для forEach)
+                    if (localMinXP === Infinity) return;
 
-                    // 2b. Застосовуємо кольори до тренувань ЦЬОГО ДНЯ
                     workoutsInDay.forEach(workout => {
                         const workoutXP = parseInt(workout.dataset.workoutXp, 10);
                         if (isNaN(workoutXP)) return;
 
-                        // Використовуємо ту саму функцію, але з ЛОКАЛЬНИМИ min/max
                         const workoutColor = getXPColor(workoutXP, localMinXP, localMaxXP);
 
                         workout.style.backgroundColor = workoutColor;
-                        workout.style.color = '#333'; // Темний текст
-                        workout.style.padding = '2px 5px'; // Трохи відступів
-                        workout.style.borderRadius = '4px'; // Заокруглення
-                        workout.style.display = 'inline-block'; // Щоб padding працював
+
+                        workout.classList.add('heatmap-workout-active');
                     });
                 });
             }
 
-            // SHOW / HIDE AUTHOR SEARCH
-            filterType.addEventListener('change', function () {
-                if (filterType.value === 'all') {
-                    authorSearch.style.display = 'block';
-                } else {
-                    authorSearch.style.display = 'none';
-                    authorSearch.value = '';
-                }
-                reloadFeed(); // reloadFeed сам викличе applyHeatmap
-            });
+            function getFilterParams() {
+                return {
+                    onlyMy: filterType.value === 'mine',
+                    authorName: authorSearch.value.trim(),
+                    byDescending: sortType.value === 'desc'
+                };
+            }
 
-            // SORT CHANGE
-            sortType.addEventListener('change', function () {
-                reloadFeed(); // reloadFeed сам викличе applyHeatmap
-            });
-
-            // DEBOUNCE AUTHOR SEARCH
-            authorSearch.addEventListener('input', function () {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    reloadFeed(); // reloadFeed сам викличе applyHeatmap
-                }, 400);
-            });
-
-            // MAIN RELOAD
             async function reloadFeed() {
-                // ... (весь ваш код для async/await anchorDate) ...
-                // ... (ваш код для побудови params) ...
-
-                const onlyMy = filterType.value === 'mine';
-                const authorName = authorSearch.value;
-                const byDescending = sortType.value === 'desc';
-
-                let anchorDate = null; 
-
-                if (!byDescending) {
-                    let anchorParams = new URLSearchParams();
-                    anchorParams.append('onlyMy', onlyMy);
-                    anchorParams.append('authorName', authorName);
-                    const anchorUrl = '@Url.Action("GetAnchorDate")?' + anchorParams.toString();
-                    try {
-                        const response = await fetch(anchorUrl);
-                        const data = await response.json();
-                        anchorDate = data.anchorDate; 
-                        if (!anchorDate) {
-                            feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
-                            loadMoreBtn.style.display = 'none';
-                            return;
-                        }
-                    } catch (e) {
-                        feed.innerHTML = '<p>Error when loading.</p>';
-                        return;
-                    }
-                }
+                const { onlyMy, authorName, byDescending } = getFilterParams();
 
                 let params = new URLSearchParams();
-                params.append('page', 0);
+                params.append('page', 0); 
                 params.append('onlyMy', onlyMy);
                 params.append('byDescending', byDescending);
                 params.append('authorName', authorName);
 
-                if (anchorDate) {
-                    params.append('anchorDate', anchorDate);
-                    loadMoreBtn.dataset.anchorDate = anchorDate; 
-                } else {
-                    loadMoreBtn.dataset.anchorDate = '';
-                }
-
                 const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
 
-                fetch(url)
-                    .then(r => r.text())
-                    .then(html => {
-                        feed.innerHTML = html;
-                        loadMoreBtn.dataset.page = 1;
-                        loadMoreBtn.style.display = 'block'; 
+                try {
+                    const response = await fetch(url);
+                    const html = await response.text();
 
-                        if (html.trim().length === 0) {
-                            feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
-                            loadMoreBtn.style.display = 'none';
-                        }
+                    feed.innerHTML = html; 
+                    loadMoreBtn.dataset.page = 1; 
 
-                        applyHeatmap();
-                    });
+                    if (html.trim().length === 0) {
+                        feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
+                        loadMoreBtn.style.display = 'none';
+                    } else {
+                        loadMoreBtn.style.display = 'block';
+                    }
+
+                    applyHeatmap();
+                } 
+                catch (e) { /* ... обробка помилок ... */ }
             }
 
-            // LOAD MORE
-            loadMoreBtn.addEventListener('click', function () {
-                // ... (ваш код для nextPage, params і т.д.) ...
-
+            async function loadMoreWorkouts() {
                 const nextPage = parseInt(loadMoreBtn.dataset.page);
-                const onlyMy = filterType.value === 'mine';
-                const authorName = authorSearch.value;
-                const byDescending = sortType.value === 'desc';
-                const anchorDate = loadMoreBtn.dataset.anchorDate;
+                const { onlyMy, authorName, byDescending } = getFilterParams();
 
                 let params = new URLSearchParams();
                 params.append('page', nextPage);
@@ -271,43 +187,110 @@
                 params.append('byDescending', byDescending);
                 params.append('authorName', authorName);
 
-                if (anchorDate) { 
-                    params.append('anchorDate', anchorDate);
-                }
-
                 const url = '@Url.Action("LoadMoreWorkouts")?' + params.toString();
 
-                fetch(url)
-                    .then(r => r.text())
-                    .then(html => {
-                        if (html.trim().length === 0) {
-                            loadMoreBtn.style.display = 'none';
+                try {
+                    const response = await fetch(url);
+                    const html = await response.text();
+
+                    if (html.trim().length === 0) {
+                        loadMoreBtn.style.display = 'none';
+                        return;
+                    }
+
+                    let temp = document.createElement('div');
+                    temp.innerHTML = html;
+
+                    const newDayEntries = temp.querySelectorAll('.day-entry');
+
+                    newDayEntries.forEach(newDay => {
+                        const dayId = newDay.dataset.dayId; 
+
+                        if (!dayId) {
+                            feed.appendChild(newDay);
                             return;
                         }
 
-                        let temp = document.createElement('div');
-                        temp.innerHTML = html;
+                        const existingDay = feed.querySelector(`.day-entry[data-day-id='${dayId}']`); 
 
-                        while (temp.firstChild) {
-                            feed.appendChild(temp.firstChild);
+                        if (existingDay) {
+
+                            const newWorkoutList = newDay.querySelector('.workout-list');
+                            const existingWorkoutList = existingDay.querySelector('.workout-list');
+
+                            if (newWorkoutList && existingWorkoutList) {
+
+                                const existingDayXP = parseInt(existingDay.dataset.dayXp, 10) || 0;
+                                const newDayXP = parseInt(newDay.dataset.dayXp, 10) || 0;
+                                const totalXP = existingDayXP + newDayXP;
+
+                                const existingHeaderSpan = existingDay.querySelector('.day-header span:nth-child(2)');
+
+                                const existingMatch = existingHeaderSpan.textContent.match(/Workouts:(\d+)/);
+                                const existingWorkoutCount = existingMatch ? parseInt(existingMatch[1], 10) : 0;
+
+                                const newMatch = newDay.querySelector('.day-header span:nth-child(2)').textContent.match(/Workouts:(\d+)/);
+                                const newWorkoutCountInBatch = newMatch ? parseInt(newMatch[1], 10) : 0;
+
+                                const totalWorkoutCount = existingWorkoutCount + newWorkoutCountInBatch;
+
+                                while (newWorkoutList.firstChild) {
+                                    existingWorkoutList.appendChild(newWorkoutList.firstChild);
+                                }
+
+                                if (onlyMy) {
+                                    existingDay.dataset.dayXp = totalXP;
+                                }
+
+                                if (existingHeaderSpan) {
+                                     existingHeaderSpan.innerHTML = `Workouts:${totalWorkoutCount} ${onlyMy ? `| XP:${totalXP}` : ''}`;
+                                }
+                            }
+
+                            newDay.remove(); 
+                        } else {
+                            feed.appendChild(newDay);
                         }
-
-                        loadMoreBtn.dataset.page = nextPage + 1;
-
-                        applyHeatmap();
                     });
+
+
+                    loadMoreBtn.dataset.page = nextPage + 1;
+                    applyHeatmap(); 
+
+                    while (temp.firstChild) {
+                        feed.appendChild(temp.firstChild); 
+                    }
+
+                } catch (e) { 
+                    console.error("Error loading more workouts:", e);
+                }
+            }
+
+            filterType.addEventListener('change', function () {
+                if (filterType.value === 'all') {
+                    authorSearch.style.display = 'block';
+                } else {
+                    authorSearch.style.display = 'none';
+                    authorSearch.value = '';
+                }
+                reloadFeed();
             });
 
-            // COLLAPSING
+            sortType.addEventListener('change', reloadFeed);
+
+            authorSearch.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(reloadFeed, 400);
+            });
+
+            loadMoreBtn.addEventListener('click', loadMoreWorkouts);
+
             feed.addEventListener('click', function (event) {
-                // ... (ваш код slideUp/slideDown) ...
-                 if (event.target.classList.contains('day-header') ||
-                    event.target.closest('.day-header')) {
-                    var header = event.target.classList.contains('day-header')
-                        ? event.target
-                        : event.target.closest('.day-header');
-                    var workoutList = header.nextElementSibling;
+                const header = event.target.closest('.day-header');
+                if (header) {
+                    const workoutList = header.nextElementSibling;
                     if (!workoutList) return;
+                    
                     if (workoutList.style.display === 'block') {
                         slideUp(workoutList, 300);
                     } else {
@@ -316,13 +299,12 @@
                 }
             });
 
-            // ... (ваші функції slideUp / slideDown) ...
             function slideUp(element, duration) {
                 element.style.height = element.offsetHeight + 'px';
                 element.style.transitionProperty = 'height, margin, padding';
                 element.style.transitionDuration = duration + 'ms';
                 element.style.boxSizing = 'border-box';
-                element.offsetHeight;
+                element.offsetHeight; // force repaint
                 element.style.overflow = 'hidden';
                 element.style.height = 0;
                 element.style.paddingTop = 0;
@@ -341,6 +323,7 @@
                     element.style.removeProperty('transition-property');
                 }, duration);
             }
+
             function slideDown(element, duration) {
                 element.style.removeProperty('display');
                 let display = window.getComputedStyle(element).display;
@@ -351,11 +334,11 @@
                 let height = element.offsetHeight;
                 element.style.height = 0;
                 element.style.paddingTop = 0;
-                element.style.paddingBottom = 0;
+                element.style.paddingBottom = 0;
                 element.style.marginTop = 0;
                 element.style.marginBottom = 0;
                 element.style.overflow = 'hidden';
-                element.offsetHeight;
+                element.offsetHeight; 
                 element.style.transitionProperty = 'height, margin, padding';
                 element.style.transitionDuration = duration + 'ms';
                 element.style.height = height + 'px';
@@ -372,7 +355,6 @@
             }
 
             applyHeatmap(); 
-
         });
-        </script>
+    </script>
 }

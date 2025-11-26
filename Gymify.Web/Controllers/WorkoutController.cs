@@ -1,12 +1,14 @@
 ﻿using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Application.ViewModels.Workout;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace Gymify.Web.Controllers
 {
+    [Authorize]
     public class WorkoutController : Controller
     {
         private readonly IWorkoutService _workoutService;
@@ -33,40 +35,56 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> GenerateWorkout(CreateWorkoutRequestDto dto)
         {
             var userProfileId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-
             var workout = await _workoutService.CreateWorkoutAsync(dto, userProfileId);
 
             TempData["WorkoutId"] = workout.Id.ToString();
-            return RedirectToAction("AddExercise", "Workout");
+            return RedirectToAction("AddExercise");
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> RemoveWorkout(Guid workoutId)
+        {
+            try
+            {
+                var userProfileId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
+                await _workoutService.RemoveWorkoutAsync(userProfileId, workoutId);
+
+                return RedirectToAction("Index", "Main");
+            }
+            catch
+            {
+                return RedirectToAction("Index", "Main"); // треба якось хендлити
+            }
         }
 
         [HttpGet]
-        public IActionResult AddExercise()
+        public IActionResult AddExercise(Guid? workoutId)
         {
-            var workoutId = TempData["WorkoutId"]?.ToString();
-            ViewBag.WorkoutId = workoutId;
+            var id = workoutId ?? (TempData["WorkoutId"] != null ? Guid.Parse(TempData["WorkoutId"].ToString()) : Guid.Empty);
 
+            if (id == Guid.Empty) return RedirectToAction("Create");
+
+            ViewBag.WorkoutId = id;
             TempData.Keep("WorkoutId");
 
-            return View();
+            return View(new List<UserExerciseDto>());
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddExercise(AddUserExerciseToWorkoutRequestDto dto, string? newExerciseName, string action)
+        public async Task<IActionResult> AddExercisesBatch(Guid workoutId, [FromForm] List<UserExerciseDto> exercises)
         {
-            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+            try
+            {
+                var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId);
 
-            if (!string.IsNullOrWhiteSpace(newExerciseName))
-                dto.Name = newExerciseName;
-
-            await _userExerciseService.AddUserExerciseToWorkoutAsync(dto, currentUserId);
-
-            if (action == "end")
-                return RedirectToAction("Finish", "Workout");
-            else if (action == "add")
-                return RedirectToAction("AddExercise", "Workout");
-
-            return View();
+                return Ok(new { success = true, message = "Exercise saved!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = "Error when saving: " + ex.Message });
+            }
         }
 
         [HttpGet]
@@ -76,23 +94,8 @@ namespace Gymify.Web.Controllers
                 return Json(new List<string>());
 
             var exercises = await _exerciseService.FindByNameAsync(query);
-
             return Json(exercises.Select(e => e.Name));
         }
-
-        [HttpPost]
-        public async Task<IActionResult> AddExercisesBatch([FromForm] Guid workoutId, [FromForm] string exercisesJson)
-        {
-            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-
-            var exercises = JsonConvert.DeserializeObject<List<AddUserExerciseToWorkoutRequestDto>>(exercisesJson);
-
-            if (exercises != null && exercises.Any())
-                await _userExerciseService.AddExercisesBatchAsync(workoutId, exercises, currentUserId);
-
-            return RedirectToAction("Finish", new { workoutId });
-        }
-
 
         [HttpGet]
         public IActionResult Finish(Guid workoutId)
@@ -109,7 +112,53 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
         {
             await _workoutService.CompleteWorkoutAsync(dto);
-            return RedirectToAction("Home", "Main");
+            return RedirectToAction("Index", "Main");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid workoutId)
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value);
+                var model = await _workoutService.GetWorkoutDetailsViewModel(userId, workoutId);
+                return View(model);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(); // 404 Page
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid(); // 403 Page (або Redirect на Home з помилкою)
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message); // 400 Bad Request
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetExercisesPartial(Guid workoutId)
+        {
+            var exerciseDtos = await _userExerciseService.GetAllWorkoutExercisesAsync(workoutId);
+
+            return PartialView("_ExerciseListReadOnly", exerciseDtos);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateWorkoutInfo([FromBody] UpdateWorkoutRequestDto dto)
+        {
+            try
+            {
+                var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                await _workoutService.UpdateWorkoutInfoAsync(dto, currentUserId);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

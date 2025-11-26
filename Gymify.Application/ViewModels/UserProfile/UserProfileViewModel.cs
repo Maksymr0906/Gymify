@@ -1,0 +1,28 @@
+﻿using Gymify.Application.DTOs.Achievement;
+using Gymify.Application.DTOs.UserEquipment;
+using Gymify.Application.DTOs.Workout;
+using Gymify.Application.ViewModels.Comment;
+using Gymify.Data.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Gymify.Application.ViewModels.UserProfile;
+
+public class UserProfileViewModel
+{
+    public Guid UserProfileId { get; set; }
+    public int Level { get; set; } = 0;
+    public string UserName { get; set; } = "Name";
+    public string UpdatedUserName { get; set; } = "New Name";
+    public string Title { get; set; } = "Title";
+    public bool Editable { get; set; } = false;
+    public string CurrentUserAvatarUrl { get; set; } = string.Empty;
+    public List<AchievementDto> Achievements { get; set; }
+    public List<WorkoutDto> Workouts { get; set; }
+    public UserEquipmentDto UserEquipmentDto { get; set; }
+    public UpdateUserEquipmentDto UpdateUserEquipmentDto { get; set; }
+    public CommentsSectionViewModel Comments { get; set; } = new();
+}

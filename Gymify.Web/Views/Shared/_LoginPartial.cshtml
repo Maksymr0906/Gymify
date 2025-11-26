@@ -52,13 +52,8 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                     <li>
-                        <a class="dropdown-item" asp-controller="User" asp-action="Profile">
+                        <a class="dropdown-item" asp-controller="User" asp-action="Profile" asp-route-userId="@Guid.Parse(User.FindFirst("UserProfileId").Value)">
                             Profile
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" asp-controller="User" asp-action="Workouts">
-                            Workouts
                         </a>
                     </li>
                     <li>

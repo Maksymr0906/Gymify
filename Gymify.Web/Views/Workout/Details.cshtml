@@ -1,0 +1,267 @@
+﻿@using Gymify.Application.DTOs.Workout
+@using Gymify.Application.ViewModels.Workout
+@model WorkoutDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="ae-page-container">
+
+    <div class="ae-header-section">
+        <div class="ae-flex-row ae-justify-between ae-align-start">
+            <div style="flex: 1; margin-right: 20px;">
+
+                <h1 id="viewName" class="ae-page-title">@Model.Name</h1>
+                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="Workout Name" />
+
+                <div class="ae-text-muted ae-mt-20">
+                    Created by <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                </div>
+
+                <div class="ae-flex-row ae-align-center ae-gap-sm ae-mt-20">
+                    <span class="ae-badge ae-badge-xp">XP: @Model.TotalXP</span>
+
+                    <span id="viewPrivacy" class="ae-badge ae-badge-private @(Model.IsPrivate ? "" : "ae-hidden")">
+                        Private
+                    </span>
+
+                    <div id="inputPrivacyWrapper" class="ae-toggle-wrapper ae-hidden">
+                        <input type="checkbox" id="inputPrivacy" class="ae-toggle-input" @(Model.IsPrivate ? "checked" : "")>
+                        <label for="inputPrivacy" class="ae-text-muted">Private Mode</label>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.IsOwner)
+            {
+                    <div class="ae-flex-row ae-gap-sm">
+                        <button id="btnCancelInfo" class="ae-btn ae-btn-outline ae-hidden">Cancel</button>
+                        <button id="btnEditInfo" class="ae-btn ae-btn-outline">Edit Info</button>
+                    </div>
+            }
+        </div>
+
+        <div class="ae-mt-20">
+            <div id="viewDescription" class="ae-lead-text" style="white-space: pre-wrap;">@Model.Description</div>
+            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="Description...">@Model.Description</textarea>
+        </div>
+
+        <div class="ae-mt-20">
+            <div id="viewConclusionWrapper" class="ae-conclusion-box @(string.IsNullOrEmpty(Model.Conclusion) ? "ae-hidden" : "")">
+                <strong class="ae-text-muted">Conclusion:</strong>
+                <p id="viewConclusion" style="margin: 5px 0 0 0; font-style: italic;">@Model.Conclusion</p>
+            </div>
+
+            <div id="inputConclusionWrapper" class="ae-hidden">
+                <label class="ae-text-muted" style="font-size:0.85rem; font-weight:bold;">Conclusion</label>
+                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="How did it go?">@Model.Conclusion</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="ae-separator"></div>
+
+    <div class="ae-exercises-section">
+        <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20">
+            <h3 class="ae-section-title">Workout Plan</h3>
+            @if (Model.IsOwner)
+            {
+                    <button id="btnToggleEdit" class="ae-btn ae-btn-warning">
+                        Edit Exercises
+                    </button>
+            }
+        </div>
+
+        <div id="viewModeContainer">
+            <partial name="_ExerciseListReadOnly" model="Model.Exercises" />
+        </div>
+
+        <div id="editModeContainer" class="ae-hidden">
+            @if (Model.IsOwner)
+            {
+                    <partial name="_ExerciseManager" 
+                             model="Model.Exercises" 
+                             view-data='@new ViewDataDictionary(ViewData) { ["WorkoutId"] = Model.WorkoutId }' />
+            }
+        </div>
+    </div>
+
+    <div class="ae-separator"></div>
+
+    <div class="ae-comments-section">
+        <h3 class="ae-section-title ae-mb-20">Comments</h3>
+
+        @{
+            var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
+            {
+                TargetId = Model.WorkoutId,
+                TargetType = Gymify.Data.Enums.CommentTargetType.Workout, // Enum
+                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl // Або з UserEquipment
+            };
+        }
+
+        <partial  name="_CommentsSection" model="commentsVm" />
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const btnEdit = document.getElementById("btnEditInfo");
+                const btnCancel = document.getElementById("btnCancelInfo");
+
+                const els = {
+                    name: { view: document.getElementById("viewName"), input: document.getElementById("inputName") },
+                    desc: { view: document.getElementById("viewDescription"), input: document.getElementById("inputDescription") },
+                    conc: { viewWrapper: document.getElementById("viewConclusionWrapper"), inputWrapper: document.getElementById("inputConclusionWrapper"), input: document.getElementById("inputConclusion") },
+                    priv: { view: document.getElementById("viewPrivacy"), inputWrapper: document.getElementById("inputPrivacyWrapper"), input: document.getElementById("inputPrivacy") }
+                };
+
+                let originalValues = {};
+
+                if (btnEdit) {
+                    btnEdit.addEventListener("click", async () => {
+                        if (btnEdit.innerText === "Edit Info") {
+                            enterEditMode();
+                        } else {
+                            await saveChanges();
+                        }
+                    });
+                }
+
+                if (btnCancel) {
+                    btnCancel.addEventListener("click", () => {
+                        restoreValues();
+                        exitEditMode();
+                    });
+                }
+
+                function enterEditMode() {
+                    originalValues = {
+                        name: els.name.input.value,
+                        desc: els.desc.input.value,
+                        conc: els.conc.input.value,
+                        priv: els.priv.input.checked
+                    };
+
+                    toggleVis(true);
+                    btnEdit.innerText = "Save Info";
+                    btnEdit.classList.remove("ae-btn-outline");
+                    btnEdit.classList.add("ae-btn-success");
+                    btnCancel.classList.remove("ae-hidden");
+                }
+
+                function exitEditMode() {
+                    toggleVis(false);
+                    btnEdit.innerText = "Edit Info";
+                    btnEdit.classList.add("ae-btn-outline");
+                    btnEdit.classList.remove("ae-btn-success");
+                    btnEdit.disabled = false;
+                    btnCancel.classList.add("ae-hidden");
+                }
+
+                function toggleVis(isEdit) {
+                    els.name.view.classList.toggle("ae-hidden", isEdit);
+                    els.name.input.classList.toggle("ae-hidden", !isEdit);
+
+                    els.desc.view.classList.toggle("ae-hidden", isEdit);
+                    els.desc.input.classList.toggle("ae-hidden", !isEdit);
+
+                    if(isEdit) {
+                        els.conc.viewWrapper.classList.add("ae-hidden");
+                        els.conc.inputWrapper.classList.remove("ae-hidden");
+                    } else {
+                        if(els.conc.input.value.trim()) els.conc.viewWrapper.classList.remove("ae-hidden");
+                        else els.conc.viewWrapper.classList.add("ae-hidden");
+                        els.conc.inputWrapper.classList.add("ae-hidden");
+                    }
+
+                    if(isEdit) {
+                        els.priv.view.classList.add("ae-hidden");
+                        els.priv.inputWrapper.classList.remove("ae-hidden");
+                    } else {
+                        if(els.priv.input.checked) els.priv.view.classList.remove("ae-hidden");
+                        else els.priv.view.classList.add("ae-hidden");
+                        els.priv.inputWrapper.classList.add("ae-hidden");
+                    }
+                }
+
+                function restoreValues() {
+                    els.name.input.value = originalValues.name;
+                    els.desc.input.value = originalValues.desc;
+                    els.conc.input.value = originalValues.conc;
+                    els.priv.input.checked = originalValues.priv;
+                }
+
+                async function saveChanges() {
+                    const nameVal = els.name.input.value.trim();
+                    if (!nameVal) { alert("Name is required"); return; }
+
+                    btnEdit.innerText = "Saving...";
+                    btnEdit.disabled = true;
+
+                    const payload = {
+                        id: "@Model.WorkoutId",
+                        name: nameVal,
+                        description: els.desc.input.value,
+                        conclusion: els.conc.input.value,
+                        isPrivate: els.priv.input.checked
+                    };
+
+                    try {
+                        const res = await fetch('/Workout/UpdateWorkoutInfo', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (res.ok) {
+                            window.location.reload();
+                        } else {
+                            alert("Update failed");
+                            btnEdit.disabled = false;
+                            btnEdit.innerText = "Save Info";
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert("Error");
+                        btnEdit.disabled = false;
+                        btnEdit.innerText = "Save Info";
+                    }
+                }
+
+                const btnToggle = document.getElementById("btnToggleEdit");
+                const viewContainer = document.getElementById("viewModeContainer");
+                const editContainer = document.getElementById("editModeContainer");
+                const btnCancelInternal = document.getElementById("mgrBtnCancel");
+                const workoutId = "@Model.WorkoutId"; 
+
+                if (btnToggle) {
+                    btnToggle.addEventListener("click", () => {
+                        viewContainer.classList.add("ae-hidden");
+                        editContainer.classList.remove("ae-hidden");
+                        btnToggle.classList.add("ae-hidden");
+                    });
+                }
+                if (btnCancelInternal) {
+                    btnCancelInternal.addEventListener("click", () => {
+                        viewContainer.classList.remove("ae-hidden");
+                        editContainer.classList.add("ae-hidden");
+                        btnToggle.classList.remove("ae-hidden");
+                    });
+                }
+
+                document.addEventListener('exercises-saved', function () {
+                    fetch(`/Workout/GetExercisesPartial?workoutId=${workoutId}`)
+                        .then(r => r.text())
+                        .then(html => {
+                            viewContainer.innerHTML = html;
+                            viewContainer.classList.remove("ae-hidden");
+                            editContainer.classList.add("ae-hidden");
+                            btnToggle.classList.remove("ae-hidden");
+                        });
+                });
+            });
+        </script>
+}
