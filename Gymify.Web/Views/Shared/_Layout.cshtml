@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Gymify</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -13,14 +14,16 @@
         <partial name="_Navbar" />
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    @* Футер розкоментуй за бажанням *@
-    @* <footer class="border-top footer text-muted mt-4"> ... </footer> *@
+    @* <footer class="border-top footer text-muted mt-4">
+        <div class="container">
+            &copy; @DateTime.Now.Year - Gymify
+        </div>
+    </footer> 
+    *@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
@@ -28,19 +31,33 @@
     @if (User.Identity.IsAuthenticated)
     {
             <script>
+                // Ініціалізація з'єднання (один раз на весь додаток)
                 const connection = new signalR.HubConnectionBuilder()
                     .withUrl("/notificationHub")
-                    .withAutomaticReconnect()
+                    .withAutomaticReconnect() // Перепідключатись при втраті інтернету
                     .build();
 
+                // Слухач подій від сервера
                 connection.on("ReceiveNotification", function (data) {
-                    console.log("🔔 Нове сповіщення!", data);
-                    alert("Нове сповіщення: " + data.message);
+                    console.log("🔔 SignalR Notification:", data);
 
-                    // Якщо ти зробиш ViewComponent з дзвіночком, тут ми будемо оновлювати бейдж:
-                    // updateNotificationBadge();
+                    // 1. Показуємо просте повідомлення (для тесту)
+                    // У майбутньому заміни це на гарний "Toast" (спливаюче вікно)
+                    // alert("Нове сповіщення: " + data.message); 
+
+                    // 2. Оновлюємо лічильник дзвіночка (якщо ти реалізував ViewComponent)
+                    const badge = document.getElementById("notificationBadge");
+                    if (badge) {
+                        let count = parseInt(badge.innerText) || 0;
+                        count++;
+                        badge.innerText = count;
+                        badge.style.display = "block"; // Показати, якщо був схований
+                    }
+
+                    // 3. Додаємо в список (якщо він відкритий), логіку можна додати в компонент дзвіночка
                 });
 
+                // Старт з'єднання
                 connection.start()
                     .then(() => console.log("✅ SignalR Connected"))
                     .catch(err => console.error("❌ SignalR Error:", err));

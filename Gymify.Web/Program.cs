@@ -7,6 +7,7 @@ using Gymify.Web.Hubs;
 using Gymify.Web.Seed;
 using Gymify.Web.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,8 +19,11 @@ services.Configure<SeedDataOptions>(configuration.GetSection("SeedDataOptions"))
 
 services
     .AddPersistence(configuration)
-    .AddApplication()
-    .AddSignalR();
+    .AddApplication();
+
+services.AddSignalR();
+services.AddSingleton<IUserIdProvider, CustomUserIdProviderService>();
+
 
 services.AddScoped<INotifierService, SignalRNotifierService>();
 
