@@ -31,12 +31,6 @@ public class NotificationRepository(GymifyDbContext context)
             .ToListAsync();
     }
 
-    public async Task UpdateRangeAsync(IEnumerable<Notification> notifications)
-    {
-        _context.Notifications.UpdateRange(notifications);
-        await Task.CompletedTask;
-    }
-
     public async Task DeleteOlderThanAsync(DateTime date)
     {
         await _context.Notifications

@@ -107,4 +107,57 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEnti
             throw new InvalidOperationException($"Error updating entity: {ex.Message}", ex);
         }
     }
+
+    public async Task CreateRangeAsync(IEnumerable<TEntity> entities)
+    {
+        if (entities == null || !entities.Any())
+        {
+            return;
+        }
+
+        try
+        {
+            await _entities.AddRangeAsync(entities);
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new InvalidOperationException($"Error adding range of entities: {ex.Message}", ex);
+        }
+    }
+
+    public Task UpdateRangeAsync(IEnumerable<TEntity> entities)
+    {
+        if (entities == null || !entities.Any())
+        {
+            return Task.CompletedTask;
+        }
+
+        try
+        {
+            _entities.UpdateRange(entities);
+            return Task.CompletedTask;
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new InvalidOperationException($"Error updating range of entities: {ex.Message}", ex);
+        }
+    }
+
+    public Task DeleteRangeAsync(IEnumerable<TEntity> entities)
+    {
+        if (entities == null || !entities.Any())
+        {
+            return Task.CompletedTask;
+        }
+
+        try
+        {
+            _entities.RemoveRange(entities);
+            return Task.CompletedTask;
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new InvalidOperationException($"Error deleting range of entities: {ex.Message}", ex);
+        }
+    }
 }
