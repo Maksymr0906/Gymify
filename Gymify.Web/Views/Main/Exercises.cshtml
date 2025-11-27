@@ -1,5 +1,197 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Gymify.Data.Enums
+@using Gymify.Application.ViewModels.ExerciseLibrary
+@model ExerciseLibraryViewModel
+
 @{
+    ViewData["Title"] = "Exercises";
 }
+
+<style>
+    /* Фільтр-бар */
+    .ae-filter-bar {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        margin-bottom: 30px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    /* Специфічні стилі для карток вправ */
+    .ex-card {
+        position: relative;
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+    }
+    .ex-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Статус: Pending (непідтверджені) */
+    .ex-card.pending {
+        border: 2px dashed #f39c12; /* Жовта пунктирна рамка */
+        background-color: #fffcf5;
+    }
+
+    /* Бейджі */
+    .ex-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        z-index: 2;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .ex-badge.verified { background: #27ae60; color: white; }
+    .ex-badge.pending { background: #f39c12; color: white; }
+
+    /* Тип вправи (Cardio/Strength) */
+    .ex-type {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #7f8c8d;
+        background: #f0f2f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+
+    /* Прев'ю відео */
+    .ex-thumbnail-wrapper {
+        position: relative;
+        width: 100%;
+        height: 160px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        background-color: #000;
+        cursor: pointer;
+    }
+    .ex-thumbnail { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: opacity 0.2s; }
+    .ex-thumbnail-wrapper:hover .ex-thumbnail { opacity: 0.7; }
+
+    .ex-play-btn {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px; height: 50px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 20px;
+        pointer-events: none; /* Щоб клік проходив крізь іконку */
+    }
+</style>
+
+<partial name="_VideoModal" />
+
+<div class="ae-page-container">
+
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 class="ae-page-title">Exercise Library</h1>
+        <p class="ae-lead-text ae-text-muted">Discover new exercises and improve your technique.</p>
+    </div>
+
+    <form method="get" class="ae-filter-bar">
+        <div style="flex-grow: 1; min-width: 200px;">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: bold;">Search</label>
+            <input type="text" name="search" value="@Model.SearchTerm" class="ae-input-std" placeholder="Push up, Squat..." />
+        </div>
+
+        <div style="min-width: 150px;">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: bold;">Type</label>
+            <select name="type" class="ae-input-std" asp-items="Html.GetEnumSelectList<ExerciseType>()">
+                <option value="">All Types</option>
+            </select>
+        </div>
+
+        <div class="ae-toggle-wrapper" style="margin-bottom: 12px;">
+            <input type="checkbox" id="pendingCheck" name="pendingOnly" class="ae-toggle-input" value="true" @(Model.ShowPendingOnly ? "checked" : "")>
+            <label for="pendingCheck" class="ae-text-muted" style="cursor:pointer;">Show Pending Only</label>
+        </div>
+
+        <div>
+            <button type="submit" class="ae-btn ae-btn-primary">
+                <i class="bi bi-search"></i> Filter
+            </button>
+            <a asp-action="Exercises" class="ae-btn ae-btn-outline">Reset</a>
+        </div>
+    </form>
+
+    @if (!Model.Exercises.Any())
+    {
+            <div style="text-align: center; padding: 50px; color: #999;">
+                <i class="bi bi-search" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                No exercises found matching your criteria.
+            </div>
+    }
+    else
+    {
+            <div class="ae-cards-grid">
+            @foreach (var ex in Model.Exercises)
+            {
+                // Додаємо клас 'pending', якщо вправа не затверджена
+                var cardClass = ex.IsApproved ? "" : "pending";
+
+                        <div class="ae-card-item ex-card @cardClass">
+
+                    @if (ex.IsApproved)
+                    {
+                                    <div class="ex-badge verified" title="Verified Exercise"><i class="bi bi-check-circle-fill"></i> Official</div>
+                    }
+                    else
+                    {
+                                    <div class="ex-badge pending" title="Pending Approval"><i class="bi bi-hourglass-split"></i> Pending</div>
+                    }
+
+                            <div class="ex-thumbnail-wrapper" onclick="openVideoModal('@ex.VideoEmbedUrl')">
+                                <img src="@ex.ThumbnailUrl" class="ex-thumbnail" alt="@ex.Name" />
+
+                        @if (!string.IsNullOrEmpty(ex.VideoEmbedUrl))
+                        {
+                                        <div class="ex-play-btn"><i class="fa-solid fa-play"></i></div>
+                        }
+                            </div>
+
+                            <div>
+                                <span class="ex-type">@((ExerciseType)ex.Type)</span>
+                                <div class="ae-card-header-title" style="margin-bottom: 5px;">@ex.Name</div>
+
+                                <p class="ae-text-muted" style="font-size: 0.9rem; line-height: 1.4; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                            @ex.Description
+                                </p>
+                            </div>
+
+                            <div class="ae-card-stats">
+                                 <span><i class="bi bi-star-fill" style="color:gold"></i> @ex.BaseXP XP (Base)</span>
+                            </div>
+
+                        </div>
+            }
+            </div>
+    }
+
+    @if (Model.TotalPages > 1)
+    {
+            <div class="ae-mt-20" style="display: flex; justify-content: center; gap: 10px;">
+            @if (Model.CurrentPage > 1)
+            {
+                        <a href="@Url.Action("Exercises", new { page = Model.CurrentPage - 1, search = Model.SearchTerm, type = Model.TypeFilter })" class="ae-btn ae-btn-outline">&larr; Prev</a>
+            }
+                <span style="padding: 8px;">Page @Model.CurrentPage of @Model.TotalPages</span>
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                        <a href="@Url.Action("Exercises", new { page = Model.CurrentPage + 1, search = Model.SearchTerm, type = Model.TypeFilter })" class="ae-btn ae-btn-outline">Next &rarr;</a>
+            }
+            </div>
+    }
+</div>

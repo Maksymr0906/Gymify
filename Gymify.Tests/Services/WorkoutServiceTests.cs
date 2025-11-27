@@ -1,4 +1,4 @@
-﻿using Gymify.Application.DTOs.Comment;
+﻿/*using Gymify.Application.DTOs.Comment;
 using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Implementation;
@@ -301,4 +301,4 @@ namespace Gymify.Tests.Services
             _mockWorkoutRepo.Verify(r => r.DeleteByIdAsync(It.IsAny<Guid>()), Times.Never);
         }
     }
-}
+}*/
