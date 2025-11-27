@@ -12,91 +12,6 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
     private readonly INotificationService _notificationService = notificationService;
     private const int DefaultPendingExerciseXP = 10;
 
-    public async Task<UserExerciseDto> AddUserExerciseToWorkoutAsync(AddUserExerciseToWorkoutRequestDto model, Guid currentUserId)
-    {
-        var existingExercise = await _unitOfWork.ExerciseRepository.GetByNameAsync(model.Name);
-
-        // Прапорець, щоб знати, чи ми створили нову вправу
-        bool isNewExerciseCreated = false;
-
-        if (existingExercise == null)
-        {
-            isNewExerciseCreated = true; // <--- Запам'ятовуємо
-
-            existingExercise = new Exercise
-            {
-                Id = Guid.NewGuid(),
-                Name = model.Name,
-                Description = string.Empty,
-                CreatedAt = DateTime.UtcNow,
-                Type = (ExerciseType)model.ExerciseType,
-                BaseXP = DefaultPendingExerciseXP,
-                DifficultyMultiplier = 1.0,
-                IsApproved = false // По дефолту не затверджено
-            };
-
-            await _unitOfWork.ExerciseRepository.CreateAsync(existingExercise);
-
-            // Тут SaveAsync потрібен, щоб Exercise отримав ID і ми могли його використати нижче, 
-            // хоча GUID ми генеруємо самі, тож технічно можна зберегти все в кінці.
-        }
-
-        int calculatedXP = CalculateXp(model, existingExercise);
-
-        var userExercise = new UserExercise
-        {
-            Id = Guid.NewGuid(),
-            Name = existingExercise.Name,
-            Type = existingExercise.Type,
-            Sets = model.Sets,
-            Reps = model.Reps,
-            Weight = model.Weight,
-            Duration = new TimeSpan(0, 0, model.Duration ?? 0, 0),
-            WorkoutId = model.WorkoutId,
-            ExerciseId = existingExercise.Id,
-            EarnedXP = calculatedXP
-        };
-
-        await _unitOfWork.UserExerciseRepository.CreateAsync(userExercise);
-        await _unitOfWork.SaveAsync();
-
-        // === ОПЦІОНАЛЬНО: Відправляємо сповіщення ===
-        if (isNewExerciseCreated)
-        {
-            await _notificationService.SendNotificationAsync(
-                currentUserId,
-                $"Вправа '{model.Name}' відправлена на модерацію.",
-                $"#" // Посилання поки не важливе
-            );
-        }
-
-        return new UserExerciseDto
-        {
-            Id = userExercise.Id,
-            WorkoutId = userExercise.WorkoutId,
-            Name = userExercise.Name,
-            Type = (int)userExercise.Type,
-            Sets = userExercise.Sets,
-            Reps = userExercise.Reps,
-            Weight = userExercise.Weight,
-            Duration = userExercise.Duration,
-            EarnedXP = userExercise.EarnedXP,
-
-            // Передаємо статус на фронт
-            IsPendingApproval = isNewExerciseCreated
-        };
-    }
-
-
-    public async Task AddExercisesBatchAsync(Guid workoutId, List<AddUserExerciseToWorkoutRequestDto> exercises, Guid currentUserId)
-    {
-        foreach (var dto in exercises)
-        {
-            dto.WorkoutId = workoutId;
-            await AddUserExerciseToWorkoutAsync(dto, currentUserId);
-        }
-    }
-
     public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<UserExerciseDto> dtos, Guid userId)
     {
         var currentExercises = await _unitOfWork.UserExerciseRepository
@@ -156,6 +71,12 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                         IsApproved = false
                     };
                     await _unitOfWork.ExerciseRepository.CreateAsync(baseExercise);
+
+                    await _notificationService.SendNotificationAsync(
+                        userId,
+                        $"Вправу '{dto.Name}' відправлено на модерацію.",
+                        "#" // Клікати нікуди не треба, це просто інфо
+                    );
                 }
 
                 var calcModel = new AddUserExerciseToWorkoutRequestDto

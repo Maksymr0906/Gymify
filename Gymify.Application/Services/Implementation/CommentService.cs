@@ -90,7 +90,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             // Формуємо посилання, куди перейде юзер при кліку
             string link = targetType == CommentTargetType.Workout
                 ? $"/Workout/Details?workoutId={targetId}"
-                : $"/profile?userId={targetId}";
+                : $"/Profile?userId={targetId}";
 
             await _notificationService.SendNotificationAsync(receiverId, message, link);
         }
