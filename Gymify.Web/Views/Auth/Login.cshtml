@@ -4,13 +4,16 @@
     ViewData["Title"] = "Login";
 }
 
-
 <form asp-action="Login" class="authForm" method="post">
+
+
     <label asp-for="Email" class="authText">Email</label>
     <input asp-for="Email" class="authInput" required />
+    <span asp-validation-for="Email" class="text-danger"></span>
 
     <label asp-for="Password" class="authText">Password</label>
     <input asp-for="Password" class="authInput" required />
+    <span asp-validation-for="Password" class="text-danger"></span>
 
     <div class="form-group form-check">
         <input asp-for="RememberMe" class="form-check-input" />
@@ -19,3 +22,7 @@
 
     <button type="submit" class="authButton scaleButton">Login</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
