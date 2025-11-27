@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICommentService commentService, ICaseService caseService)
+public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICommentService commentService, ICaseService caseService, INotificationService notificationService)
     : IWorkoutService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -19,6 +19,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
     private readonly IAchievementService _achievementService = achievementService;
     private readonly ICommentService _commentService = commentService;
     private readonly ICaseService _caseService = caseService;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model)
     {
@@ -52,6 +53,12 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         await _caseService.GiveRewardByLevelUp(userProfile.Id, levelsUp);
         
         var newAchievements = await _achievementService.UpdateUserAchievementsAsync(userProfile.Id);
+
+        await _notificationService.SendNotificationAsync(
+                        userProfile.Id,
+                        $"You have created '{workout.Name}' workout.",
+                        $"/Workout/Details?workoutId={workout.Id}" 
+                    );
 
         await _unitOfWork.SaveAsync();
 

@@ -7,9 +7,10 @@ using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class CaseService(IUnitOfWork unitOfWork) : ICaseService
+public class CaseService(IUnitOfWork unitOfWork, INotificationService notificationService) : ICaseService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly INotificationService _notificationService = notificationService;
     private readonly Random _random = new Random();
 
     public async Task<ICollection<CaseInfoDto>> GetAllUserCasesAsync(Guid userProfileId)
@@ -42,44 +43,65 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
         };
     }
 
-    
+
 
     public async Task GiveRewardByLevelUp(Guid userProfileId, int levelsUp)
     {
+        if (levelsUp <= 0) return;
+
         var allCases = (await _unitOfWork.CaseRepository.GetAllAsync()).ToList();
+
+        if (!allCases.Any())
+        {
+            throw new InvalidOperationException("No cases configured in the system to give as rewards.");
+        }
 
         for (int i = 0; i < levelsUp; i++)
         {
-            if (allCases.Any())
+            var randomCase = allCases[_random.Next(allCases.Count)];
+
+            var userCase = new UserCase
             {
-                var randomCase = allCases[_random.Next(allCases.Count)];
+                Id = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow,
+                UserProfileId = userProfileId,
+                CaseId = randomCase.Id
+            };
 
-                var userCase = new UserCase
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.Now,
-                    UserProfileId = userProfileId,
-                    CaseId = randomCase.Id
-                };
+            await _notificationService.SendNotificationAsync(
+                        userProfileId,
+                        $"You received new case '{randomCase.Name}'.",
+                        "/Inventory" // Клікати нікуди не треба, це просто інфо
+                    );
 
-                await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
-            }
+            await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
         }
-            
+
         await _unitOfWork.SaveAsync();
     }
 
     public async Task GiveRewardByAchievement(Guid userProfileId, Guid rewardItemId)
     {
-        var reward = await _unitOfWork.ItemRepository.GetByIdAsync(rewardItemId);
+        var rewardItem = await _unitOfWork.ItemRepository.GetByIdAsync(rewardItemId);
+
+        if (rewardItem == null)
+        {
+            throw new KeyNotFoundException($"Reward item with ID {rewardItemId} not found.");
+        }
 
         var userItem = new UserItem
         {
             Id = Guid.NewGuid(),
-            CreatedAt = DateTime.Now,
+            CreatedAt = DateTime.UtcNow,
             UserProfileId = userProfileId,
             ItemId = rewardItemId
         };
+
+        await _notificationService.SendNotificationAsync(
+                        userProfileId,
+                        $"You received new case '{rewardItem.Name}'.",
+                        "/Inventory" // Клікати нікуди не треба, це просто інфо
+                    );
 
         await _unitOfWork.UserItemRepository.CreateAsync(userItem);
         await _unitOfWork.SaveAsync();
