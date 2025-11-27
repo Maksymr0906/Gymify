@@ -71,17 +71,17 @@ public class CaseService(IUnitOfWork unitOfWork) : ICaseService
 
     public async Task GiveRewardByAchievement(Guid userProfileId, Guid rewardItemId)
     {
-        var reward = await _unitOfWork.CaseRepository.GetByIdAsync(rewardItemId);
+        var reward = await _unitOfWork.ItemRepository.GetByIdAsync(rewardItemId);
 
-        var userCase = new UserCase
+        var userItem = new UserItem
         {
             Id = Guid.NewGuid(),
             CreatedAt = DateTime.Now,
             UserProfileId = userProfileId,
-            CaseId = rewardItemId
+            ItemId = rewardItemId
         };
 
-        await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
+        await _unitOfWork.UserItemRepository.CreateAsync(userItem);
         await _unitOfWork.SaveAsync();
     }
 

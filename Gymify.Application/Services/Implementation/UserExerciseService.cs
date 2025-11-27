@@ -6,31 +6,39 @@ using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
+public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService notificationService) : IUserExersiceService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly INotificationService _notificationService = notificationService;
     private const int DefaultPendingExerciseXP = 10;
 
     public async Task<UserExerciseDto> AddUserExerciseToWorkoutAsync(AddUserExerciseToWorkoutRequestDto model, Guid currentUserId)
     {
-        var existingExercise = await _unitOfWork.ExerciseRepository
-            .GetByNameAsync(model.Name);
+        var existingExercise = await _unitOfWork.ExerciseRepository.GetByNameAsync(model.Name);
+
+        // Прапорець, щоб знати, чи ми створили нову вправу
+        bool isNewExerciseCreated = false;
 
         if (existingExercise == null)
         {
+            isNewExerciseCreated = true; // <--- Запам'ятовуємо
+
             existingExercise = new Exercise
             {
                 Id = Guid.NewGuid(),
                 Name = model.Name,
                 Description = string.Empty,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 Type = (ExerciseType)model.ExerciseType,
                 BaseXP = DefaultPendingExerciseXP,
                 DifficultyMultiplier = 1.0,
-                IsApproved = false
+                IsApproved = false // По дефолту не затверджено
             };
 
             await _unitOfWork.ExerciseRepository.CreateAsync(existingExercise);
+
+            // Тут SaveAsync потрібен, щоб Exercise отримав ID і ми могли його використати нижче, 
+            // хоча GUID ми генеруємо самі, тож технічно можна зберегти все в кінці.
         }
 
         int calculatedXP = CalculateXp(model, existingExercise);
@@ -52,6 +60,16 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
         await _unitOfWork.UserExerciseRepository.CreateAsync(userExercise);
         await _unitOfWork.SaveAsync();
 
+        // === ОПЦІОНАЛЬНО: Відправляємо сповіщення ===
+        if (isNewExerciseCreated)
+        {
+            await _notificationService.SendNotificationAsync(
+                currentUserId,
+                $"Вправа '{model.Name}' відправлена на модерацію.",
+                $"#" // Посилання поки не важливе
+            );
+        }
+
         return new UserExerciseDto
         {
             Id = userExercise.Id,
@@ -63,6 +81,9 @@ public class UserExerciseService(IUnitOfWork unitOfWork) : IUserExersiceService
             Weight = userExercise.Weight,
             Duration = userExercise.Duration,
             EarnedXP = userExercise.EarnedXP,
+
+            // Передаємо статус на фронт
+            IsPendingApproval = isNewExerciseCreated
         };
     }
 
