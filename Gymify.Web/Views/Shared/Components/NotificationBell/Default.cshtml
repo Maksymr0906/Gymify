@@ -1,212 +1,278 @@
-﻿@model Gymify.Application.ViewModels.NotificationBell.NotificationBellViewModel
+﻿@using Gymify.Application.ViewModels.NotificationBell
+@model NotificationBellViewModel
 
 <style>
-    /* Контейнер дзвіночка */
-    .nt-container {
+    /* Обгортка для позиціонування */
+    .nt-wrapper {
         position: relative;
         display: inline-block;
-        margin-left: 20px;
-        font-family: 'Segoe UI', sans-serif;
+        margin-left: 15px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Кнопка-іконка */
+    /* Кнопка-дзвіночок */
     .nt-btn {
         background: none;
         border: none;
         cursor: pointer;
-        position: relative;
-        color: #555;
         padding: 8px;
-        transition: color 0.2s;
+        color: #555;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: color 0.2s;
     }
     .nt-btn:hover { color: #3498db; }
+    
+    .nt-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* SVG Іконка */
-    .nt-icon {
-        width: 24px;
-        height: 24px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    /* Червоний кружечок (Бейдж) */
+    /* Бейдж (Лічильник) */
     .nt-badge {
         position: absolute;
-        top: 2px;
-        right: 2px;
+        top: 0; right: 0;
         background-color: #e74c3c;
         color: white;
-        font-size: 10px;
-        font-weight: bold;
-        height: 16px;
-        min-width: 16px;
-        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        height: 18px;
+        min-width: 18px;
+        border-radius: 9px; /* Круглий */
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 0 4px;
-        border: 2px solid #fff; /* Біла обводка, щоб відділити від іконки */
-        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    .nt-badge.hidden { display: none; }
 
-    /* Випадаючий список */
+    /* Випадаюче меню */
     .nt-dropdown {
-        display: none; /* Приховано */
+        display: none;
         position: absolute;
-        right: -10px; /* Вирівнювання по правому краю */
+        right: 0;
         top: 120%;
         width: 320px;
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        border: 1px solid #eee;
-        z-index: 1000;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        z-index: 10000;
         overflow: hidden;
         opacity: 0;
         transform: translateY(-10px);
-        transition: opacity 0.2s, transform 0.2s;
+        transition: opacity 0.2s ease, transform 0.2s ease;
     }
-
-    /* Клас для відкриття */
+    
     .nt-dropdown.active {
         display: block;
         opacity: 1;
         transform: translateY(0);
     }
 
-    /* Заголовок списку */
+    /* Хедер меню */
     .nt-header {
         padding: 12px 16px;
         border-bottom: 1px solid #f0f0f0;
-        font-weight: 700;
-        color: #333;
+        background-color: #fcfcfc;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #fafafa;
     }
-    .nt-mark-all { font-size: 11px; color: #3498db; cursor: pointer; text-decoration: none; }
-    .nt-mark-all:hover { text-decoration: underline; }
+    .nt-title { font-weight: 600; color: #333; font-size: 0.95rem; }
+    
+    .nt-action {
+        font-size: 0.8rem; color: #3498db; cursor: pointer; text-decoration: none; border: none; background: none;
+    }
+    .nt-action:hover { text-decoration: underline; }
 
-    /* Список елементів */
+    /* Список */
     .nt-list {
-        max-height: 350px;
+        max-height: 400px;
         overflow-y: auto;
+        margin: 0; padding: 0;
         list-style: none;
-        padding: 0;
-        margin: 0;
     }
 
     /* Елемент списку */
     .nt-item {
         display: block;
         padding: 12px 16px;
-        border-bottom: 1px solid #f5f5f5;
+        border-bottom: 1px solid #f9f9f9;
         text-decoration: none;
-        color: #444;
-        transition: background 0.1s;
+        color: #333;
+        transition: background 0.2s;
         position: relative;
     }
-    .nt-item:hover { background-color: #f8f9fa; }
+    .nt-item:hover { background-color: #f7f9fc; }
+    .nt-item:last-child { border-bottom: none; }
 
-    /* Непрочитаний елемент */
+    /* Стиль НЕПРОЧИТАНОГО (жирний, синій акцент) */
     .nt-item.unread {
-        background-color: #eef7fe;
+        background-color: #fff; 
     }
     .nt-item.unread::before {
-        content: '';
-        position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 3px;
-        background-color: #3498db;
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background-color: #3498db;
     }
+    .nt-item.unread .nt-msg { font-weight: 600; color: #2c3e50; }
 
-    .nt-msg { font-size: 13px; line-height: 1.4; display: block; }
-    .nt-time { font-size: 11px; color: #999; margin-top: 4px; display: block; }
-
-    .nt-empty {
-        padding: 30px;
-        text-align: center;
-        color: #aaa;
-        font-size: 13px;
+    /* Стиль ПРОЧИТАНОГО (блідий) - це те, що побачить юзер після кліку */
+    .nt-item.read-state {
+        opacity: 0.5;
+        background-color: #f9f9f9;
+        cursor: default;
     }
+    .nt-item.read-state::before { display: none; } /* Прибираємо синю смужку */
+    .nt-item.read-state .nt-msg { font-weight: 400; text-decoration: line-through; }
 
-    @Html.Raw("@keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }")
+    .nt-msg { font-size: 0.9rem; display: block; line-height: 1.4; margin-bottom: 4px; }
+    .nt-date { font-size: 0.75rem; color: #999; display: block; }
+
+    .nt-empty { padding: 30px; text-align: center; color: #aaa; font-size: 0.9rem; }
 </style>
 
-<div class="nt-container" id="ntContainer">
 
-    <button class="nt-btn" id="ntBtn" onclick="toggleNotifications()">
-        <svg class="nt-icon" viewBox="0 0 24 24">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
-
-        <span id="ntBadge" class="nt-badge" style="@(Model.UnreadCount > 0 ? "" : "display:none")">
+<div class="nt-wrapper" id="ntWrapper">
+    
+    <button class="nt-btn" id="ntBtn" onclick="toggleNtMenu()">
+        <div class="nt-icon">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </div>
+        
+        <div id="ntBadge" class="nt-badge @(Model.UnreadCount > 0 ? "" : "hidden")">
             @Model.UnreadCount
-        </span>
+        </div>
     </button>
 
-    <div class="nt-dropdown" id="ntDropdown">
+    <div class="nt-dropdown" id="ntMenu">
         <div class="nt-header">
-            <span>Notifications</span>
-            <span class="nt-mark-all" onclick="markAllRead()">Mark all read</span>
+            <span class="nt-title">Notifications</span>
+            <button class="nt-action" onclick="markAllAsRead()">Clear All</button>
         </div>
 
         <div class="nt-list" id="ntList">
-            @if (Model.Notifications.Any())
+            @if (Model.Notifications != null && Model.Notifications.Any())
             {
-                foreach (var n in Model.Notifications)
+                @foreach (var n in Model.Notifications)
                 {
-                    // Клік по повідомленню позначає прочитаним і переходить
-                            <a href="@n.Link" class="nt-item @(n.IsRead ? "" : "unread")" onclick="readNotification('@n.Id')">
-                                <span class="nt-msg">@n.Content</span>
-                                <span class="nt-time">@n.CreatedAt.ToString("g")</span>
-                            </a>
+                    // Всі повідомлення з бази за замовчуванням "unread" у цій логіці
+                    // OnClick: ми передаємо (this, id, url)
+                    <a href="javascript:void(0)" 
+                       class="nt-item unread" 
+                       onclick="readAndRedirect(this, '@n.Id', '@n.Link')">
+                        
+                        <span class="nt-msg">@n.Content</span>
+                        <span class="nt-date">@n.CreatedAt.ToString("g")</span>
+                    </a>
                 }
             }
             else
             {
-                    <div class="nt-empty">No new notifications</div>
+                <div class="nt-empty">No new notifications</div>
             }
         </div>
     </div>
 </div>
 
+
 <script>
-    // Логіка перемикання
-    function toggleNotifications() {
-        const dd = document.getElementById('ntDropdown');
-        dd.classList.toggle('active');
+    // 1. Перемикання меню
+    function toggleNtMenu() {
+        const menu = document.getElementById('ntMenu');
+        menu.classList.toggle('active');
     }
 
     // Закриття при кліку зовні
     window.addEventListener('click', function(e) {
-        const container = document.getElementById('ntContainer');
-        if (!container.contains(e.target)) {
-            document.getElementById('ntDropdown').classList.remove('active');
+        const wrapper = document.getElementById('ntWrapper');
+        if (!wrapper.contains(e.target)) {
+            document.getElementById('ntMenu').classList.remove('active');
         }
     });
 
-    // AJAX: Позначити як прочитане (при кліку)
-    function readNotification(id) {
-        // Не чекаємо відповіді (fire-and-forget), щоб перехід був швидким
+    // 2. Логіка кліку на одне повідомлення
+    function readAndRedirect(el, id, url) {
+        // А) Відправляємо запит на видалення з БД
         fetch(`/Notification/Read?id=${id}`, { method: "POST" });
+
+        // Б) Візуально позначаємо як "прочитане" (бліде)
+        el.classList.remove('unread');
+        el.classList.add('read-state');
+
+        // В) Оновлюємо лічильник "на льоту"
+        updateBadge(-1);
+
+        // Г) Переходимо за посиланням через невеличку затримку (або одразу)
+        // Якщо це SPA перехід або звичайний - не важливо. 
+        // Головне, що ми запустили fetch на видалення.
+        if (url && url !== '#') {
+             window.location.href = url;
+        }
     }
 
-    // AJAX: Позначити все
-    function markAllRead() {
-        fetch(`/Notification/ReadAll`, { method: "POST" })
-            .then(() => {
-                // Візуально прибираємо бейдж і класи unread
-                document.getElementById('ntBadge').style.display = 'none';
-                document.querySelectorAll('.nt-item.unread').forEach(el => el.classList.remove('unread'));
-            });
+    // 3. Логіка "Очистити все"
+    function markAllAsRead() {
+        // А) Запит на видалення всіх
+        fetch(`/Notification/ReadAll`, { method: "POST" });
+
+        // Б) Візуально "гасимо" всі елементи в списку
+        const items = document.querySelectorAll('.nt-item.unread');
+        items.forEach(item => {
+            item.classList.remove('unread');
+            item.classList.add('read-state');
+        });
+
+        // В) Прибираємо бейдж
+        const badge = document.getElementById('ntBadge');
+        badge.innerText = "0";
+        badge.classList.add('hidden');
     }
+
+    // Допоміжна: оновлення цифри
+    function updateBadge(change) {
+        const badge = document.getElementById('ntBadge');
+        let count = parseInt(badge.innerText) || 0;
+        count += change;
+        
+        if (count <= 0) {
+            count = 0;
+            badge.classList.add('hidden');
+        } else {
+            badge.innerText = count;
+            badge.classList.remove('hidden');
+        }
+    }
+
+    // 4. Глобальна функція для SignalR
+    window.receiveNotificationUI = function(data) {
+        const list = document.getElementById("ntList");
+        const empty = list.querySelector('.nt-empty');
+
+        // Якщо був напис "No new notifications" - прибираємо його
+        if (empty) empty.remove();
+
+        // Генеруємо HTML. data.link, data.message, data.id приходять з SignalR
+        // Зверніть увагу: id має бути рядком
+        const html = `
+            <a href="javascript:void(0)"
+               class="nt-item unread"
+               onclick="readAndRedirect(this, '${data.id}', '${data.link}')">
+
+                <span class="nt-msg">${data.Content}</span>
+                <span class="nt-time">Just now</span>
+            </a>
+        `;
+
+        // Вставляємо на початок списку
+        list.insertAdjacentHTML('afterbegin', html);
+
+        // Оновлюємо бейдж (+1)
+        updateBadge(1);
+
+        // Анімація кнопки (опціонально)
+        const btn = document.getElementById('ntBtn');
+        btn.style.transform = "scale(1.1)";
+        setTimeout(() => btn.style.transform = "scale(1)", 200);
+    };
 </script>

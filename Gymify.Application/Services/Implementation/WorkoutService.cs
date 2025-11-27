@@ -27,7 +27,10 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         if (workout == null)
             throw new Exception("Workout not found");
 
+        if (model.Conclusions == null) model.Conclusions = string.Empty;
+
         workout.Conclusion = model.Conclusions;
+
 
         var totalXp = workout.Exercises.Sum(e => e.EarnedXP);
         workout.TotalXP = totalXp;
@@ -88,6 +91,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Id = Guid.NewGuid(),
             Name = model.Name,
             Description = model.Description,
+            IsPrivate = model.IsPrivate,
             UserProfileId = userProfileId
         };
 
@@ -249,13 +253,33 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         await _unitOfWork.WorkoutRepository.UpdateAsync(workout);
         await _unitOfWork.SaveAsync();
     }
-    
+
     public async Task RemoveWorkoutAsync(Guid userId, Guid workoutId)
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
-        if (workout.UserProfileId != userId) throw new Exception("Access denided");
 
+        if (workout == null) throw new KeyNotFoundException("Workout not found");
+        if (workout.UserProfileId != userId) throw new UnauthorizedAccessException("Access denied");
+
+        var comments = await _unitOfWork.CommentRepository
+            .GetCommentsByTargetIdAndTypeAsync(workoutId, Data.Enums.CommentTargetType.Workout);
+
+        if (comments.Count != 0)
+        {
+            await _unitOfWork.CommentRepository.DeleteRangeAsync(comments);
+        }
+
+        // 2. Видаляємо Вправи (UserExercises)
+        var exercises = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
+        if (exercises.Count != 0)
+        {
+            await _unitOfWork.UserExerciseRepository.DeleteRangeAsync(exercises);
+        }
+
+        // 3. Видаляємо сам Воркаут
         await _unitOfWork.WorkoutRepository.DeleteByIdAsync(workoutId);
+
+        // Зберігаємо всі зміни однією транзакцією
         await _unitOfWork.SaveAsync();
     }
 }

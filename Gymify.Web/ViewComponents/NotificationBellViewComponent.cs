@@ -20,11 +20,10 @@ namespace Gymify.Web.ViewComponents
             var userIdString = HttpContext.User.FindFirst("UserProfileId")?.Value;
 
             if (string.IsNullOrEmpty(userIdString))
-                return Content(""); // Якщо не залогінений - нічого не малюємо
+                return Content(""); 
 
             var userId = Guid.Parse(userIdString);
 
-            // Тобі треба додати ці методи в репозиторій (див. Крок 4)
             var unreadCount = await _unitOfWork.NotificationRepository.GetUnreadCountAsync(userId);
             var recentNotifications = await _unitOfWork.NotificationRepository.GetRecentAsync(userId, 5);
 
