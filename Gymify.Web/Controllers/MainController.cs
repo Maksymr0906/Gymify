@@ -27,6 +27,10 @@ namespace Gymify.Web.Controllers
 
                 return View("Home", viewModel);
             }
+            else if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Home", "Admin");
+            }
             else
             {
                 return View("Start");
