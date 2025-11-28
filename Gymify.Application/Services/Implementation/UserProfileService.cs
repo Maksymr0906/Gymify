@@ -1,15 +1,24 @@
-﻿using Gymify.Application.DTOs.Workout;
+﻿using Gymify.Application.DTOs.Achievement;
+using Gymify.Application.DTOs.Workout;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Application.ViewModels.Comment;
 using Gymify.Application.ViewModels.Home;
+using Gymify.Application.ViewModels.UserProfile;
+using Gymify.Data.Entities;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelingService) : IUserProfileService
+public class UserProfileService
+    (IUnitOfWork unitOfWork, ILevelingService levelingService, IUserEquipmentService userEquipmentService, ICommentService commentService, UserManager<ApplicationUser> userManager) : IUserProfileService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ILevelingService _levelingService = levelingService;
+    private readonly IUserEquipmentService _userEquipmentService = userEquipmentService;
+    private readonly ICommentService _commentService = commentService;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
 
     public async Task<HomeViewModel> ReceiveUserLevelWorkouts(Guid userId)
     {
@@ -103,5 +112,129 @@ public class UserProfileService(IUnitOfWork unitOfWork, ILevelingService levelin
 
         await _unitOfWork.UserProfileRepository.UpdateAsync(user);
         await _unitOfWork.SaveAsync();
+    }
+
+    public async Task<List<AchievementDto>> GetCompletedAchivementsOfUser(Guid userProfileId)
+    {
+        var userAchievements = await _unitOfWork.UserAchievementRepository.GetAllByUserId(userProfileId);
+
+        List<AchievementDto> achievementDtos = new();
+        foreach (var userAchievement in userAchievements)
+        {
+            if (!userAchievement.IsCompleted) continue;
+            achievementDtos.Add(new AchievementDto
+            {
+                AchievementId = userAchievement.AchievementId,
+                Name = userAchievement.Achievement.Name,
+                Description = userAchievement.Achievement.Description,
+                IconUrl = userAchievement.Achievement.IconUrl,
+                ComparisonType = userAchievement.Achievement.ComparisonType,
+                RewardItemId = userAchievement.Achievement.RewardItemId,
+                Progress = userAchievement.Progress,
+                TargetProperty = userAchievement.Achievement.TargetProperty,
+                TargetValue = userAchievement.Achievement.TargetValue,
+                IsCompleted = userAchievement.IsCompleted,
+                UnlockedAt = userAchievement.UnlockedAt
+            });
+        }
+
+        return achievementDtos;
+    }
+
+    public async Task<List<WorkoutDto>> GetLastWorkoutsOfUser(Guid userProfileId)
+    {
+        var userWorkouts = await _unitOfWork.WorkoutRepository.GetLastWorkouts(userProfileId, 28);
+
+        List<WorkoutDto> workoutsDtos = new();
+
+        foreach (var workout in userWorkouts)
+        {
+            workoutsDtos.Add(new WorkoutDto
+            {
+                Id = workout.Id,
+                Name = workout.Name,
+                Description = workout.Description,
+                CreatedAt = workout.CreatedAt,
+                TotalXP = workout.TotalXP
+            });
+        }
+
+        return workoutsDtos;
+    }
+
+
+    public async Task<UserProfileViewModel> GetUserProfileModel(Guid currentUserProfileId,Guid userProfileId)
+    {
+        var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentUserProfileId);
+        if (currentUser == null) throw new Exception("Current user profile not found"); // Бажано теж перевірити
+        var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(currentUser.Equipment.AvatarId);
+
+        var userCredentials = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userProfileId);
+        if (userCredentials == null) throw new NullReferenceException($"When we were looking for userCredentials by '{userProfileId}' id we not found according application user");
+
+        var userEquipment = await _userEquipmentService.GetUserEquipmentAsync(userProfileId);
+        var userAchievements = await GetCompletedAchivementsOfUser(userProfileId);
+        var userWorkouts = await GetLastWorkoutsOfUser(userProfileId);
+
+        return new UserProfileViewModel
+        {
+            UserProfileId = userProfileId,
+            Level = userCredentials.Level,
+            UserName = userCredentials.ApplicationUser!.UserName ?? "Name",
+            Title = userEquipment.TitleText,
+            Achievements = userAchievements,
+            Workouts = userWorkouts,
+            UserEquipmentDto = userEquipment,
+            UpdateUserEquipmentDto = new(),
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
+            Comments = new CommentsSectionViewModel
+            {
+                TargetId = userProfileId,
+                TargetType = Data.Enums.CommentTargetType.UserProfile,
+                Items = await _commentService.GetCommentDtos(currentUserProfileId, userProfileId, Data.Enums.CommentTargetType.UserProfile),
+                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
+            }
+        };
+    }
+
+    public async Task UpdateUserNameAsync(Guid userProfileId, string userName)
+    {
+        var userProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userProfileId);
+
+        if (userProfile == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        var user = await _userManager.FindByIdAsync(userProfile.ApplicationUserId.ToString());
+
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        // 2. Перевірка: чи не намагаємось ми встановити те саме ім'я
+        if (user.UserName == userName)
+        {
+            return;
+        }
+
+        // 3. Перевірка: чи не зайняте ім'я (UserManager зробить це сам, але можна і вручну)
+        var existingUser = await _userManager.FindByNameAsync(userName);
+        if (existingUser != null)
+        {
+            throw new Exception($"Username '{userName}' is already taken.");
+        }
+
+        // 4. НАЙГОЛОВНІШЕ: Використовуємо метод SetUserNameAsync
+        // Цей метод оновить UserName ТА NormalizedUserName
+        var result = await _userManager.SetUserNameAsync(user, userName);
+
+        if (!result.Succeeded)
+        {
+            // Збираємо помилки (наприклад, "Ім'я містить недопустимі символи")
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new Exception($"Failed to update username: {errors}");
+        }
     }
 }

@@ -1,19 +1,23 @@
 ﻿using Gymify.Application.DTOs.Achievement;
+using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.DTOs.Workout;
 using Gymify.Application.DTOs.WorkoutsFeed;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Application.ViewModels.Workout;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
+using Gymify.Application.ViewModels.Comment;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICaseService caseService)
+public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICommentService commentService, ICaseService caseService)
     : IWorkoutService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IUserProfileService _userProfileService = userProfileService;
     private readonly IAchievementService _achievementService = achievementService;
+    private readonly ICommentService _commentService = commentService;
     private readonly ICaseService _caseService = caseService;
 
     public async Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model)
@@ -120,65 +124,138 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         return workoutDtos;
     }
 
-    public async Task<DateTime?> GetFirstWorkoutDate(Guid userId, bool onlyMy, string authorName)
+
+    public async Task<List<WorkoutDayDto>> GetWorkoutsPage(
+        Guid userId,
+        string? authorName,
+        bool onlyMy,
+        bool byDescending,
+        int page)
     {
-        return await _unitOfWork.WorkoutRepository.GetFirstWorkoutDateAsync(userId, onlyMy, authorName);
-    }
-
-    public async Task<List<WorkoutDayDto>> GetWorkoutsByDayPage(DateTime? anchorDate, Guid userId, string? authorName, int page, bool onlyMy, bool byDescending)
-    {
-        int pageSizeDays = 28;
-        DateTime queryStartDate;
-        DateTime queryEndDate;
-
-        if (byDescending)
-        {
-            // Логіка для "новіші спочатку" (залишається як є)
-            var today = DateTime.UtcNow.Date;
-            var endDate = today.AddDays(-(page * pageSizeDays));
-            var startDate = endDate.AddDays(-pageSizeDays + 1);
-
-            queryStartDate = startDate;
-            queryEndDate = endDate.AddDays(1).AddTicks(-1);
-        }
-        else
-        {
-            // Логіка для "старіші спочатку" (використовує anchorDate)
-            if (anchorDate == null)
-            {
-                // Якщо JS з якоїсь причини не надіслав дату, повертаємо порожній список
-                return new List<WorkoutDayDto>();
-            }
-
-            var startDate = anchorDate.Value.AddDays(page * pageSizeDays);
-            var endDate = startDate.AddDays(pageSizeDays - 1);
-
-            queryStartDate = startDate;
-            queryEndDate = endDate.AddDays(1).AddTicks(-1);
-        }
+        int pageSize = 10; 
 
         var workouts = await _unitOfWork.WorkoutRepository
-            .GetUserWorkoutsFilteredAsync(userId, queryStartDate, queryEndDate, authorName, onlyMy,byDescending);
+            .GetWorkoutsPageAsync(userId, authorName, onlyMy, byDescending, page, pageSize);
+
+        if (workouts == null || !workouts.Any())
+        {
+            return new List<WorkoutDayDto>();
+        }
 
         var groupedWorkouts = workouts
             .GroupBy(w => w.CreatedAt.Date)
             .Select(group => new WorkoutDayDto
             {
                 Date = group.Key,
+                WorkoutCount = group.Count(),
                 TotalXpForDay = onlyMy ? group.Sum(w => w.TotalXP) : 0,
-                Workouts = group.Select(w => new WorkoutDto
-                {
-                    Id = w.Id,
-                    Name = w.Name,
-                    CreatedAt = w.CreatedAt,
-                    UserProfileId = w.UserProfileId,
-                    AuthorName = w.UserProfile.ApplicationUser.UserName,
-                    TotalXP = onlyMy ? w.TotalXP : 0
-                }).ToList() // Тепер тренування всередині дня також будуть відсортовані
+                Workouts = group
+                    .OrderByDescending(w => w.CreatedAt)
+                    .Select(w => new WorkoutDto
+                    {
+                        Id = w.Id,
+                        Name = w.Name,
+                        CreatedAt = w.CreatedAt,
+                        UserProfileId = w.UserProfileId,
+                        AuthorName = w.UserProfile?.ApplicationUser?.UserName,
+                        TotalXP = onlyMy ? w.TotalXP : 0 
+                    }).ToList()
             })
             .ToList();
+
+        if (byDescending)
+        {
+            groupedWorkouts = groupedWorkouts.OrderByDescending(d => d.Date).ToList();
+        }
+        else
+        {
+            groupedWorkouts = groupedWorkouts.OrderBy(d => d.Date).ToList();
+        }
 
         return groupedWorkouts;
     }
 
+    public async Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentProfileUserId, Guid workoutId)
+    {
+        var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
+
+        // 1. Якщо воркауту немає - кидаємо помилку "Не знайдено"
+        if (workout == null)
+            throw new KeyNotFoundException($"Workout with ID {workoutId} not found.");
+
+        // 2. Якщо приватний і не власник - кидаємо помилку "Доступ заборонено"
+        if (workout.IsPrivate && workout.UserProfileId != currentProfileUserId)
+        {
+            throw new UnauthorizedAccessException("Access to this private workout is denied.");
+        }
+
+        var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentProfileUserId);
+        if (currentUser == null) throw new Exception("Current user profile not found"); // Бажано теж перевірити
+
+        var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(currentUser.Equipment.AvatarId);
+
+        var workoutAuthor = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(workout.UserProfileId);
+        if (workoutAuthor == null) throw new NullReferenceException("Workout author profile not found");
+
+        var exerciseEntities = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
+
+        var exerciseDtos = exerciseEntities.Select(e => new UserExerciseDto
+        {
+            Id = e.Id,
+            WorkoutId = e.WorkoutId,
+            Name = e.Name,
+            Sets = e.Sets,
+            Reps = e.Reps,
+            Weight = e.Weight,
+            Duration = e.Duration,
+            EarnedXP = e.EarnedXP
+        }).ToList();
+
+        return new WorkoutDetailsViewModel
+        {
+            WorkoutId = workout.Id,
+            Name = workout.Name,
+            Description = workout.Description,
+            Conclusion = workout.Conclusion,
+            AuthorName = workoutAuthor.ApplicationUser?.UserName ?? "Unknown",
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png", 
+            AuthorId = workout.UserProfileId,
+            CreatedAt = workout.CreatedAt,
+            TotalXP = workout.TotalXP,
+            IsPrivate = workout.IsPrivate,
+            IsOwner = (workout.UserProfileId == currentProfileUserId),
+            Exercises = exerciseDtos,
+            Comments = new CommentsSectionViewModel
+            {
+                TargetId = workout.Id,
+                TargetType = Data.Enums.CommentTargetType.Workout,
+                Items = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
+                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
+            }
+        };
+    }
+    public async Task UpdateWorkoutInfoAsync(UpdateWorkoutRequestDto dto, Guid userId)
+    {
+        var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(dto.Id);
+
+        if (workout == null) throw new Exception("Workout not found");
+        if (workout.UserProfileId != userId) throw new Exception("Access denied");
+
+        workout.Name = dto.Name;
+        workout.Description = dto.Description;
+        workout.Conclusion = dto.Conclusion;
+        workout.IsPrivate = dto.IsPrivate;
+
+        await _unitOfWork.WorkoutRepository.UpdateAsync(workout);
+        await _unitOfWork.SaveAsync();
+    }
+    
+    public async Task RemoveWorkoutAsync(Guid userId, Guid workoutId)
+    {
+        var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
+        if (workout.UserProfileId != userId) throw new Exception("Access denided");
+
+        await _unitOfWork.WorkoutRepository.DeleteByIdAsync(workoutId);
+        await _unitOfWork.SaveAsync();
+    }
 }

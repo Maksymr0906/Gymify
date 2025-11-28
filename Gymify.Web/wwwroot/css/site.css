@@ -33,7 +33,7 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
+    margin-bottom: 0px;
     background-color: var(--BackgroundColor);
 }
 
@@ -64,7 +64,7 @@ a {
     border-color: var(--ButtonHoverColor);
 }
 .startPageContainer {
-    padding-top: 100px;
+    padding-bottom: 50px;
 }
 .mainTitle {
     font-size: 212px;
@@ -73,7 +73,10 @@ a {
 
 .mainDescription {
     color: white;
+    text-align: center;
+    flex: auto;
     width: 70%;
+    margin-bottom: 20px;
 }
 
 .mainRegistration {
@@ -114,7 +117,7 @@ a {
 /*              Auth            */
 .authForm {
     height: 80vh;
-    padding: 15%;
+    padding: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -239,8 +242,11 @@ a {
 }
 
 .homeWorkout {
-    flex: 1 1 20%;
+    flex: 0 0 auto;
     aspect-ratio: 1 / 1;
+    width: calc(25% - 37.5px); /* Розрахунок: (100%/4) мінус відступи */
+    max-width: 300px; /* Обмежуємо максимальний розмір на широких екранах */
+    min-width: 200px; /* Щоб картка не була занадто малою */
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
     border-radius: 30px;
     display: flex;
@@ -388,46 +394,186 @@ a {
     font-size: 30px;
 }
 
-/*          WorkoutsFeed        */
+/* ==================================================================== */
+/* === WORKOUTS FEED: ОПТИМІЗОВАНІ СТИЛІ === */
+/* ==================================================================== */
 
-.day-header {
-    background: #f0f0f0;
-    padding: 10px 15px;
-    font-weight: bold;
-    cursor: pointer;
-    border-top: 1px solid #ddd;
+/* Загальний контейнер для стрічки */
+#workout-feed-container {
+    padding: 0 10px;
 }
 
-.day-header:hover {
-    background: #e0e0e0;
+/* --- ФІЛЬТРИ ТА КЕРУВАННЯ --- */
+#filters-container {
+    background-color: #ffffff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
-.workout-list {
-    display: none;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
+#filter-type, #sort-type, #author-search {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+    font-size: 16px;
+    box-shadow: none;
+    padding: 6px 10px;
 }
 
-    .workout-list a {
-        display: block;
-        padding: 8px 0;
-        text-decoration: none;
+    #filter-type:focus, #sort-type:focus, #author-search:focus {
+        border-color: var(--ButtonColor);
+        outline: none;
     }
 
-#load-more-btn {
-    margin-top: 20px;
-    width: 100%;
-    padding: 10px;
+/* --- КАРТКА ДНЯ (day-entry) --- */
+.day-entry {
+    background-color: #ffffff;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
 }
+
+/* --- ЗАГОЛОВОК ДНЯ (day-header) --- */
+.day-header {
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 20px;
+    color: #222;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* --- СПИСОК ТРЕНУВАНЬ (workout-list) --- */
+/* УВАГА: display: none контролюється функціями slideUp/slideDown */
+.workout-list {
+    display: none;
+}
+
+/* --- КАРТКА ТРЕНУВАННЯ (workout-card-row) - РЯДКОВИЙ ВИГЛЯД --- */
+.workout-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    text-decoration: none;
+    color: inherit;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.15s, filter 0.15s; /* Додаємо transition для filter */
+}
+
+    .workout-card-row:last-child {
+        border-bottom: none;
+    }
+
+    .workout-card-row:hover {
+        /* Цей колір може працювати, коли немає heatmap, але ми покладаємося на filter */
+        background-color: #FFFFFF;
+        /* 🔥 КЛЮЧОВИЙ РЯДОК: Затемнюємо елемент на 10% при наведенні */
+        filter: brightness(0.95);
+    }
+
+/* ЛІВИЙ БЛОК: Назва + XP */
+.card-left-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1;
+    min-width: 0;
+    padding-right: 20px;
+}
+
+.workout-name {
+    padding 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.workout-xp {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ButtonColor);
+    margin-top: 4px;
+}
+
+/* ПРАВИЙ БЛОК: Дата та Автор */
+.card-right-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 13px;
+    color: #777;
+    white-space: nowrap;
+}
+
+.workout-meta-date {
+    font-weight: 500;
+    color: #555;
+}
+
+.workout-meta-author {
+    margin-top: 2px;
+}
+
+/* Стилі, що застосовуються, коли активовано фільтр "Show my workouts" */
+
+/* 1. Стилі для заголовка дня (постійні) */
+.heatmap-day-active {
+    /* Колір тексту для фону Heatmap */
+    color: #333 !important;
+    /* !important тут потрібен, якщо інший CSS має вищий пріоритет */
+}
+
+/* 2. Стилі для рядка тренування (постійні) */
+.heatmap-workout-active {
+    /* Постійні стилі Heatmap */
+    color: #333 !important;
+    padding: 15px !important; /* Мінімум для відображення інлайн-XP */
+    border-radius: 4px;
+}
+
+/* --- КНОПКА "LOAD MORE" --- */
+#load-more-btn {
+    width: 100%;
+    max-width: 400px;
+    display: block;
+    margin: 30px auto 50px auto !important;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--ButtonColor);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    #load-more-btn:hover {
+        background-color: #ff8c00;
+        transform: scale(1.02);
+    }
 
 
 /*          CreateWorkout           */
 .createWorkoutForm {
     height: 80vh;
-    padding: 15%;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* по горизонталі */
+    justify-content: center; /* по вертикалі */
 }
 .createWorkoutLabel {
     font-size: 44px;
@@ -456,163 +602,961 @@ a {
     background-color: var(--ButtonColor);
 }
 
-/*              AddExercise           */
+/* Comments */
 
-.AddExerciseTitle{
-    color:var(--TitleColor);
-    font-size: 60px;
-    margin: 2% 4%
+.co-container {
+    max-width: 800px;
+    margin-top: 20px;
+    font-family: 'Segoe UI', sans-serif;
 }
-.addExerciseForm{
-    margin: 0 4%;
-    width: 92%;
+
+/* Форма додавання */
+.co-form-wrapper {
     display: flex;
-    flex-direction: column;
-    justify-content:space-between;
-    height: 50vh;
-}
-.AddExerciseFormGroup{
-    width: 100%;
-}
-.AddExerciseLabel {
-    color: var(--TitleColor);
-    font-size: 50px;
-}
-.AddExerciseInput {
-    width: 100%;
-    height: 50px;
-    font-size:30px;
-    padding: 10px;
-    border-radius: 30px;
-}
-.addExerciseButtons{
-    display: flex;
-    justify-content: space-between;
-    margin: 40px 0 0;
-}
-.AddExerciseButton{
-    width:350px;
-    padding: 20px;
-    background-color: var(--ButtonColor);
-    border-radius: 30px;
-    font-size: 30px;
-}
-.AddExerciseLabelRadio {
-    font-size: 40px;
-    margin: 20px 10px 20px 50px;
-}
-.AddExerciseInputRadio {
-    width: 20px;
-    height: 20px;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: flex-start;
 }
 
-.suggestions-list {
-    list-style: none;
-    position: absolute;
-    background: #fff;
+.co-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.co-input-block {
+    flex-grow: 1;
+    position: relative;
+}
+
+.co-textarea {
     width: 100%;
-    border: 1px solid #ccc;
-    max-height: 150px;
-    overflow-y: auto;
-    z-index: 1000;
-    margin-top: 2px;
-    padding-left: 0;
-    border-radius: 0.25rem;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
 }
 
-.suggestion-item {
-    padding: 8px 10px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-    .suggestion-item:hover {
-        background: #f0f0f0;
+    .co-textarea:focus {
+        outline: none;
+        border-color: #3498db;
     }
 
-/*                             UserProfile                                  */
+/* Кнопки (локальні стилі) */
+.co-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    transition: opacity 0.2s;
+}
 
-.userProfileContainer{
-    width: 92%;
-    margin: 2% 4%;
-    height: 1100px;
-    display:flex;
+    .co-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.co-btn-primary {
+    background-color: #3498db;
+}
+
+    .co-btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+/* Список коментарів */
+.co-list {
+    display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 20px;
 }
-.userProfileCustoms{
-    height: 250px;
-    display: flex;
-}
-.userProfileNameBlock {
-    width: 100%;
-    margin-left: 50px;
-    display: flex;
-    justify-content: space-between;
-}
-.userProfileName {
-    font-size: 64px;
-    color: var(--TitleColor);
-}
-.userProfileEditButton{
-    width:400px;
-    border: 1px solid;
-    font-size: 50px;
-    padding: 30px;
-    height:fit-content;
-    text-align: center; 
-    background-color: var(--ButtonColor);
-    border-radius: 30px;    
 
+/* Окремий коментар */
+.co-item {
+    display: flex;
+    gap: 15px;
+    animation: co-fadeIn 0.3s ease-out;
 }
-.userProfileAchivmentBlock {
-    height: 20%;
-    border: 2px solid;
-    border-radius: 60px;
-    padding: 20px;
+
+.co-content {
+    flex-grow: 1;
+    background: #f8f9fa;
+    padding: 12px 15px;
+    border-radius: 0 12px 12px 12px;
+    position: relative;
+    border: 1px solid #f0f0f0;
 }
-.userProfileLastTrains {
-    height: 300px;
-    border: 2px solid;
-    border-radius: 60px;
-    padding: 20px;
+
+.co-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
 }
-.userProfileComments {
-    border: 2px solid;
-    border-radius: 60px;
-    padding: 20px;
-    font-size: 72px;
+
+.co-author {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    margin-right: 8px;
+}
+
+.co-date {
+    font-size: 0.8rem;
+    color: #95a5a6;
+}
+
+.co-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #333;
+    white-space: pre-wrap; /* Зберігає переноси рядків */
+    word-break: break-word;
+}
+
+.co-delete-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0.6;
+    padding: 0;
+}
+
+    .co-delete-btn:hover {
+        opacity: 1;
+        text-decoration: underline;
+    }
+
+.co-empty-msg {
     text-align: center;
+    padding: 30px;
+    color: #999;
+    font-style: italic;
 }
-.userProfileAvatarBlock{
+
+.co-author-link {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    margin-right: 8px;
+    text-decoration: none;
+}
+
+    .co-author-link:hover {
+        text-decoration: underline;
+        color: #3498db;
+    }
+
+.co-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.co-action-btn {
+    background: none;
+    border: none;
+    color: #7f8c8d;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+    .co-action-btn:hover {
+        color: #3498db;
+        text-decoration: underline;
+    }
+
+    .co-action-btn.delete:hover {
+        color: #e74c3c;
+    }
+
+.co-edit-area {
+    margin-top: 5px;
+}
+
+.co-edit-textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    min-height: 50px;
+    box-sizing: border-box;
+}
+
+.co-edit-controls {
+    margin-top: 5px;
+    text-align: right;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/*              AddExercise           */
+/* --- GLOBAL LAYOUT --- */
+.ae-page-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* --- UTILITIES --- */
+.ae-flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.ae-flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.ae-justify-between {
+    justify-content: space-between;
+}
+
+.ae-align-center {
+    align-items: center;
+}
+
+.ae-align-start {
+    align-items: flex-start;
+}
+
+.ae-gap-sm {
+    gap: 10px;
+}
+
+.ae-gap-md {
+    gap: 20px;
+}
+
+.ae-hidden {
+    display: none !important;
+}
+
+.ae-mt-20 {
+    margin-top: 20px;
+}
+
+.ae-mb-20 {
+    margin-bottom: 20px;
+}
+
+.ae-text-muted {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.ae-w-100 {
+    width: 100%;
+}
+
+/* --- TYPOGRAPHY --- */
+.ae-page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #2c3e50;
+    line-height: 1.2;
+}
+
+.ae-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #34495e;
+    margin: 0;
+}
+
+.ae-lead-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-top: 15px;
+}
+
+/* --- BADGES --- */
+.ae-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ae-badge-xp {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.ae-badge-private {
+    background-color: #eceff1;
+    color: #455a64;
+    border: 1px solid #cfd8dc;
+}
+
+/* --- BUTTONS --- */
+.ae-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .ae-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.ae-btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+    .ae-btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+.ae-btn-success {
+    background-color: #27ae60;
+    color: white;
+}
+
+    .ae-btn-success:hover {
+        background-color: #219150;
+    }
+
+.ae-btn-outline {
+    background-color: transparent;
+    border: 1px solid #bdc3c7;
+    color: #7f8c8d;
+}
+
+    .ae-btn-outline:hover {
+        border-color: #7f8c8d;
+        color: #2c3e50;
+    }
+
+.ae-btn-warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+    .ae-btn-warning:hover {
+        background-color: #d35400;
+    }
+
+.ae-btn-danger {
+    background-color: transparent;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+    .ae-btn-danger:hover {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+.ae-btn-sm {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
+
+/* --- FORMS --- */
+.ae-input-std {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+    .ae-input-std:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
+    }
+
+.ae-textarea-std {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* --- CONCLUSION BOX --- */
+.ae-conclusion-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid #3498db;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+
+/* --- TOGGLES --- */
+.ae-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.ae-toggle-input {
+    width: 16px;
+    height: 16px;
+}
+
+/* --- GRID SYSTEM FOR CARDS --- */
+.ae-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.ae-card-item {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.2s;
+    box-sizing: border-box; /* Важливо для Grid */
+}
+
+    .ae-card-item:hover {
+        border-color: #ddd;
+    }
+
+.ae-card-header-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2980b9;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+}
+
+.ae-card-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.ae-stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+}
+
+/* --- SEPARATOR --- */
+.ae-separator {
+    border-bottom: 1px solid #eee;
+    margin: 30px 0;
+}
+
+/* ExerciseManager */
+
+.ae-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0 0 6px 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+    .ae-suggestions li {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .ae-suggestions li:hover {
+            background-color: #f8f9fa;
+        }
+
+.ae-add-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.ae-card-inputs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.ae-empty-state {
+    display: none;
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+    background-color: #fdfdfd;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+
+/* Profile */
+
+/* 1. ПОВНОЕКРАННА ОБГОРТКА ДЛЯ ФОНУ (ID="profileRoot") */
+.userProfileFullPage {
+    width: 100%;
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: #121212;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer; /* Курсор для кліку на тло */
+}
+
+/* 2. ОБМЕЖУВАЧ ШИРИНИ КОНТЕНТУ */
+.userProfileContentWrapper {
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+/* 3. ХЕДЕР (Аватар + Інфо) */
+.userProfileCustoms {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    cursor: default; /* Контент не повинен викликати фон */
+}
+
+/* === АВАТАР І РАМКА === */
+.userProfileAvatarBlock {
+    position: relative;
     width: 300px;
-    border: 2px solid;
+    height: 300px;
 }
-.avatarImage {
+
+    .userProfileAvatarBlock[data-edit-type] {
+        cursor: pointer;
+    }
+
+.frameImage {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-}
-.userProfileAchivmentTitle, .userProfileTrainsTitle {
-    font-size: 40px;
-    color: var(--TitleColor);
-}
-.userProfileTrains {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
+    object-fit: contain;
+    z-index: 10;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
-.userProfileTrain {
-    margin: 10px 0 0 0;
-    width: 160px;
+.avatarImage {
+    position: absolute;
+    width: 84%;
+    height: 84%;
+    top: 8%;
+    left: 8%;
+    object-fit: cover;
+    z-index: 5;
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+/* === ІНФО БЛОК === */
+.userProfileInfoBlock {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 8px;
+    flex: 1;
+}
+
+.userProfileEditButton {
+    width: 120px;
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--ButtonColor, #2b8be6);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+}
+
+.userProfileLevelBadge {
+    /* Робимо його маленьким прямокутним значком */
+    display: inline-block;
+    margin-top: 25px;
+    padding: 4px 10px;
+    margin-bottom: 8px; /* Відступ від імені */
+    /* Стиль тексту */
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ffc107; /* Яскравий золотий/жовтий */
+    background-color: rgba(255, 193, 7, 0.1); /* Дуже прозорий золотий фон */
+
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    text-shadow: 0 0 5px rgba(255, 193, 7, 0.7);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.15); /* М'яка тінь значка */
+}
+
+.userProfileNameView {
+    font-size: 40px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.userProfileTitleView {
+    font-size: 20px;
+    color: #bbb;
+    cursor: pointer;
+}
+
+.userProfileNameInput, .userProfileTitleInput {
+    font-size: 40px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+    color: #333;
+}
+
+/* 4. БІЛІ КАРТКИ (Achievements & Last Trains) */
+.userProfileAchivmentBlock, .userProfileLastTrains, .userProfileComments {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    color: #333;
+    cursor: default; /* Контент не повинен викликати фон */
+}
+
+/* Заголовки всередині білих карток */
+.userProfileAchivmentTitle, .userProfileTrainsTitle {
+    font-size: 28px;
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+/* === СПИСОК ТРЕНУВАНЬ (КОНТЕЙНЕР) === */
+/* ВИКОРИСТОВУЄМО ТІЛЬКИ ЦЕЙ КЛАС ДЛЯ GRID: .userProfileTrainsList */
+.userProfileTrainsList, .userProfileAchivmentsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+/* --- КЛІКАБЕЛЬНА КАРТКА ТРЕНУВАННЯ --- */
+.userProfileTrainLink {
+    /* Розміри та Вигляд */
     aspect-ratio: 1 / 1;
-    border: 1.5px solid;
-    border-radius: 40px;
+    max-height: 200px;
+    max-width: 200px; /* Обмеження розміру */
+    background: #f4f7fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 14px;
+    padding: 15px;
+    box-sizing: border-box;
+    /* Layout: Центрування вмісту по вертикалі */
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
+    flex-direction: column;
+    /* Текст та Анімація */
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+    .userProfileTrainLink:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        background: #f4f7fa;
+        border-color: #e1e8ed;
+    }
+
+/* --- КАРТКА ДОСЯГНЕННЯ --- */
+/* УНІФІКУЄМО ЗОВНІШНІЙ ВИГЛЯД З userProfileTrainLink */
+.userProfileAchivmentItem {
+    /* Візуальна Уніфікація */
+    background: #f4f7fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 14px;
+    padding: 15px;
+    /* Розміри та Layout */
+    aspect-ratio: 1 / 1;
+    min-width: 150px; /* Щоб помістилося в Grid */
+    max-width: 200px;
+    /* Layout: Центрування вмісту по вертикалі */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default; /* Це li, а не клікабельне посилання */
+}
+
+    /* ЕФЕКТ НАВЕДЕННЯ (Уніфіковано) */
+    .userProfileAchivmentItem:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        border-color: #e1e8ed;
+    }
+
+/* --- ВНУТРІШНІ ЕЛЕМЕНТИ АЧІВОК (Фікс перенесення) --- */
+.achievementContent {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-wrap: break-word; /* Дозволяємо перенос */
+}
+
+.achievementIcon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.achievementText {
+    width: 100%;
+}
+
+.achievementName {
+    font-weight: 700;
+    display: block; /* Забезпечує перехід на новий рядок */
+    font-size: 14px;
+    word-wrap: break-word;
+    color: #444;
+}
+
+.achievementDate {
+    display: block; /* Забезпечує перехід на новий рядок */
+    font-size: 12px;
+    color: #888;
+}
+
+/* === ITEM PICKER STYLES === */
+#itemPickerOverlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 40vh;
+    background: #222; /* Темніший, щоб виділявся */
+    color: white;
+    display: none;
+    z-index: 1000;
+    padding: 16px;
+    box-sizing: border-box;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+}
+
+#itemPickerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap; /* Дозволяє кнопкам перейти на новий рядок */
+}
+
+#pickerTabs {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.pickerTabBtn {
+    padding: 6px 12px;
+    background: #444;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    transition: background 0.2s;
+}
+
+    .pickerTabBtn.active {
+        background: #2b8be6;
+    }
+
+#itemPickerList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-start;
+    padding: 10px 0;
+    overflow-y: auto;
+    max-height: calc(40vh - 80px); /* Adjust based on header height */
+}
+
+.pickerItem {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    .pickerItem.selected {
+        border-color: #2b8be6;
+        transform: scale(1.05);
+        box-shadow: 0 0 12px rgba(43, 139, 230, 0.7);
+    }
+
+.titleItem {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    height: 50px;
+    padding: 0 15px;
+    border: 3px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.2s;
+}
+
+    .titleItem.selected {
+        border-color: #2b8be6;
+        background-color: #d0e4ff;
+        box-shadow: 0 0 8px rgba(43, 139, 230, 0.4);
+    }
+
+/* === MEDIA QUERIES === */
+@media (max-width: 900px) {
+    .userProfileCustoms {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .userProfileAvatarBlock {
+        width: 220px;
+        height: 220px;
+    }
+
+    .avatarImage {
+        width: 80%;
+        height: 80%;
+        top: 10%;
+        left: 10%;
+    }
+
+    .userProfileNameView {
+        font-size: 32px;
+    }
+
+    .userProfileAchivmentBlock, .userProfileLastTrains {
+        padding: 20px;
+    }
+}
+
+/* Встановлюємо курсор за замовчуванням на всіх основних блоках контенту */
+.userProfileCustoms,
+.userProfileAchivmentBlock,
+.userProfileLastTrains {
+    cursor: default;
+}
+
+/* Переконаємося, що інтерактивні елементи всередині цих блоків мають pointer */
+.userProfileEditButton,
+.userProfileTrain,
+.userProfileAchivmentItem,
+.userProfileTitleView[data-edit-type="title"], /* Щоб виділення титулу працювало */
+.userProfileAvatarBlock[data-edit-type="avatar-setup"] {
+    cursor: pointer;
 }
 
 /*              Inventory               */

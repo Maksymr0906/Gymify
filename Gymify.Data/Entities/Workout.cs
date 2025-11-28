@@ -10,5 +10,4 @@ public class Workout : BaseEntity
     public Guid UserProfileId { get; set; }
     public UserProfile UserProfile { get; set; } = null!;
     public ICollection<UserExercise> Exercises { get; set; } = [];
-    public ICollection<Comment> Comments { get; set; } = [];
 }

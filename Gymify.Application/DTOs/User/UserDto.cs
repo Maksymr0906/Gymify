@@ -8,5 +8,6 @@ namespace Gymify.Application.DTOs.User
 {
     internal class UserDto
     {
+        string Name { get; set; }
     }
 }

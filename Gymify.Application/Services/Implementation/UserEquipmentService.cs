@@ -2,6 +2,7 @@
 using Gymify.Application.DTOs.UserEquipment;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
+using Gymify.Application.ViewModels.UserProfile;
 using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
@@ -10,16 +11,37 @@ public class UserEquipmentService(IUnitOfWork unitOfWork) : IUserEquipmentServic
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
+
     public async Task<UserEquipmentDto> GetUserEquipmentAsync(Guid userProfileId)
     {
         var userEquipment = await _unitOfWork.UserEquipmentRepository.GetByUserIdAsync(userProfileId);
 
+        var imageIds = new List<Guid>()
+        {
+            userEquipment.AvatarId,
+            userEquipment.BackgroundId,
+            userEquipment.FrameId,
+        };
+
+        var userItems = await _unitOfWork.ItemRepository.GetByListOfIdAsync(imageIds);
+
+        var userTitle = await _unitOfWork.ItemRepository.GetByIdAsync(userEquipment.TitleId);
+
+        var imagesDict = userItems.ToDictionary(itm => itm.Id, itm => itm.ImageURL);
+
         return new UserEquipmentDto
         {
             AvatarId = userEquipment.AvatarId,
+            AvatarUrl = imagesDict.TryGetValue(userEquipment.AvatarId, out string? avatar) ? avatar : string.Empty,
+
             BackgroundId = userEquipment.BackgroundId,
+            BackgroundUrl = imagesDict.TryGetValue(userEquipment.BackgroundId, out string? back) ? back : string.Empty,
+
             FrameId = userEquipment.FrameId,
+            FrameUrl = imagesDict.TryGetValue(userEquipment.FrameId, out string? frame) ? frame : string.Empty,
+
             TitleId = userEquipment.TitleId,
+            TitleText = userTitle.Name
         };
     }
 
