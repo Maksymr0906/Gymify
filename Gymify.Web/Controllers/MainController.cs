@@ -67,5 +67,24 @@ namespace Gymify.Web.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> FilterExercises(string search, ExerciseType? type, bool pendingOnly, int page = 1)
+        {
+            // Та сама логіка, що й в Library
+            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20);
+
+            var model = new ExerciseLibraryViewModel
+            {
+                Exercises = result.Exercises,
+                SearchTerm = search,
+                TypeFilter = type,
+                ShowPendingOnly = pendingOnly,
+                CurrentPage = page,
+                TotalPages = result.TotalPages
+            };
+
+            return PartialView("_ExerciseGrid", model);
+        }
     }
 }
