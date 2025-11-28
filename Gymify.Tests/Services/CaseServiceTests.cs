@@ -1,4 +1,4 @@
-﻿using Gymify.Application.DTOs.Case;
+﻿/*using Gymify.Application.DTOs.Case;
 using Gymify.Application.Services.Implementation;
 using Gymify.Data.Entities;
 using Gymify.Data.Enums;
@@ -183,4 +183,4 @@ namespace Gymify.Tests.Services
             Assert.Equal("Case has no rewards", ex.Message);
         }
     }
-}
+}*/

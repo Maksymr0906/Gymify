@@ -1,0 +1,130 @@
+﻿<style>
+    /* --- MODAL STYLES (AE Theme) --- */
+
+    /* Темний фон */
+    .ae-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.85); /* Більш темний і стильний */
+        z-index: 10000; /* Поверх усього */
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px); /* Ефект розмиття фону (Modern UI) */
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Стан відкриття */
+    .ae-modal-overlay.open {
+        display: flex;
+        opacity: 1;
+    }
+
+    /* Контейнер відео */
+    .ae-modal-content {
+        position: relative;
+        width: 90%;
+        max-width: 900px;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+
+        /* Магія для збереження пропорцій 16:9 */
+        aspect-ratio: 16 / 9; 
+
+        transform: scale(0.9);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .ae-modal-overlay.open .ae-modal-content {
+        transform: scale(1);
+    }
+
+    /* Кнопка закриття */
+    .ae-modal-close {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s, transform 0.2s;
+        z-index: 10001;
+    }
+    .ae-modal-close:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    /* Iframe */
+    .ae-modal-content iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+    }
+</style>
+
+<div id="aeVideoOverlay" class="ae-modal-overlay" onclick="closeVideoModal()">
+
+    <div style="position: relative; width: 90%; max-width: 900px;">
+
+        <button class="ae-modal-close" onclick="closeVideoModal()">&times;</button>
+
+        <div class="ae-modal-content" onclick="event.stopPropagation()">
+            <iframe id="aeVideoFrame" 
+                    src="" 
+                    allow="autoplay; encrypted-media; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Робимо функції глобальними
+    window.openVideoModal = function(embedUrl) {
+        if (!embedUrl) return;
+
+        const overlay = document.getElementById('aeVideoOverlay');
+        const frame = document.getElementById('aeVideoFrame');
+
+        // Додаємо autoplay=1, щоб відео почалось відразу
+        // Також додаємо rel=0, щоб не показувати схожі відео з інших каналів
+        const separator = embedUrl.includes('?') ? '&' : '?';
+        frame.src = `${embedUrl}${separator}autoplay=1&rel=0`;
+
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Блокуємо скрол сторінки
+    };
+
+    window.closeVideoModal = function() {
+        const overlay = document.getElementById('aeVideoOverlay');
+        const frame = document.getElementById('aeVideoFrame');
+
+        overlay.classList.remove('open');
+
+        // Чекаємо завершення анімації (0.3s) перед очищенням src
+        setTimeout(() => {
+            frame.src = ""; // Зупиняємо звук/відео
+            document.body.style.overflow = ''; // Розблоковуємо скрол
+        }, 300);
+    };
+
+    // Закриття по ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "Escape") {
+            const overlay = document.getElementById('aeVideoOverlay');
+            if (overlay.classList.contains('open')) {
+                closeVideoModal();
+            }
+        }
+    });
+</script>

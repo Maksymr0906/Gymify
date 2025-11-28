@@ -84,12 +84,13 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
         if (receiverId != Guid.Empty && receiverId != currentProfileUserId)
         {
             var senderName = currentUser.ApplicationUser?.UserName ?? "Someone";
-            var message = $"{senderName} прокоментував ваш допис.";
+            var message = targetType == CommentTargetType.Workout ?
+                $"{senderName} commented your workout." : $"{senderName} commented your profile.";
 
             // Формуємо посилання, куди перейде юзер при кліку
             string link = targetType == CommentTargetType.Workout
                 ? $"/Workout/Details?workoutId={targetId}"
-                : $"/profile?userId={targetId}";
+                : $"/Profile?userId={targetId}";
 
             await _notificationService.SendNotificationAsync(receiverId, message, link);
         }

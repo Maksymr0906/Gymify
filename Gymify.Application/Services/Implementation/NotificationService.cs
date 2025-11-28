@@ -15,30 +15,20 @@ public class NotificationService : INotificationService
 
     public async Task MarkAsReadAsync(Guid notificationId)
     {
-        var notification = await _unitOfWork.NotificationRepository.GetByIdAsync(notificationId);
-        if (notification != null && !notification.IsRead)
-        {
-            notification.IsRead = true;
-            await _unitOfWork.NotificationRepository.UpdateAsync(notification);
-            await _unitOfWork.SaveAsync();
-        }
+        // Просто видаляємо запис. Немає запису - немає сповіщення.
+        await _unitOfWork.NotificationRepository.DeleteByIdAsync(notificationId);
+        await _unitOfWork.SaveAsync();
     }
 
     public async Task MarkAllAsReadAsync(Guid userId)
     {
-        var unreadNotifications = await _unitOfWork.NotificationRepository.GetAllUnreadByUserIdAsync(userId);
+        // Отримуємо всі сповіщення юзера
+        var allNotifications = await _unitOfWork.NotificationRepository.GetRecentAsync(userId, 100); // Або спеціальний метод GetAllByUserId
 
-        if (unreadNotifications.Any())
+        if (allNotifications.Any())
         {
-            foreach (var n in unreadNotifications)
-            {
-                n.IsRead = true;
-                // Update не обов'язково викликати для кожного, якщо контекст один
-            }
-
-            // Якщо метод UpdateAsync приймає список, краще використати його, 
-            // або просто SaveAsync(), якщо об'єкти відстежуються EF Core
-            await _unitOfWork.NotificationRepository.UpdateRangeAsync(unreadNotifications);
+            // Видаляємо їх масово
+            await _unitOfWork.NotificationRepository.DeleteRangeAsync(allNotifications);
             await _unitOfWork.SaveAsync();
         }
     }
@@ -50,8 +40,7 @@ public class NotificationService : INotificationService
         {
             UserProfileId = targetUserId, 
             Content = message,     
-            Link = link,          
-            IsRead = false,       
+            Link = link,         
             CreatedAt = DateTime.UtcNow
         };
         await _unitOfWork.NotificationRepository.CreateAsync(notification);

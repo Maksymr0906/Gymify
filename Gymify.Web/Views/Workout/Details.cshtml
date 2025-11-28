@@ -39,6 +39,14 @@
                         <button id="btnCancelInfo" class="ae-btn ae-btn-outline ae-hidden">Cancel</button>
                         <button id="btnEditInfo" class="ae-btn ae-btn-outline">Edit Info</button>
                     </div>
+
+                <form method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId"
+                          onsubmit="return confirm('Are you sure you want to delete this workout? This action cannot be undone.');">
+
+                        <button type="submit" class="ae-btn ae-btn-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </form>
             }
         </div>
 

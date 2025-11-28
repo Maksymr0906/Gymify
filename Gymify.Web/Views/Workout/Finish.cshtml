@@ -12,6 +12,7 @@
         </div>
 
         <div class="ae-card-item" style="padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+
             <form method="post" asp-action="Finish">
                 <input type="hidden" asp-for="WorkoutId" />
                 <input type="hidden" asp-for="UserProfileId" />
@@ -20,16 +21,25 @@
                     <label asp-for="Conclusions" class="ae-text-muted" style="font-weight: 600; margin-bottom: 8px; display: block;">
                         Conclusions (Optional)
                     </label>
-                    <textarea asp-for="Conclusions" 
-                              class="ae-input-std ae-textarea-std" 
-                              rows="6" 
-                              placeholder="Write your thoughts here (e.g., 'Personal best on bench press', 'Need to improve form on squats')..."></textarea>
+                    <textarea asp-for="Conclusions"
+                              class="ae-input-std ae-textarea-std"
+                              rows="6"
+                              placeholder="Write your thoughts here..."></textarea>
                 </div>
 
                 <button type="submit" class="ae-btn ae-btn-success ae-w-100" style="padding: 12px; font-size: 1.1rem;">
                     Complete Workout <i class="bi bi-trophy-fill" style="margin-left: 8px;"></i>
                 </button>
-            </form>
+            </form> <div class="ae-mt-20" style="text-align: center;">
+                <form method="post" asp-action="RemoveWorkout" asp-route-workoutId="@Model.WorkoutId">
+                    <button type="submit"
+                            class="ae-btn"
+                            style="background: none; border: none; color: #999; text-decoration: underline; font-size: 0.9rem; padding: 0; cursor: pointer;">
+                        Cancel and delete workout
+                    </button>
+                </form>
+            </div>
+
         </div>
 
     </div>

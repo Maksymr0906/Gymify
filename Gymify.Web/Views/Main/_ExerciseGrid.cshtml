@@ -1,0 +1,71 @@
+﻿@using Gymify.Application.ViewModels.ExerciseLibrary
+@using Gymify.Data.Enums
+@model ExerciseLibraryViewModel
+
+@if (!Model.Exercises.Any())
+{
+        <div style="text-align: center; padding: 60px; color: #999;">
+            <i class="bi bi-search" style="font-size: 2.5rem; display: block; margin-bottom: 15px; opacity: 0.5;"></i>
+            <p>No exercises found matching your criteria.</p>
+        </div>
+}
+else
+{
+        <div class="ae-cards-grid">
+        @foreach (var ex in Model.Exercises)
+        {
+            var cardClass = ex.IsApproved ? "" : "pending";
+
+                    <div class="ae-card-item ex-card @cardClass">
+
+                @if (ex.IsApproved)
+                {
+                                <div class="ex-badge verified" title="Official"><i class="bi bi-check-circle-fill"></i> Verified</div>
+                }
+                else
+                {
+                                <div class="ex-badge pending" title="Community"><i class="bi bi-people-fill"></i> Community</div>
+                }
+
+                        <div class="ex-thumbnail-wrapper" onclick="openVideoModal('@ex.VideoEmbedUrl')">
+                            <img src="@ex.ThumbnailUrl" class="ex-thumbnail" alt="@ex.Name" loading="lazy" />
+                    @if (!string.IsNullOrEmpty(ex.VideoEmbedUrl))
+                    {
+                                    <div class="ex-play-btn"><i class="fa-solid fa-play"></i></div>
+                    }
+                        </div>
+
+                        <div>
+                            <span class="ex-type">@((ExerciseType)ex.Type)</span>
+                            <div class="ae-card-header-title" style="margin-bottom: 5px;">@ex.Name</div>
+                            <p class="ae-text-muted" style="font-size: 0.9rem; line-height: 1.4; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        @ex.Description
+                            </p>
+                        </div>
+
+                        <div class="ae-card-stats">
+                             <span><i class="bi bi-star-fill" style="color:gold"></i> @ex.BaseXP XP</span>
+                        </div>
+                    </div>
+        }
+        </div>
+}
+
+@if (Model.TotalPages > 1)
+{
+        <div class="ae-mt-20" style="display: flex; justify-content: center; gap: 10px; margin-top: 40px;">
+        @if (Model.CurrentPage > 1)
+        {
+                    <button class="ae-btn ae-btn-outline page-link" data-page="@(Model.CurrentPage - 1)">&larr; Prev</button>
+        }
+
+            <span style="padding: 8px; color: #777; font-weight: 600;">
+                Page @Model.CurrentPage of @Model.TotalPages
+            </span>
+
+        @if (Model.CurrentPage < Model.TotalPages)
+        {
+                    <button class="ae-btn ae-btn-outline page-link" data-page="@(Model.CurrentPage + 1)">Next &rarr;</button>
+        }
+        </div>
+}

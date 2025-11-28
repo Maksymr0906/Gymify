@@ -16,4 +16,6 @@ public class UserExerciseDto
         get => Duration.HasValue ? (int)Duration.Value.TotalMinutes : 0;
         set => Duration = TimeSpan.FromMinutes(value);
     }
+
+    public bool IsPendingApproval { get; set; } = true;
 }
