@@ -3,55 +3,58 @@ using Gymify.Application.ViewModels.Friends;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
-public class FriendsController : Controller
+namespace Gymify.Web.Controllers
 {
-    private readonly IFriendsService _friendsService;
-
-    public FriendsController(IFriendsService friendsService)
+    [Authorize]
+    public class FriendsController : Controller
     {
-        _friendsService = friendsService;
-    }
+        private readonly IFriendsService _friendsService;
 
-    [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-        var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
-
-        var model = new FriendsViewModel
+        public FriendsController(IFriendsService friendsService)
         {
-            Friends = await _friendsService.GetFriendsAsync(userId),
-            IncomingRequests = await _friendsService.GetIncomingInvitesAsync(userId)
-        };
-
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> SendRequest(Guid receiverId)
-    {
-        var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
-        try
-        {
-            await _friendsService.SendFriendRequestAsync(userId, receiverId);
-            return Ok(); // Або перенаправлення
+            _friendsService = friendsService;
         }
-        catch (Exception ex) { return BadRequest(ex.Message); }
-    }
 
-    [HttpPost]
-    public async Task<IActionResult> Accept(Guid senderId)
-    {
-        var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
-        await _friendsService.AcceptFriendRequestAsync(senderId, userId);
-        return RedirectToAction("Index");
-    }
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
 
-    [HttpPost]
-    public async Task<IActionResult> Decline(Guid senderId)
-    {
-        var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
-        await _friendsService.DeclineFriendRequestAsync(senderId, userId);
-        return RedirectToAction("Index");
+            var model = new FriendsViewModel
+            {
+                Friends = await _friendsService.GetFriendsAsync(userId),
+                IncomingRequests = await _friendsService.GetIncomingInvitesAsync(userId)
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendRequest(Guid receiverId)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+            try
+            {
+                await _friendsService.SendFriendRequestAsync(userId, receiverId);
+                return Ok(); // Або перенаправлення
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Accept(Guid senderId)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+            await _friendsService.AcceptFriendRequestAsync(senderId, userId);
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Decline(Guid senderId)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+            await _friendsService.DeclineFriendRequestAsync(senderId, userId);
+            return RedirectToAction("Index");
+        }
     }
 }

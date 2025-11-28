@@ -139,10 +139,5 @@ namespace Gymify.Web.Controllers
             return View("Workouts");
         }
 
-        [HttpGet("friends")]
-        public IActionResult Friends()
-        {
-            return View("Friends");
-        }
     }
 }
