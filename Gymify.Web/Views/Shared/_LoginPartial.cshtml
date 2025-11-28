@@ -13,31 +13,40 @@
                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     👑 Admin Panel
                 </a>
+
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+
                     <li>
-                        <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                        <a class="dropdown-item" asp-controller="Admin" asp-action="Home">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Exercises" asp-action="Manage">
+                        <a class="dropdown-item" asp-controller="Admin" asp-action="ExercisePanel">
                             Manage Exercises
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Users" asp-action="Manage">
+                        <a class="dropdown-item" asp-controller="Admin" asp-action="UserPanel">
                             Manage Users
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Comments" asp-action="Manage">
+                        <a class="dropdown-item" asp-controller="Admin" asp-action="CommentPanel">
                             Manage Comments
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" asp-controller="Admin" asp-action="WorkoutPanel">
+                            Workouts & Templates
                         </a>
                     </li>
                     <li><hr class="dropdown-divider" /></li>
                     <li>
                         <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                            <button type="submit" class="dropdown-item text-danger">
+                                🚪 Logout
+                            </button>
                         </form>
                     </li>
                 </ul>

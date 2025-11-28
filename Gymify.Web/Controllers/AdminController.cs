@@ -1,9 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Gymify.Application.DTOs.Exercise;
+using Gymify.Application.Services.Interfaces;
+using Gymify.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
+    private readonly IAdminService _adminService;
+
+    public AdminController(IAdminService adminService)
+    {
+        _adminService = adminService;
+    }
+
     // =====================
     //       HOME
     // =====================
@@ -15,20 +25,35 @@ public class AdminController : Controller
 
 
     // =====================
+    //     EXERCISE PANEL
+    // =====================
+    [HttpGet("/admin/exercises")]
+    public async Task<IActionResult> ExercisePanel()
+    {
+        var notApproved = await _adminService.GetUnapprovedExercisesAsync();
+        return View(notApproved);
+    }
+
+    [HttpPost("/admin/exercises/approve")]
+    public async Task<IActionResult> ApproveExercise(UpdateExerciseRequestDto updated)
+    {
+        await _adminService.ApproveExerciseAsync(updated);
+        return RedirectToAction("ExercisePanel");
+    }
+
+    [HttpPost("/admin/exercises/reject")]
+    public async Task<IActionResult> RejectExercise(Guid id, string reason)
+    {
+        await _adminService.RejectExerciseAsync(id, reason);
+        return RedirectToAction("ExercisePanel");
+    }
+
+    // =====================
     //     COMMENT PANEL
     // =====================
     [HttpGet("/admin/comments")]
     public IActionResult CommentPanel()
-        => View("CommentPanel");
-
-
-
-    // =====================
-    //     EXERCISE PANEL
-    // =====================
-    [HttpGet("/admin/exercises")]
-    public IActionResult ExercisePanel()
-        => View("ExercisePanel");
+        => View("СommentPanel");
 
 
 
