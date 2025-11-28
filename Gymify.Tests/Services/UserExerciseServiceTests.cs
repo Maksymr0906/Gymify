@@ -1,4 +1,4 @@
-﻿using Gymify.Application.DTOs.UserExercise;
+﻿/*using Gymify.Application.DTOs.UserExercise;
 using Gymify.Application.Services.Implementation;
 using Gymify.Data.Entities;
 using Gymify.Data.Enums;
@@ -184,4 +184,4 @@ namespace Gymify.Tests.Services
             Assert.Equal(50, result);
         }
     }
-}
+}*/

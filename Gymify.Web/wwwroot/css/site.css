@@ -157,7 +157,246 @@ a {
     padding: 2px;
     background-color: var(--ButtonColor);
 }
-/* Home */
+/*                                  Leaderboard                                  */
+
+/* --- LAYOUT & CONTAINER --- */
+.lb-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* --- HEADER --- */
+.lb-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.lb-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.lb-subtitle {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    margin-top: 10px;
+}
+
+/* --- TABLE CARD --- */
+.lb-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* --- GRID SYSTEM --- */
+.lb-row {
+    display: grid;
+    /* Rank | User Info | Level | XP */
+    grid-template-columns: 70px 1fr 80px 120px;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+    .lb-row:last-child {
+        border-bottom: none;
+    }
+
+    /* Header Row Style */
+    .lb-row.header {
+        background-color: #f8f9fa;
+        font-weight: 700;
+        color: #95a5a6;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* --- HIGHLIGHTS --- */
+
+    /* Me (Blue) */
+    .lb-row.is-me {
+        background-color: #eef7fe;
+        border-left: 5px solid #3498db;
+        padding-left: 19px; /* Compensate border width */
+    }
+
+    /* Friend (Green) */
+    .lb-row.is-friend {
+        background-color: #f0fdf4;
+        border-left: 5px solid #2ecc71;
+        padding-left: 19px;
+    }
+
+    /* Hover effects */
+    .lb-row:not(.header):hover {
+        background-color: #fafafa;
+    }
+
+    .lb-row.is-me:hover {
+        background-color: #e1f0fd;
+    }
+
+    .lb-row.is-friend:hover {
+        background-color: #e3fcef;
+    }
+
+/* --- COLUMNS --- */
+
+/* Rank Column */
+.lb-rank {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #bdc3c7;
+    text-align: center;
+}
+
+    .lb-rank.gold {
+        color: #f1c40f;
+        font-size: 1.5rem;
+        text-shadow: 0 2px 5px rgba(241, 196, 15, 0.3);
+    }
+
+    .lb-rank.silver {
+        color: #95a5a6;
+        font-size: 1.4rem;
+    }
+
+    .lb-rank.bronze {
+        color: #cd7f32;
+        font-size: 1.3rem;
+    }
+
+/* User Column */
+.lb-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.lb-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.lb-username {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+    .lb-username:hover {
+        color: #3498db;
+        text-decoration: underline;
+    }
+
+.lb-you-tag {
+    font-size: 0.75rem;
+    background-color: #3498db;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-weight: normal;
+}
+
+/* Level Column */
+.lb-level {
+    text-align: center;
+    font-weight: 600;
+    color: #555;
+    background: #eee;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.9rem;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+/* XP Column */
+.lb-xp {
+    text-align: right;
+    font-weight: 800;
+    color: #27ae60;
+    font-size: 1.1rem;
+}
+
+    .lb-xp span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #2ecc71;
+    }
+
+/* --- STICKY FOOTER (ME) --- */
+.lb-sticky-me {
+    position: sticky;
+    bottom: 20px;
+    margin-top: 20px;
+    z-index: 100;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(52, 152, 219, 0.25);
+    border: 2px solid #3498db;
+    animation: slideUp 0.4s ease-out;
+}
+
+/* --- PAGINATION --- */
+.lb-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.lb-btn {
+    padding: 10px 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .lb-btn:hover {
+        background-color: #f8f9fa;
+        border-color: #ccc;
+        transform: translateY(-2px);
+    }
+
+.lb-page-info {
+    color: #999;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+
+/*                                          Home                                            */
 .homeTop {
     display: flex;
     flex-direction: column;

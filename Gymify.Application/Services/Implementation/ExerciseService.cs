@@ -1,5 +1,6 @@
 ﻿using Gymify.Application.DTOs.Exercise;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ public class ExerciseService(IUnitOfWork unitOfWork) : IExerciseService
         {
             Id = e.Id,
             Name = e.Name,
-            Type = (int)e.Type,
+            Type = e.Type,
             Description = e.Description,
             VideoURL = e.VideoURL,
         });
@@ -38,5 +39,34 @@ public class ExerciseService(IUnitOfWork unitOfWork) : IExerciseService
     public Task<int> GetBaseXpForExerciseAsync(string name)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<(List<ExerciseDto> Exercises, int TotalPages)> GetFilteredExercisesAsync(
+        string? search,
+        ExerciseType? type,
+        bool pendingOnly,
+        int page,
+        int pageSize)
+    {
+        // 1. Отримуємо дані з БД
+        var (entities, totalCount) = await _unitOfWork.ExerciseRepository
+            .GetFilteredAsync(search, type, pendingOnly, page, pageSize);
+
+        // 2. Розрахунок сторінок
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        // 3. Маппінг в DTO
+        var dtos = entities.Select(e => new ExerciseDto
+        {
+            Id = e.Id,
+            Name = e.Name,
+            Type = e.Type,
+            Description = e.Description,
+            VideoURL = e.VideoURL, // Важливо для YouTube хелпера
+            IsApproved = e.IsApproved,
+            BaseXP = e.BaseXP
+        }).ToList();
+
+        return (dtos, totalPages);
     }
 }
