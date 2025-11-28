@@ -33,6 +33,12 @@ public static class PersistenceExtensions
         services.AddScoped<IUserCaseRepository, UserCaseRepository>();
         services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
 
+        services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
+        services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
+        services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
+        services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
+
+
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

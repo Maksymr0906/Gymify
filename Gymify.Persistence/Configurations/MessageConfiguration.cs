@@ -1,34 +1,33 @@
 ﻿using Gymify.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gymify.Persistence.Configurations;
 
-public partial class MessageConfiguration
-    : IEntityTypeConfiguration<Message>
+public class MessageConfiguration : IEntityTypeConfiguration<Message>
 {
     public void Configure(EntityTypeBuilder<Message> builder)
     {
-        builder.Property(e => e.CreatedAt)
-           .IsRequired()
-           .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+        builder.ToTable("Messages");
 
         builder.Property(m => m.Content)
             .IsRequired()
-            .HasMaxLength(1000);
+            .HasMaxLength(4000); // Обмеження довжини
 
-        builder.Property(m => m.IsRead)
-            .IsRequired();
+        builder.Property(m => m.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.HasOne(m => m.SenderProfile)
-            .WithMany(u => u.SentMessages)
-            .HasForeignKey(m => m.SenderProfileId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Зв'язок з Чатом (Видалили чат -> зникли повідомлення)
+        builder.HasOne(m => m.Chat)
+            .WithMany(c => c.Messages)
+            .HasForeignKey(m => m.ChatId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(m => m.ReceiverProfile)
-            .WithMany(u => u.ReceivedMessages)
-            .HasForeignKey(m => m.ReceiverProfileId)
+        // Зв'язок з Автором (Видалили юзера -> повідомлення залишаються або Restrict)
+        // Cascade тут робити НЕБЕЗПЕЧНО через множинні шляхи видалення
+        builder.HasOne(m => m.Sender)
+            .WithMany()
+            .HasForeignKey(m => m.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

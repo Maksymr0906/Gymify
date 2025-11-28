@@ -1,4 +1,5 @@
-﻿using Gymify.Data.Interfaces.Repositories;
+﻿using Gymify.Data.Entities;
+using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Persistence.Repositories;
 
@@ -26,6 +27,12 @@ public class UnitOfWork : IUnitOfWork
         UserItemRepository = new UserItemRepository(context);
         ImageRepository = new ImageRepository(context);
         UserAchievementRepository = new UserAchievementRepository(context);
+
+        UserChatRepository = new UserChatRepository(context);
+        ChatRepository = new ChatRepository(context);
+        FriendshipRepository = new FriendshipRepository(context);
+        FriendInviteRepository = new FriendInviteRepository(context);
+        MessageReadStatusRepository = new MessageReadStatusRepository(context);
     }
 
     public UnitOfWork(GymifyDbContext context,
@@ -44,7 +51,13 @@ public class UnitOfWork : IUnitOfWork
         IUserCaseRepository userCaseRepository,
         IUserItemRepository userItemRepository,
         IImageRepository imageRepository,
-        IUserAchievementRepository userAchievementRepository) 
+        IUserAchievementRepository userAchievementRepository,
+        IUserChatRepository userChatRepository,
+        IChatRepository chatRepository,
+        IFriendInviteRepository friendInviteRepository,
+        IFriendshipRepository friendshipRepository,
+        IMessageReadStatusRepository messageReadStatusRepository
+        ) 
     {
         _context = context;
 
@@ -64,6 +77,11 @@ public class UnitOfWork : IUnitOfWork
         UserItemRepository = userItemRepository;
         ImageRepository = imageRepository;
         UserAchievementRepository = userAchievementRepository;
+        UserChatRepository = userChatRepository;
+        ChatRepository = chatRepository;
+        FriendInviteRepository = friendInviteRepository;
+        FriendshipRepository = friendshipRepository;
+        MessageReadStatusRepository = messageReadStatusRepository;
     }
 
     public IAchievementRepository AchievementRepository { get; set; }
@@ -82,6 +100,12 @@ public class UnitOfWork : IUnitOfWork
     public IUserItemRepository UserItemRepository { get; set; }
     public IImageRepository ImageRepository { get; set; }
     public IUserAchievementRepository UserAchievementRepository { get; set; }
+
+    public IUserChatRepository UserChatRepository { get; set; }
+    public IChatRepository ChatRepository { get; set; }
+    public IFriendInviteRepository FriendInviteRepository { get; set; }
+    public IFriendshipRepository FriendshipRepository { get; set; }
+    public IMessageReadStatusRepository MessageReadStatusRepository { get; set; }
 
     public async Task SaveAsync()
     {
