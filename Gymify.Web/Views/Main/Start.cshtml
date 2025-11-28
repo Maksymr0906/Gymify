@@ -1,12 +1,10 @@
-﻿@{
-    ViewData["Title"] = "Start";
-}
-<div class="startPageBg"></div>
-<div class="df startPageContainer">
-    <h1 class="mainTitle">GYMIFY</h1>
-    <h3 class="mainDescription">
-        Staying strong, getting XP.</h3>
-    <a class="mainRegistration scaleButton" href="/Register">GET STARTED</a>
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
-    <a class="mainLogin scaleButton" href="/Login">ALREADY REGISTERED</a>
+<div class="startPageBg"></div>
+    <div class="df startPageContainer"><h1 class="mainTitle">@Localizer["MainTitle"]</h1>
+    <h3 class="mainDescription">@Localizer["MainDescription"]</h3>
+
+    <a class="mainRegistration scaleButton" href="/Register">@Localizer["GetStarted"]</a>
+    <a class="mainLogin scaleButton" href="/Login">@Localizer["AlreadyRegistered"]</a>
+
 </div>
