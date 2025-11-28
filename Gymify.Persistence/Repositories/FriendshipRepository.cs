@@ -44,4 +44,10 @@ public class FriendshipRepository(GymifyDbContext context) : IFriendshipReposito
             .Where(f => f.UserProfileId1 == userId || f.UserProfileId2 == userId)
             .ToListAsync();
     }
+    public async Task<bool> AreFriendsAsync(Guid user1Id, Guid user2Id)
+    {
+        return await _context.Friendships.AnyAsync(f =>
+            (f.UserProfileId1 == user1Id && f.UserProfileId2 == user2Id) ||
+            (f.UserProfileId1 == user2Id && f.UserProfileId2 == user1Id));
+    }
 }

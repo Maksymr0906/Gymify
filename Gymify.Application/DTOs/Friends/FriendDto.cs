@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gymify.Data.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,4 +15,5 @@ public class FriendDto
     public Guid? ChatId { get; set; } 
     public int Level { get; set; }
     public DateTime? SentAt { get; set; } 
+    public UserRelationshipStatus Status { get; set; }
 }

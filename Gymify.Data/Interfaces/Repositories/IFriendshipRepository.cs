@@ -13,4 +13,5 @@ public interface IFriendshipRepository
     Task DeleteAsync(Friendship friendship);
     Task<Friendship?> GetByUsersAsync(Guid user1Id, Guid user2Id);
     Task<List<Friendship>> GetAllForUserAsync(Guid userId);
+    Task<bool> AreFriendsAsync(Guid user1Id, Guid user2Id);
 }

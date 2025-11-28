@@ -11,4 +11,5 @@ public class FriendsViewModel
 {
     public List<FriendDto> Friends { get; set; } = new();
     public List<FriendDto> IncomingRequests { get; set; } = new();
+    public List<FriendDto> OutgoingRequests { get; set; } = new();
 }

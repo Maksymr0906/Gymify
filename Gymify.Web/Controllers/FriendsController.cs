@@ -1,4 +1,5 @@
-﻿using Gymify.Application.Services.Interfaces;
+﻿using Gymify.Application.Services.Implementation;
+using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Friends;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,10 +24,21 @@ namespace Gymify.Web.Controllers
             var model = new FriendsViewModel
             {
                 Friends = await _friendsService.GetFriendsAsync(userId),
-                IncomingRequests = await _friendsService.GetIncomingInvitesAsync(userId)
+                IncomingRequests = await _friendsService.GetIncomingInvitesAsync(userId),
+                OutgoingRequests = await _friendsService.GetOutgoingInvitesAsync(userId) // <--- Додали
             };
 
             return View(model);
+        }
+
+        // Метод для скасування (кнопка Cancel)
+
+        [HttpGet]
+        public async Task<IActionResult> Search(string query)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+            var results = await _friendsService.SearchPotentialFriendsAsync(query, userId);
+            return Ok(results);
         }
 
         [HttpPost]
@@ -39,6 +51,13 @@ namespace Gymify.Web.Controllers
                 return Ok(); // Або перенаправлення
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Cancel(Guid receiverId)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+            await _friendsService.CancelFriendRequestAsync(receiverId, userId);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]

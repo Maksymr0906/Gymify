@@ -3,13 +3,95 @@ using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class FriendsService(IUnitOfWork unitOfWork) : IFriendsService
+public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager) : IFriendsService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
 
+    // ОНОВЛЕНИЙ ПОШУК
+    public async Task<List<FriendDto>> SearchPotentialFriendsAsync(string query, Guid currentUserId)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return new List<FriendDto>();
+
+        // 1. Шукаємо всіх схожих
+        var users = await _unitOfWork.UserProfileRepository.SearchUsersAsync(query, currentUserId);
+
+        // 2. Фільтруємо Адмінів (через UserManager це найнадійніше)
+        var nonAdminUsers = new List<UserProfile>();
+        foreach (var u in users)
+        {
+            var appUser = await _userManager.FindByIdAsync(u.ApplicationUserId.ToString());
+            if (appUser != null && !await _userManager.IsInRoleAsync(appUser, "Admin"))
+            {
+                nonAdminUsers.Add(u);
+            }
+        }
+
+        // 3. Визначаємо статуси для кожного знайденого
+        var results = new List<FriendDto>();
+
+        foreach (var user in nonAdminUsers)
+        {
+            var status = UserRelationshipStatus.None;
+
+            // А. Чи друзі?
+            if (await _unitOfWork.FriendshipRepository.AreFriendsAsync(currentUserId, user.Id))
+            {
+                status = UserRelationshipStatus.Friend;
+            }
+            else
+            {
+                // Б. Чи є активна заявка?
+                var invite = await _unitOfWork.FriendInviteRepository.GetInviteAnyDirectionAsync(currentUserId, user.Id);
+                if (invite != null)
+                {
+                    status = invite.SenderProfileId == currentUserId
+                        ? UserRelationshipStatus.RequestSent
+                        : UserRelationshipStatus.RequestReceived;
+                }
+            }
+
+            results.Add(new FriendDto
+            {
+                ProfileId = user.Id,
+                UserName = user.ApplicationUser?.UserName ?? "Unknown",
+                AvatarUrl = user.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+                Level = user.Level,
+                Status = status // <--- Передаємо статус на фронт
+            });
+        }
+
+        return results;
+    }
+
+    // ОТРИМАННЯ ВИХІДНИХ
+    public async Task<List<FriendDto>> GetOutgoingInvitesAsync(Guid userId)
+    {
+        var invites = await _unitOfWork.FriendInviteRepository.GetOutgoingInvitesAsync(userId);
+        return invites.Select(i => new FriendDto
+        {
+            ProfileId = i.ReceiverProfileId, // ID того, кому відправили
+            UserName = i.ReceiverProfile.ApplicationUser?.UserName ?? "Unknown",
+            AvatarUrl = i.ReceiverProfile.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+            SentAt = i.CreatedAt,
+            Status = UserRelationshipStatus.RequestSent
+        }).ToList();
+    }
+
+    // СКАСУВАННЯ ЗАЯВКИ (те саме, що Decline, але семантично для Cancel)
+    public async Task CancelFriendRequestAsync(Guid receiverId, Guid currentUserId)
+    {
+        // Шукаємо заявку, де Я = Sender, Він = Receiver
+        var invite = await _unitOfWork.FriendInviteRepository.GetInviteAsync(currentUserId, receiverId);
+        if (invite == null) throw new Exception("Invite not found");
+
+        await _unitOfWork.FriendInviteRepository.DeleteAsync(invite);
+        await _unitOfWork.SaveAsync();
+    }
     // 1. ВІДПРАВКА ЗАЯВКИ
     public async Task SendFriendRequestAsync(Guid senderId, Guid receiverId)
     {

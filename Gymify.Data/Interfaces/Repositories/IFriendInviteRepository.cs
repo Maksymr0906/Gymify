@@ -14,4 +14,5 @@ public interface IFriendInviteRepository
     Task<FriendInvite?> GetInviteAsync(Guid senderId, Guid receiverId);
     Task<FriendInvite?> GetInviteAnyDirectionAsync(Guid user1Id, Guid user2Id);
     Task<List<FriendInvite>> GetIncomingInvitesAsync(Guid receiverId);
+    Task<List<FriendInvite>> GetOutgoingInvitesAsync(Guid senderId);
 }

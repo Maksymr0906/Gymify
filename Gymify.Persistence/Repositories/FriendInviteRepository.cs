@@ -44,4 +44,15 @@ public class FriendInviteRepository(GymifyDbContext context) : IFriendInviteRepo
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
     }
+    public async Task<List<FriendInvite>> GetOutgoingInvitesAsync(Guid senderId)
+    {
+        return await _context.FriendInvites
+            .Include(i => i.ReceiverProfile) // Нам треба дані того, КОМУ ми відправили
+                .ThenInclude(p => p.ApplicationUser)
+            .Include(i => i.ReceiverProfile)
+                .ThenInclude(p => p.Equipment).ThenInclude(e => e.Avatar)
+            .Where(i => i.SenderProfileId == senderId)
+            .OrderByDescending(i => i.CreatedAt)
+            .ToListAsync();
+    }
 }

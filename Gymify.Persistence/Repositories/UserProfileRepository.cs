@@ -7,6 +7,7 @@ namespace Gymify.Persistence.Repositories;
 public class UserProfileRepository(GymifyDbContext context)
     : Repository<UserProfile>(context), IUserProfileRepository
 {
+    private readonly GymifyDbContext _context = context;
     public async Task<UserProfile> GetByApplicationUserId(Guid applicationUserId)
     {
         return await Entities.FirstOrDefaultAsync(x => x.ApplicationUserId == applicationUserId);
@@ -41,5 +42,22 @@ public class UserProfileRepository(GymifyDbContext context)
     {
         var countBetter = await Entities.CountAsync(u => u.CurrentXP > userXp);
         return countBetter + 1;
+    }
+
+    public async Task<List<UserProfile>> SearchUsersAsync(string searchTerm, Guid currentUserId)
+    {
+        // Отримуємо ID ролі Адміна (або хардкодимо, якщо знаємо, але краще так)
+        // Примітка: Якщо у тебе немає доступу до Roles через контекст тут,
+        // краще відфільтрувати це в Сервісі через UserManager (див. Крок 3).
+        // Але якщо хочеш в репозиторії, робимо базовий пошук:
+
+        return await Entities
+            .AsNoTracking()
+            .Include(u => u.ApplicationUser)
+            .Include(u => u.Equipment).ThenInclude(e => e.Avatar)
+            .Where(u => u.Id != currentUserId &&
+                        u.ApplicationUser.UserName.Contains(searchTerm))
+            .Take(20)
+            .ToListAsync();
     }
 }
