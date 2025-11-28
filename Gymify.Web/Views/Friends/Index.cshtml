@@ -1,0 +1,96 @@
+﻿@using Gymify.Application.ViewModels.Friends
+@model FriendsViewModel
+
+@{
+    ViewData["Title"] = "My Friends";
+}
+
+<style>
+    /* Стилі для табів */
+    .ae-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; }
+    .ae-tab { padding: 10px 20px; background: none; border: none; cursor: pointer; font-weight: 600; color: #777; border-bottom: 3px solid transparent; }
+    .ae-tab.active { color: #3498db; border-bottom-color: #3498db; }
+    .ae-list-vertical { display: flex; flex-direction: column; gap: 10px; }
+</style>
+
+<div class="ae-page-container">
+    <h1 class="ae-page-title text-center mb-4">Friends</h1>
+
+    <div class="ae-tabs">
+        <button class="ae-tab active" onclick="showTab('friends')">My Friends (@Model.Friends.Count)</button>
+        <button class="ae-tab" onclick="showTab('requests')">
+            Requests
+            @if (Model.IncomingRequests.Any())
+            {
+                <span class="ae-badge ae-badge-xp">@Model.IncomingRequests.Count</span>
+            }
+        </button>
+    </div>
+
+    <div id="tab-friends" class="ae-tab-content">
+        @if (!Model.Friends.Any())
+        {
+            <div class="ae-empty-state">You have no friends yet. Find them in Leaderboard!</div>
+        }
+        else
+        {
+            <div class="ae-cards-grid">
+                @foreach (var f in Model.Friends)
+                {
+                    <div class="ae-card-item" style="align-items: center; text-align: center;">
+                        <img src="@f.AvatarUrl" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
+                        <div class="ae-card-header-title" style="border:none; margin:0;">@f.UserName</div>
+                        <div class="ae-text-muted mb-3">Level @f.Level</div>
+
+                        <a asp-controller="Chat" asp-action="Room" asp-route-chatId="@f.ChatId" class="ae-btn ae-btn-primary ae-w-100">
+                            <i class="bi bi-chat-dots"></i> Message
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div id="tab-requests" class="ae-tab-content" style="display:none;">
+        @if (!Model.IncomingRequests.Any())
+        {
+            <div class="ae-empty-state">No pending requests.</div>
+        }
+        else
+        {
+            <div class="ae-list-vertical">
+                @foreach (var r in Model.IncomingRequests)
+                {
+                    <div class="ae-card-item ae-flex-row ae-justify-between ae-align-center">
+                        <div class="ae-flex-row ae-align-center ae-gap-md">
+                            <img src="@r.AvatarUrl" style="width: 50px; height: 50px; border-radius: 50%;">
+                            <div>
+                                <div style="font-weight:bold;">@r.UserName</div>
+                                <div class="ae-text-muted" style="font-size:0.8rem;">Sent @r.SentAt?.ToString("g")</div>
+                            </div>
+                        </div>
+                        <div class="ae-flex-row ae-gap-sm">
+                            <form asp-action="Accept" asp-route-senderId="@r.ProfileId">
+                                <button class="ae-btn ae-btn-success">Accept</button>
+                            </form>
+                            <form asp-action="Decline" asp-route-senderId="@r.ProfileId">
+                                <button class="ae-btn ae-btn-outline">Decline</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        document.getElementById('tab-friends').style.display = tabName === 'friends' ? 'block' : 'none';
+        document.getElementById('tab-requests').style.display = tabName === 'requests' ? 'block' : 'none';
+
+        // Перемикання активного класу на кнопках (проста реалізація)
+        document.querySelectorAll('.ae-tab').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+</script>

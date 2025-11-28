@@ -26,4 +26,22 @@ public class FriendshipRepository(GymifyDbContext context) : IFriendshipReposito
                 (f.UserProfileId1 == user1Id && f.UserProfileId2 == user2Id) ||
                 (f.UserProfileId1 == user2Id && f.UserProfileId2 == user1Id));
     }
+    public async Task<List<Friendship>> GetAllForUserAsync(Guid userId)
+    {
+        return await _context.Friendships
+            .AsNoTracking() // Для швидкості (ми тільки читаємо список)
+            .Include(f => f.UserProfile1)
+                .ThenInclude(u => u.ApplicationUser) // Для імені
+            .Include(f => f.UserProfile1)
+                .ThenInclude(u => u.Equipment).ThenInclude(e => e.Avatar) // Для аватара
+
+            .Include(f => f.UserProfile2)
+                .ThenInclude(u => u.ApplicationUser)
+            .Include(f => f.UserProfile2)
+                .ThenInclude(u => u.Equipment).ThenInclude(e => e.Avatar)
+
+            // Фільтр: де я є або Першим, або Другим учасником
+            .Where(f => f.UserProfileId1 == userId || f.UserProfileId2 == userId)
+            .ToListAsync();
+    }
 }

@@ -12,4 +12,5 @@ public interface IFriendshipRepository
     Task CreateAsync(Friendship friendship);
     Task DeleteAsync(Friendship friendship);
     Task<Friendship?> GetByUsersAsync(Guid user1Id, Guid user2Id);
+    Task<List<Friendship>> GetAllForUserAsync(Guid userId);
 }
