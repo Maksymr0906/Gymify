@@ -1,0 +1,148 @@
+﻿@using Gymify.Application.ViewModels.Leaderboard
+@model LeaderboardViewModel
+
+@{
+    ViewData["Title"] = "Leaderboard";
+}
+
+
+<style>
+    @Html.Raw("@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }")
+
+    @Html.Raw("@media (max-width: 600px) { .lb-row { grid-template-columns: 40px 1fr 70px; gap: 10px; padding: 15px 10px; } .lb-stat-lvl { display: none; } /* Hide Level on very small screens */ .lb-title { font-size: 1.8rem; } }")
+</style>
+
+<div class="lb-container">
+
+    <div class="lb-header">
+        <h1 class="lb-title">
+            <i class="fa-solid fa-trophy" style="color:#f1c40f;"></i> 
+            Leaderboard
+        </h1>
+        <p class="lb-subtitle">See who's grinding the hardest and compete with friends!</p>
+    </div>
+
+    <div class="lb-card">
+
+        <div class="lb-row header">
+            <div style="text-align: center;">#</div>
+            <div>User</div>
+            <div class="lb-stat-lvl" style="text-align: center;">Level</div>
+            <div style="text-align: right;">Total XP</div>
+        </div>
+
+        @foreach (var user in Model.TopUsers)
+        {
+            // Визначаємо клас рядка: Пріоритет: Я > Друг > Звичайний
+            var rowClass = user.IsMe ? "is-me" : (user.IsFriend ? "is-friend" : "");
+
+                <div class="lb-row @rowClass">
+
+                    <div class="lb-rank 
+                    @(user.Rank == 1 ? "gold" : "")
+                    @(user.Rank == 2 ? "silver" : "")
+                    @(user.Rank == 3 ? "bronze" : "")">
+
+                    @if (user.Rank == 1)
+                    {
+                        <i class="fa-solid fa-crown"></i>
+                    }
+                    else if (user.Rank == 2)
+                    {
+                        <i class="fa-solid fa-medal"></i>
+                    }
+                    else if (user.Rank == 3)
+                    {
+                        <i class="fa-solid fa-medal"></i>
+                    }
+                    else
+                    {
+                        <span>@user.Rank</span>
+                    }
+                    </div>
+
+                    <div class="lb-user">
+                        <img src="@user.AvatarUrl" class="lb-avatar" alt="Avatar" />
+
+                        <a href="@Url.Action("Profile", "User", new { userId = user.UserId })" class="lb-username">
+                        @user.UserName
+
+                        @if (user.IsMe)
+                        {
+                                    <span class="lb-you-tag">YOU</span>
+                        }
+                        else if (user.IsFriend)
+                        {
+                                    <span title="Friend" style="color:#2ecc71; margin-left:5px; font-size:0.9rem;">
+                                        <i class="fa-solid fa-user-group"></i>
+                                    </span>
+                        }
+                        </a>
+                    </div>
+
+                    <div class="lb-stat-lvl" style="text-align: center;">
+                        <div class="lb-level">@user.Level</div>
+                    </div>
+
+                    <div class="lb-xp">
+                    @user.TotalXP <span>XP</span>
+                    </div>
+                </div>
+        }
+    </div>
+
+    @if (Model.CurrentUser != null && !Model.TopUsers.Any(u => u.IsMe))
+    {
+            <div class="lb-sticky-me">
+                <div class="lb-row is-me" style="border: none;">
+                    <div class="lb-rank">@Model.CurrentUser.Rank</div>
+                    <div class="lb-user">
+                        <img src="@Model.CurrentUser.AvatarUrl" class="lb-avatar" />
+                        <a href="@Url.Action("Profile", "User", new { userId = Model.CurrentUser.UserId })" class="lb-username">
+                        @Model.CurrentUser.UserName
+                            <span class="lb-you-tag">YOU</span>
+                        </a>
+                    </div>
+                    <div class="lb-stat-lvl" style="text-align: center;">
+                        <div class="lb-level">@Model.CurrentUser.Level</div>
+                    </div>
+                    <div class="lb-xp">
+                    @Model.CurrentUser.TotalXP <span>XP</span>
+                    </div>
+                </div>
+            </div>
+    }
+
+    @if (Model.TotalPages > 1)
+    {
+            <div class="lb-pagination">
+            @if (Model.HasPreviousPage)
+            {
+                        <a href="@Url.Action("Index", new { page = Model.CurrentPage - 1 })" class="lb-btn">
+                            <i class="fa-solid fa-arrow-left"></i> Prev
+                        </a>
+            }
+            else
+            {
+                        <span class="lb-btn" style="opacity: 0.5; cursor: default;">
+                            <i class="fa-solid fa-arrow-left"></i> Prev
+                        </span>
+            }
+
+                <span class="lb-page-info">Page @Model.CurrentPage of @Model.TotalPages</span>
+
+            @if (Model.HasNextPage)
+            {
+                        <a href="@Url.Action("Index", new { page = Model.CurrentPage + 1 })" class="lb-btn">
+                            Next <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+            }
+            else
+            {
+                        <span class="lb-btn" style="opacity: 0.5; cursor: default;">
+                            Next <i class="fa-solid fa-arrow-right"></i>
+                        </span>
+            }
+            </div>
+    }
+</div>

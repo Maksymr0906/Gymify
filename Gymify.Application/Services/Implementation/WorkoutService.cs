@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICommentService commentService, ICaseService caseService)
+public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProfileService, IAchievementService achievementService, ICommentService commentService, ICaseService caseService, INotificationService notificationService)
     : IWorkoutService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -19,6 +19,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
     private readonly IAchievementService _achievementService = achievementService;
     private readonly ICommentService _commentService = commentService;
     private readonly ICaseService _caseService = caseService;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model)
     {
@@ -27,7 +28,10 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         if (workout == null)
             throw new Exception("Workout not found");
 
+        if (model.Conclusions == null) model.Conclusions = string.Empty;
+
         workout.Conclusion = model.Conclusions;
+
 
         var totalXp = workout.Exercises.Sum(e => e.EarnedXP);
         workout.TotalXP = totalXp;
@@ -49,6 +53,12 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         await _caseService.GiveRewardByLevelUp(userProfile.Id, levelsUp);
         
         var newAchievements = await _achievementService.UpdateUserAchievementsAsync(userProfile.Id);
+
+        await _notificationService.SendNotificationAsync(
+                        userProfile.Id,
+                        $"You have created '{workout.Name}' workout.",
+                        $"/Workout/Details?workoutId={workout.Id}" 
+                    );
 
         await _unitOfWork.SaveAsync();
 
@@ -88,6 +98,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Id = Guid.NewGuid(),
             Name = model.Name,
             Description = model.Description,
+            IsPrivate = model.IsPrivate,
             UserProfileId = userProfileId
         };
 
@@ -249,13 +260,33 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         await _unitOfWork.WorkoutRepository.UpdateAsync(workout);
         await _unitOfWork.SaveAsync();
     }
-    
+
     public async Task RemoveWorkoutAsync(Guid userId, Guid workoutId)
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
-        if (workout.UserProfileId != userId) throw new Exception("Access denided");
 
+        if (workout == null) throw new KeyNotFoundException("Workout not found");
+        if (workout.UserProfileId != userId) throw new UnauthorizedAccessException("Access denied");
+
+        var comments = await _unitOfWork.CommentRepository
+            .GetCommentsByTargetIdAndTypeAsync(workoutId, Data.Enums.CommentTargetType.Workout);
+
+        if (comments.Count != 0)
+        {
+            await _unitOfWork.CommentRepository.DeleteRangeAsync(comments);
+        }
+
+        // 2. Видаляємо Вправи (UserExercises)
+        var exercises = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
+        if (exercises.Count != 0)
+        {
+            await _unitOfWork.UserExerciseRepository.DeleteRangeAsync(exercises);
+        }
+
+        // 3. Видаляємо сам Воркаут
         await _unitOfWork.WorkoutRepository.DeleteByIdAsync(workoutId);
+
+        // Зберігаємо всі зміни однією транзакцією
         await _unitOfWork.SaveAsync();
     }
 }

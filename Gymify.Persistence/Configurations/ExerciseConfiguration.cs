@@ -45,6 +45,7 @@ public partial class ExerciseConfiguration(SeedDataOptions seedDataOptions)
                 Name = e.Name,
                 BaseXP = e.BaseXP,
                 Description = e.Description,
+                VideoURL = e.VideoURL,
                 DifficultyMultiplier = e.DifficultyMultiplier,
                 Type = (ExerciseType)e.Type,
                 IsApproved = e.IsApproved

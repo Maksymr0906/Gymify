@@ -3,20 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using Gymify.Data.Entities;
 using Gymify.Application.ViewModels.Home;
 using Gymify.Application.Services.Interfaces;
+using Gymify.Application.Services.Implementation;
+using Gymify.Data.Enums;
+using Gymify.Application.ViewModels.ExerciseLibrary;
 
 namespace Gymify.Web.Controllers
 {
-    public class MainController : Controller
+    public class MainController(SignInManager<ApplicationUser> signInManager, IUserProfileService userProfileService, ILeaderboardService leaderboardService, IExerciseService exerciseService) : Controller
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IUserProfileService _userProfileService;
+        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
+        private readonly IUserProfileService _userProfileService = userProfileService;
+        private readonly ILeaderboardService _leaderboardService = leaderboardService;
+        private readonly IExerciseService _exerciseService = exerciseService;
 
-        public MainController(SignInManager<ApplicationUser> signInManager, IUserProfileService userProfileService)
-        {
-            _signInManager = signInManager;
-            _userProfileService = userProfileService;
-        }
-
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             if (_signInManager.IsSignedIn(User))
@@ -41,6 +41,54 @@ namespace Gymify.Web.Controllers
         public IActionResult Privacy()
         {
             return View("Privacy");
+        }
+        [HttpGet("leaderboard")]
+        public async Task<IActionResult> Leaderboard(int page = 1)
+        {
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
+            var model = await _leaderboardService.GetLeaderboardAsync(userId, page);
+
+            return View(model);
+        }
+
+        [HttpGet("exerciselibrary")]
+        public async Task<IActionResult> Exercises(string search, ExerciseType? type, bool pendingOnly = false, int page = 1)
+        {
+            // Викликаємо сервіс (тобі треба буде додати метод GetFilteredExercisesAsync в ExerciseService)
+            // Він має повертати (items, count)
+            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20);
+
+            var model = new ExerciseLibraryViewModel
+            {
+                Exercises = result.Exercises, // Список DTO
+                SearchTerm = search,
+                TypeFilter = type,
+                ShowPendingOnly = pendingOnly,
+                CurrentPage = page,
+                TotalPages = result.TotalPages
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> FilterExercises(string search, ExerciseType? type, bool pendingOnly, int page = 1)
+        {
+            // Та сама логіка, що й в Library
+            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20);
+
+            var model = new ExerciseLibraryViewModel
+            {
+                Exercises = result.Exercises,
+                SearchTerm = search,
+                TypeFilter = type,
+                ShowPendingOnly = pendingOnly,
+                CurrentPage = page,
+                TotalPages = result.TotalPages
+            };
+
+            return PartialView("_ExerciseGrid", model);
         }
     }
 }

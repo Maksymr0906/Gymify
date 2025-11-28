@@ -5,10 +5,11 @@ using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService) : IAchievementService
+public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService, INotificationService notificationService) : IAchievementService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ICaseService _caseService = caseService;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<List<Achievement>> UpdateUserAchievementsAsync(Guid userProfileId)
     {
@@ -46,6 +47,11 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
                 completedAchievements.Add(achievement);
                 userAchievement.IsCompleted = true;
                 userAchievement.UnlockedAt = DateTime.UtcNow;
+                await _notificationService.SendNotificationAsync(
+                        userProfileId,
+                        $"You have completed '{achievement.Name}' achievement.",
+                        "/Achievements" // Клікати нікуди не треба, це просто інфо
+                    );
                 await _caseService.GiveRewardByAchievement(user.Id, achievement.RewardItemId);
             }
             else if (!isCompleted)

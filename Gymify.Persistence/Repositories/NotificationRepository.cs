@@ -11,7 +11,7 @@ public class NotificationRepository(GymifyDbContext context)
     public async Task<int> GetUnreadCountAsync(Guid userProfileId)
     {
         return await _context.Notifications
-            .CountAsync(n => n.UserProfileId == userProfileId && !n.IsRead);
+            .CountAsync();
     }
 
     public async Task<List<Notification>> GetRecentAsync(Guid userProfileId, int count)
@@ -27,7 +27,6 @@ public class NotificationRepository(GymifyDbContext context)
     public async Task<List<Notification>> GetAllUnreadByUserIdAsync(Guid userProfileId)
     {
         return await _context.Notifications
-            .Where(n => n.UserProfileId == userProfileId && !n.IsRead)
             .ToListAsync();
     }
 
