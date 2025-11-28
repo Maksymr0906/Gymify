@@ -14,9 +14,6 @@ public class AdminController : Controller
         _adminService = adminService;
     }
 
-    // =====================
-    //       HOME
-    // =====================
     [HttpGet("/admin")]
     [HttpGet("/admin/home")]
     public IActionResult Home()
