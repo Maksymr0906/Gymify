@@ -1,4 +1,5 @@
-﻿using Gymify.Application.DTOs.Exercise;
+﻿using Gymify.Application.DTOs.Comment;
+using Gymify.Application.DTOs.Exercise;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Interfaces.Repositories;
 
@@ -64,6 +65,56 @@ public class AdminService : IAdminService
         exercise.IsRejected = true;
 
         await _unitOfWork.ExerciseRepository.UpdateAsync(exercise);
+        await _unitOfWork.SaveAsync();
+    }
+
+    public async Task ApproveCommentAsync(Guid id)
+    {
+        var comment = await _unitOfWork.CommentRepository.GetByIdAsync(id)
+                ?? throw new Exception("Comment not found");
+
+        comment.IsApproved = true;
+        comment.IsRejected = false;
+
+        await _unitOfWork.CommentRepository.UpdateAsync(comment);
+        await _unitOfWork.SaveAsync();
+    }
+
+    public async Task<List<CommentAdminDto>> GetUnapprovedCommentsAsync()
+    {
+        var comments = await _unitOfWork.CommentRepository.GetUnapprovedAsync();
+
+        return comments.Select(c => new CommentAdminDto
+        {
+            Id = c.Id,
+            Content = c.Content,
+            AuthorName = c.Author?.ApplicationUser?.UserName ?? "Unknown",
+            TargetId = c.TargetId,
+            TargetType = c.TargetType
+        }).ToList();
+    }
+
+    public async Task RejectCommentAsync(Guid id, string reason)
+    {
+        var comment = await _unitOfWork.CommentRepository.GetByIdAsync(id)
+                ?? throw new Exception("Comment not found");
+
+        comment.IsRejected = true;
+        comment.IsApproved = false;
+        comment.RejectionReason = reason;
+
+        await _unitOfWork.CommentRepository.UpdateAsync(comment);
+        await _unitOfWork.SaveAsync();
+    }
+
+    public async Task UpdateCommentAsync(Guid id, string content)
+    {
+        var comment = await _unitOfWork.CommentRepository.GetByIdAsync(id)
+                ?? throw new Exception("Comment not found");
+
+        comment.Content = content;
+
+        await _unitOfWork.CommentRepository.UpdateAsync(comment);
         await _unitOfWork.SaveAsync();
     }
 }

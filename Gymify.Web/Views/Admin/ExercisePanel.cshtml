@@ -1,17 +1,17 @@
-﻿@model List<Gymify.Application.DTOs.Exercise.ExerciseDto>
+﻿@model List<Gymify.Application.DTOs.Comments.CommentAdminDto>
 
 @{
-    ViewData["Title"] = "Exercise Moderation Panel";
+    ViewData["Title"] = "Comment Moderation Panel";
 }
 
 <div class="ae-page-container">
 
-    <h2 class="ae-page-title mb-3">Pending Exercises</h2>
+    <h2 class="ae-page-title mb-3">Pending Comments</h2>
 
     @if (!Model.Any())
     {
         <div class="ae-alert ae-alert-success text-center">
-            ✔ No exercises
+            ✔ No comments require moderation
         </div>
     }
     else
@@ -20,54 +20,56 @@
             <table class="ae-table ae-table-hover">
                 <thead class="ae-table-header">
                     <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>XP</th>
-                        <th>Difficulty</th>
+                        <th>Author</th>
+                        <th>Content</th>
+                        <th>Target</th>
                         <th>Type</th>
-                        <th>Video URL</th>
-                        <th>Actions</th>
+                        <th style="width: 200px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var ex in Model)
+                    @foreach (var c in Model)
                     {
                         <tr>
-                            <form method="post" action="/admin/exercises/approve">
-                                <input type="hidden" name="Id" value="@ex.Id" />
+
+                            <!-- ========== Update ========= -->
+                            <form method="post" action="/admin/comments/update">
+                                <input type="hidden" name="id" value="@c.Id" />
+
+                            <td>@c.AuthorName</td>
 
                             <td>
-                                <input name="Name" value="@ex.Name" class="ae-input-std" />
+                                <textarea name="content" class="ae-input-std" style="height:60px;">@c.Content</textarea>
                             </td>
-                            <td>
-                                <input name="Description" value="@ex.Description" class="ae-input-std" />
-                            </td>
-                            <td>
-                                <input name="BaseXP" type="number" min="0" value="@ex.BaseXP" class="ae-input-std" />
-                            </td>
-                            <td>
-                                <input name="DifficultyMultiplier" type="number" step="0.1" min="0" value="@ex.DifficultyMultiplier" class="ae-input-std" />
-                            </td>
-                            <td>
-                                <select name="Type" class="ae-input-std">
-                                    @foreach (var t in Enum.GetValues(typeof(Gymify.Data.Enums.ExerciseType)))
-                                    {
-                                        <option value="@t" selected="@(t.Equals(ex.Type))">@t</option>
-                                    }
-                                </select>
-                            </td>
-                            <td>
-                                <input name="VideoURL" value="@ex.VideoURL" class="ae-input-std" />
-                            </td>
+
+                            <td>@c.TargetId</td>
+                            <td>@c.TargetType</td>
+
                             <td class="ae-flex-row ae-gap-sm">
-                                <button type="submit" class="ae-btn ae-btn-success btn-sm">✓ Approve</button>
+
+                                <button type="submit" class="ae-btn ae-btn-primary btn-sm">
+                                    💾 Save
+                                </button>
                                 </form>
 
-                                <form method="post" action="/admin/exercises/reject" class="ae-flex-row ae-gap-sm">
-                                    <input type="hidden" name="id" value="@ex.Id" />
-                                    <input type="text" name="reason" placeholder="Reason..." class="ae-input-std" required />
-                                    <button type="submit" class="ae-btn ae-btn-danger btn-sm">✕ Reject</button>
+
+                                <!-- ========== Approve ========== -->
+                                <form method="post" action="/admin/comments/approve" class="d-inline">
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                    <button type="submit" class="ae-btn ae-btn-success btn-sm">
+                                        ✓ Approve
+                                    </button>
                                 </form>
+
+                                <!-- ========== Reject ========== -->
+                                <form method="post" action="/admin/comments/reject" class="ae-flex-row ae-gap-sm d-inline">
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                    <input type="text" name="reason" placeholder="Reason..." class="ae-input-std" required />
+                                    <button type="submit" class="ae-btn ae-btn-danger btn-sm">
+                                        ✕ Reject
+                                    </button>
+                                </form>
+
                         </tr>
                     }
                 </tbody>

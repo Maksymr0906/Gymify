@@ -49,9 +49,32 @@ public class AdminController : Controller
     //     COMMENT PANEL
     // =====================
     [HttpGet("/admin/comments")]
-    public IActionResult CommentPanel()
-        => View("СommentPanel");
+    public async Task<IActionResult> CommentPanel()
+    {
+        var pending = await _adminService.GetUnapprovedCommentsAsync();
+        return View("CommentPanel", pending);
+    }
 
+    [HttpPost("/admin/comments/approve")]
+    public async Task<IActionResult> Approve(Guid id)
+    {
+        await _adminService.ApproveCommentAsync(id);
+        return RedirectToAction("CommentPanel");
+    }
+
+    [HttpPost("/admin/comments/reject")]
+    public async Task<IActionResult> Reject(Guid id, string reason)
+    {
+        await _adminService.RejectCommentAsync(id, reason);
+        return RedirectToAction("CommentPanel");
+    }
+
+    [HttpPost("/admin/comments/update")]
+    public async Task<IActionResult> Update(Guid id, string content)
+    {
+        await _adminService.UpdateCommentAsync(id, content);
+        return RedirectToAction("CommentPanel");
+    }
 
 
     // =====================
