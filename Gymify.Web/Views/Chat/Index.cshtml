@@ -463,11 +463,6 @@
                 const contentDiv = document.getElementById(`content-${msg.id}`);
                 if (contentDiv) {
                     contentDiv.innerText = msg.content;
-                    // Додаємо позначку (edited), якщо її ще немає
-                    const metaDiv = document.getElementById(`meta-${msg.id}`);
-                    if (metaDiv && !metaDiv.querySelector('.ch-edited-mark')) {
-                        metaDiv.insertAdjacentHTML('afterbegin', '<span class="ch-edited-mark">edited </span>');
-                    }
                 }
             }
         });
@@ -605,14 +600,21 @@
         }
 
         // --- EDIT ACTIONS ---
-        function enableEditMode(msgId, content) {
+        function enableEditMode(msgId) {
+            // Знаходимо div з текстом
+            const contentDiv = document.getElementById(`content-${msgId}`);
+            if (!contentDiv) return;
+
+            // Беремо актуальний текст (innerText ігнорує HTML теги)
+            const currentText = contentDiv.innerText;
+
             editingMessageId = msgId;
-            msgInput.value = content;
+            msgInput.value = currentText; // Вставляємо в інпут
             msgInput.focus();
-            
-            // Змінюємо вигляд інпуту
+
+            // UI зміни
             cancelEditBtn.style.display = 'block';
-            sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>'; // Галочка замість стрілки
+            sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
             msgInput.placeholder = "Edit message...";
         }
 
@@ -661,7 +663,7 @@
 
                 actionsHtml = `
                     <div class="ch-msg-actions">
-                        <button class="ch-action-btn" onclick="enableEditMode('${msg.id}', '${safeContent}')" title="Edit">
+                            <button class="ch-action-btn" onclick="enableEditMode('${msg.id}')" title="Edit">
                             <i class="fa-solid fa-pen"></i>
                         </button>
                         <button class="ch-action-btn del" onclick="deleteMessage('${msg.id}')" title="Delete">
