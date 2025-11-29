@@ -13,4 +13,5 @@ public interface IUserChatRepository
     Task DeleteAsync(UserChat userChat);
     Task<UserChat?> GetByChatAndUserAsync(Guid chatId, Guid userId);
     Task<List<UserChat>> GetUserChatsAsync(Guid userId);
+    Task<List<UserChat>> GetUserChatsWithDetailsAsync(Guid userId);
 }

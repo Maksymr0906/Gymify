@@ -181,8 +181,11 @@
                         <div class="ae-card-header-title" style="border:none; margin:0;">@f.UserName</div>
                         <div class="ae-text-muted mb-20">Level @f.Level</div>
                         
-                        <a asp-controller="Chat" asp-action="Room" asp-route-chatId="@f.ChatId" class="ae-btn ae-btn-primary ae-w-100">
-                            <i class="bi bi-chat-dots" style="margin-right:5px;"></i> Message
+                        <a asp-controller="Chat" 
+                            asp-action="Start" 
+                            asp-route-userId="@f.ProfileId" 
+                            class="ae-btn ae-btn-primary ae-w-100">
+                            <i class="bi bi-chat-dots"></i> Message
                         </a>
                         <a asp-controller="User" asp-action="Profile" asp-route-userId="@f.ProfileId" class="ae-btn ae-btn-outline ae-w-100 ae-mt-20" style="margin-top:8px;">
                             Profile
@@ -268,214 +271,215 @@
 </div>
 
 @section Scripts {
-    <script>
-        // --- TAB LOGIC ---
-        function switchTab(tabName) {
-            document.querySelectorAll('.ae-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
+        <script>
+            // --- 1. TAB LOGIC ---
+            function switchTab(tabName) {
+                // Ховаємо всі контенти
+                document.querySelectorAll('.ae-tab-content').forEach(el => el.classList.add('hidden'));
+                // Показуємо вибраний
+                document.getElementById('tab-' + tabName).classList.remove('hidden');
 
-            document.querySelectorAll('.ae-tab-btn').forEach(btn => btn.classList.remove('active'));
-            
-            const btn = document.getElementById('btn-' + tabName);
-            if (btn) btn.classList.add('active');
-            
-            if (tabName !== 'search') {
-                document.getElementById('userSearchInput').value = '';
-                document.getElementById('btn-search').classList.add('hidden');
-            }
-        }
+                // Скидаємо активний клас з усіх кнопок
+                document.querySelectorAll('.ae-tab-btn').forEach(btn => btn.classList.remove('active'));
 
-        // --- DEBOUNCE ---
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
+                // Активуємо потрібну кнопку
+                const btn = document.getElementById('btn-' + tabName);
+                if (btn) btn.classList.add('active');
 
-        // --- SEARCH LOGIC ---
-        const searchInput = document.getElementById('userSearchInput');
-
-        const performSearch = debounce(async (query) => {
-            const container = document.getElementById('searchResults');
-            const searchTabBtn = document.getElementById('btn-search');
-
-            if (!query) {
-                switchTab('friends');
-                searchTabBtn.classList.add('hidden');
-                return;
+                // Логіка очищення пошуку при виході
+                if (tabName !== 'search') {
+                    document.getElementById('userSearchInput').value = '';
+                    const searchTabBtn = document.getElementById('btn-search');
+                    if(searchTabBtn) searchTabBtn.classList.add('hidden');
+                }
             }
 
-            searchTabBtn.classList.remove('hidden');
-            switchTab('search');
-            
-            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">Searching...</div>';
+            // --- 2. DEBOUNCE ---
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
 
-            try {
-                const res = await fetch(`/Friends/Search?query=${encodeURIComponent(query)}`);
-                const users = await res.json();
+            // --- 3. SEARCH LOGIC ---
+            const searchInput = document.getElementById('userSearchInput');
 
-                container.innerHTML = '';
+            const performSearch = debounce(async (query) => {
+                const container = document.getElementById('searchResults');
+                const searchTabBtn = document.getElementById('btn-search');
 
-                if (users.length === 0) {
-                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">No users found.</div>';
+                if (!query) {
+                    switchTab('friends');
+                    if(searchTabBtn) searchTabBtn.classList.add('hidden');
                     return;
                 }
 
-                users.forEach(u => {
-                    let actionBtn = '';
-                    // 1: Friend, 2: Sent, 3: Received
-                    if (u.status === 1) {
-                         actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="ae-btn ae-btn-primary ae-w-100">Message</a>`;
-                    } 
-                    else if (u.status === 2) {
-                         actionBtn = `<button class="ae-btn ae-btn-outline ae-w-100" disabled style="opacity:0.6; border-style:dashed;">Request Sent</button>`;
-                    }
-                    else if (u.status === 3) {
-                         actionBtn = `<button class="ae-btn ae-btn-warning ae-w-100" onclick="switchTab('requests')">View Request</button>`;
-                    }
-                    else { 
-                         // Передаємо ім'я та аватар для динамічного оновлення
-                         actionBtn = `<button class="ae-btn ae-btn-success ae-w-100" 
-                            onclick="sendRequest(this, '${u.profileId}', '${escapeHtml(u.userName)}', '${u.avatarUrl}')">
-                            <i class="bi bi-person-plus"></i> Add Friend
-                         </button>`;
+                if(searchTabBtn) searchTabBtn.classList.remove('hidden');
+                switchTab('search');
+
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">Searching...</div>';
+
+                try {
+                    const res = await fetch(`/Friends/Search?query=${encodeURIComponent(query)}`);
+                    const users = await res.json();
+
+                    container.innerHTML = '';
+
+                    if (users.length === 0) {
+                        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">No users found.</div>';
+                        return;
                     }
 
-                    const html = `
-                        <div class="ae-card-item" style="align-items: center; text-align: center;">
-                            <img src="${u.avatarUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
-                            <div class="ae-card-header-title" style="border:none; margin:0;">${escapeHtml(u.userName)}</div>
-                            <div class="ae-text-muted mb-20">Level ${u.level}</div>
-                            ${actionBtn}
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', html);
-                });
+                    users.forEach(u => {
+                        let actionBtn = '';
 
-            } catch (e) {
-                console.error(e);
-                container.innerHTML = '<div style="color:red; text-align:center;">Error searching.</div>';
-            }
-        }, 500);
+                        // Статуси: 1=Friend, 2=Sent, 3=Received, 0=None
+                        if (u.status === 1) {
+                             actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="ae-btn ae-btn-primary ae-w-100">Message</a>`;
+                        } 
+                        else if (u.status === 2) {
+                             actionBtn = `<button class="ae-btn ae-btn-outline ae-w-100" disabled style="opacity:0.6; border-style:dashed;">Request Sent</button>`;
+                        }
+                        else if (u.status === 3) {
+                             actionBtn = `<button class="ae-btn ae-btn-warning ae-w-100" onclick="switchTab('requests')">View Request</button>`;
+                        }
+                        else { 
+                             // Передаємо ім'я та аватар для динамічного оновлення списку
+                             actionBtn = `<button class="ae-btn ae-btn-success ae-w-100" 
+                                onclick="sendRequest(this, '${u.profileId}', '${escapeHtml(u.userName)}', '${u.avatarUrl}')">
+                                <i class="bi bi-person-plus"></i> Add Friend
+                             </button>`;
+                        }
 
-        searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
+                        const html = `
+                            <div class="ae-card-item" style="align-items: center; text-align: center;">
+                                <img src="${u.avatarUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
+                                <div class="ae-card-header-title" style="border:none; margin:0;">${escapeHtml(u.userName)}</div>
+                                <div class="ae-text-muted mb-20">Level ${u.level}</div>
+                                ${actionBtn}
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
 
-        // --- SEND REQUEST (Updated) ---
-        async function sendRequest(btn, id, userName, avatarUrl) {
-            const originalHTML = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = "...";
+                } catch (e) {
+                    console.error(e);
+                    container.innerHTML = '<div style="color:red; text-align:center;">Error searching.</div>';
+                }
+            }, 500);
 
-            try {
-                const res = await fetch(`/Friends/SendRequest?receiverId=${id}`, { method: "POST" });
-                
-                if(res.ok) {
-                    // Оновлюємо кнопку в пошуку
-                    btn.className = "ae-btn ae-btn-outline ae-w-100";
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="bi bi-check"></i> Sent';
-                    btn.style.borderStyle = "dashed";
+            searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
 
-                    // Динамічно додаємо в список
-                    addToOutgoingList(id, userName, avatarUrl);
+            // --- 4. SEND REQUEST ---
+            async function sendRequest(btn, id, userName, avatarUrl) {
+                const originalHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = "...";
 
-                } else {
-                    const errText = await res.text();
-                    alert("Cannot add: " + errText);
+                try {
+                    const res = await fetch(`/Friends/SendRequest?receiverId=${id}`, { method: "POST" });
+
+                    if(res.ok) {
+                        // Оновлюємо кнопку
+                        btn.className = "ae-btn ae-btn-outline ae-w-100";
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="bi bi-check"></i> Sent';
+                        btn.style.borderStyle = "dashed";
+
+                        // Додаємо в список вихідних заявок без перезавантаження
+                        addToOutgoingList(id, userName, avatarUrl);
+
+                    } else {
+                        const errText = await res.text();
+                        alert("Cannot add: " + errText);
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                    }
+                } catch(e) {
+                    alert("Network Error");
                     btn.disabled = false;
                     btn.innerHTML = originalHTML;
                 }
-            } catch(e) {
-                alert("Network Error");
-                btn.disabled = false;
-                btn.innerHTML = originalHTML;
-            }
-        }
-
-        // --- ADD TO OUTGOING LIST (Dynamic) ---
-        function addToOutgoingList(id, userName, avatarUrl) {
-            const countSpan = document.getElementById('sentCount');
-            const list = document.getElementById('outgoingList');
-
-            if (countSpan) {
-                let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
-                countSpan.innerText = `(${count + 1})`;
             }
 
-            if (!list) return;
-
-            // Прибираємо напис "No requests"
-            const emptyMsg = document.getElementById('noSentMsg');
-            if(emptyMsg) emptyMsg.style.display = 'none';
-
-            const html = `
-                <div class="ae-request-row ae-slide-in" id="req-${id}" style="background-color:#fafafa;">
-                    <div class="ae-user-info" style="opacity:0.7;">
-                        <img src="${avatarUrl}" class="ae-avatar-circle">
-                        <div>
-                            <div class="ae-username">${escapeHtml(userName)}</div>
-                            <div class="ae-meta">Just now</div>
-                        </div>
-                    </div>
-                    <form onsubmit="cancelRequest(event, '${id}')">
-                        <button class="ae-btn ae-btn-outline ae-btn-sm" style="color:#e74c3c; border-color:#e74c3c;">Cancel</button>
-                    </form>
-                </div>
-            `;
-            list.insertAdjacentHTML('afterbegin', html);
-        }
-
-        // --- CANCEL REQUEST ---
-        async function cancelRequest(e, id) {
-            e.preventDefault(); // Зупиняємо перезавантаження форми
-            //if(!confirm("Cancel request?")) return;
-    
-            try {
-                const res = await fetch(`/Friends/Cancel?receiverId=${id}`, { method: "POST" });
-                if (res.ok) {
-                    // 1. Видаляємо елемент з DOM
-                    const row = document.getElementById(`req-${id}`);
-                    if (row) row.remove();
-
-                    // 2. Оновлюємо лічильник (мінусуємо)
-                    const countSpan = document.getElementById('sentCount');
-                    if (countSpan) {
-                        let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
-                        // Не даємо піти в мінус
-                        count = count > 0 ? count - 1 : 0;
-                        countSpan.innerText = `(${count})`;
-                    }
-
-                    // 3. Перевірка на пустоту після видалення
-                    const list = document.getElementById('outgoingList');
-            
-                    // Рахуємо, скільки РЕАЛЬНИХ заявок залишилось (шукаємо елементи з класом .ae-request-row)
-                    const remainingRequests = list.querySelectorAll('.ae-request-row').length;
-
-                    if (remainingRequests === 0) {
-                        const emptyMsg = document.getElementById('noSentMsg');
-                
-                        if (emptyMsg) {
-                            // Якщо елемент існує (був просто схований) - показуємо
-                            emptyMsg.style.display = 'block';
-                        } else {
-                            // Якщо елемента немає (був видалений) - створюємо новий
-                            const msgHtml = '<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">No sent requests.</div>';
-                            list.innerHTML = msgHtml; // Записуємо всередину
-                        }
-                    }
-                } else {
-                    alert("Failed to cancel");
+            // --- 5. DYNAMIC UPDATE: Add to Sent List ---
+            function addToOutgoingList(id, userName, avatarUrl) {
+                // Оновлення лічильника
+                const countSpan = document.getElementById('sentCount');
+                if (countSpan) {
+                    let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
+                    countSpan.innerText = `(${count + 1})`;
                 }
-            } catch(err) { console.error(err); }
-        }
 
+                const list = document.getElementById('outgoingList');
+                if (!list) return;
 
-        function escapeHtml(text) {
-            if (!text) return "";
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-    </script>
+                // Прибираємо повідомлення "No sent requests", якщо воно є
+                const emptyMsg = document.getElementById('noSentMsg');
+                if(emptyMsg) emptyMsg.style.display = 'none';
+
+                const html = `
+                    <div class="ae-request-row ae-slide-in" id="req-${id}" style="background-color:#fafafa;">
+                        <div class="ae-user-info" style="opacity:0.7;">
+                            <img src="${avatarUrl}" class="ae-avatar-circle">
+                            <div>
+                                <div class="ae-username">${escapeHtml(userName)}</div>
+                                <div class="ae-meta">Just now</div>
+                            </div>
+                        </div>
+                        <form onsubmit="cancelRequest(event, '${id}')">
+                            <button class="ae-btn ae-btn-outline ae-btn-sm" style="color:#e74c3c; border-color:#e74c3c;">Cancel</button>
+                        </form>
+                    </div>
+                `;
+                list.insertAdjacentHTML('afterbegin', html);
+            }
+
+            // --- 6. CANCEL REQUEST ---
+            async function cancelRequest(e, id) {
+                e.preventDefault();
+                if(!confirm("Cancel request?")) return;
+
+                try {
+                    const res = await fetch(`/Friends/Cancel?receiverId=${id}`, { method: "POST" });
+                    if (res.ok) {
+                        // Видаляємо рядок
+                        const row = document.getElementById(`req-${id}`);
+                        if (row) row.remove();
+
+                        // Оновлюємо лічильник (мінусуємо)
+                        const countSpan = document.getElementById('sentCount');
+                        if (countSpan) {
+                            let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
+                            count = count > 0 ? count - 1 : 0;
+                            countSpan.innerText = `(${count})`;
+                        }
+
+                        // Перевіряємо, чи список став пустим
+                        const list = document.getElementById('outgoingList');
+                        // Шукаємо тільки рядки з заявками, ігноруючи приховані елементи
+                        const remaining = list.querySelectorAll('.ae-request-row').length;
+
+                        if (remaining === 0) {
+                            const emptyMsg = document.getElementById('noSentMsg');
+                            if (emptyMsg) {
+                                emptyMsg.style.display = 'block';
+                            } else {
+                                // Якщо елемент був видалений раніше, відновлюємо його
+                                list.innerHTML = '<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">No sent requests.</div>';
+                            }
+                        }
+                    } else {
+                        alert("Failed to cancel");
+                    }
+                } catch(err) { console.error(err); }
+            }
+
+            function escapeHtml(text) {
+                if (!text) return "";
+                return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            }
+        </script>
 }
