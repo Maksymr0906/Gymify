@@ -425,302 +425,296 @@
         </div>
     </div>
 </div>
+@section scripts {
+<script>
+    let currentChatId = null;
+    const currentUserId = "@currentUserId";
+    let editingMessageId = null;
 
-@section Scripts {
-    <script>
-        let currentChatId = null;
-        const currentUserId = "@currentUserId";
-        
-        // Змінна для режиму редагування
-        let editingMessageId = null;
+    const chatMain = document.getElementById('chatMainArea');
+    const msgInput = document.getElementById('msgInput');
+    const messagesArea = document.getElementById('messagesArea');
+    const searchInput = document.querySelector('.ch-sidebar-header input');
+    const sendBtn = document.getElementById('sendBtn'); // Якщо ти використовуєш ID, перевір HTML
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-        // UI Elements
-        const messagesArea = document.getElementById('messagesArea');
-        const msgInput = document.getElementById('msgInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
+    // --- 1. SIGNALR SETUP ---
+    const chatConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/chatHub")
+        .withAutomaticReconnect()
+        .build();
 
-        // --- 1. SIGNALR ---
-        const chatConnection = new signalR.HubConnectionBuilder()
-            .withUrl("/chatHub")
-            .withAutomaticReconnect()
-            .build();
+    chatConnection.on("ReceiveMessage", function (msg) {
+        // 1. Додаємо в діалог, якщо він відкритий
+        if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
+            appendMessage(msg);
+            scrollToBottom();
+        }
+        // 2. Оновлюємо сайдбар
+        updateSidebarPreview(msg.chatId, msg.content, msg.createdAt, true);
+    });
 
-        // Нове повідомлення
-        chatConnection.on("ReceiveMessage", function (msg) {
-            if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
-                appendMessage(msg);
-                scrollToBottom();
-            }
+    chatConnection.on("MessageEdited", function (msg) {
+        if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
+            const contentDiv = document.getElementById(`content-${msg.id}`);
+            if (contentDiv) contentDiv.innerText = msg.content;
+            const metaDiv = document.getElementById(`meta-${msg.id}`);
+            // if (metaDiv && !metaDiv.querySelector('.ch-edited-mark')) {
+            //     metaDiv.insertAdjacentHTML('afterbegin', '<span class="ch-edited-mark" style="font-style:italic; font-size:0.7em; margin-right:5px;"></span>');
+            // }
+        }
+    });
 
-            updateSidebarPreview(msg.chatId, msg.content, msg.createdAt);
-        });
+    chatConnection.on("MessageDeleted", function (msgId) {
+        const row = document.getElementById(`row-${msgId}`);
+        if (row) {
+            row.style.opacity = "0";
+            setTimeout(() => row.remove(), 300);
+        }
+    });
 
-        // 👇 ПОВІДОМЛЕННЯ ВІДРЕДАГОВАНО 👇
-        chatConnection.on("MessageEdited", function (msg) {
-            // Якщо ми в цьому чаті - оновлюємо текст в DOM
-            if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
-                const contentDiv = document.getElementById(`content-${msg.id}`);
-                if (contentDiv) {
-                    contentDiv.innerText = msg.content;
-                }
-            }
-        });
+    // --- 2. START & AUTO OPEN (ВИПРАВЛЕНО) ---
+    
+    async function startSignalR() {
+        try {
+            await chatConnection.start();
+            console.log("✅ SignalR Connected");
 
-        // 👇 ПОВІДОМЛЕННЯ ВИДАЛЕНО 👇
-        chatConnection.on("MessageDeleted", function (msgId) {
-            const row = document.getElementById(`row-${msgId}`);
-            if (row) {
-                // Анімація зникнення
-                row.style.transition = "opacity 0.3s, height 0.3s";
-                row.style.opacity = "0";
-                setTimeout(() => row.remove(), 300);
-            }
-        });
-
-        chatConnection.start().catch(err => console.error(err));
-
-        // ... (Auto Open & Search Logic - без змін) ...
-        document.addEventListener("DOMContentLoaded", () => {
-             const autoOpenId = "@openChatId";
-             if (autoOpenId) {
-                 const item = document.getElementById(`chat-item-${autoOpenId}`);
-                 if(item) item.click();
-             }
-        });
-        
-        // --- FUNCTIONS ---
-
-        // Оновлена функція: приймає dateStr
-        function updateSidebarPreview(chatId, text, dateStr) {
-            const preview = document.getElementById(`preview-${chatId}`);
-            if (preview) {
-                // 1. Оновлюємо текст
-                preview.innerText = text;
-                preview.classList.add("new-msg");
-
-                // 2. Знаходимо елемент чату
-                const chatItem = document.getElementById(`chat-item-${chatId}`);
-
+            // ❗ Тільки ТЕПЕР перевіряємо, чи треба відкрити чат автоматично
+            const autoOpenId = "@openChatId";
+            if (autoOpenId) {
+                const chatItem = document.getElementById(`chat-item-${autoOpenId}`);
                 if (chatItem) {
-                    // 3. Форматуємо дату (так само, як у повідомленнях)
-                    const dateObj = new Date(dateStr);
-                    const timeFormatted = dateObj.toLocaleString('uk-UA', { 
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
-                    }).replace(',', '');
-
-                    // 4. Шукаємо блок часу
-                    let timeDiv = chatItem.querySelector('.ch-time');
-
-                    if (timeDiv) {
-                        // Якщо блок вже є - просто міняємо текст
-                        timeDiv.innerText = timeFormatted;
-                    } else {
-                        // Якщо це перше повідомлення і блоку часу ще не було - створюємо його
-                        // (Вставляємо перед кінцем chatItem)
-                        const newTimeDiv = document.createElement('div');
-                        newTimeDiv.className = 'ch-time';
-                        newTimeDiv.innerText = timeFormatted;
-                        chatItem.appendChild(newTimeDiv);
-                    }
-
-                    // 5. Піднімаємо чат нагору
-                    const list = document.getElementById('chatList');
-                    if (list) list.prepend(chatItem);
+                    console.log("Auto-opening chat:", autoOpenId);
+                    chatItem.click(); // Тепер це безпечно, бо зв'язок є
                 }
             }
+        } catch (err) {
+            console.error("❌ SignalR Error:", err);
+            // Можна спробувати реконнект через 5 сек
+            setTimeout(startSignalR, 5000);
+        }
+    }
+
+    // Запускаємо процес
+    startSignalR();
+
+
+    // --- 3. OPEN CHAT ---
+    async function openChat(chatId, name, avatarUrl, targetUserId, el) {
+        cancelEditMode();
+
+        // UI Active State
+        document.querySelectorAll('.ch-item').forEach(i => i.classList.remove('active'));
+        if(el) {
+            el.classList.add('active');
+            const preview = el.querySelector('.ch-preview');
+            if(preview) preview.classList.remove("new-msg");
         }
 
-        async function openChat(chatId, name, avatarUrl, targetUserId, el) {
-            cancelEditMode(); // Скидаємо режим редагування при зміні чату
-            
-            document.querySelectorAll('.ch-item').forEach(i => i.classList.remove('active'));
-            if(el) {
-                el.classList.add('active');
-                el.querySelector('.ch-preview').classList.remove("new-msg");
-            }
+        // UI Show Main
+        chatMain.classList.add('active'); 
+        if(window.innerWidth <= 768) document.getElementById('backBtn').style.display = 'block';
+        
+        document.getElementById('chatPlaceholder').classList.add('hidden');
+        document.getElementById('chatHeader').classList.remove('hidden');
+        document.getElementById('inputArea').classList.remove('hidden');
+        messagesArea.classList.remove('hidden');
 
-            document.getElementById('chatMainArea').classList.add('active'); 
-            if(window.innerWidth <= 768) document.getElementById('backBtn').style.display = 'block';
+        // Set Header Data
+        document.getElementById('headerName').innerText = name;
+        document.getElementById('headerAvatar').src = avatarUrl;
+        
+        const headerLink = document.getElementById('headerLink');
+        if (targetUserId && targetUserId !== "null") {
+            headerLink.href = `/profile?userId=${targetUserId}`;
+            headerLink.style.pointerEvents = "auto";
+            // Тут можна додати checkOnlineStatus(targetUserId)
+        } else {
+            headerLink.href = "#";
+            headerLink.style.pointerEvents = "none";
+        }
 
-            document.getElementById('chatPlaceholder').classList.add('hidden');
-            document.getElementById('chatHeader').classList.remove('hidden');
-            document.getElementById('inputArea').classList.remove('hidden');
-            messagesArea.classList.remove('hidden');
+        messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:#ccc;">Loading...</div>';
 
-            document.getElementById('headerName').innerText = name;
-            document.getElementById('headerAvatar').src = avatarUrl;
-            
-            const headerLink = document.getElementById('headerLink');
-            if (targetUserId && targetUserId !== "null") {
-                headerLink.href = `/profile?userId=${targetUserId}`;
-                headerLink.style.pointerEvents = "auto";
-            } else {
-                headerLink.href = "#";
-                headerLink.style.pointerEvents = "none";
-            }
-
-            messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:#ccc;">Loading...</div>';
-
+        // --- SIGNALR ROOM LOGIC ---
+        // Перевіряємо стан з'єднання перед викликом
+        if (chatConnection.state === "Connected") {
             try {
                 if (currentChatId) await chatConnection.invoke("LeaveChat", currentChatId);
                 currentChatId = chatId;
                 await chatConnection.invoke("JoinChat", chatId);
-            } catch(e) { console.error(e); }
-
-            try {
-                const res = await fetch(`/Chat/GetHistory?chatId=${chatId}`);
-                const msgs = await res.json();
-                messagesArea.innerHTML = '';
-                if(msgs.length === 0) messagesArea.innerHTML = '<div style="text-align:center; padding:40px; color:#eee;">No messages. Say hi! 👋</div>';
-                else msgs.forEach(m => appendMessage(m));
-                scrollToBottom();
-                if(window.innerWidth > 768) msgInput.focus();
-            } catch (e) { messagesArea.innerHTML = '<div style="color:red;text-align:center">Error</div>'; }
+            } catch(e) { console.error("SignalR Group Error:", e); }
+        } else {
+            console.warn("SignalR not connected yet. Chat ID set locally.");
+            currentChatId = chatId;
         }
 
-        // --- SEND / EDIT MESSAGE ---
-        async function sendMessage() {
-            const text = msgInput.value.trim();
-            if (!text || !currentChatId) return;
+        // Fetch History
+        try {
+            const res = await fetch(`/Chat/GetHistory?chatId=${chatId}`);
+            if (!res.ok) throw new Error("History fetch error");
+            
+            const msgs = await res.json();
+            messagesArea.innerHTML = '';
+            
+            if(msgs.length === 0) messagesArea.innerHTML = '<div style="text-align:center; padding:40px; color:#eee;">No messages. Say hi! 👋</div>';
+            else msgs.forEach(m => appendMessage(m));
+            
+            scrollToBottom();
+            if(window.innerWidth > 768) msgInput.focus();
+        } catch (e) {
+            messagesArea.innerHTML = '<div style="text-align:center; color:red;">Error loading messages.</div>';
+        }
+    }
 
-            try {
-                if (editingMessageId) {
-                    // РЕЖИМ РЕДАГУВАННЯ
-                    await chatConnection.invoke("EditMessage", editingMessageId, text);
-                    cancelEditMode();
-                } else {
-                    // РЕЖИМ ВІДПРАВКИ
-                    await chatConnection.invoke("SendMessage", currentChatId, text);
-                }
-                msgInput.value = '';
-                msgInput.focus();
-            } catch (e) { alert("Error"); }
+    // --- 4. SEND MESSAGE ---
+    async function sendMessage() {
+        if (editingMessageId) {
+            await submitEdit(); return;
         }
 
-        // --- EDIT ACTIONS ---
-        function enableEditMode(msgId) {
-            // Знаходимо div з текстом
-            const contentDiv = document.getElementById(`content-${msgId}`);
-            if (!contentDiv) return;
+        const text = msgInput.value.trim();
+        if (!text || !currentChatId) return;
 
-            // Беремо актуальний текст (innerText ігнорує HTML теги)
-            const currentText = contentDiv.innerText;
-
-            editingMessageId = msgId;
-            msgInput.value = currentText; // Вставляємо в інпут
-            msgInput.focus();
-
-            // UI зміни
-            cancelEditBtn.style.display = 'block';
-            sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-            msgInput.placeholder = "Edit message...";
+        // Блокуємо повторну відправку, поки не підключено
+        if (chatConnection.state !== "Connected") {
+            alert("Reconnecting... Please wait.");
+            return;
         }
 
-        function cancelEditMode() {
-            editingMessageId = null;
+        try {
+            await chatConnection.invoke("SendMessage", currentChatId, text);
             msgInput.value = '';
-            msgInput.placeholder = "Type a message...";
-            cancelEditBtn.style.display = 'none';
-            sendBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-        }
+            msgInput.focus();
+        } catch (e) { alert("Error sending"); }
+    }
 
-        async function deleteMessage(msgId) {
-            if(!confirm("Delete this message?")) return;
-            try {
-                // Передаємо ID повідомлення і ID чату (щоб знати кому розсилати)
-                await chatConnection.invoke("DeleteMessage", msgId, currentChatId);
-            } catch (e) { alert("Error deleting"); }
-        }
+    // --- UTILS (Update Preview, Append, Edit, etc.) ---
+    
+    function updateSidebarPreview(chatId, text, dateStr, isNew) {
+        const preview = document.getElementById(`preview-${chatId}`);
+        if (!preview) return;
 
-        // --- APPEND MESSAGE ---
-        function appendMessage(msg) {
-            const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());
-
-            // Форматування дати: 30.11.2025 14:30
-            const dateObj = new Date(msg.createdAt);
-            const time = dateObj.toLocaleString('uk-UA', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric',
-                hour: '2-digit', 
-                minute: '2-digit'
-            }).replace(',', ''); // Прибираємо кому між датою і часом
-
-            const avatarUrl = msg.senderAvatarUrl || '/images/default-avatar.png';
-            // Використовуємо правильний контролер User
-            const profileUrl = `/User/Profile?userId=${msg.senderId}`;
-            const userName = escapeHtml(msg.senderName);
-
-            // Формуємо кнопки дій (тільки для мене)
-            let actionsHtml = '';
-            if (isMe) {
-                // Екрануємо контент для передачі в JS функцію (щоб ' або " не зламали HTML)
-                const safeContent = escapeHtml(msg.content)
-                    .replace(/'/g, "&apos;")
-                    .replace(/"/g, "&quot;");
-
-                actionsHtml = `
-                    <div class="ch-msg-actions">
-                            <button class="ch-action-btn" onclick="enableEditMode('${msg.id}')" title="Edit">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button class="ch-action-btn del" onclick="deleteMessage('${msg.id}')" title="Delete">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-            }
-
-            const editedMark = msg.isEdited ? '<span class="ch-edited-mark" style="font-style:italic; font-size:0.7em; margin-right:5px;">edited</span>' : '';
-
-            let html = '';
-            if (isMe) {
-                // === Я (Справа: Кнопки -> Текст -> Аватар) ===
-                html = `
-                    <div class="ch-msg-row me" id="row-${msg.id}">
-                        ${actionsHtml}
-                        <div class="ch-msg me">
-                            <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
-                            <div class="ch-msg-time" id="meta-${msg.id}">
-                                ${editedMark}${time}
-                            </div>
-                        </div>
-                        <a href="${profileUrl}" title="My Profile">
-                            <img src="${avatarUrl}" class="ch-msg-avatar" alt="Me" onerror="this.src='/images/default-avatar.png'">
-                        </a>
-                    </div>
-                `;
-            } else {
-                // === СПІВРОЗМОВНИК (Зліва: Аватар -> Текст) ===
-                html = `
-                    <div class="ch-msg-row them" id="row-${msg.id}">
-                        <a href="${profileUrl}" title="${userName}">
-                            <img src="${avatarUrl}" class="ch-msg-avatar" alt="${userName}" onerror="this.src='/images/default-avatar.png'">
-                        </a>
-                        <div class="ch-msg them">
-                            <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
-                            <div class="ch-msg-time" id="meta-${msg.id}">
-                                ${editedMark}${time}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            messagesArea.insertAdjacentHTML('beforeend', html);
-        }
-
-        function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
-        function closeChatMobile() { document.getElementById('chatMainArea').classList.remove('active'); msgInput.blur(); }
-        function escapeHtml(text) { if (!text) return ""; return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-
-        msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        preview.innerText = text;
         
-        // Скасування редагування по ESC
-        msgInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && editingMessageId) cancelEditMode();
+        if (isNew) {
+            // preview.classList.add("new-msg");
+            
+            if (dateStr) {
+                const chatItem = document.getElementById(`chat-item-${chatId}`);
+                const dateObj = new Date(dateStr);
+                const timeFormatted = dateObj.toLocaleString('uk-UA', { 
+                    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                }).replace(',', '');
+                
+                let timeDiv = chatItem.querySelector('.ch-time');
+                if (timeDiv) timeDiv.innerText = timeFormatted;
+            }
+
+            const item = document.getElementById(`chat-item-${chatId}`);
+            const list = document.getElementById('chatList');
+            if (item && list) list.prepend(item);
+        }
+    }
+
+    function appendMessage(msg) {
+        const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());
+        const dateObj = new Date(msg.createdAt);
+        const time = dateObj.toLocaleString('uk-UA', { 
+            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+        }).replace(',', '');
+
+        const avatarUrl = msg.senderAvatarUrl || '/images/default-avatar.png';
+        const profileUrl = `/profile?userId=${msg.senderId}`;
+        const userName = escapeHtml(msg.senderName);
+        const safeContent = escapeHtml(msg.content).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+        let actionsHtml = '';
+        if (isMe) {
+            actionsHtml = `
+                <div class="ch-msg-actions">
+                    <button class="ch-action-btn" onclick="enableEditMode('${msg.id}', '${safeContent}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="ch-action-btn del" onclick="deleteMessageNode('${msg.id}')"><i class="fa-solid fa-trash"></i></button>
+                </div>`;
+        }
+
+        //const editedMark = msg.isEdited ? '<span class="ch-edited-mark" style="font-style:italic; font-size:0.7em; margin-right:5px;">edited</span>' : '';
+
+        let html = '';
+        if (isMe) {
+            html = `
+                <div class="ch-msg-row me" id="row-${msg.id}">
+                    ${actionsHtml}
+                    <div class="ch-msg me">
+                        <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
+                        <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
+                    </div>
+                    <a href="${profileUrl}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
+                </div>`;
+        } else {
+            html = `
+                <div class="ch-msg-row them" id="row-${msg.id}">
+                    <a href="${profileUrl}" title="${userName}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
+                    <div class="ch-msg them">
+                        <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
+                        <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
+                    </div>
+                </div>`;
+        }
+        messagesArea.insertAdjacentHTML('beforeend', html);
+    }
+
+    // ... Решта функцій (Edit, Delete, Scroll, Escape) без змін ...
+    
+    function enableEditMode(msgId, content) {
+        const contentDiv = document.getElementById(`content-${msgId}`);
+        const currentText = contentDiv ? contentDiv.innerText : content;
+        editingMessageId = msgId;
+        msgInput.value = currentText;
+        msgInput.focus();
+        if(cancelEditBtn) cancelEditBtn.style.display = 'block';
+        if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    }
+
+    function cancelEditMode() {
+        editingMessageId = null;
+        msgInput.value = '';
+        if(cancelEditBtn) cancelEditBtn.style.display = 'none';
+        if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+    }
+    
+    async function submitEdit() {
+         const text = msgInput.value.trim();
+         const contentDiv = document.getElementById(`content-${editingMessageId}`);
+         const oldText = contentDiv ? contentDiv.innerText : "";
+         if (!text || !editingMessageId || text === oldText) { cancelEditMode(); return; }
+         try { await chatConnection.invoke("EditMessage", editingMessageId, text); cancelEditMode(); } 
+         catch (e) { alert("Error editing"); }
+    }
+
+    async function deleteMessageNode(msgId) {
+         try { await chatConnection.invoke("DeleteMessage", msgId, currentChatId); } 
+         catch(e) { alert("Error deleting"); }
+    }
+
+    function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
+    function closeChatMobile() { document.getElementById('chatMainArea').classList.remove('active'); msgInput.blur(); }
+    function escapeHtml(text) { if (!text) return ""; return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+    msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+    msgInput.addEventListener('keydown', (e) => { if (e.key === 'Escape' && editingMessageId) cancelEditMode(); });
+    
+    // Search
+    searchInput.addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.ch-item').forEach(item => {
+            item.style.display = item.querySelector('.ch-name').innerText.toLowerCase().includes(term) ? 'flex' : 'none';
         });
+    });
+
+    // Якщо є кнопка Send (бо ми могли її не знайти через ID/Class)
+    if(sendBtn) sendBtn.addEventListener('click', sendMessage);
+    
     </script>
 }
