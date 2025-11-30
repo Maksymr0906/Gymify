@@ -22,4 +22,12 @@ public class MessageRepository(GymifyDbContext context)
             .Take(take)
             .ToListAsync(); // Повернемо в зворотньому порядку на клієнті або тут
     }
+
+    public async Task<Message> FindLastMessageAsync(Guid chatId)
+    {
+        return await Entities
+                .Where(m => m.ChatId == chatId)
+                .OrderByDescending(m => m.CreatedAt)
+                .FirstOrDefaultAsync();
+    }
 }

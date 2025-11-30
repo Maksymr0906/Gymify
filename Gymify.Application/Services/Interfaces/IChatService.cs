@@ -14,6 +14,6 @@ namespace Gymify.Application.Services.Interfaces
         Task<MessageDto> SaveMessageAsync(Guid chatId, Guid senderId, string content);
         Task<Guid> GetOrCreatePrivateChatAsync(Guid currentUserId, Guid targetUserId);
         Task<MessageDto> EditMessageAsync(Guid messageId, Guid userId, string newContent);
-        Task DeleteMessageAsync(Guid messageId, Guid userId);
+        Task<ChatDto> DeleteMessageAsync(Guid messageId, Guid userId);
     }
 }

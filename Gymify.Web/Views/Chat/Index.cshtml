@@ -463,6 +463,7 @@
             //     metaDiv.insertAdjacentHTML('afterbegin', '<span class="ch-edited-mark" style="font-style:italic; font-size:0.7em; margin-right:5px;"></span>');
             // }
         }
+        updateSidebarPreview(msg.chatId, msg.content, null, false);
     });
 
     chatConnection.on("MessageDeleted", function (msgId) {
@@ -471,6 +472,16 @@
             row.style.opacity = "0";
             setTimeout(() => row.remove(), 300);
         }
+    });
+
+    // Д) Оновлення прев'ю чату (коли видалили останнє повідомлення)
+    chatConnection.on("ChatPreviewUpdated", function (data) {
+        // Використовуємо існуючу функцію оновлення сайдбару
+        // isNew = false (щоб не робити жирним і не піднімати, якщо це старе повідомлення)
+        // Або isNew = true, якщо хочеш підняти (але логічно, що при видаленні чат може опуститись, а не піднятись)
+            
+        // Тут ми просто оновимо текст і час
+        updateSidebarPreview(data.chatId, data.content, data.createdAt, false);
     });
 
     // --- 2. START & AUTO OPEN (ВИПРАВЛЕНО) ---
@@ -593,14 +604,12 @@
     // --- UTILS (Update Preview, Append, Edit, etc.) ---
     
     function updateSidebarPreview(chatId, text, dateStr, isNew) {
-        const preview = document.getElementById(`preview-${chatId}`);
-        if (!preview) return;
+            const preview = document.getElementById(`preview-${chatId}`);
+            if (!preview) return;
 
-        preview.innerText = text;
-        
-        if (isNew) {
-            // preview.classList.add("new-msg");
+            preview.innerText = text;
             
+            // Оновлюємо час, якщо він прийшов
             if (dateStr) {
                 const chatItem = document.getElementById(`chat-item-${chatId}`);
                 const dateObj = new Date(dateStr);
@@ -612,11 +621,13 @@
                 if (timeDiv) timeDiv.innerText = timeFormatted;
             }
 
-            const item = document.getElementById(`chat-item-${chatId}`);
-            const list = document.getElementById('chatList');
-            if (item && list) list.prepend(item);
+            if (isNew) {
+                //preview.classList.add("new-msg");
+                const item = document.getElementById(`chat-item-${chatId}`);
+                const list = document.getElementById('chatList');
+                if (item && list) list.prepend(item);
+            }
         }
-    }
 
     function appendMessage(msg) {
         const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());

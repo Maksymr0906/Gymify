@@ -52,9 +52,8 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
                 LastMessageContent = uc.Chat.LastMessage?.Content,
                 LastMessageTime = uc.Chat.LastMessage?.CreatedAt,
                 IsPrivate = uc.Chat.Type == ChatType.Private,
-
-                // 3. ВИКОРИСТАННЯ: Передаємо значення в DTO
-                TargetUserId = targetUserId
+                TargetUserId = targetUserId,
+                LastMessageId = uc.Chat.LastMessage?.Id
             });
         }
 
@@ -186,13 +185,51 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
         };
     }
 
-    public async Task DeleteMessageAsync(Guid messageId, Guid userId)
+    public async Task<ChatDto?> DeleteMessageAsync(Guid messageId, Guid userId)
     {
         var msg = await _unitOfWork.MessageRepository.GetByIdAsync(messageId);
-        if (msg == null) return;
+        if (msg == null) return null;
         if (msg.SenderId != userId) throw new UnauthorizedAccessException("Not your message");
 
+        var chatId = msg.ChatId;
+
+        // Видаляємо
         await _unitOfWork.MessageRepository.DeleteByIdAsync(messageId);
-        await _unitOfWork.SaveAsync();
+        // (Save поки не робимо, зробимо в кінці разом з оновленням чату)
+
+        // Перевіряємо, чи це було останнє повідомлення в чаті
+        var chat = await _unitOfWork.ChatRepository.GetByIdAsync(chatId);
+
+        if (chat.LastMessageId == messageId)
+        {
+            // Так, це було останнє. Треба знайти нове останнє.
+            // Важливо: Оскільки ми ще не зробили SaveAsync, поточне повідомлення ще технічно є в базі,
+            // тому беремо "передостаннє" або робимо Save спочатку.
+            // Простіше зробити Save спочатку.
+            await _unitOfWork.SaveAsync();
+
+            // Шукаємо нове останнє
+            var newLastMsg = await _unitOfWork.MessageRepository.FindLastMessageAsync(chatId);
+
+            chat.LastMessageId = newLastMsg?.Id;
+            chat.LastMessage = newLastMsg; // Для оновлення навігаційної властивості
+
+            await _unitOfWork.ChatRepository.UpdateAsync(chat);
+            await _unitOfWork.SaveAsync();
+
+            // Повертаємо інфо для оновлення UI
+            return new ChatDto
+            {
+                ChatId = chatId,
+                LastMessageContent = newLastMsg?.Content,
+                LastMessageTime = newLastMsg?.CreatedAt
+            };
+        }
+        else
+        {
+            // Це було не останнє повідомлення, просто зберігаємо видалення
+            await _unitOfWork.SaveAsync();
+            return null; // UI оновлювати не треба (в плані прев'ю)
+        }
     }
 }

@@ -59,11 +59,24 @@ namespace Gymify.Web.Hubs
         {
             var userId = Guid.Parse(Context.UserIdentifier);
             var messageId = Guid.Parse(messageIdStr);
+            var chatId = Guid.Parse(chatIdStr);
 
-            await _chatService.DeleteMessageAsync(messageId, userId);
+            // Видаляємо і отримуємо нове прев'ю (якщо треба)
+            var updatedChatInfo = await _chatService.DeleteMessageAsync(messageId, userId);
 
-            // Сповіщаємо групу, що повідомлення зникло
+            // 1. Сповіщаємо про видалення самого повідомлення (щоб зникло з діалогу)
             await Clients.Group(chatIdStr).SendAsync("MessageDeleted", messageIdStr);
+
+            // 2. Якщо змінилося останнє повідомлення - сповіщаємо про оновлення прев'ю
+            if (updatedChatInfo != null)
+            {
+                await Clients.Group(chatIdStr).SendAsync("ChatPreviewUpdated", new
+                {
+                    chatId = updatedChatInfo.ChatId,
+                    content = updatedChatInfo.LastMessageContent ?? "No messages yet",
+                    createdAt = updatedChatInfo.LastMessageTime
+                });
+            }
         }
     }
 }
