@@ -1,4 +1,6 @@
-﻿@model Gymify.Application.DTOs.Auth.RegisterRequestDto
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model Gymify.Application.DTOs.Auth.RegisterRequestDto
 
 @{
     ViewData["Title"] = "Register";
@@ -6,27 +8,25 @@
 
 <form asp-action="Register" method="post" class="authForm">
 
-    <label asp-for="Email" class="authText"></label>
+    <label asp-for="Email" class="authText">@Localizer["Email"]</label>
     <input asp-for="Email" class="authInput" />
     <span asp-validation-for="Email" class="text-danger"></span>
 
-    <label asp-for="UserName" class="authText"></label>
+    <label asp-for="UserName" class="authText">@Localizer["UserName"]</label>
     <input asp-for="UserName" class="authInput" />
     <span asp-validation-for="UserName" class="text-danger"></span>
 
-    <label asp-for="Password" class="authText"></label>
+    <label asp-for="Password" class="authText">@Localizer["Password"]</label>
     <input asp-for="Password" class="authInput" type="password" />
     <span asp-validation-for="Password" class="text-danger"></span>
 
-    <label asp-for="ConfirmPassword" class="authText"></label>
+    <label asp-for="ConfirmPassword" class="authText">@Localizer["ConfirmPassword"]</label>
     <input asp-for="ConfirmPassword" class="authInput" type="password" />
     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
 
-    <label asp-for="FullName" class="authText"></label>
-    <input asp-for="FullName" class="authInput" />
-    <span asp-validation-for="FullName" class="text-danger"></span>
-
-    <button type="submit" class="authButton scaleButton">Register</button>
+    <button type="submit" class="authButton scaleButton">
+        @Localizer["RegisterButton"]
+    </button>
 </form>
 
 @section Scripts {

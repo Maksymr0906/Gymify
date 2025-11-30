@@ -1,41 +1,44 @@
-﻿@using Gymify.Application.DTOs.UserExercise
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@using Gymify.Application.DTOs.UserExercise
 @model List<UserExerciseDto>
 
 @if (!Model.Any())
 {
-        <div style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px; color: #888; border: 2px dashed #ddd;">
-            No exercises added yet.
-        </div>
+    <div style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px; color: #888; border: 2px dashed #ddd;">
+        @Localizer["NoExercises"]
+    </div>
 }
 else
 {
-        <div class="ae-cards-grid">
+    <div class="ae-cards-grid">
         @foreach (var ex in Model)
         {
-                    <div class="ae-card-item">
-                        <div class="ae-card-header-title">@ex.Name</div>
+            <div class="ae-card-item">
+                <div class="ae-card-header-title">@ex.Name</div>
 
-                        <div class="ae-stat-row">
-                            <span>Sets: <strong>@ex.Sets</strong></span>
-                            <span>Reps: <strong>@ex.Reps</strong></span>
-                        </div>
+                <div class="ae-stat-row">
+                    <span>@Localizer["Sets"]: <strong>@ex.Sets</strong></span>
+                    <span>@Localizer["Reps"]: <strong>@ex.Reps</strong></span>
+                </div>
 
-                        <div class="ae-card-stats">
+                <div class="ae-card-stats">
                     @if (ex.Weight > 0)
                     {
-                                    <span>@ex.Weight kg</span>
+                        <span>@ex.Weight kg</span>
                     }
                     else
                     {
-                                    <span></span>
+                        <span></span>
                     }
 
                     @if (ex.DurationMinutes > 0)
                     {
-                                    <span>@ex.DurationMinutes min</span>
+                        <span>@ex.DurationMinutes @Localizer["MinutesShort"]</span>
                     }
-                        </div>
-                    </div>
+                </div>
+            </div>
         }
-        </div>
+    </div>
 }

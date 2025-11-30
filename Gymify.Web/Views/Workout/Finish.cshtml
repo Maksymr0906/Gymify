@@ -1,4 +1,7 @@
 ﻿@model Gymify.Application.DTOs.Workout.CompleteWorkoutRequestDto
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @{
     ViewData["Title"] = "Finish Workout";
 }
@@ -7,8 +10,8 @@
     <div style="max-width: 600px; margin: 0 auto;">
 
         <div style="text-align: center; margin-bottom: 30px;">
-            <h1 class="ae-page-title">Finish Workout</h1>
-            <p class="ae-lead-text ae-text-muted">Great job! Summarize your session before finishing.</p>
+            <h1 class="ae-page-title">@Localizer["FinishWorkout"]</h1>
+            <p class="ae-lead-text ae-text-muted">@Localizer["FinishWorkoutLead"]</p>
         </div>
 
         <div class="ae-card-item" style="padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
@@ -18,16 +21,16 @@
 
                 <div class="ae-mb-20">
                     <label asp-for="Conclusions" class="ae-text-muted" style="font-weight: 600; margin-bottom: 8px; display: block;">
-                        Conclusions (Optional)
+                        @Localizer["Conclusions"]
                     </label>
-                    <textarea asp-for="Conclusions" 
-                              class="ae-input-std ae-textarea-std" 
-                              rows="6" 
-                              placeholder="Write your thoughts here (e.g., 'Personal best on bench press', 'Need to improve form on squats')..."></textarea>
+                    <textarea asp-for="Conclusions"
+                              class="ae-input-std ae-textarea-std"
+                              rows="6"
+                              placeholder="@Localizer["ConclusionsPlaceholder"]"></textarea>
                 </div>
 
                 <button type="submit" class="ae-btn ae-btn-success ae-w-100" style="padding: 12px; font-size: 1.1rem;">
-                    Complete Workout <i class="bi bi-trophy-fill" style="margin-left: 8px;"></i>
+                    @Localizer["CompleteWorkout"] <i class="bi bi-trophy-fill" style="margin-left: 8px;"></i>
                 </button>
             </form>
         </div>
