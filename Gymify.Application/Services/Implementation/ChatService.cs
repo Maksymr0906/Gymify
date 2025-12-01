@@ -17,7 +17,6 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
         foreach (var uc in userChats)
         {
-            // 1. ОГОЛОШЕННЯ: Ініціалізуємо null на початку кожної ітерації
             Guid? targetUserId = null;
 
             string chatName = "Unknown";
@@ -25,7 +24,6 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
             if (uc.Chat.Type == ChatType.Private)
             {
-                // Шукаємо співрозмовника
                 var otherMember = uc.Chat.Members.FirstOrDefault(m => m.UserProfileId != userId);
 
                 if (otherMember != null)
@@ -33,15 +31,12 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
                     chatName = otherMember.UserProfile.ApplicationUser?.UserName ?? "Unknown";
                     chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png";
 
-                    // 2. ПРИСВОЄННЯ: Якщо це приватний чат, беремо ID друга
                     targetUserId = otherMember.UserProfileId;
                 }
             }
             else
             {
-                // Для груп targetUserId залишається null
                 chatName = uc.Chat.Name ?? "Group Chat";
-                // chatImage = ...
             }
 
             result.Add(new ChatDto
@@ -62,13 +57,11 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
     public async Task<List<MessageDto>> GetChatHistoryAsync(Guid chatId, Guid currentUserId)
     {
-        // Перевірка доступу: чи є юзер учасником чату?
         var membership = await _unitOfWork.UserChatRepository.GetByChatAndUserAsync(chatId, currentUserId);
         if (membership == null) throw new UnauthorizedAccessException("You are not a member of this chat.");
 
         var messages = await _unitOfWork.MessageRepository.GetMessagesByChatIdAsync(chatId);
 
-        // Мапимо і розвертаємо (щоб старі були зверху, як у діалозі)
         return messages.Select(m => new MessageDto
         {
             Id = m.Id,
@@ -78,9 +71,9 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
             SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
             Content = m.Content,
             CreatedAt = m.CreatedAt,
-            IsMe = m.SenderId == currentUserId // Важливо для CSS класів (справа/зліва)
+            IsMe = m.SenderId == currentUserId 
         })
-        .OrderBy(m => m.CreatedAt) // Старі зверху
+        .OrderBy(m => m.CreatedAt) 
         .ToList();
     }
 

@@ -17,11 +17,18 @@ public partial class ItemConfiguration(SeedDataOptions seedDataOptions)
            .IsRequired()
            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.Property(i => i.Name)
+        builder.Property(i => i.NameEn)
            .IsRequired()
            .HasMaxLength(100);
 
-        builder.Property(i => i.Description)
+        builder.Property(i => i.DescriptionEn)
+            .HasMaxLength(500);
+        
+        builder.Property(i => i.NameUk)
+           .IsRequired()
+           .HasMaxLength(100);
+
+        builder.Property(i => i.DescriptionUk)
             .HasMaxLength(500);
 
         builder.Property(i => i.ImageURL)
@@ -32,8 +39,10 @@ public partial class ItemConfiguration(SeedDataOptions seedDataOptions)
             {
                 Id = i.Id,
                 CreatedAt = i.CreatedAt,
-                Name = i.Name,
-                Description = i.Description,
+                NameEn = i.NameEn,
+                DescriptionEn = i.DescriptionEn,
+                NameUk = i.NameUk,
+                DescriptionUk = i.DescriptionUk,
                 Type = (ItemType)i.Type,
                 Rarity = (ItemRarity)i.Rarity,
                 ImageURL = i.ImageURL

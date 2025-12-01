@@ -1,4 +1,5 @@
-﻿using Gymify.Application.Services.Interfaces;
+﻿using Gymify.Application.DTOs.Notification;
+using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
 
@@ -23,7 +24,7 @@ public class NotificationService : INotificationService
     public async Task MarkAllAsReadAsync(Guid userId)
     {
         // Отримуємо всі сповіщення юзера
-        var allNotifications = await _unitOfWork.NotificationRepository.GetRecentAsync(userId, 100); // Або спеціальний метод GetAllByUserId
+        var allNotifications = await _unitOfWork.NotificationRepository.GetAllUnreadByUserIdAsync(userId); // Або спеціальний метод GetAllByUserId
 
         if (allNotifications.Any())
         {
@@ -33,13 +34,14 @@ public class NotificationService : INotificationService
         }
     }
 
-    public async Task SendNotificationAsync(Guid targetUserId, string message, string link)
+    public async Task SendNotificationAsync(Guid targetUserId, string messageEn, string messageUk, string link)
     {
         // 1. Збереження в БД...
         var notification = new Notification
         {
             UserProfileId = targetUserId, 
-            Content = message,     
+            ContentEn = messageEn,     
+            ContentUk = messageUk,     
             Link = link,         
             CreatedAt = DateTime.UtcNow
         };
@@ -49,9 +51,31 @@ public class NotificationService : INotificationService
         // 2. Відправка (ми не знаємо, що там SignalR, нам байдуже)
         await _notifierService.PushAsync(targetUserId, "ReceiveNotification", new
         {
-            message,
+            messageEn,
+            messageUk,
             link,
             id = notification.Id
         });
+    }
+
+    public async Task<List<NotificationDto>> GetNotificationsAsync(Guid currentUserProfileId, int amount, bool ukraineVer)
+    {
+        var notifications = await _unitOfWork.NotificationRepository.GetRecentAsync(currentUserProfileId, amount);
+
+        List<NotificationDto> notificationDtos = new();
+
+        foreach (var notification in notifications)
+        {
+            notificationDtos.Add(new NotificationDto
+            {
+                Id = notification.Id,
+                UserProfileId = notification.UserProfileId,
+                Content = ukraineVer ? notification.ContentUk : notification.ContentEn,
+                CreatedAt = notification.CreatedAt,
+                Link = notification.Link,
+                Type = notification.Type
+            });
+        }
+        return notificationDtos;
     }
 }

@@ -79,20 +79,32 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(targetId);
             receiverId = workout.UserProfileId;
         }
-
-        // Перевірка: не сповіщати, якщо коментуєш сам себе
+        
         if (receiverId != Guid.Empty && receiverId != currentProfileUserId)
         {
             var senderName = currentUser.ApplicationUser?.UserName ?? "Someone";
-            var message = targetType == CommentTargetType.Workout ?
-                $"{senderName} commented your workout." : $"{senderName} commented your profile.";
 
-            // Формуємо посилання, куди перейде юзер при кліку
+            string messageEn;
+            string messageUk;
+
+            if (targetType == CommentTargetType.Workout)
+            {
+                messageEn = $"{senderName} commented your workout.";
+
+                messageUk = $"{senderName} прокоментував ваше тренування.";
+            }
+            else
+            {
+                messageEn = $"{senderName} commented your profile.";
+
+                messageUk = $"{senderName} прокоментував ваш профіль.";
+            }
+
             string link = targetType == CommentTargetType.Workout
                 ? $"/Workout/Details?workoutId={targetId}"
                 : $"/Profile?userId={targetId}";
 
-            await _notificationService.SendNotificationAsync(receiverId, message, link);
+            await _notificationService.SendNotificationAsync(receiverId, messageEn, messageUk, link);
         }
 
         return commentDto;

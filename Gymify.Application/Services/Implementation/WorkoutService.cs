@@ -56,7 +56,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         await _notificationService.SendNotificationAsync(
                         userProfile.Id,
-                        $"You have created '{workout.Name}' workout.",
+                        $"You have created workout '{workout.Name}'.",
+                        $"Ви створили тренування '{workout.Name}'.",
                         $"/Workout/Details?workoutId={workout.Id}" 
                     );
 

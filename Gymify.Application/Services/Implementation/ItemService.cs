@@ -11,15 +11,15 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<ICollection<ItemDto>> GetAllUserItemsAsync(Guid userProfileId)
+    public async Task<ICollection<ItemDto>> GetAllUserItemsAsync(Guid userProfileId, bool ukranianVer)
     {
         var userItems = await _unitOfWork.ItemRepository.GetAllItemsByUserIdAsync(userProfileId);
 
         var itemDtos = userItems.Select(item => new ItemDto
         {
             Id = item.Id,
-            Name = item.Name,
-            Description = item.Description,
+            Name = ukranianVer ? item.NameUk : item.NameEn,
+            Description = ukranianVer ? item.DescriptionUk : item.DescriptionEn,
             ImageURL = item.ImageURL,
             Type = (int)item.Type,
             Rarity = (int)item.Rarity
@@ -28,15 +28,15 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
         return itemDtos;
     }
     
-    public async Task<ICollection<ItemDto>> GetUserItemsWithTypeAsync(Guid userProfileId, ItemType itemType)
+    public async Task<ICollection<ItemDto>> GetUserItemsWithTypeAsync(Guid userProfileId, ItemType itemType, bool ukranianVer)
     {
         var userItems = await _unitOfWork.ItemRepository.GetItemsWithTypeByUserIdAsync(userProfileId, itemType);
 
         var itemDtos = userItems.Select(item => new ItemDto
         {
             Id = item.Id,
-            Name = item.Name,
-            Description = item.Description,
+            Name = ukranianVer ? item.NameUk : item.NameEn,
+            Description = ukranianVer ? item.DescriptionUk : item.DescriptionEn,
             ImageURL = item.ImageURL,
             Type = (int)item.Type,
             Rarity = (int)item.Rarity
@@ -45,11 +45,10 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
         return itemDtos;
     }
 
-    public async Task<ItemDto> GetByIdAsync(Guid itemId)
+    public async Task<ItemDto> GetByIdAsync(Guid itemId, bool ukranianVer)
     {
         var item = await _unitOfWork.ItemRepository.GetByIdAsync(itemId);
 
-        // ✅ Явна перевірка
         if (item == null)
         {
             throw new KeyNotFoundException($"Item with ID {itemId} not found.");
@@ -58,8 +57,8 @@ public class ItemService(IUnitOfWork unitOfWork) : IItemService
         var itemDto = new ItemDto
         {
             Id = itemId,
-            Name = item.Name,
-            Description = item.Description,
+            Name = ukranianVer ? item.NameUk : item.NameEn,
+            Description = ukranianVer ? item.DescriptionUk : item.DescriptionEn,
             ImageURL = item.ImageURL,
             Type = (int)item.Type,
             Rarity = (int)item.Rarity

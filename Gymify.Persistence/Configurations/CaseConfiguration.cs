@@ -16,11 +16,19 @@ public partial class CaseConfiguration(SeedDataOptions seedDataOptions)
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.Property(c => c.Name)
+        builder.Property(c => c.NameEn)
+            .IsRequired()
+            .HasMaxLength(100);
+        
+        builder.Property(c => c.NameUk)
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(c => c.Description)
+        builder.Property(c => c.DescriptionEn)
+            .IsRequired()
+            .HasMaxLength(500);
+
+        builder.Property(c => c.DescriptionUk)
             .IsRequired()
             .HasMaxLength(500);
 
@@ -35,8 +43,10 @@ public partial class CaseConfiguration(SeedDataOptions seedDataOptions)
         {
             Id = c.Id,
             CreatedAt = c.CreatedAt,
-            Name = c.Name,
-            Description = c.Description,
+            NameEn = c.NameEn,
+            NameUk = c.NameUk,
+            DescriptionEn = c.DescriptionEn,
+            DescriptionUk = c.DescriptionUk,
             ImageUrl = c.ImageUrl,
             Type = (CaseType)c.CaseType
         }));

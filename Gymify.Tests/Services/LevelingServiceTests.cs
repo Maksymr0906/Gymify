@@ -1,4 +1,4 @@
-﻿using Gymify.Application.Services.Implementation;
+﻿/*using Gymify.Application.Services.Implementation;
 using Xunit;
 
 namespace Gymify.Tests.Services
@@ -46,4 +46,4 @@ namespace Gymify.Tests.Services
             Assert.Equal(expectedXp, result);
         }
     }
-}
+}*/

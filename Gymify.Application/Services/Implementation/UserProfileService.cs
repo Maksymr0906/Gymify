@@ -172,7 +172,7 @@ public class UserProfileService
         var userCredentials = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userProfileId);
         if (userCredentials == null) throw new NullReferenceException($"When we were looking for userCredentials by '{userProfileId}' id we not found according application user");
 
-        var userEquipment = await _userEquipmentService.GetUserEquipmentAsync(userProfileId);
+        var userEquipment = await _userEquipmentService.GetUserEquipmentAsync(userProfileId, ukranianVer);
         var userAchievements = await GetCompletedAchivementsOfUser(userProfileId, ukranianVer);
         var userWorkouts = await GetLastWorkoutsOfUser(userProfileId);
 

@@ -77,7 +77,8 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                     await _notificationService.SendNotificationAsync(
                         userId,
                         $"Exercise '{dto.Name}' was sended for a moderation.",
-                        "#" // Клікати нікуди не треба, це просто інфо
+                        $"Вправа '{dto.Name}' була відправлена на модерацію.",
+                        "#" 
                     );
                 }
 

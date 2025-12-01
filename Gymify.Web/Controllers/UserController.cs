@@ -49,7 +49,9 @@ namespace Gymify.Web.Controllers
         [HttpGet("userEquipment")]
         public async Task<IActionResult> GetInventory([FromQuery] string type)
         {
-            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value); 
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
+
+            bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (string.IsNullOrWhiteSpace(type))
                 return BadRequest("Missing type");
@@ -62,7 +64,7 @@ namespace Gymify.Web.Controllers
                 "title" => ItemType.Title,
                 _ => throw new ArgumentException("Unknown item type: " + type),
             };
-            var items = await _itemService.GetUserItemsWithTypeAsync(userId, itemType);
+            var items = await _itemService.GetUserItemsWithTypeAsync(userId, itemType, ukranianVer);
 
             var result = items.Select(i => new
             {
@@ -104,8 +106,11 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Inventory()
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            var items = await _itemService.GetAllUserItemsAsync(userId);
-            var cases = await _caseService.GetAllUserCasesAsync(userId);
+
+            bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            var items = await _itemService.GetAllUserItemsAsync(userId, ukranianVer);
+            var cases = await _caseService.GetAllUserCasesAsync(userId, ukranianVer);
 
             var userItemsViewModel = new UserItemsViewModel()
             {
@@ -119,7 +124,9 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public IActionResult GoToCasePage(Guid caseId)
         {
-            var caseEntity = _caseService.GetCaseDetailsAsync(caseId);
+            bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            var caseEntity = _caseService.GetCaseDetailsAsync(caseId, ukranianVer);
             if (caseEntity == null)
                 return NotFound();
 

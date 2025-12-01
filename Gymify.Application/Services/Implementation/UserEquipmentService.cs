@@ -12,7 +12,7 @@ public class UserEquipmentService(IUnitOfWork unitOfWork) : IUserEquipmentServic
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
 
-    public async Task<UserEquipmentDto> GetUserEquipmentAsync(Guid userProfileId)
+    public async Task<UserEquipmentDto> GetUserEquipmentAsync(Guid userProfileId, bool ukranianVer)
     {
         var userEquipment = await _unitOfWork.UserEquipmentRepository.GetByUserIdAsync(userProfileId);
 
@@ -41,7 +41,7 @@ public class UserEquipmentService(IUnitOfWork unitOfWork) : IUserEquipmentServic
             FrameUrl = imagesDict.TryGetValue(userEquipment.FrameId, out string? frame) ? frame : string.Empty,
 
             TitleId = userEquipment.TitleId,
-            TitleText = userTitle.Name
+            TitleText = ukranianVer ? userTitle.NameUk : userTitle.NameEn
         };
     }
 

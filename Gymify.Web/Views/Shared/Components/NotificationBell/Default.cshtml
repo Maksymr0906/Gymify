@@ -156,8 +156,6 @@
             {
                 @foreach (var n in Model.Notifications)
                 {
-                    // Всі повідомлення з бази за замовчуванням "unread" у цій логіці
-                    // OnClick: ми передаємо (this, id, url)
                     <a href="javascript:void(0)" 
                        class="nt-item unread" 
                        onclick="readAndRedirect(this, '@n.Id', '@n.Link')">
@@ -177,13 +175,11 @@
 
 
 <script>
-    // 1. Перемикання меню
     function toggleNtMenu() {
         const menu = document.getElementById('ntMenu');
         menu.classList.toggle('active');
     }
 
-    // Закриття при кліку зовні
     window.addEventListener('click', function(e) {
         const wrapper = document.getElementById('ntWrapper');
         if (!wrapper.contains(e.target)) {
@@ -191,45 +187,33 @@
         }
     });
 
-    // 2. Логіка кліку на одне повідомлення
     function readAndRedirect(el, id, url) {
-        // А) Відправляємо запит на видалення з БД
         fetch(`/Notification/Read?id=${id}`, { method: "POST" });
 
-        // Б) Візуально позначаємо як "прочитане" (бліде)
         el.classList.remove('unread');
         el.classList.add('read-state');
 
-        // В) Оновлюємо лічильник "на льоту"
         updateBadge(-1);
 
-        // Г) Переходимо за посиланням через невеличку затримку (або одразу)
-        // Якщо це SPA перехід або звичайний - не важливо. 
-        // Головне, що ми запустили fetch на видалення.
         if (url && url !== '#') {
              window.location.href = url;
         }
     }
 
-    // 3. Логіка "Очистити все"
     function markAllAsRead() {
-        // А) Запит на видалення всіх
         fetch(`/Notification/ReadAll`, { method: "POST" });
 
-        // Б) Візуально "гасимо" всі елементи в списку
         const items = document.querySelectorAll('.nt-item.unread');
         items.forEach(item => {
             item.classList.remove('unread');
             item.classList.add('read-state');
         });
 
-        // В) Прибираємо бейдж
         const badge = document.getElementById('ntBadge');
         badge.innerText = "0";
         badge.classList.add('hidden');
     }
 
-    // Допоміжна: оновлення цифри
     function updateBadge(change) {
         const badge = document.getElementById('ntBadge');
         let count = parseInt(badge.innerText) || 0;
@@ -244,33 +228,30 @@
         }
     }
 
-    // 4. Глобальна функція для SignalR
     window.receiveNotificationUI = function(data) {
         const list = document.getElementById("ntList");
         const empty = list.querySelector('.nt-empty');
 
-        // Якщо був напис "No new notifications" - прибираємо його
+        let isUkr = @Model.UkranianVer.ToString().ToLower();
+
+        let message = isUkr == true ? data.messageUk : data.messageEn ;
+
         if (empty) empty.remove();
 
-        // Генеруємо HTML. data.link, data.message, data.id приходять з SignalR
-        // Зверніть увагу: id має бути рядком
         const html = `
             <a href="javascript:void(0)"
                class="nt-item unread"
                onclick="readAndRedirect(this, '${data.id}', '${data.link}')">
 
-                <span class="nt-msg">${data.message}</span>
+                <span class="nt-msg">${message}</span>
                 <span class="nt-time">Just now</span>
             </a>
         `;
 
-        // Вставляємо на початок списку
         list.insertAdjacentHTML('afterbegin', html);
 
-        // Оновлюємо бейдж (+1)
         updateBadge(1);
 
-        // Анімація кнопки (опціонально)
         const btn = document.getElementById('ntBtn');
         btn.style.transform = "scale(1.1)";
         setTimeout(() => btn.style.transform = "scale(1)", 200);
