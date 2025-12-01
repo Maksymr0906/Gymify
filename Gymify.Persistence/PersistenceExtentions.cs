@@ -33,6 +33,13 @@ public static class PersistenceExtensions
         services.AddScoped<IUserCaseRepository, UserCaseRepository>();
         services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
 
+        services.AddScoped<IUserChatRepository, UserChatRepository>();
+        services.AddScoped<IChatRepository, ChatRepository>();
+        services.AddScoped<IMessageReadStatusRepository, MessageReadStatusRepository>();
+        services.AddScoped<IFriendInviteRepository, FriendInviteRepository>();
+        services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+
+
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

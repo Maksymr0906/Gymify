@@ -1,8 +1,10 @@
 ﻿@using Gymify.Application.DTOs.UserExercise
 @model List<UserExerciseDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Add Exercises";
+    ViewData["Title"] = "AddExercise";
     var workoutId = ViewBag.WorkoutId;
     var detailsUrl = Url.Action("Finish", "Workout", new { workoutId = workoutId });
 }
@@ -12,8 +14,8 @@
     <div style="max-width: 900px; margin: 0 auto;">
 
         <div style="text-align: center; margin-bottom: 40px;">
-            <h1 class="ae-page-title">Workout exercises</h1>
-            <p class="ae-lead-text ae-text-muted">Add exercises to accomplish workout creation.</p>
+            <h1 class="ae-page-title">@Localizer["WorkoutExercises"]</h1>
+            <p class="ae-lead-text ae-text-muted">@Localizer["AddExercisesToAccomplishWorkoutCreation"]</p>
         </div>
 
         <partial name="_ExerciseManager" 
@@ -27,7 +29,7 @@
                     data-url="@detailsUrl"
                     class="ae-btn ae-btn-success"
                     style="padding: 12px 40px; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);">
-                Finish Creation <i class="bi bi-check-lg" style="margin-left: 8px;"></i>
+                @Localizer["FinishCreation"] <i class="bi bi-check-lg" style="margin-left: 8px;"></i>
             </button>
 
             <div class="ae-mt-20">
@@ -35,7 +37,7 @@
                     <button type="submit" 
                             class="ae-btn" 
                             style="background: none; border: none; color: #999; text-decoration: underline; font-size: 0.9rem; padding: 0;">
-                        Cancel and delete workout
+                        @Localizer["CancelAndDeleteWorkout"]
                     </button>
                 </form>
             </div>
@@ -43,6 +45,7 @@
 
     </div>
 </div>
+
 
 @section Scripts {
         <script>

@@ -26,6 +26,8 @@ public static class ApplicationExtensions
         services.AddScoped<ILevelingService, LevelingService>();
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<ILeaderboardService, LeaderboardService>();
+        services.AddScoped<IFriendsService, FriendsService>();
+        services.AddScoped<IChatService, ChatService>();
 
         return services;
     }

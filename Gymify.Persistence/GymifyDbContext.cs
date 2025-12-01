@@ -25,11 +25,16 @@ public class GymifyDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
     public DbSet<CaseItem> CaseItems { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Exercise> Exercises { get; set; }
+
     public DbSet<FriendInvite> FriendInvites { get; set; }
     public DbSet<Friendship> Friendships { get; set; }
+    public DbSet<Message> Messages { get; set; }
+    public DbSet<Chat> Chats { get; set; }
+    public DbSet<UserChat> UserChats { get; set; }
+    public DbSet<MessageReadStatus> MessageReadStatuses { get; set; }
+
     public DbSet<Image> Images { get; set; }
     public DbSet<Item> Items { get; set; }
-    public DbSet<Message> Messages { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserProfile> UserProfiles { get; set; }
     public DbSet<UserAchievement> UserAchievements { get; set; }

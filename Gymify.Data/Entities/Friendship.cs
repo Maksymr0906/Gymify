@@ -6,4 +6,7 @@ public class Friendship
     public Guid UserProfileId2 { get; set; }
     public UserProfile UserProfile1 { get; set; } = null!;
     public UserProfile UserProfile2 { get; set; } = null!;
+    public Guid ChatId { get; set; }
+    public Chat Chat { get; set; } = null!;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

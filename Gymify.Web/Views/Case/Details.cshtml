@@ -1,10 +1,13 @@
-﻿@model Gymify.Application.DTOs.Case.CaseInfoDto
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model Gymify.Application.DTOs.Case.CaseInfoDto
 
 @{
-	ViewData["Title"] = "Details";
+	ViewData["Title"] = Localizer["Details_Title"];
 }
 
 <h2 class="text-center">@Model.Name</h2>
+
 <div class="text-center">
 	<img src="@Model.ImageUrl" width="250" alt="@Model.Name" />
 </div>
@@ -12,7 +15,7 @@
 <div class="text-center" style="margin-top: 20px;">
 	<button id="openCaseBtn" class="authButton scaleButton"
 			data-case-id="@Model.Id">
-		Відкрити кейс
+		@Localizer["OpenCaseButton"]
 	</button>
 </div>
 
@@ -22,19 +25,22 @@
 	</div>
 </div>
 
-
 <div id="resultModal" class="modal hidden">
 	<div class="modal-content">
-		<h2>Your reward</h2>
+		<h2>@Localizer["RewardTitle"]</h2>
+
 		<div class="drop-image-containter">
-			<img id="dropImage" src=""  width="150" />
+			<img id="dropImage" src="" width="150" />
 		</div>
+
 		<h3 id="dropName"></h3>
 		<p id="dropRarity"></p>
-		<a id="closeModal" href="~/Inventory/">OK</a>
+
+		<a id="closeModal" href="~/Inventory/">
+			@Localizer["OkButton"]
+		</a>
 	</div>
 </div>
-
 
 @section Scripts {
 	<script>

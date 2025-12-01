@@ -18,5 +18,10 @@ public interface IUnitOfWork
     IUserItemRepository UserItemRepository { get; }
     IImageRepository ImageRepository { get; }
     IUserAchievementRepository UserAchievementRepository { get; }
+    IUserChatRepository UserChatRepository { get; }
+    IChatRepository ChatRepository { get; }
+    IFriendInviteRepository FriendInviteRepository { get; }
+    IFriendshipRepository FriendshipRepository { get; }
+    IMessageReadStatusRepository MessageReadStatusRepository { get; }
     Task SaveAsync();
 }

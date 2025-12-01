@@ -1,39 +1,43 @@
 ﻿@model List<Gymify.Application.DTOs.WorkoutsFeed.WorkoutDayDto>
 
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "WorkoutsFeed";
+    ViewData["Title"] = Localizer["Workouts Feed"];
 }
 
-<h2>Workouts Feed</h2>
+<h2>@Localizer["Workouts Feed"]</h2>
 
 <div id="filters-container" style="margin-bottom:20px;">
 
     <div style="display:flex; gap:20px; align-items:center;">
 
         <select id="filter-type" style="padding:6px 10px;">
-            <option value="mine">Show my workouts</option>
-            <option value="all">Show all workouts</option>
+            <option value="mine">@Localizer["Show my workouts"]</option>
+            <option value="all">@Localizer["Show all workouts"]</option>
         </select>
 
         <input type="text" id="author-search"
-               placeholder="Search by author"
+               placeholder="@Localizer["Search by author"]"
                style="padding:6px 10px; display:none; width:200px;" />
 
         <select id="sort-type" style="padding:6px 10px;">
-            <option value="desc">The newest first</option>
-            <option value="asc">The oldest first</option>
+            <option value="desc">@Localizer["The newest first"]</option>
+            <option value="asc">@Localizer["The oldest first"]</option>
         </select>
     </div>
 
 </div>
 
 <div id="workout-feed-container">
-    @await Html.PartialAsync("WorkoutsList", Model) 
+    @await Html.PartialAsync("WorkoutsList", Model)
 </div>
 
 <button id="load-more-btn" data-page="1" style="margin-top:20px;">
-    Load more
+    @Localizer["Load more"]
 </button>
+
 
 @section Scripts {
     <script>

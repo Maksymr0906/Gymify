@@ -1,4 +1,6 @@
 ﻿@model List<Gymify.Application.DTOs.WorkoutsFeed.WorkoutDayDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
     bool onlyMy = ViewBag.OnlyMy ?? false;
@@ -7,55 +9,46 @@
 @foreach (var day in Model)
 {
     <div class="day-entry"
-    @{ 
-        // Додаємо data-day-id для унікальної ідентифікації дня
-        // Це дозволяє JS коректно об'єднувати дні з однаковою датою.
-        <text>data-day-id="@day.Date.ToString("yyyy-MM-dd")"</text>
-    }
-    @if (onlyMy)
-    {
-        // data-day-xp використовується для Heatmap, його залишаємо
-        <text>data-day-xp="@day.TotalXpForDay"</text>
-    }>
-                <div class="day-header">
-                    <span>@day.Date.ToString("dd MMMM yyyy")</span>
-                    <span style="float: right;">
-                    Workouts:@day.WorkoutCount
+         data-day-id="@day.Date.ToString("yyyy-MM-dd")"
+    @(onlyMy ? $"data-day-xp=\"{day.TotalXpForDay}\"" : "")>
+        <div class="day-header">
+            <span>@day.Date.ToString("dd MMMM yyyy")</span>
+            <span style="float: right;">
+                @Localizer["Workouts"]: @day.WorkoutCount
                 @if (onlyMy)
                 {
-                    <text>| XP:@day.TotalXpForDay</text>
+                    <text> | @Localizer["XP"]: @day.TotalXpForDay</text>
                 }
-                    </span>
-                </div>
+            </span>
+        </div>
 
-
-                <div class="workout-list">
+        <div class="workout-list">
             @foreach (var workout in day.Workouts)
             {
-                                <a class="workout-card-row"
-                                   asp-controller="Workout"
-                                   asp-action="Details"
-                                           asp-route-workoutId="@workout.Id"
-                                   data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
+                <a class="workout-card-row"
+                   asp-controller="Workout"
+                   asp-action="Details"
+                   asp-route-workoutId="@workout.Id"
+                   data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
 
-                                    <div class="card-left-info">
-                                        <span class="workout-name">@workout.Name</span>
+                    <div class="card-left-info">
+                        <span class="workout-name">@workout.Name</span>
                         @if (onlyMy)
                         {
-                                                    <span class="workout-xp">XP: @workout.TotalXP</span>
+                            <span class="workout-xp">@Localizer["XP"]: @workout.TotalXP</span>
                         }
-                                    </div>
+                    </div>
 
-                                    <div class="card-right-meta">
-                                        <span class="workout-meta-date">
+                    <div class="card-right-meta">
+                        <span class="workout-meta-date">
                             @workout.CreatedAt.ToString("dd MMM yyyy HH:mm")
-                                        </span>
-                                        <span class="workout-meta-author">
+                        </span>
+                        <span class="workout-meta-author">
                             @workout.AuthorName
-                                        </span>
-                                    </div>
-                                </a>
+                        </span>
+                    </div>
+                </a>
             }
-                </div>
-            </div>
+        </div>
+    </div>
 }

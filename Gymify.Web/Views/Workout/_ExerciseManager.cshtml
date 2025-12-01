@@ -1,44 +1,43 @@
 ﻿@using Gymify.Application.DTOs.UserExercise
 @using System.Text.Json
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model List<UserExerciseDto>
 
 @{
     var workoutId = ViewData["WorkoutId"] ?? ViewBag.WorkoutId;
     var hideButtons = ViewData["HideSaveButtons"] as bool? ?? false;
 
-    // Серіалізуємо модель в JSON рядок, щоб JS міг його прочитати
-    // Використовуємо налаштування, щоб імена властивостей були camelCase (name, sets) або PascalCase як в C#
     var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     var initialJson = JsonSerializer.Serialize(Model, jsonOptions);
 }
 
-
-<div class="ae-card-item" style="background-color: #fcfcfc;"> 
+<div class="ae-card-item" style="background-color: #fcfcfc;">
 
     <div class="ae-add-panel">
         <div style="flex-grow: 1; min-width: 200px; position: relative;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Exercise Name</label>
-            <input type="text" id="mgrName" class="ae-input-std" placeholder="Search..." autocomplete="off">
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["ExerciseName"]</label>
+            <input type="text" id="mgrName" class="ae-input-std" placeholder="@Localizer["Search"]" autocomplete="off">
             <ul id="mgrSuggestions" class="ae-suggestions" style="display:none;"></ul>
         </div>
         <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Sets</label>
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Sets"]</label>
             <input type="number" id="mgrSets" class="ae-input-std" value="3">
         </div>
         <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Reps</label>
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Reps"]</label>
             <input type="number" id="mgrReps" class="ae-input-std" value="12">
         </div>
         <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Kg</label>
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Kg"]</label>
             <input type="number" id="mgrWeight" class="ae-input-std" value="0" step="0.5">
         </div>
         <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">Min</label>
+            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Min"]</label>
             <input type="number" id="mgrDuration" class="ae-input-std" value="0">
         </div>
         <div>
-             <button type="button" id="mgrBtnAdd" class="ae-btn ae-btn-success" style="height: 45px;">Add</button>
+            <button type="button" id="mgrBtnAdd" class="ae-btn ae-btn-success" style="height: 45px;">@Localizer["Add"]</button>
         </div>
     </div>
 
@@ -47,35 +46,35 @@
 
         <div id="mgrList" class="ae-cards-grid">
             <div id="mgrEmpty" class="ae-empty-state">
-                No exercises added yet.
+                @Localizer["NoExercises"]
             </div>
             @for (int i = 0; i < Model.Count; i++)
             {
-                    <div class="ae-card-item">
-                        <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
-                        <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
-                        <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
-                            <span class="card-title-text" style="font-weight:bold; color:#2c3e50;">@Model[i].Name</span>
-                            <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">Remove</button>
-                        </div>
-                        <div class="ae-card-inputs-grid">
-                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Sets</label><input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" /></div>
-                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Reps</label><input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" /></div>
-                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Kg</label><input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" /></div>
-                             <div><label class="ae-text-muted" style="font-size:0.75rem;">Min</label><input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" /></div>
-                        </div>
+                <div class="ae-card-item">
+                    <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
+                    <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
+                    <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                        <span class="card-title-text" style="font-weight:bold; color:#2c3e50;">@Model[i].Name</span>
+                        <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">@Localizer["Remove"]</button>
                     </div>
+                    <div class="ae-card-inputs-grid">
+                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Sets"]</label><input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" /></div>
+                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Reps"]</label><input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" /></div>
+                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Kg"]</label><input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" /></div>
+                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Min"]</label><input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" /></div>
+                    </div>
+                </div>
             }
         </div>
 
         @if (!hideButtons)
         {
-                <div class="ae-mt-20" style="text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                    <span id="mgrSaveStatus" style="display:none; font-weight:bold; color: #27ae60;"></span>
+            <div class="ae-mt-20" style="text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                <span id="mgrSaveStatus" style="display:none; font-weight:bold; color: #27ae60;"></span>
 
-                    <button type="button" id="mgrBtnCancel" class="ae-btn ae-btn-outline">Cancel</button>
-                    <button type="submit" id="mgrBtnSave" class="ae-btn ae-btn-primary">Save Changes</button>
-                </div>
+                <button type="button" id="mgrBtnCancel" class="ae-btn ae-btn-outline">@Localizer["Cancel"]</button>
+                <button type="submit" id="mgrBtnSave" class="ae-btn ae-btn-primary">@Localizer["SaveChanges"]</button>
+            </div>
         }
     </form>
 </div>
@@ -86,17 +85,16 @@
         <input type="hidden" class="inp-name">
         <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
             <span class="card-title-text" style="font-weight:bold; color:#2c3e50;"></span>
-            <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">Remove</button>
+            <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">@Localizer["Remove"]</button>
         </div>
         <div class="ae-card-inputs-grid">
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">Sets</label><input type="number" class="ae-input-std inp-sets"></div>
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">Reps</label><input type="number" class="ae-input-std inp-reps"></div>
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">Kg</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">Min</label><input type="number" class="ae-input-std inp-duration"></div>
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Sets"]</label><input type="number" class="ae-input-std inp-sets"></div>
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Reps"]</label><input type="number" class="ae-input-std inp-reps"></div>
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Kg"]</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
+            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Min"]</label><input type="number" class="ae-input-std inp-duration"></div>
         </div>
     </div>
 </template>
-
 <script>
     (function() {
         // --- 1. ОТРИМУЄМО ПОЧАТКОВІ ДАНІ З СЕРВЕРА ---

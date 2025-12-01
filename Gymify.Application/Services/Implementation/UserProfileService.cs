@@ -237,4 +237,5 @@ public class UserProfileService
             throw new Exception($"Failed to update username: {errors}");
         }
     }
+
 }
