@@ -19,9 +19,5 @@ namespace Gymify.Application.DTOs.Auth
         [Required(ErrorMessage = "Confirm password is required.")]
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Full name is required.")]
-        [MinLength(3, ErrorMessage = "Full name must be at least 3 characters.")]
-        public string FullName { get; set; } = string.Empty;
     }
 }
