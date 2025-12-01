@@ -4,8 +4,10 @@ namespace Gymify.Data.Entities;
 
 public class Achievement : BaseEntity
 {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string NameEn { get; set; } = string.Empty;
+    public string DescriptionEn { get; set; } = string.Empty;
+    public string NameUk { get; set; } = string.Empty;
+    public string DescriptionUk { get; set; } = string.Empty;
     public string IconUrl { get; set; } = string.Empty;
     public string TargetProperty { get; set; } = string.Empty;
     public double TargetValue { get; set; }

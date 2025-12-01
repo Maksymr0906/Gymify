@@ -114,7 +114,7 @@ public class UserProfileService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<List<AchievementDto>> GetCompletedAchivementsOfUser(Guid userProfileId)
+    public async Task<List<AchievementDto>> GetCompletedAchivementsOfUser(Guid userProfileId, bool ukranianVer)
     {
         var userAchievements = await _unitOfWork.UserAchievementRepository.GetAllByUserId(userProfileId);
 
@@ -125,8 +125,8 @@ public class UserProfileService
             achievementDtos.Add(new AchievementDto
             {
                 AchievementId = userAchievement.AchievementId,
-                Name = userAchievement.Achievement.Name,
-                Description = userAchievement.Achievement.Description,
+                Name = ukranianVer ? userAchievement.Achievement.NameUk : userAchievement.Achievement.NameEn,
+                Description = ukranianVer ? userAchievement.Achievement.DescriptionUk : userAchievement.Achievement.DescriptionEn,
                 IconUrl = userAchievement.Achievement.IconUrl,
                 ComparisonType = userAchievement.Achievement.ComparisonType,
                 RewardItemId = userAchievement.Achievement.RewardItemId,
@@ -163,7 +163,7 @@ public class UserProfileService
     }
 
 
-    public async Task<UserProfileViewModel> GetUserProfileModel(Guid currentUserProfileId,Guid userProfileId)
+    public async Task<UserProfileViewModel> GetUserProfileModel(Guid currentUserProfileId,Guid userProfileId, bool ukranianVer)
     {
         var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentUserProfileId);
         if (currentUser == null) throw new Exception("Current user profile not found"); // Бажано теж перевірити
@@ -173,7 +173,7 @@ public class UserProfileService
         if (userCredentials == null) throw new NullReferenceException($"When we were looking for userCredentials by '{userProfileId}' id we not found according application user");
 
         var userEquipment = await _userEquipmentService.GetUserEquipmentAsync(userProfileId);
-        var userAchievements = await GetCompletedAchivementsOfUser(userProfileId);
+        var userAchievements = await GetCompletedAchivementsOfUser(userProfileId, ukranianVer);
         var userWorkouts = await GetLastWorkoutsOfUser(userProfileId);
 
         return new UserProfileViewModel

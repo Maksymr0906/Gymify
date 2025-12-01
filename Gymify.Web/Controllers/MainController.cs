@@ -51,13 +51,12 @@ namespace Gymify.Web.Controllers
         [HttpGet("exerciselibrary")]
         public async Task<IActionResult> Exercises(string search, ExerciseType? type, bool pendingOnly = false, int page = 1)
         {
-            // Викликаємо сервіс (тобі треба буде додати метод GetFilteredExercisesAsync в ExerciseService)
-            // Він має повертати (items, count)
-            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20);
+            bool ukranianVer = true;/////////////////////////////////////////////////////////////////////////////////////////////////////
+            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20, ukranianVer);
 
             var model = new ExerciseLibraryViewModel
             {
-                Exercises = result.Exercises, // Список DTO
+                Exercises = result.Exercises, 
                 SearchTerm = search,
                 TypeFilter = type,
                 ShowPendingOnly = pendingOnly,
@@ -71,8 +70,8 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> FilterExercises(string search, ExerciseType? type, bool pendingOnly, int page = 1)
         {
-            // Та сама логіка, що й в Library
-            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20);
+            bool ukranianVer = true;/////////////////////////////////////////////////////////////////////////////////////////////////////
+            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20, ukranianVer);
 
             var model = new ExerciseLibraryViewModel
             {

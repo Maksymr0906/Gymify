@@ -17,15 +17,22 @@ public partial class ExerciseConfiguration(SeedDataOptions seedDataOptions)
            .IsRequired()
            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.Property(e => e.Name)
+        builder.Property(e => e.NameEn)
            .IsRequired()
            .HasMaxLength(100);
 
+        builder.Property(e => e.NameUk)
+           .IsRequired()
+           .HasMaxLength(100);
+
+        builder.Property(e => e.DescriptionEn)
+            .HasMaxLength(500);
+
+        builder.Property(e => e.DescriptionUk)
+            .HasMaxLength(500);
+
         builder.Property(e => e.Type)
            .IsRequired();
-
-        builder.Property(e => e.Description)
-            .HasMaxLength(500);
 
         builder.Property(e => e.VideoURL)
             .HasMaxLength(255);
@@ -42,9 +49,11 @@ public partial class ExerciseConfiguration(SeedDataOptions seedDataOptions)
             {
                 Id = e.Id,
                 CreatedAt = e.CreatedAt,
-                Name = e.Name,
+                NameEn = e.NameEn,
+                NameUk = e.NameUk,
                 BaseXP = e.BaseXP,
-                Description = e.Description,
+                DescriptionEn = e.DescriptionEn,
+                DescriptionUk = e.DescriptionUk,
                 VideoURL = e.VideoURL,
                 DifficultyMultiplier = e.DifficultyMultiplier,
                 Type = (ExerciseType)e.Type,

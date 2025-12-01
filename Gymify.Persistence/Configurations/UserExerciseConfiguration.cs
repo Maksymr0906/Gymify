@@ -17,7 +17,11 @@ public partial class UserExerciseConfiguration(SeedDataOptions seedDataOptions)
            .IsRequired()
            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.Property(ue => ue.Name)
+        builder.Property(ue => ue.NameEn)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(ue => ue.NameUk)
             .IsRequired()
             .HasMaxLength(100);
 
@@ -37,7 +41,8 @@ public partial class UserExerciseConfiguration(SeedDataOptions seedDataOptions)
             {
                 Id = ue.Id,
                 CreatedAt = ue.CreatedAt,
-                Name = ue.Name,
+                NameEn = ue.NameEn,
+                NameUk = ue.NameUk,
                 Duration = ue.Duration,
                 EarnedXP = ue.EarnedXP,
                 Reps = ue.Reps,

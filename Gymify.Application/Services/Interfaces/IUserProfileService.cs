@@ -8,6 +8,6 @@ public interface IUserProfileService
     Task<HomeViewModel> ReceiveUserLevelWorkouts(Guid userId);
     Task AddXPAsync(Guid userProfileId, int earnedXp);
     Task UpdateStatsAsync(Guid userProfileId, Guid workoutId);
-    Task<UserProfileViewModel> GetUserProfileModel(Guid currentUserProfileId, Guid userProfileId);
+    Task<UserProfileViewModel> GetUserProfileModel(Guid currentUserProfileId, Guid userProfileId, bool ukranianVer);
     Task UpdateUserNameAsync(Guid userProfileId, string userName);
 }

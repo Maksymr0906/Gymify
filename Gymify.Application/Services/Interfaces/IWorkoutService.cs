@@ -9,7 +9,7 @@ namespace Gymify.Application.Services.Interfaces;
 public interface IWorkoutService
 {
     Task<WorkoutDto> CreateWorkoutAsync(CreateWorkoutRequestDto model, Guid userProfileId);
-    Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model);
+    Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model, bool ukranianVer);
     Task<ICollection<WorkoutDto>> GetAllUserWorkoutsAsync(Guid userProfileId);
     Task<List<WorkoutDayDto>> GetWorkoutsPage(
     Guid userId,
@@ -17,7 +17,7 @@ public interface IWorkoutService
     bool onlyMy,
     bool byDescending,
     int page);
-    Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentUserId, Guid workoutId);
+    Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentUserId, Guid workoutIdz, bool ukranianVer);
     Task UpdateWorkoutInfoAsync(UpdateWorkoutRequestDto dto, Guid userId);
     Task RemoveWorkoutAsync(Guid userId, Guid workoutId);
 }
