@@ -6,8 +6,8 @@
 
     <h1 class="ae-page-title mb-4">👑 Admin Dashboard</h1>
     <p class="text-muted mb-4">
-        Вітаю у панелі адміністратора!
-        Тут ти керуєш наповненням, модеруванням та користувачами системи.
+        Welcome to the admin panel!
+        Here you manage content, moderation and users of the system.
     </p>
 
     <div class="admin-grid">
@@ -15,69 +15,27 @@
         <a asp-action="ExercisePanel" class="admin-card">
             <div class="admin-card-icon">🏋</div>
             <div class="admin-card-title">Exercise Moderation</div>
-            <div class="admin-card-desc">Перевіряй та підтверджуй нові вправи</div>
+            <div class="admin-card-desc">Review and approve new exercises</div>
         </a>
 
         <a asp-action="CommentPanel" class="admin-card">
             <div class="admin-card-icon">💬</div>
             <div class="admin-card-title">Comment Moderation</div>
-            <div class="admin-card-desc">Фільтруй коментарі та борись зі сміттям</div>
+            <div class="admin-card-desc">Filter comments and fight spam</div>
         </a>
 
         <a asp-action="UserPanel" class="admin-card">
             <div class="admin-card-icon">🧑‍🤝‍🧑</div>
             <div class="admin-card-title">Users</div>
-            <div class="admin-card-desc">Бани, попередження, контроль ролей</div>
+            <div class="admin-card-desc">Bans, warnings and role control</div>
         </a>
 
         <a asp-action="WorkoutPanel" class="admin-card">
             <div class="admin-card-icon">🔥</div>
             <div class="admin-card-title">Workout Overview</div>
-            <div class="admin-card-desc">Знайомся зі статистикою тренувань</div>
+            <div class="admin-card-desc">Explore training statistics</div>
         </a>
 
     </div>
 
 </div>
-
-<style>
-    .admin-grid {
-        display: grid;
-        gap: 1.5rem;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        margin-top: 1rem;
-    }
-
-    .admin-card {
-        background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        text-decoration: none;
-        color: #222;
-        border: 1px solid #ddd;
-        transition: .2s ease;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-        .admin-card:hover {
-            transform: translateY(-3px);
-            border-color: #b38bff;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-        }
-
-    .admin-card-icon {
-        font-size: 38px;
-    }
-
-    .admin-card-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-    }
-
-    .admin-card-desc {
-        font-size: .9rem;
-        color: #777;
-    }
-</style>
