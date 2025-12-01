@@ -9,11 +9,31 @@ using Gymify.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 var configuration = builder.Configuration;
+
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var cultures = new[]
+    {
+        new CultureInfo("en"),
+        new CultureInfo("uk")
+    };
+
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en");
+    options.SupportedCultures = cultures;
+    options.SupportedUICultures = cultures;
+
+    options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.QueryStringRequestCultureProvider());
+});
+
 
 services.Configure<SeedDataOptions>(configuration.GetSection("SeedDataOptions"));
 
@@ -46,10 +66,14 @@ services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });
+services.AddControllersWithViews()
+        .AddViewLocalization()          
+        .AddDataAnnotationsLocalization();  
 
-services.AddControllersWithViews();
 
-var app = builder.Build();
+var app = builder.Build(); 
+var localizationOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>()!.Value;
+app.UseRequestLocalization(localizationOptions);
 
 using (var scope = app.Services.CreateScope())
 {

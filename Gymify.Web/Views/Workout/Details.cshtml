@@ -1,5 +1,8 @@
 ﻿@using Gymify.Application.DTOs.Workout
 @using Gymify.Application.ViewModels.Workout
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @model WorkoutDetailsViewModel
 
 @{
@@ -13,57 +16,56 @@
             <div style="flex: 1; margin-right: 20px;">
 
                 <h1 id="viewName" class="ae-page-title">@Model.Name</h1>
-                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="Workout Name" />
+                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="@Localizer["Workout Name"]" />
 
                 <div class="ae-text-muted ae-mt-20">
-                    Created by <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                    @Localizer["CreatedBy"] <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
                 </div>
 
                 <div class="ae-flex-row ae-align-center ae-gap-sm ae-mt-20">
                     <span class="ae-badge ae-badge-xp">XP: @Model.TotalXP</span>
 
                     <span id="viewPrivacy" class="ae-badge ae-badge-private @(Model.IsPrivate ? "" : "ae-hidden")">
-                        Private
+                        @Localizer["Private"]
                     </span>
 
                     <div id="inputPrivacyWrapper" class="ae-toggle-wrapper ae-hidden">
                         <input type="checkbox" id="inputPrivacy" class="ae-toggle-input" @(Model.IsPrivate ? "checked" : "")>
-                        <label for="inputPrivacy" class="ae-text-muted">Private Mode</label>
+                        <label for="inputPrivacy" class="ae-text-muted">@Localizer["Private Mode"]</label>
                     </div>
                 </div>
             </div>
 
             @if (Model.IsOwner)
             {
-                    <div class="ae-flex-row ae-gap-sm">
-                        <button id="btnCancelInfo" class="ae-btn ae-btn-outline ae-hidden">Cancel</button>
-                        <button id="btnEditInfo" class="ae-btn ae-btn-outline">Edit Info</button>
-                    </div>
+            <div class="ae-flex-row ae-gap-sm">
+                <button id="btnCancelInfo" class="ae-btn ae-btn-outline ae-hidden">@Localizer["Cancel"]</button>
+                <button id="btnEditInfo" class="ae-btn ae-btn-outline">@Localizer["Edit Info"]</button>
+            </div>
+             <form method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId"
+                   onsubmit="return confirm('Are you sure you want to delete this workout? This action cannot be undone.');">
 
-                <form method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId"
-                          onsubmit="return confirm('Are you sure you want to delete this workout? This action cannot be undone.');">
-
-                        <button type="submit" class="ae-btn ae-btn-danger">
-                            <i class="bi bi-trash"></i> Delete
-                        </button>
-                    </form>
+                 <button type="submit" class="ae-btn ae-btn-danger">
+                     <i class="bi bi-trash"></i> Delete
+                 </button>
+             </form>
             }
         </div>
 
         <div class="ae-mt-20">
             <div id="viewDescription" class="ae-lead-text" style="white-space: pre-wrap;">@Model.Description</div>
-            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="Description...">@Model.Description</textarea>
+            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="@Localizer["Description"]">@Model.Description</textarea>
         </div>
 
         <div class="ae-mt-20">
             <div id="viewConclusionWrapper" class="ae-conclusion-box @(string.IsNullOrEmpty(Model.Conclusion) ? "ae-hidden" : "")">
-                <strong class="ae-text-muted">Conclusion:</strong>
+                <strong class="ae-text-muted">@Localizer["Conclusion"]:</strong>
                 <p id="viewConclusion" style="margin: 5px 0 0 0; font-style: italic;">@Model.Conclusion</p>
             </div>
 
             <div id="inputConclusionWrapper" class="ae-hidden">
-                <label class="ae-text-muted" style="font-size:0.85rem; font-weight:bold;">Conclusion</label>
-                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="How did it go?">@Model.Conclusion</textarea>
+                <label class="ae-text-muted" style="font-size:0.85rem; font-weight:bold;">@Localizer["Conclusion"]</label>
+                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="@Localizer["HowDidItGo"]">@Model.Conclusion</textarea>
             </div>
         </div>
     </div>
@@ -72,12 +74,12 @@
 
     <div class="ae-exercises-section">
         <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20">
-            <h3 class="ae-section-title">Workout Plan</h3>
+            <h3 class="ae-section-title">@Localizer["Workout Plan"]</h3>
             @if (Model.IsOwner)
             {
-                    <button id="btnToggleEdit" class="ae-btn ae-btn-warning">
-                        Edit Exercises
-                    </button>
+                <button id="btnToggleEdit" class="ae-btn ae-btn-warning">
+                    @Localizer["Edit Exercises"]
+                </button>
             }
         </div>
 
@@ -88,9 +90,9 @@
         <div id="editModeContainer" class="ae-hidden">
             @if (Model.IsOwner)
             {
-                    <partial name="_ExerciseManager" 
-                             model="Model.Exercises" 
-                             view-data='@new ViewDataDictionary(ViewData) { ["WorkoutId"] = Model.WorkoutId }' />
+                <partial name="_ExerciseManager"
+                         model="Model.Exercises"
+                         view-data='@new ViewDataDictionary(ViewData) { ["WorkoutId"] = Model.WorkoutId }' />
             }
         </div>
     </div>
@@ -98,19 +100,19 @@
     <div class="ae-separator"></div>
 
     <div class="ae-comments-section">
-        <h3 class="ae-section-title ae-mb-20">Comments</h3>
+        <h3 class="ae-section-title ae-mb-20">@Localizer["Comments"]</h3>
 
         @{
             var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
             {
                 TargetId = Model.WorkoutId,
-                TargetType = Gymify.Data.Enums.CommentTargetType.Workout, // Enum
+                TargetType = Gymify.Data.Enums.CommentTargetType.Workout,
                 Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
-                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl // Або з UserEquipment
+                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
             };
         }
 
-        <partial  name="_CommentsSection" model="commentsVm" />
+        <partial name="_CommentsSection" model="commentsVm" />
     </div>
 </div>
 

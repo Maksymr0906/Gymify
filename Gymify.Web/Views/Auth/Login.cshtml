@@ -1,21 +1,34 @@
-﻿@model Gymify.Application.DTOs.Auth.LoginRequestDto
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model Gymify.Application.DTOs.Auth.LoginRequestDto
 
 @{
     ViewData["Title"] = "Login";
 }
 
-
 <form asp-action="Login" class="authForm" method="post">
-    <label asp-for="Email" class="authText">Email</label>
-    <input asp-for="Email" class="authInput" required />
 
-    <label asp-for="Password" class="authText">Password</label>
+    <label asp-for="Email" class="authText">@Localizer["Email"]</label>
+    <input asp-for="Email" class="authInput" required />
+    <span asp-validation-for="Email" class="text-danger"></span>
+
+    <label asp-for="Password" class="authText">@Localizer["Password"]</label>
     <input asp-for="Password" class="authInput" required />
+    <span asp-validation-for="Password" class="text-danger"></span>
 
     <div class="form-group form-check">
         <input asp-for="RememberMe" class="form-check-input" />
-        <label asp-for="RememberMe" class="form-check-label"></label>
+        <label asp-for="RememberMe" class="form-check-label">
+            @Localizer["RememberMe"]
+        </label>
     </div>
 
-    <button type="submit" class="authButton scaleButton">Login</button>
+    <button type="submit" class="authButton scaleButton">
+        @Localizer["LoginButton"]
+    </button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+''
