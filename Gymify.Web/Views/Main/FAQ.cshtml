@@ -1,0 +1,202 @@
+﻿@{
+    ViewData["Title"] = "Guide & FAQ";
+}
+
+<div class="dashboard-wrapper">
+
+    <div class="faq-header">
+        <h1 class="faq-title">Welcome to Gymify</h1>
+        <p class="faq-subtitle">
+            Your ultimate companion for tracking progress, earning rewards, and staying consistent. 
+            Here is everything you need to know to get started.
+        </p>
+    </div>
+
+    <div class="faq-section">
+        <h2 class="faq-section-title">Getting Started</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                What is Gymify?
+                <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Gymify is a gamified fitness tracker designed to make your workouts addictive. We combine traditional tracking (sets, reps, weight) with RPG elements like XP, Levels, and Loot Boxes to keep you motivated.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                Is it free to use?
+                <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Yes! The core functionality of tracking workouts and leveling up is completely free. You can earn in-game currency by working out to unlock cosmetic items for your profile.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2 class="faq-section-title">Workouts & Tracking</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                How do I create a workout?
+                <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>It's simple:</p>
+                <ul>
+                    <li>Go to the <strong>Workouts Feed</strong> or Home Dashboard.</li>
+                    <li>Click the big orange <strong>"Create Workout"</strong> button.</li>
+                    <li>Add a name (e.g., "Leg Day") and description.</li>
+                    <li>Add exercises from our library, specifying sets, reps, and weight.</li>
+                    <li>Save it, and you'll instantly earn XP!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                Can I edit a workout later?
+                <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Currently, workouts are recorded as history logs. While you cannot edit a past log to "cheat" your stats, you can delete accidental entries.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2 class="faq-section-title">Leveling Up & Rewards</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                How do I earn XP?
+                <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>XP (Experience Points) are calculated based on the volume of your workout. The more weight you lift and the more reps you do, the more XP you gain. Consistency also matters!</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                What are Cases and Inventory?
+                <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>As you level up, you can earn or buy <strong>Cases</strong>. Opening a case (via the Roulette minigame) grants you cosmetic items:</p>
+                <ul>
+                    <li><strong>Avatars:</strong> Custom profile pictures.</li>
+                    <li><strong>Frames:</strong> Borders around your avatar.</li>
+                    <li><strong>Backgrounds:</strong> Custom themes for your profile page.</li>
+                </ul>
+                <p>You can equip these items in your <strong>Profile</strong>.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                What are Achievements?
+                <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Achievements are milestones (e.g., "Reach Level 10", "Lift 1000kg total"). Unlocking achievements grants you special <strong>Titles</strong> that appear next to your name in the Leaderboard.</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 60px; padding: 40px; background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+        <h3 style="margin-bottom: 10px;">Still have questions?</h3>
+        <p style="color: #777; margin-bottom: 20px;">We are here to help you get the best shape of your life.</p>
+        <a href="#" class="gym-btn gym-btn-primary">Contact Support</a>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const items = document.querySelectorAll('.faq-item');
+
+            items.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+
+                question.addEventListener('click', () => {
+                    // Close other items (optional - accordion behavior)
+                    // items.forEach(i => {
+                    //     if (i !== item) {
+                    //         i.classList.remove('active');
+                    //         slideUp(i.querySelector('.faq-answer'), 300);
+                    //     }
+                    // });
+
+                    // Toggle current
+                    if (item.classList.contains('active')) {
+                        item.classList.remove('active');
+                        slideUp(answer, 300);
+                    } else {
+                        item.classList.add('active');
+                        slideDown(answer, 300);
+                    }
+                });
+            });
+
+            // Reusing slide functions from your existing code
+            function slideUp(element, duration) {
+                element.style.height = element.offsetHeight + "px";
+                element.style.transitionProperty = "height, margin, padding";
+                element.style.transitionDuration = duration + "ms";
+                element.style.boxSizing = "border-box";
+                element.offsetHeight; // force repaint
+                element.style.overflow = "hidden";
+                element.style.height = 0;
+                element.style.paddingTop = 0;
+                element.style.paddingBottom = 0;
+                element.style.marginTop = 0;
+                element.style.marginBottom = 0;
+                window.setTimeout(function () {
+                    element.style.display = "none";
+                    element.style.removeProperty("height");
+                    element.style.removeProperty("padding-top");
+                    element.style.removeProperty("padding-bottom");
+                    element.style.removeProperty("margin-top");
+                    element.style.removeProperty("margin-bottom");
+                    element.style.removeProperty("overflow");
+                    element.style.removeProperty("transition-duration");
+                    element.style.removeProperty("transition-property");
+                }, duration);
+            }
+
+            function slideDown(element, duration) {
+                element.style.removeProperty("display");
+                let display = window.getComputedStyle(element).display;
+                if (display === "none") display = "block";
+                element.style.display = display;
+                let height = element.offsetHeight;
+                element.style.height = 0;
+                element.style.paddingTop = 0;
+                element.style.paddingBottom = 0;
+                element.style.marginTop = 0;
+                element.style.marginBottom = 0;
+                element.style.overflow = "hidden";
+                element.offsetHeight;
+                element.style.transitionProperty = "height, margin, padding";
+                element.style.transitionDuration = duration + "ms";
+                element.style.height = height + "px";
+                element.style.removeProperty("padding-top");
+                element.style.removeProperty("padding-bottom");
+                element.style.removeProperty("margin-top");
+                element.style.removeProperty("margin-bottom");
+                window.setTimeout(function () {
+                    element.style.removeProperty("height");
+                    element.style.removeProperty("overflow");
+                    element.style.removeProperty("transition-duration");
+                    element.style.removeProperty("transition-property");
+                }, duration);
+            }
+        });
+    </script>
+}

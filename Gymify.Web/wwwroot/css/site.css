@@ -397,6 +397,117 @@ a {
 }
 
 /* ==========================================================================
+   FAQ / GUIDE PAGE STYLES
+   ========================================================================== */
+
+.faq-header {
+    text-align: center;
+    margin-bottom: 50px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.faq-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.faq-subtitle {
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* FAQ Container */
+.faq-section {
+    margin-bottom: 40px;
+}
+
+.faq-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gym-orange);
+    margin-bottom: 20px;
+    padding-left: 10px;
+    border-left: 4px solid #333;
+}
+
+/* Accordion Item */
+.faq-item {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+    .faq-item:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border-color: #e0e0e0;
+    }
+
+    .faq-item.active {
+        border-color: var(--gym-orange);
+    }
+
+/* Question (Header) */
+.faq-question {
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #333;
+    font-size: 1.1rem;
+    background: #fff;
+    user-select: none;
+}
+
+.faq-icon {
+    font-size: 1.2rem;
+    color: #999;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate icon when active */
+.faq-item.active .faq-icon {
+    transform: rotate(180deg);
+    color: var(--gym-orange);
+}
+
+/* Answer (Body) */
+.faq-answer {
+    display: none; /* Hidden by default */
+    padding: 0 20px 20px 20px;
+    color: #555;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    border-top: 1px solid transparent;
+}
+
+.faq-item.active .faq-answer {
+    display: block; /* JS will handle animation, this is fallback */
+    border-top-color: #f9f9f9;
+    padding-top: 15px;
+}
+
+/* Helper lists inside answers */
+.faq-answer ul {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.faq-answer li {
+    margin-bottom: 5px;
+}
+
+/* ==========================================================================
    AUTH PAGES (Login / Register)
    ========================================================================== */
 .auth-page-wrapper {
@@ -505,18 +616,10 @@ a {
         text-decoration: underline;
     }
 
-/*                                  Leaderboard                                  */
+/* ==========================================================================
+   LEADERBOARD STYLES
+   ========================================================================== */
 
-/* --- LAYOUT & CONTAINER --- */
-.lb-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
-}
-
-/* --- HEADER --- */
 .lb-header {
     text-align: center;
     margin-bottom: 40px;
@@ -525,8 +628,8 @@ a {
 .lb-title {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #2c3e50;
-    margin: 0;
+    color: #333;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -534,215 +637,214 @@ a {
 }
 
 .lb-subtitle {
+    color: #777;
     font-size: 1.1rem;
-    color: #7f8c8d;
-    margin-top: 10px;
 }
 
-/* --- TABLE CARD --- */
+/* Leaderboard Table/Card */
 .lb-card {
-    background: white;
-    border: 1px solid #e0e0e0;
+    background: #fff;
     border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    margin-bottom: 30px;
 }
 
-/* --- GRID SYSTEM --- */
 .lb-row {
     display: grid;
-    /* Rank | User Info | Level | XP */
-    grid-template-columns: 70px 1fr 80px 120px;
+    grid-template-columns: 60px 1fr 80px 120px; /* Rank | User | Level | XP */
     align-items: center;
-    padding: 18px 24px;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f9f9f9;
+    transition: background-color 0.2s;
+    gap: 15px;
 }
 
     .lb-row:last-child {
         border-bottom: none;
     }
 
-    /* Header Row Style */
     .lb-row.header {
-        background-color: #f8f9fa;
+        background: #f8f9fa;
         font-weight: 700;
-        color: #95a5a6;
-        font-size: 0.85rem;
+        color: #777;
         text-transform: uppercase;
+        font-size: 12px;
         letter-spacing: 1px;
     }
 
-    /* --- HIGHLIGHTS --- */
-
-    /* Me (Blue) */
-    .lb-row.is-me {
-        background-color: #eef7fe;
-        border-left: 5px solid #3498db;
-        padding-left: 19px; /* Compensate border width */
-    }
-
-    /* Friend (Green) */
-    .lb-row.is-friend {
-        background-color: #f0fdf4;
-        border-left: 5px solid #2ecc71;
-        padding-left: 19px;
-    }
-
-    /* Hover effects */
     .lb-row:not(.header):hover {
         background-color: #fafafa;
     }
 
-    .lb-row.is-me:hover {
-        background-color: #e1f0fd;
-    }
-
-    .lb-row.is-friend:hover {
-        background-color: #e3fcef;
-    }
-
-/* --- COLUMNS --- */
-
-/* Rank Column */
-.lb-rank {
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: #bdc3c7;
-    text-align: center;
-}
-
-    .lb-rank.gold {
-        color: #f1c40f;
-        font-size: 1.5rem;
-        text-shadow: 0 2px 5px rgba(241, 196, 15, 0.3);
-    }
-
-    .lb-rank.silver {
-        color: #95a5a6;
-        font-size: 1.4rem;
-    }
-
-    .lb-rank.bronze {
-        color: #cd7f32;
-        font-size: 1.3rem;
-    }
-
-/* User Column */
+/* User Info */
 .lb-user {
     display: flex;
     align-items: center;
     gap: 15px;
+    overflow: hidden;
 }
 
 .lb-avatar {
-    width: 46px;
-    height: 46px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .lb-username {
     font-weight: 700;
-    font-size: 1.05rem;
-    color: #2c3e50;
+    color: #333;
     text-decoration: none;
-    transition: color 0.2s;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
     .lb-username:hover {
-        color: #3498db;
+        color: var(--gym-orange);
         text-decoration: underline;
     }
 
-.lb-you-tag {
-    font-size: 0.75rem;
-    background-color: #3498db;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: 8px;
-    vertical-align: middle;
-    font-weight: normal;
-}
-
-/* Level Column */
-.lb-level {
+/* Ranks */
+.lb-rank {
+    font-weight: 800;
+    font-size: 18px;
+    color: #999;
     text-align: center;
-    font-weight: 600;
-    color: #555;
-    background: #eee;
-    border-radius: 20px;
-    padding: 4px 10px;
-    font-size: 0.9rem;
-    width: fit-content;
-    margin: 0 auto;
+    width: 30px;
+    display: flex;
+    justify-content: center;
 }
 
-/* XP Column */
+    .lb-rank.gold {
+        color: #f1c40f;
+        text-shadow: 0 2px 5px rgba(241, 196, 15, 0.3);
+        font-size: 22px;
+    }
+
+    .lb-rank.silver {
+        color: #bdc3c7;
+        text-shadow: 0 2px 5px rgba(189, 195, 199, 0.3);
+        font-size: 20px;
+    }
+
+    .lb-rank.bronze {
+        color: #cd7f32;
+        text-shadow: 0 2px 5px rgba(205, 127, 50, 0.3);
+        font-size: 20px;
+    }
+
+/* Stats */
+.lb-level {
+    background: #eee;
+    color: #555;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
 .lb-xp {
     text-align: right;
     font-weight: 800;
-    color: #27ae60;
-    font-size: 1.1rem;
+    color: var(--gym-orange);
+    font-size: 16px;
 }
 
     .lb-xp span {
-        font-size: 0.8rem;
+        font-size: 12px;
+        color: #999;
         font-weight: 600;
-        color: #2ecc71;
     }
 
-/* --- STICKY FOOTER (ME) --- */
+/* Highlight "Me" */
+.lb-row.is-me {
+    background-color: #fff8e1; /* Дуже світлий помаранчево-жовтий */
+    border-left: 4px solid var(--gym-orange);
+}
+
+.lb-you-tag {
+    background: var(--gym-orange);
+    color: #000;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: 800;
+    vertical-align: middle;
+}
+
+/* Highlight "Friend" */
+.lb-row.is-friend {
+    background-color: #f0fdf4; /* Світло-зелений */
+}
+
+/* Sticky "Me" at Bottom */
 .lb-sticky-me {
     position: sticky;
     bottom: 20px;
-    margin-top: 20px;
-    z-index: 100;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 25px rgba(52, 152, 219, 0.25);
-    border: 2px solid #3498db;
-    animation: slideUp 0.4s ease-out;
+    z-index: 10;
+    margin-top: -20px; /* Overlap margin */
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    border-radius: 16px;
+    overflow: hidden;
 }
 
-/* --- PAGINATION --- */
+/* Pagination */
 .lb-pagination {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 15px;
-    margin-top: 40px;
+    margin-top: 30px;
 }
-
-.lb-btn {
-    padding: 10px 20px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    color: #555;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-    .lb-btn:hover {
-        background-color: #f8f9fa;
-        border-color: #ccc;
-        transform: translateY(-2px);
-    }
 
 .lb-page-info {
-    color: #999;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 700;
+    color: #777;
+    font-size: 14px;
 }
 
+/* Animation */
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.lb-row {
+    animation: slideUp 0.3s ease-out forwards;
+    /* Staggered animation can be done with nth-child in specialized cases, 
+       but simple slideUp is good enough here */
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .lb-row {
+        grid-template-columns: 40px 1fr 70px; /* Hide Level column */
+        padding: 15px 10px;
+    }
+
+    .lb-stat-lvl {
+        display: none;
+    }
+
+    .lb-title {
+        font-size: 1.8rem;
+    }
+}
 
 /* ==========================================================================
    DASHBOARD / HOME PAGE
@@ -1152,41 +1254,676 @@ a {
     color: #222 !important;
 }
 
+/* ==========================================================================
+   EXERCISE LIBRARY STYLES
+   ========================================================================== */
 
-/*          CreateWorkout           */
-.createWorkoutForm {
-    height: 80vh;
-    padding: 10px;
+.ex-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.ex-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.ex-subtitle {
+    color: #777;
+    font-size: 1.1rem;
+}
+
+/* Filter Bar */
+.ex-filter-bar {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 30px;
+    border: 1px solid #eee;
+}
+
+/* Custom Segmented Control (Switch) */
+.ex-switch-container {
+    display: flex;
+    background: #f0f0f0;
+    padding: 4px;
+    border-radius: 10px;
+    position: relative;
+    height: 44px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.ex-switch-radio {
+    display: none;
+}
+
+.ex-switch-label {
+    flex: 1;
+    text-align: center;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #777;
+    cursor: pointer;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s;
+    user-select: none;
+    min-width: 100px;
+}
+
+/* Sliding Background */
+.ex-switch-bg {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 1;
+}
+
+/* Logic for Switch */
+#modeVerified:checked ~ .ex-switch-bg {
+    transform: translateX(0);
+}
+
+#modePending:checked ~ .ex-switch-bg {
+    transform: translateX(100%);
+}
+
+#modeVerified:checked + label {
+    color: #27ae60;
+}
+/* Green for Verified */
+#modePending:checked + label {
+    color: var(--gym-orange);
+}
+/* Orange for Community */
+
+/* Exercise Grid & Cards */
+.ex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+    position: relative;
+    min-height: 200px;
+}
+
+.ex-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center; /* по горизонталі */
-    justify-content: center; /* по вертикалі */
 }
-.createWorkoutLabel {
-    font-size: 44px;
-    color: var(--TitleColor);
-    font-weight: 500;
+
+    .ex-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        border-color: #e0e0e0;
+    }
+
+.ex-thumbnail-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background: #000;
+    overflow: hidden;
 }
-.createWorkoutInput {
-    font-size: 20px;
-    font-weight: 400;
-    width: 350px;
-    border: 1.5px solid;
-    border-radius: 15px;
-    padding: 5px 15px;
+
+.ex-thumbnail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+    transition: opacity 0.3s;
 }
-.createWorkoutForm .form-group{
-    font-size: 22px;
-    margin: 20px 0;
+
+.ex-card:hover .ex-thumbnail {
+    opacity: 0.7;
 }
-.createWorkoutButton {
-    width: 300px;
-    margin-top: 15px;
-    font-size: 36px;
-    background: white;
+
+.ex-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    transition: transform 0.3s, background 0.3s;
+}
+
+.ex-card:hover .ex-play-btn {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: rgba(255,159,28, 0.9); /* Gym Orange */
+}
+
+/* Badges */
+.ex-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 10px;
     border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: white;
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+    .ex-badge.verified {
+        background: #27ae60;
+    }
+
+    .ex-badge.pending {
+        background: var(--gym-orange);
+    }
+
+/* Content */
+.ex-card-body {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ex-type-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #777;
+    background: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    width: fit-content;
+    text-transform: uppercase;
+}
+
+.ex-title-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 5px 0;
+    line-height: 1.3;
+}
+
+.ex-desc-text {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+.ex-card-footer {
+    border-top: 1px solid #f9f9f9;
+    padding: 10px 15px;
+    font-size: 12px;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 600;
+}
+
+/* Loading Overlay */
+#loadingSpinner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(2px);
+    z-index: 10;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: var(--gym-orange);
+}
+
+/* ==========================================================================
+                            WORKOUT CREATION FLOW 
+   ========================================================================== */
+/* CREATE */
+/* Обгортка для центрування форм створення */
+.workout-page-container {
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+/* Картка форми */
+.workout-form-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+.workout-page-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+/* Групи полів */
+.workout-form-group {
+    margin-bottom: 25px;
+}
+
+.workout-label {
+    display: block;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Textarea specific adjustment for gym-input */
+textarea.gym-input {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* AddExercise _ExerciseManager */
+
+.ae-page-container {
+    max-width: 1000px;
+    margin: 40px auto;
     padding: 0 20px;
-    background-color: var(--ButtonColor);
+}
+
+.ae-page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.ae-lead-text {
+    font-size: 1.1rem;
+    color: #777;
+}
+
+/* Manager Card (Wrapper) */
+.ae-manager-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    overflow: hidden;
+}
+
+/* Add Panel (Top Bar) */
+.ae-add-panel {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.ae-group-small {
+    flex: 0 0 80px; /* Фіксуємо ширину для коротких полів */
+}
+
+.ae-input-std {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+    .ae-input-std:focus {
+        border-color: var(--gym-orange);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 159, 28, 0.1);
+    }
+
+.ae-label-mini {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #777;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+/* Suggestions Dropdown */
+.ae-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0 0;
+}
+
+    .ae-suggestions li {
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+        .ae-suggestions li:last-child {
+            border-bottom: none;
+        }
+
+        .ae-suggestions li:hover {
+            background: #f0f0f0;
+            color: var(--gym-orange);
+        }
+
+/* Added Exercises List */
+.ae-list-container {
+    padding: 20px;
+    background: #fff;
+    min-height: 200px;
+}
+
+.ae-empty-state {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-style: italic;
+    border: 2px dashed #eee;
+    border-radius: 12px;
+}
+
+/* Individual Exercise Card in List */
+.ae-item-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: transform 0.2s;
+}
+
+.ae-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f5f5f5;
+    padding-bottom: 10px;
+}
+
+.ae-item-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: #333;
+}
+
+.ae-item-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+/* Utilities inside manager */
+.ae-flex-end {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* Finish workout */
+
+.finish-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.finish-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    padding: 40px;
+    overflow: hidden;
+}
+
+.finish-textarea {
+    min-height: 150px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+/* View and Edit - Details */
+
+/* Header Wrapper */
+.ae-header-section {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    margin-bottom: 30px;
+    border: 1px solid #eee;
+}
+
+/* Typography & Layout Utils */
+.ae-flex-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.ae-justify-between {
+    justify-content: space-between;
+}
+
+.ae-align-start {
+    align-items: flex-start;
+}
+
+.ae-align-center {
+    align-items: center;
+}
+
+.ae-gap-sm {
+    gap: 10px;
+}
+
+.ae-mt-20 {
+    margin-top: 20px;
+}
+
+.ae-mb-20 {
+    margin-bottom: 20px;
+}
+
+.ae-hidden {
+    display: none !important;
+}
+
+.ae-text-muted {
+    color: #777;
+    font-size: 0.95rem;
+}
+
+/* Badges */
+.ae-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.ae-badge-xp {
+    background: #fff8e1;
+    color: #f1c40f;
+    border: 1px solid #f1c40f;
+}
+
+.ae-badge-private {
+    background: #eceff1;
+    color: #455a64;
+}
+
+/* Custom Checkbox Toggle */
+.ae-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.ae-toggle-input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--gym-orange);
+    cursor: pointer;
+}
+
+/* Description & Conclusion Box */
+.ae-conclusion-box {
+    background: #fdfdfd;
+    border-left: 4px solid var(--gym-orange);
+    padding: 15px;
+    border-radius: 0 8px 8px 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+/* Separator */
+.ae-separator {
+    height: 1px;
+    background: #eee;
+    margin: 40px 0;
+}
+
+/* Section Titles */
+.ae-section-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #333;
+    margin: 0;
+    padding-left: 15px;
+    border-left: 5px solid var(--gym-orange);
+}
+
+/* Exercise Cards Grid (Read Only) */
+.ae-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.ae-card-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.ae-card-header-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f5f5f5;
+    padding-bottom: 10px;
+}
+
+.ae-stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.ae-card-stats {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #777;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+}
+
+/* Textarea fix */
+.ae-textarea-std {
+    min-height: 100px;
+    resize: vertical;
 }
 
 /* Comments */

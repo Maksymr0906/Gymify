@@ -4,55 +4,50 @@
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "AddExercise";
+    ViewData["Title"] = "Add Exercises";
     var workoutId = ViewBag.WorkoutId;
     var detailsUrl = Url.Action("Finish", "Workout", new { workoutId = workoutId });
 }
 
 <div class="ae-page-container">
 
-    <div style="max-width: 900px; margin: 0 auto;">
-
-        <div style="text-align: center; margin-bottom: 40px;">
-            <h1 class="ae-page-title">@Localizer["WorkoutExercises"]</h1>
-            <p class="ae-lead-text ae-text-muted">@Localizer["AddExercisesToAccomplishWorkoutCreation"]</p>
-        </div>
-
-        <partial name="_ExerciseManager" 
-                 model="Model" 
-                 view-data='@new ViewDataDictionary(ViewData) { ["HideSaveButtons"] = true }' />
-
-        <div class="ae-mt-20" style="text-align: center; border-top: 1px solid #eee; padding-top: 30px;">
-
-            <button type="button" 
-                    id="btnFinish" 
-                    data-url="@detailsUrl"
-                    class="ae-btn ae-btn-success"
-                    style="padding: 12px 40px; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);">
-                @Localizer["FinishCreation"] <i class="bi bi-check-lg" style="margin-left: 8px;"></i>
-            </button>
-
-            <div class="ae-mt-20">
-                <form method="post" asp-action="RemoveWorkout" asp-route-workoutId="@workoutId">
-                    <button type="submit" 
-                            class="ae-btn" 
-                            style="background: none; border: none; color: #999; text-decoration: underline; font-size: 0.9rem; padding: 0;">
-                        @Localizer["CancelAndDeleteWorkout"]
-                    </button>
-                </form>
-            </div>
-        </div>
-
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 class="ae-page-title">@Localizer["WorkoutExercises"]</h1>
+        <p class="ae-lead-text">@Localizer["AddExercisesToAccomplishWorkoutCreation"]</p>
     </div>
+
+    <partial name="_ExerciseManager" 
+             model="Model" 
+             view-data='@new ViewDataDictionary(ViewData) { ["HideSaveButtons"] = true }' />
+
+    <div style="text-align: center; margin-top: 40px;">
+        
+        <button type="button" 
+                id="btnFinish" 
+                data-url="@detailsUrl"
+                class="gym-btn gym-btn-primary scale-btn"
+                style="padding: 15px 50px; font-size: 18px;">
+            @Localizer["FinishCreation"] <i class="bi bi-check-lg" style="margin-left: 10px;"></i>
+        </button>
+
+        <div style="margin-top: 20px;">
+            <form method="post" asp-action="RemoveWorkout" asp-route-workoutId="@workoutId">
+                <button type="submit" class="gym-btn gym-btn-secondary" style="border:none; color: #999; padding: 10px;">
+                    @Localizer["CancelAndDeleteWorkout"]
+                </button>
+            </form>
+        </div>
+    </div>
+
 </div>
 
-
 @section Scripts {
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const btnFinish = document.getElementById("btnFinish");
-                const form = document.getElementById("mgrForm");
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btnFinish = document.getElementById("btnFinish");
+            const form = document.getElementById("mgrForm");
 
+            if(btnFinish && form) {
                 btnFinish.addEventListener("click", function() {
                     const originalText = btnFinish.innerHTML;
                     btnFinish.disabled = true;
@@ -66,21 +61,23 @@
                     })
                     .then(response => {
                         if (response.ok) {
-                            // Успіх - переходимо
                             window.location.href = btnFinish.getAttribute("data-url");
                         } else {
-                            alertify.error("Error saving. Please try again.");
+                            // Using alertify if available, or alert
+                            if(typeof alertify !== 'undefined') alertify.error("Error saving.");
+                            else alert("Error saving.");
+                            
                             btnFinish.disabled = false;
                             btnFinish.innerHTML = originalText;
                         }
                     })
                     .catch(error => {
                         console.error("Fetch error:", error);
-                        alertify.error("Something went wrong.");
                         btnFinish.disabled = false;
                         btnFinish.innerHTML = originalText;
                     });
                 });
-            });
-        </script>
+            }
+        });
+    </script>
 }

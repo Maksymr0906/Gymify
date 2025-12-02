@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
-
 @using Gymify.Application.DTOs.UserExercise
 @model List<UserExerciseDto>
 
@@ -26,7 +25,7 @@ else
                 <div class="ae-card-stats">
                     @if (ex.Weight > 0)
                     {
-                        <span>@ex.Weight kg</span>
+                        <span><i class="fa-solid fa-dumbbell"></i> @ex.Weight kg</span>
                     }
                     else
                     {
@@ -35,7 +34,7 @@ else
 
                     @if (ex.DurationMinutes > 0)
                     {
-                        <span>@ex.DurationMinutes @Localizer["MinutesShort"]</span>
+                        <span><i class="fa-regular fa-clock"></i> @ex.DurationMinutes min</span>
                     }
                 </div>
             </div>

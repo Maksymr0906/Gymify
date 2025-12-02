@@ -33,10 +33,10 @@ namespace Gymify.Web.Controllers
             }
         }
 
-        [HttpGet("privacy")]
-        public IActionResult Privacy()
+        [HttpGet("faq")]
+        public IActionResult FAQ()
         {
-            return View("Privacy");
+            return View("FAQ");
         }
         [HttpGet("leaderboard")]
         public async Task<IActionResult> Leaderboard(int page = 1)
