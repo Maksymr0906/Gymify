@@ -41,7 +41,7 @@ namespace Gymify.Web.Controllers
 
             ViewBag.OnlyMy = onlyMy;
 
-            return PartialView("WorkoutsList", model);
+            return PartialView("_WorkoutsList", model);
         }
 
     }
