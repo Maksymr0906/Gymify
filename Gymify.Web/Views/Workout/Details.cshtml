@@ -41,16 +41,20 @@
 
             @if (Model.IsOwner)
             {
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-                    <div class="ae-flex-row ae-gap-sm">
-                        <button id="btnCancelInfo" class="gym-btn gym-btn-secondary ae-hidden">@Localizer["Cancel"]</button>
-                        <button id="btnEditInfo" class="gym-btn gym-btn-secondary">@Localizer["Edit Info"]</button>
-                    </div>
+                <div style="display: flex; align-items: center; gap: 10px; align-self: flex-start;">
+                    
+                    <button id="btnCancelInfo" class="gym-btn gym-btn-secondary ae-hidden">
+                        @Localizer["Cancel"]
+                    </button>
+
+                    <button id="btnEditInfo" class="gym-btn gym-btn-secondary">
+                        @Localizer["Edit Info"]
+                    </button>
                     
                     <form method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId"
-                          onsubmit="return confirm('Are you sure you want to delete this workout? This action cannot be undone.');">
-                        <button type="submit" class="gym-btn" style="background:none; border:none; color:#e74c3c; font-size:13px; text-decoration:underline; padding:0;">
-                            <i class="bi bi-trash"></i> Delete Workout
+                          onsubmit="return confirm('Are you sure you want to delete this workout? This action cannot be undone.');"
+                          style="margin: 0;"> <button type="submit" class="gym-btn gym-btn-danger">
+                            <i class="bi bi-trash" style="margin-right: 5px;"></i> @Localizer["Delete"]
                         </button>
                     </form>
                 </div>
