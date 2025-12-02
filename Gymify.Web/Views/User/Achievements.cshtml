@@ -3,157 +3,49 @@
     ViewData["Title"] = "Achievements";
 }
 
-<div class="container">
-    <h1>My achievements</h1>
-    <div class="achievements">
+<div class="achievements-page-wrapper">
+    <div class="achievements-header">
+        <h1 class="achievements-title">My Achievements</h1>
+    </div>
+
+    <div class="achievements-grid">
         @foreach (var a in Model)
         {
+            // Розрахунок відсотка
             var percent = a.TargetValue == 0 ? 0 : (int)Math.Floor(a.Progress / (double)a.TargetValue * 100);
-            var circleOffset = 307.88 - (307.88 * percent / 100);
-            string borderColor = a.IsCompleted ? "#00cb78" : a.Progress > 0 ? "#ff9800" : "#9e9e9e";
-            string imageUrl = a.IsCompleted
-            ? a.IconUrl
-            : a.Progress > 0
-            ? "https://localhost:7102/Images/inProgressAchievement.png"
-            : "https://localhost:7102/Images/unearnedAchievement.png";
+            // Захист від переповнення (не більше 100%)
+            if (percent > 100) percent = 100;
 
-            <div class="achievement" style="border-color:@borderColor">
-                <div class="achievement-img">
-                    @if (a.IsCompleted)
-                    {
-                        <img src="@imageUrl" alt="@a.Name" />
-                    }
-                    else
-                    {
-                        <div class="achievement-progress-wrapper">
-                            <img src="@imageUrl" alt="@a.Name" />
-                            <div class="achievement-progress">
-                                <svg>
-                                    <circle cx="49" cy="49" r="49"></circle>
-                                    <circle cx="49" cy="49" r="49" style="stroke-dashoffset:@circleOffset"></circle>
-                                </svg>
-                                <div class="achievement-percent">@percent%</div>
-                            </div>
-                        </div>
-                    }
+            var cardClass = a.IsCompleted ? "is-completed" : "is-locked";
+
+            <div class="achievement-card @cardClass">
+                
+                <div class="achievement-icon">
+                    <img src="@a.IconUrl" alt="@a.Name" loading="lazy" />
+
                 </div>
-                <div class="achievement-text">
-                    <b>@a.Name</b><br />
-                    <span>@a.Description</span>
-                    @if (!a.IsCompleted)
-                    {
-                        <div class="achievement-progress-text">
-                            @a.Progress / @a.TargetValue
-                        </div>
-                    }
+
+                <div class="achievement-info">
+                    <h3>@a.Name</h3>
+                    <p>@a.Description</p>
                 </div>
+
+                @if (!a.IsCompleted)
+                {
+                    <div class="achievement-progress-container">
+                        <div class="achievement-progress-bar" style="width: @percent%"></div>
+                    </div>
+                    <div class="progress-text-label">
+                        @a.Progress / @a.TargetValue
+                    </div>
+                }
+                else 
+                {
+                    <div class="progress-text-label" style="color: #ffc107;">
+                        Completed
+                    </div>
+                }
             </div>
         }
     </div>
 </div>
-
-<style>
-    .achievements {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-
-    .achievement {
-        padding: 20px 10px;
-        background-color: #f3f7fa;
-        border-radius: 10px;
-        border: 3px solid transparent;
-        width: calc(14.28% - 22.28px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .achievement-img {
-        position: relative;
-        width: 98px;
-        height: 98px;
-        margin-bottom: 10px;
-    }
-
-        .achievement-img img {
-            width: 98px;
-            height: 98px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-        }
-
-    .achievement-progress-wrapper {
-        position: relative;
-        width: 98px;
-        height: 98px;
-    }
-
-        .achievement-progress-wrapper img {
-            width: 98px;
-            height: 98px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-    .achievement-progress {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 98px;
-        height: 98px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-        .achievement-progress svg {
-            width: 98px;
-            height: 98px;
-            transform: rotate(-90deg);
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-            .achievement-progress svg circle {
-                fill: none;
-                stroke-width: 8;
-                stroke-linecap: round;
-            }
-
-                .achievement-progress svg circle:first-child {
-                    stroke: #e0e0e0;
-                }
-
-                .achievement-progress svg circle:last-child {
-                    stroke: #ff9800;
-                    stroke-dasharray: 307.88;
-                    transition: stroke-dashoffset 0.4s ease;
-                }
-
-    .achievement-percent {
-        position: absolute;
-        font-weight: 700;
-        font-size: 16px;
-    }
-
-    .achievement-text {
-        text-align: center;
-        font-size: 14px;
-    }
-
-        .achievement-text b {
-            font-size: 16px;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-    .achievement-progress-text {
-        margin-top: 4px;
-        font-size: 14px;
-        font-weight: 600;
-    }
-</style>
