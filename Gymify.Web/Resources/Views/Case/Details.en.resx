@@ -123,6 +123,9 @@
   <data name="OkButton" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="OpenAgainButton" xml:space="preserve">
+    <value>Open Again</value>
+  </data>
   <data name="OpenCaseButton" xml:space="preserve">
     <value>Open Case</value>
   </data>

@@ -8,6 +8,14 @@
     --NavBarColor: #161616;
     --TextHoverColor: white;
     --BackgroundImg: url('../Images/bg.jpg');
+    --gym-orange: #ff9f1c;
+    --gym-orange-hover: #ffb042;
+    --gym-dark: #1a1a1a;
+    --gym-light-bg: #ffffff;
+    --gym-page-bg: #f9f9f9;
+    --gym-text-main: #333333;
+    --gym-gray-bg: #f4f4f4;
+    --gym-border: #e0e0e0;
 }
 
 html {
@@ -114,6 +122,234 @@ a {
     background-position: center;
     z-index: -1;
 }
+
+/* ==========================================================================
+   1. GYM GLOBAL (Загальні стилі, Змінні, Кнопки, Модалки, Бейджі)
+   ========================================================================== */
+
+/* --- Utilities --- */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+/* --- Gym Buttons (Global) --- */
+.gym-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    line-height: 1.2;
+    box-sizing: border-box;
+}
+
+    .gym-btn:active {
+        transform: scale(0.98);
+    }
+
+.gym-btn-primary {
+    background-color: var(--gym-orange);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(255, 159, 28, 0.3);
+}
+
+    .gym-btn-primary:hover {
+        background-color: var(--gym-orange-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 159, 28, 0.4);
+    }
+
+.gym-btn-secondary {
+    background-color: #ffffff;
+    color: #555;
+    border: 2px solid #eee;
+}
+
+    .gym-btn-secondary:hover {
+        background-color: #f9f9f9;
+        color: #000;
+        border-color: #ccc;
+    }
+
+/* Додатковий клас для кнопок, які мають "пружинити" при натисканні */
+.scale-btn {
+    transition: transform 0.1s;
+}
+
+    .scale-btn:active {
+        transform: scale(0.98);
+    }
+
+
+/* --- Gym Modals (Global White Theme) --- */
+.gym-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gym-modal-content {
+    background: var(--gym-light-bg);
+    color: var(--gym-text-main);
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: gymPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gym-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+    .gym-modal-close:hover {
+        color: #333;
+    }
+
+.gym-modal-header {
+    margin: 0;
+}
+
+.gym-modal-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #000;
+}
+
+.gym-modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.gym-modal-image-wrapper {
+    width: 160px;
+    height: 160px;
+    background: var(--gym-gray-bg);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 1px solid var(--gym-border);
+}
+
+    .gym-modal-image-wrapper img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+    }
+
+.gym-drop-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin: 5px 0 0 0;
+}
+
+.gym-modal-description {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.gym-modal-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Анімація появи модалки */
+@keyframes gymPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* --- Rarity Badges (Global) --- */
+.rarity-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    margin-top: 5px;
+}
+
+.rarity-common {
+    border-color: #ccc;
+    color: #777;
+    background: #f0f0f0;
+}
+
+.rarity-uncommon {
+    border-color: #6a9649;
+    color: #4e7a2f;
+    background: rgba(106, 150, 73, 0.15);
+}
+
+.rarity-rare {
+    border-color: #4b69ff;
+    color: #2a4aff;
+    background: rgba(75, 105, 255, 0.15);
+}
+
+.rarity-epic {
+    border-color: #d32ce6;
+    color: #b010c4;
+    background: rgba(211, 44, 230, 0.15);
+}
+
+.rarity-legendary {
+    border-color: #eb4b4b;
+    color: #d62222;
+    background: rgba(235, 75, 75, 0.15);
+}
+
 /*              Auth            */
 .authForm {
     height: 80vh;
@@ -1385,8 +1621,9 @@ a {
     margin-bottom: 20px;
 }
 
-/*  Profile  */
-/* 1. ПОВНОЕКРАННА ОБГОРТКА ДЛЯ ФОНУ (ID="profileRoot") */
+/* ==========================================================================
+   2. PROFILE STYLES (Тільки для User Profile Page)
+   ========================================================================== */
 .userProfileFullPage {
     width: 100%;
     min-height: 100vh;
@@ -1394,17 +1631,17 @@ a {
     background-position: center;
     background-attachment: fixed;
     background-color: #121212;
-    padding-top: 40px;
-    padding-bottom: 40px;
-    box-sizing: border-box;
+    padding: 40px 0;
     display: flex;
     justify-content: center;
     position: relative;
-    overflow: hidden;
-    cursor: pointer; /* Курсор для кліку на тло */
+    cursor: default;
 }
+    /* Коли в режимі редагування */
+    .userProfileFullPage[data-edit-type="background"] {
+        cursor: pointer;
+    }
 
-/* 2. ОБМЕЖУВАЧ ШИРИНИ КОНТЕНТУ */
 .userProfileContentWrapper {
     width: 100%;
     max-width: 1200px;
@@ -1414,7 +1651,7 @@ a {
     gap: 40px;
 }
 
-/* 3. ХЕДЕР (Аватар + Інфо) */
+/* Хедер профілю (Темний блок) */
 .userProfileCustoms {
     background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(10px);
@@ -1424,10 +1661,9 @@ a {
     align-items: center;
     gap: 40px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    cursor: default; /* Контент не повинен викликати фон */
+    color: white;
 }
 
-/* === АВАТАР І РАМКА === */
 .userProfileAvatarBlock {
     position: relative;
     width: 300px;
@@ -1446,8 +1682,6 @@ a {
     height: 100%;
     object-fit: contain;
     z-index: 10;
-    pointer-events: auto;
-    cursor: pointer;
 }
 
 .avatarImage {
@@ -1459,10 +1693,8 @@ a {
     object-fit: cover;
     z-index: 5;
     border-radius: 10px;
-    pointer-events: none;
 }
 
-/* === ІНФО БЛОК === */
 .userProfileInfoBlock {
     display: flex;
     flex-direction: column;
@@ -1472,37 +1704,18 @@ a {
     flex: 1;
 }
 
-.userProfileEditButton {
-    width: 120px;
-    padding: 8px 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: none;
-    background-color: var(--ButtonColor, #2b8be6);
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.2s;
-}
-
 .userProfileLevelBadge {
-    /* Робимо його маленьким прямокутним значком */
     display: inline-block;
     margin-top: 25px;
     padding: 4px 10px;
-    margin-bottom: 8px; /* Відступ від імені */
-    /* Стиль тексту */
+    margin-bottom: 8px;
     font-size: 14px;
     font-weight: 700;
-    letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: #ffc107; /* Яскравий золотий/жовтий */
-    background-color: rgba(255, 193, 7, 0.1); /* Дуже прозорий золотий фон */
-
+    color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.1);
     border: 1px solid #ffc107;
     border-radius: 8px;
-    text-shadow: 0 0 5px rgba(255, 193, 7, 0.7);
-    box-shadow: 0 0 10px rgba(255, 193, 7, 0.15); /* М'яка тінь значка */
 }
 
 .userProfileNameView {
@@ -1514,10 +1727,14 @@ a {
 .userProfileTitleView {
     font-size: 20px;
     color: #bbb;
-    cursor: pointer;
+    cursor: default;
 }
 
-.userProfileNameInput, .userProfileTitleInput {
+    .userProfileTitleView[data-edit-type="title"] {
+        cursor: pointer;
+    }
+
+.userProfileNameInput {
     font-size: 40px;
     padding: 6px 8px;
     border-radius: 8px;
@@ -1527,17 +1744,15 @@ a {
     color: #333;
 }
 
-/* 4. БІЛІ КАРТКИ (Achievements & Last Trains) */
+/* Білі блоки контенту */
 .userProfileAchivmentBlock, .userProfileLastTrains, .userProfileComments {
     background-color: #ffffff;
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     color: #333;
-    cursor: default; /* Контент не повинен викликати фон */
 }
 
-/* Заголовки всередині білих карток */
 .userProfileAchivmentTitle, .userProfileTrainsTitle {
     font-size: 28px;
     font-weight: 800;
@@ -1547,8 +1762,7 @@ a {
     padding-bottom: 10px;
 }
 
-/* === СПИСОК ТРЕНУВАНЬ (КОНТЕЙНЕР) === */
-/* ВИКОРИСТОВУЄМО ТІЛЬКИ ЦЕЙ КЛАС ДЛЯ GRID: .userProfileTrainsList */
+/* Сітки тренувань та ачівок */
 .userProfileTrainsList, .userProfileAchivmentsList {
     list-style: none;
     padding: 0;
@@ -1558,76 +1772,26 @@ a {
     gap: 15px;
 }
 
-/* --- КЛІКАБЕЛЬНА КАРТКА ТРЕНУВАННЯ --- */
-.userProfileTrainLink {
-    /* Розміри та Вигляд */
+.userProfileTrainLink, .userProfileAchivmentItem {
     aspect-ratio: 1 / 1;
-    max-height: 200px;
-    max-width: 200px; /* Обмеження розміру */
     background: #f4f7fa;
     border: 1px solid #e1e8ed;
     border-radius: 14px;
     padding: 15px;
-    box-sizing: border-box;
-    /* Layout: Центрування вмісту по вертикалі */
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    /* Текст та Анімація */
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
 }
 
-    .userProfileTrainLink:hover {
+    .userProfileTrainLink:hover, .userProfileAchivmentItem:hover {
         transform: scale(1.03);
         box-shadow: 0 12px 20px rgba(0,0,0,0.15);
-        background: #f4f7fa;
-        border-color: #e1e8ed;
     }
-
-/* --- КАРТКА ДОСЯГНЕННЯ --- */
-/* УНІФІКУЄМО ЗОВНІШНІЙ ВИГЛЯД З userProfileTrainLink */
-.userProfileAchivmentItem {
-    /* Візуальна Уніфікація */
-    background: #f4f7fa;
-    border: 1px solid #e1e8ed;
-    border-radius: 14px;
-    padding: 15px;
-    /* Розміри та Layout */
-    aspect-ratio: 1 / 1;
-    min-width: 150px; /* Щоб помістилося в Grid */
-    max-width: 200px;
-    /* Layout: Центрування вмісту по вертикалі */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: default; /* Це li, а не клікабельне посилання */
-}
-
-    /* ЕФЕКТ НАВЕДЕННЯ (Уніфіковано) */
-    .userProfileAchivmentItem:hover {
-        transform: scale(1.03);
-        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
-        border-color: #e1e8ed;
-    }
-
-/* --- ВНУТРІШНІ ЕЛЕМЕНТИ АЧІВОК (Фікс перенесення) --- */
-.achievementContent {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    word-wrap: break-word; /* Дозволяємо перенос */
-}
 
 .achievementIcon {
     width: 60px;
@@ -1636,323 +1800,313 @@ a {
     margin-bottom: 8px;
 }
 
-.achievementText {
-    width: 100%;
-}
-
 .achievementName {
     font-weight: 700;
-    display: block; /* Забезпечує перехід на новий рядок */
     font-size: 14px;
-    word-wrap: break-word;
     color: #444;
 }
 
 .achievementDate {
-    display: block; /* Забезпечує перехід на новий рядок */
     font-size: 12px;
     color: #888;
 }
 
-/* === ITEM PICKER STYLES === */
+/* Item Picker Modal (Specific to Profile Edit) */
 #itemPickerOverlay {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 40vh;
-    background: #222; /* Темніший, щоб виділявся */
+    height: 45vh;
+    background: #1a1a1a;
     color: white;
     display: none;
-    z-index: 1000;
-    padding: 16px;
-    box-sizing: border-box;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+    z-index: 3000;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+    border-top: 1px solid #333;
+    flex-direction: column;
 }
 
 #itemPickerHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    flex-wrap: wrap; /* Дозволяє кнопкам перейти на новий рядок */
+    padding: 15px 25px;
+    background: #222;
+    border-bottom: 1px solid #333;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    height: 70px;
+    box-sizing: border-box;
+    position: relative;
 }
-
-#pickerTabs {
-    display: flex;
-    gap: 10px;
-    margin: 10px 0;
-}
-
-.pickerTabBtn {
-    padding: 6px 12px;
-    background: #444;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    color: white;
-    transition: background 0.2s;
-}
-
-    .pickerTabBtn.active {
-        background: #2b8be6;
-    }
 
 #itemPickerList {
+    flex: 1;
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    justify-content: flex-start;
-    padding: 10px 0;
+    gap: 20px;
+    padding: 30px;
     overflow-y: auto;
-    max-height: calc(40vh - 80px); /* Adjust based on header height */
 }
 
 .pickerItem {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
     object-fit: cover;
-    border: 3px solid transparent;
-    border-radius: 8px;
+    border: 3px solid #333;
+    border-radius: 12px;
+    background: #000;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
 }
 
     .pickerItem.selected {
-        border-color: #2b8be6;
-        transform: scale(1.05);
-        box-shadow: 0 0 12px rgba(43, 139, 230, 0.7);
+        border-color: var(--gym-orange);
+        transform: scale(1.1);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
     }
 
-.titleItem {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 120px;
-    height: 50px;
-    padding: 0 15px;
-    border: 3px solid #ccc;
-    border-radius: 8px;
-    background-color: #fff;
+/* ==========================================================================
+   3. INVENTORY STYLES (Тільки для сторінки Інвентарю)
+   ========================================================================== */
+.inventory-page-wrapper {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: var(--gym-page-bg);
+    min-height: 80vh;
+}
+
+.inventory-section {
+    margin-bottom: 50px;
+}
+
+.inventory-section-title {
+    font-size: 28px;
+    font-weight: 800;
     color: #333;
-    font-weight: bold;
-    cursor: pointer;
-    box-sizing: border-box;
-    transition: all 0.2s;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    border-left: 5px solid var(--gym-orange);
+    padding-left: 15px;
 }
 
-    .titleItem.selected {
-        border-color: #2b8be6;
-        background-color: #d0e4ff;
-        box-shadow: 0 0 8px rgba(43, 139, 230, 0.4);
-    }
-
-/* === MEDIA QUERIES === */
-@media (max-width: 900px) {
-    .userProfileCustoms {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        padding: 20px;
-    }
-
-    .userProfileAvatarBlock {
-        width: 220px;
-        height: 220px;
-    }
-
-    .avatarImage {
-        width: 80%;
-        height: 80%;
-        top: 10%;
-        left: 10%;
-    }
-
-    .userProfileNameView {
-        font-size: 32px;
-    }
-
-    .userProfileAchivmentBlock, .userProfileLastTrains {
-        padding: 20px;
-    }
-}
-
-/* Встановлюємо курсор за замовчуванням на всіх основних блоках контенту */
-.userProfileCustoms,
-.userProfileAchivmentBlock,
-.userProfileLastTrains {
-    cursor: default;
-}
-
-/* Переконаємося, що інтерактивні елементи всередині цих блоків мають pointer */
-.userProfileEditButton,
-.userProfileTrain,
-.userProfileAchivmentItem,
-.userProfileTitleView[data-edit-type="title"], /* Щоб виділення титулу працювало */
-.userProfileAvatarBlock[data-edit-type="avatar-setup"] {
-    cursor: pointer;
-}
-
-/*              Inventory               */
-.InventoryContainer {
-    width: 92%;
-    margin: 2% 4%;
-}
-.InventoryBlock{
-
-}
-.InventoryTitle{
-    font-size: 72px;
-    color: var(--TitleColor);
-}
-.Inventory {
+.inventory-grid {
     display: flex;
-    overflow-y: hidden;
-    overflow-x: scroll;
-    height: 220px;
-}
-.UserItem{
-    width: 200px;
-    height: 200px;
-    object-fit:cover;
-    margin-right:30px;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 5px 30px 5px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gym-orange) #e0e0e0;
 }
 
-.TitleBox {
+.inventory-card {
+    flex: 0 0 180px;
+    height: 240px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+    .inventory-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        border-color: var(--gym-orange);
+    }
+
+.inventory-img-container {
+    width: 100%;
+    height: 160px;
+    background: #f4f4f4;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #2c2c2c;
+    padding: 10px;
+}
+
+    .inventory-img-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s;
+    }
+
+.inventory-card:hover .inventory-img-container img {
+    transform: scale(1.1);
+}
+
+.inventory-card-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
+/* Специфічний стиль для карток Титулів */
+.inventory-title-badge {
+    flex: 1;
+    background: #222;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 10px;
+}
+
+.title-preview-box {
+    width: 100%;
+    padding: 20px;
+    background: #222;
     color: white;
     font-weight: bold;
-    font-size: 14px;
+    border-radius: 10px;
+}
+
+/* ==========================================================================
+   4. OPEN CASE STYLES (Тільки для сторінки відкриття кейсу)
+   ========================================================================== */
+.case-opening-page {
     text-align: center;
-    border: 2px solid #444;
-    cursor: default;
+    padding: 40px;
+    background: var(--gym-page-bg);
+    min-height: 80vh;
 }
 
-/*              OpenCase                 */
-
-.roulette-wrapper {
-    position: relative;
-    width: 800px; /* така ж ширина, як у контейнера */
-    margin: 30px auto;
+.case-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 20px;
 }
 
-    /* Червона лінія-маркер, як у прикладі */
-    .roulette-wrapper:before {
-        content: "";
-        position: absolute;
-        border: none;
-        z-index: 5;
-        width: 4px;
-        height: 100%;
-        left: 50%; /* Рівно по центру */
-        transform: translateX(-2px); /* центруємо саму лінію */
-        background: #d16266;
-        border-radius: 2px;
+.case-image-wrapper img {
+    width: 250px;
+    transition: transform 0.3s;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+    .case-image-wrapper img:hover {
+        transform: scale(1.05);
     }
 
+/* Блок з кнопкою */
+.controls-area {
+    width: 100%;
+    max-width: 800px;
+    margin: 30px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Рулетка */
+.roulette-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 40px auto;
+    height: 140px;
+}
+
 .roulette-container {
-    width: 100%; /* 800px */
+    width: 100%;
+    height: 100%;
+    background: #222;
+    border: 4px solid #333;
+    border-radius: 10px;
     overflow: hidden;
-    border: 2px solid #444;
-    border-radius: 8px;
-    background: #1a1a1a;
-    height: 140px; /* Збільшимо висоту для бордюрів */
-    box-sizing: border-box;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
 #roulette-strip {
     display: flex;
-    /* transition заберемо звідси і будемо додавати через JS */
-}
-
-.item {
-    width: 120px;
-    height: 120px; /* робимо квадратним */
-    margin: 6px;
-    text-align: center;
-    color: #eee;
-    background: #2a2a2a;
-    border: 1px solid #555;
-    border-radius: 5px;
-    box-sizing: border-box; /* Важливо для розрахунків */
-    flex-shrink: 0; /* Забороняємо стискання */
-}
-
-    .item img {
-        width: 90px;
-        height: 90px;
-        margin-top: 5px;
-    }
-
-    .item p {
-        font-size: 12px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        margin: 0 5px;
-    }
-
-/* Стилі для рідкісності (номери з твого enum ItemRarity: 
-  Common=0, Uncommon=1, Rare=2, Epic=3, Legendary=4
-*/
-.rarity-0 {
-    border-bottom: 4px solid #9d9d9d;
-}
-/* Common */
-.rarity-1 {
-    border-bottom: 4px solid #6a9649;
-}
-/* Uncommon */
-.rarity-2 {
-    border-bottom: 4px solid #4b69ff;
-}
-/* Rare */
-.rarity-3 {
-    border-bottom: 4px solid #d32ce6;
-}
-/* Epic */
-.rarity-4 {
-    border-bottom: 4px solid #eb4b4b;
-}
-/* Legendary */
-
-
-/* Стилі модального вікна (залишаються твої) */
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    justify-content: center;
     align-items: center;
-    z-index: 100;
+    height: 100%;
+    will-change: transform;
 }
 
-    .modal.hidden {
-        display: none;
-    }
-
-.hidden {
-    display: none;
+.roulette-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background: #eb4b4b;
+    transform: translateX(-50%);
+    z-index: 10;
+    box-shadow: 0 0 10px #eb4b4b;
+    pointer-events: none;
 }
 
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    color: #1a1a1a;
-}
-.drop-image-containter {
+.roulette-item {
+    width: 120px;
+    height: 110px;
+    flex-shrink: 0;
+    margin: 0 6px;
+    background: #1f1f1f;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    border-bottom: 4px solid #444;
+}
+
+    .roulette-item img {
+        width: 65px;
+        height: 65px;
+        object-fit: contain;
+        margin-bottom: 5px;
+    }
+
+    .roulette-item p {
+        font-size: 11px;
+        color: #ccc;
+        margin: 0;
+        max-width: 90%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+/* Кольори рамок в рулетці */
+.rarity-border-0 {
+    border-color: #9d9d9d;
+}
+
+.rarity-border-1 {
+    border-color: #6a9649;
+}
+
+.rarity-border-2 {
+    border-color: #4b69ff;
+}
+
+.rarity-border-3 {
+    border-color: #d32ce6;
+}
+
+.rarity-border-4 {
+    border-color: #eb4b4b;
 }
 
 /* Start page (Home)*/

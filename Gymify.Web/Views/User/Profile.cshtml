@@ -18,7 +18,7 @@
             <div class="userProfileInfoBlock">
                 @if (Model.Editable == true)
                 {
-                    <button class="userProfileEditButton" id="editToggleBtn">Edit</button>
+                        <button class="gym-btn gym-btn-primary" id="editToggleBtn" style="min-width: 140px;">Edit</button>
                 }
                 <div>
                     <span id="levelView" class="userProfileLevelBadge">Level @Model.Level</span>
@@ -40,20 +40,20 @@
                 {
                     foreach (var a in Model.Achievements)
                     {
-                        <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
-                            <div class="achievementContent">
-                                <img src="@a.IconUrl" class="achievementIcon" />
-                                <div class="achievementText">
-                                    <span class="achievementName">@a.Name</span>
-                                    <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
-                                </div>
-                            </div>
-                        </li>
+                                <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
+                                    <div class="achievementContent">
+                                        <img src="@a.IconUrl" class="achievementIcon" />
+                                        <div class="achievementText">
+                                            <span class="achievementName">@a.Name</span>
+                                            <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
+                                        </div>
+                                    </div>
+                                </li>
                     }
                 }
                 else
                 {
-                    <p style="color:#666;">You haven't unlocked any achievements yet.</p>
+                        <p style="color:#666;">You haven't unlocked any achievements yet.</p>
                 }
             </ul>
         </div>
@@ -65,18 +65,18 @@
                 {
                     foreach (var workout in Model.Workouts)
                     {
-                        <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
-                           class="userProfileTrainLink"
-                           title="@workout.CreatedAt.ToString("g")">
+                                <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
+                                   class="userProfileTrainLink"
+                                   title="@workout.CreatedAt.ToString("g")">
 
-                            <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
-                            <small style="font-size:12px; color:#888; margin-top:5px;">@workout.CreatedAt.ToString("g")</small>
-                        </a>
+                                    <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
+                                    <small style="font-size:12px; color:#888; margin-top:5px;">@workout.CreatedAt.ToString("g")</small>
+                                </a>
                     }
                 }
                 else
                 {
-                    <p style="color:#666;">No workouts yet.</p>
+                        <p style="color:#666;">No workouts yet.</p>
                 }
             </ul>
         </div>
@@ -86,12 +86,12 @@
                 <h3 class="ae-section-title ae-mb-20">Comments</h3>
                 @{
                     var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
-                    {
-                        TargetId = Model.UserProfileId,
-                        TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile,
-                        Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
-                        CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
-                    };
+            {
+                TargetId = Model.UserProfileId,
+                TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile,
+                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
+            };
                 }
                 <partial name="_CommentsSection" model="commentsVm" />
             </div>
@@ -102,21 +102,23 @@
 
 <div id="itemPickerOverlay" aria-hidden="true" style="display:none;">
     <div id="itemPickerHeader">
-        <div id="itemPickerTitle">Choose item</div>
+        <div id="itemPickerTitle" style="font-size: 20px; font-weight: bold;">Choose item</div>
 
-        <div id="pickerTabs" style="display:flex; gap:10px; margin: 10px 0;"></div>
+        <div id="pickerTabs" style="display:flex; gap:10px;"></div>
 
-        <div id="uploadContainer" style="margin-left: auto; display:none; align-items:center; gap: 10px;">
-            <input type="file" id="pickerFileUploadInput" accept=".png,.jpg,.jpeg" style="display:none;" />
-            <button id="pickerUploadBtn" class="userProfileEditButton" style="font-size:14px; padding:6px 12px; background:#444;">
-                + Upload
-            </button>
-        </div>
-        <div>
-            <button id="itemPickerCancel" class="userProfileEditButton" style="background:#666; margin-right:8px;">Cancel</button>
-            <button id="itemPickerApply" class="userProfileEditButton" style="background:var(--ButtonColor,#2b8be6);">Apply</button>
+        <div style="display:flex; align-items:center; gap: 10px;">
+            <div id="uploadContainer" style="display:none; align-items:center; gap: 10px;">
+                <input type="file" id="pickerFileUploadInput" accept=".png,.jpg,.jpeg" style="display:none;" />
+                <button id="pickerUploadBtn" class="gym-btn gym-btn-secondary" style="padding: 8px 16px; font-size: 14px;">
+                    + Upload
+                </button>
+            </div>
+
+            <button id="itemPickerCancel" class="gym-btn gym-btn-secondary" style="padding: 8px 16px; font-size: 14px;">Cancel</button>
+            <button id="itemPickerApply" class="gym-btn gym-btn-primary" style="padding: 8px 16px; font-size: 14px;">Apply</button>
         </div>
     </div>
+
     <div id="itemPickerList"></div>
 </div>
 
@@ -156,28 +158,36 @@
 
             document.getElementById('titleView').style.cursor = 'pointer';
             document.getElementById('titleView').title = "Change Title";
+            document.getElementById('titleView').style.borderBottom = "1px dashed #777";
 
             document.getElementById('profileRoot').style.cursor = 'pointer';
             document.getElementById('profileRoot').title = "Change Background";
 
             document.getElementById('avatarBlock').title = "Change Avatar or Frame";
+            document.getElementById('avatarBlock').style.cursor = "pointer";
 
             const btn = document.getElementById('editToggleBtn');
-            if (btn) { btn.innerText = 'Save changes'; btn.style.background = '#ff9f1c'; }
+            if (btn) { 
+                btn.innerText = 'Save changes'; 
+                // Стиль змінюється класами CSS, але текст оновлюємо
+            }
         }
 
         function exitEditMode() {
             isEditMode = false;
             document.getElementById('nameView').style.display = 'block';
             document.getElementById('nameInput').style.display = 'none';
+
             document.getElementById('titleView').style.cursor = 'default';
+            document.getElementById('titleView').style.borderBottom = "none";
+
             document.getElementById('profileRoot').style.cursor = 'default';
+            document.getElementById('avatarBlock').style.cursor = "default";
             document.getElementById('avatarBlock').title = "";
 
             const btn = document.getElementById('editToggleBtn');
-            if (btn) { btn.innerText = 'Edit'; btn.style.background = ''; }
+            if (btn) { btn.innerText = 'Edit'; }
 
-            // Закриваємо пікер, якщо він відкритий
             document.getElementById('itemPickerOverlay').style.display = 'none';
         }
 
@@ -185,7 +195,7 @@
             e.stopPropagation();
         }
 
-        // Блокуємо спливання
+        // Блокуємо спливання, щоб клік по контенту не міняв фон
         document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
         document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
         document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
@@ -223,23 +233,28 @@
             const tabsDiv = document.getElementById('pickerTabs');
             tabsDiv.innerHTML = '';
 
+            // Використовуємо gym-btn класи для табів
             const btnAvatar = document.createElement('button');
             btnAvatar.innerText = 'Avatars';
-            btnAvatar.className = 'pickerTabBtn active';
+            btnAvatar.className = 'gym-btn gym-btn-primary';
+            btnAvatar.style.padding = '6px 12px';
+            btnAvatar.style.fontSize = '14px';
 
             const btnFrame = document.createElement('button');
             btnFrame.innerText = 'Frames';
-            btnFrame.className = 'pickerTabBtn';
+            btnFrame.className = 'gym-btn gym-btn-secondary';
+            btnFrame.style.padding = '6px 12px';
+            btnFrame.style.fontSize = '14px';
 
             btnAvatar.onclick = () => {
-                btnAvatar.classList.add('active');
-                btnFrame.classList.remove('active');
+                btnAvatar.className = 'gym-btn gym-btn-primary';
+                btnFrame.className = 'gym-btn gym-btn-secondary';
                 loadItemsIntoPicker('avatar');
             };
 
             btnFrame.onclick = () => {
-                btnFrame.classList.add('active');
-                btnAvatar.classList.remove('active');
+                btnFrame.className = 'gym-btn gym-btn-primary';
+                btnAvatar.className = 'gym-btn gym-btn-secondary';
                 loadItemsIntoPicker('frame');
             };
 
@@ -251,7 +266,6 @@
 
         // === ЗАВАНТАЖЕННЯ ДАНИХ (Fetch) ===
         async function loadItemsIntoPicker(type) {
-            // Збереження попереднього вибору
             if (pickerCurrentMode === 'avatar') {
                 tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
             } else if (pickerCurrentMode === 'frame') {
@@ -261,9 +275,7 @@
             pickerCurrentMode = type;
             pickerSelectedItemId = null;
 
-            // === ЛОГІКА ПОКАЗУ КНОПКИ ЗАВАНТАЖЕННЯ ===
             const uploadContainer = document.getElementById('uploadContainer');
-            // Показуємо кнопку тільки для аватарів (можна змінити умову за потреби)
             if (type === 'avatar') {
                 uploadContainer.style.display = 'flex';
             } else {
@@ -276,7 +288,7 @@
 
             titleLabel.innerText = 'Choose ' + type;
             list.innerHTML = '<div style="padding:20px;">Loading...</div>';
-            overlay.style.display = 'block';
+            overlay.style.display = 'flex'; // Flex для column layout
 
             try {
                 const resp = await fetch(`/userEquipment?type=${encodeURIComponent(type)}`);
@@ -284,17 +296,12 @@
 
                 list.innerHTML = '';
                 if (!items || items.length === 0) {
-                    list.innerHTML = '<div style="color:#ccc">No items found</div>';
-                    // Не робимо return, щоб користувач міг завантажити свій
+                    list.innerHTML = '<div style="color:#ccc; padding: 20px;">No items found</div>';
                 }
 
-                // Відновлення вибору
                 let activeSelection = { id: null };
-                if (type === 'avatar') {
-                    activeSelection = tempAvatarSelection;
-                } else if (type === 'frame') {
-                    activeSelection = tempFrameSelection;
-                }
+                if (type === 'avatar') activeSelection = tempAvatarSelection;
+                else if (type === 'frame') activeSelection = tempFrameSelection;
 
                 if(items && items.length > 0) {
                     items.forEach(it => {
@@ -304,7 +311,7 @@
 
             } catch (err) {
                 console.error(err);
-                list.innerHTML = '<div style="color:#f88">Error loading items</div>';
+                list.innerHTML = '<div style="color:#f88; padding: 20px;">Error loading items</div>';
             }
         }
 
@@ -315,11 +322,25 @@
 
             if (pickerCurrentMode === 'title') {
                 el = document.createElement('div');
-                el.className = 'titleItem';
+                el.className = 'titleItem'; // Стиль в Global CSS або inline
+                // Додаємо інлайн стиль для TitleItem, бо в CSS його може не бути в розділі Inventory
+                el.style.display = 'inline-flex';
+                el.style.alignItems = 'center';
+                el.style.justifyContent = 'center';
+                el.style.minWidth = '120px';
+                el.style.height = '50px';
+                el.style.padding = '0 15px';
+                el.style.border = '2px solid #333';
+                el.style.borderRadius = '8px';
+                el.style.background = '#000';
+                el.style.color = '#fff';
+                el.style.cursor = 'pointer';
+                el.style.fontWeight = 'bold';
+
                 el.innerText = item.name;
             } else {
                 el = document.createElement('img');
-                el.className = 'pickerItem';
+                el.className = 'pickerItem'; // Це є в CSS
                 el.src = item.url;
             }
 
@@ -327,14 +348,23 @@
 
             if (item.id === activeId) {
                 el.classList.add('selected');
+                // Якщо titleItem, додаємо візуально
+                if(pickerCurrentMode === 'title') el.style.borderColor = '#ff9f1c';
+
                 pickerSelectedItemId = item.id;
                 pickerSelectedItemUrl = item.url;
                 pickerSelectedItemName = item.name;
             }
 
             el.addEventListener('click', () => {
-                list.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
+                list.querySelectorAll('.selected').forEach(x => {
+                    x.classList.remove('selected');
+                    if(pickerCurrentMode === 'title') x.style.borderColor = '#333';
+                });
+
                 el.classList.add('selected');
+                if(pickerCurrentMode === 'title') el.style.borderColor = '#ff9f1c';
+
                 pickerSelectedItemId = item.id;
                 pickerSelectedItemUrl = item.url;
                 pickerSelectedItemName = item.name;
@@ -344,18 +374,16 @@
             return el;
         }
 
-        // === UPLOAD LOGIC (ПРОВІДНИК ТА ЗАВАНТАЖЕННЯ) ===
+        // === UPLOAD LOGIC ===
         const fileInput = document.getElementById('pickerFileUploadInput');
         const uploadBtn = document.getElementById('pickerUploadBtn');
 
         if(uploadBtn && fileInput) {
-            // Клік по кнопці викликає input file
             uploadBtn.addEventListener('click', () => {
                 fileInput.value = '';
                 fileInput.click();
             });
 
-            // Коли файл обрано
             fileInput.addEventListener('change', async () => {
                 const file = fileInput.files[0];
                 if (!file) return;
@@ -365,7 +393,6 @@
 
                 const formData = new FormData();
                 formData.append("file", file);
-                // formData.append("type", pickerCurrentMode); // Якщо потрібно передати тип
 
                 try {
                     const response = await fetch('/Image/UploadFromComponent', {
@@ -375,20 +402,13 @@
 
                     if (response.ok) {
                         const result = await response.json();
+                        const newItem = { id: result.id, url: result.url, name: "Custom Avatar" };
 
-                        const newItem = {
-                            id: result.id,
-                            url: result.url,
-                            name: "Custom Avatar"
-                        };
-
-                        // Очистити повідомлення "No items" якщо є
                         const list = document.getElementById('itemPickerList');
                         if (list.innerHTML.includes('No items')) list.innerHTML = '';
 
-                        // Додати новий елемент та вибрати його
                         const el = createPickerElement(newItem, null);
-                        el.click(); // Авто-вибір
+                        el.click();
                         el.scrollIntoView({ behavior: 'smooth' });
 
                     } else {
@@ -404,18 +424,14 @@
             });
         }
 
-        // === СКИДАННЯ СТАНУ ===
+        // === APPLY & CANCEL ===
         function resetPickerModalState() {
             tempAvatarSelection = { id: null, url: null, name: null };
             tempFrameSelection = { id: null, url: null, name: null };
             pickerSelectedItemId = null;
-            pickerSelectedItemUrl = null;
-            pickerSelectedItemName = null;
-            pickerCurrentMode = null;
             document.getElementById('itemPickerOverlay').style.display = 'none';
         }
 
-        // === APPLY ===
         document.getElementById('itemPickerApply').addEventListener('click', () => {
             if (pickerCurrentMode === 'avatar') {
                 tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
@@ -454,7 +470,7 @@
             }
         }
 
-        // === SAVE / CANCEL PAGE EDIT ===
+        // === SAVE CHANGES TO SERVER ===
         const editBtn = document.getElementById('editToggleBtn');
         if (editBtn) {
             editBtn.addEventListener('click', async (e) => {
@@ -470,8 +486,7 @@
                     if (currentName !== original.name) {
                         const nameData = new FormData();
                         nameData.append('updatedUserName', currentName);
-                        const nameRes = await fetch('/updateUserName', { method: 'POST', body: nameData });
-                        if (!nameRes.ok) throw new Error("Failed to update name");
+                        await fetch('/updateUserName', { method: 'POST', body: nameData });
                     }
 
                     const equipmentPayload = {
@@ -496,18 +511,6 @@
                     editBtn.disabled = false;
                     editBtn.innerText = 'Save changes';
                 }
-            });
-
-            editBtn.addEventListener('dblclick', (e) => {
-                e.stopPropagation();
-                if (!isEditMode) return;
-                document.getElementById('nameInput').value = original.name;
-                document.getElementById('titleView').innerText = original.titleText;
-                document.getElementById('avatarImage').src = original.avatarUrl;
-                document.getElementById('frameImage').src = original.frameUrl;
-                document.getElementById('profileRoot').style.backgroundImage = `url('${original.backgroundUrl}')`;
-                selectedAvatarId = null; selectedFrameId = null; selectedBackgroundId = null; selectedTitleId = null;
-                exitEditMode();
             });
         }
 
