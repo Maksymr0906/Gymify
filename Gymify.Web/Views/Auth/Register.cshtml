@@ -6,29 +6,50 @@
     ViewData["Title"] = "Register";
 }
 
-<form asp-action="Register" method="post" class="authForm">
+<div class="auth-page-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Join us and start your journey</p>
+        </div>
 
-    <label asp-for="Email" class="authText">@Localizer["Email"]</label>
-    <input asp-for="Email" class="authInput" />
-    <span asp-validation-for="Email" class="text-danger"></span>
+        <form asp-action="Register" method="post">
+            <div class="form-group">
+                <label asp-for="Email" class="auth-label">@Localizer["Email"]</label>
+                <input asp-for="Email" class="gym-input" placeholder="name@example.com" />
+                <span asp-validation-for="Email" class="text-danger" style="font-size:12px;"></span>
+            </div>
 
-    <label asp-for="UserName" class="authText">@Localizer["UserName"]</label>
-    <input asp-for="UserName" class="authInput" />
-    <span asp-validation-for="UserName" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="UserName" class="auth-label">@Localizer["UserName"]</label>
+                <input asp-for="UserName" class="gym-input" placeholder="YourNickname" />
+                <span asp-validation-for="UserName" class="text-danger" style="font-size:12px;"></span>
+            </div>
 
-    <label asp-for="Password" class="authText">@Localizer["Password"]</label>
-    <input asp-for="Password" class="authInput" type="password" />
-    <span asp-validation-for="Password" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="Password" class="auth-label">@Localizer["Password"]</label>
+                <input asp-for="Password" class="gym-input" type="password" placeholder="Your password" />
+                <span asp-validation-for="Password" class="text-danger" style="font-size:12px;"></span>
+            </div>
 
-    <label asp-for="ConfirmPassword" class="authText">@Localizer["ConfirmPassword"]</label>
-    <input asp-for="ConfirmPassword" class="authInput" type="password" />
-    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="auth-label">@Localizer["ConfirmPassword"]</label>
+                <input asp-for="ConfirmPassword" class="gym-input" type="password" placeholder="Your password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size:12px;"></span>
+            </div>
 
-    <button type="submit" class="authButton scaleButton">
-        @Localizer["RegisterButton"]
-    </button>
-</form>
+            <button type="submit" class="gym-btn gym-btn-primary w-100 scale-btn" style="margin-top: 10px;">
+                @Localizer["RegisterButton"]
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? 
+            <a asp-action="Login" class="auth-link">Sign in</a>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+        <partial name="_ValidationScriptsPartial" />
 }

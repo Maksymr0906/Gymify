@@ -163,12 +163,13 @@ a {
 
 .gym-btn-primary {
     background-color: var(--gym-orange);
-    color: #000;
+    color: #FFF;
     box-shadow: 0 4px 15px rgba(255, 159, 28, 0.3);
 }
 
     .gym-btn-primary:hover {
         background-color: var(--gym-orange-hover);
+        color: #FFF;
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(255, 159, 28, 0.4);
     }
@@ -395,49 +396,115 @@ a {
     top: 80px; /* Відступ зверху, якщо є фіксоване меню */
 }
 
-/*              Auth            */
-.authForm {
-    height: 80vh;
-    padding: 100px;
+/* ==========================================================================
+   AUTH PAGES (Login / Register)
+   ========================================================================== */
+.auth-page-wrapper {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    color: var(--TitleColor);
+    min-height: 80vh;
+    background-color: var(--gym-page-bg);
+    padding: 20px;
 }
 
-.authText {
-    font-size: 24px;
-    font-weight: 500;
-}
-
-.authInput {
-    font-size: 20px;
-    font-weight: 400;
-    width: 350px;
-    border: 1.5px solid;
-    border-radius: 15px;
-    padding: 5px 15px;
-}
-
-.authButton {
-    width: 250px;
-    margin-top: 15px;
-    font-size: 24px;
-    background: white;
+.auth-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
     border-radius: 20px;
-    padding: 2px;
-    background-color: var(--ButtonColor);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    text-align: center;
 }
 
-.authAddButton {
-    width: 200px;
-    margin-top: 15px;
-    font-size: 16px;
-    background: white;
-    border-radius: 18px;
-    padding: 2px;
-    background-color: var(--ButtonColor);
+.auth-header {
+    margin-bottom: 30px;
 }
+
+.auth-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.auth-subtitle {
+    color: #888;
+    font-size: 14px;
+}
+
+/* Inputs */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.auth-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #555;
+}
+
+.gym-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    background: #f9f9f9;
+    color: #333;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Важливо, щоб padding не ламав ширину */
+}
+
+    .gym-input:focus {
+        border-color: var(--gym-orange);
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(255, 159, 28, 0.1);
+    }
+
+/* Checkbox specific */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--gym-orange);
+}
+
+.form-check-label {
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+}
+
+/* Footer links */
+.auth-footer {
+    margin-top: 25px;
+    font-size: 14px;
+    color: #666;
+}
+
+.auth-link {
+    color: var(--gym-orange);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+
 /*                                  Leaderboard                                  */
 
 /* --- LAYOUT & CONTAINER --- */
@@ -677,162 +744,164 @@ a {
 }
 
 
-/*                                          Home                                            */
-.homeTop {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 400px;
-    margin: 50px 5% 0 5%;
+/* ==========================================================================
+   DASHBOARD / HOME PAGE
+   ========================================================================== */
+.dashboard-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* --- Top Section (Level & Progress) --- */
+.dashboard-header {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px;
     text-align: center;
-}
-
-.homeTitle {
-    font-size: 42px;
-    font-weight: 600;
-}
-
-.progressBarContainer {
-    width: 80%;
-    max-width: 500px;
-    height: 20px;
-    background-color: #e0e0e0;
-    border-radius: 10px;
-    margin-top: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+    position: relative;
     overflow: hidden;
 }
 
-.progressBarFill {
-    height: 100%;
-    background-color: var(--ButtonColor);
+.level-badge {
+    display: inline-block;
+    background: var(--gym-orange);
+    color: #FFF ;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.dashboard-subtitle {
+    color: #777;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+/* Progress Bar */
+.xp-progress-container {
+    background: #f0f0f0;
+    height: 20px;
     border-radius: 10px;
-    transition: width 0.5s ease-out;
+    margin: 0 auto 10px auto;
+    max-width: 600px;
+    overflow: hidden;
+    position: relative;
 }
 
-.homeXPText {
-    font-size: 16px;
+.xp-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gym-orange) 0%, #ffb042 100%);
+    border-radius: 10px;
+    transition: width 0.6s ease-out;
+}
+
+.xp-text {
+    font-weight: 700;
     color: #555;
-    margin-top: 5px;
+    font-size: 14px;
+    margin-bottom: 30px;
 }
 
-
-.homeText {
-    font-size: 24px;
-    margin: 20px 0;
-}
-
-.homeButtonContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.homeButton {
-    font-size: 28px;
-    border-radius: 15px;
-    padding: 12px 25px;
-    background-color: var(--ButtonColor);
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.2s;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.scaleButton:hover {
-    transform: scale(1.05);
-}
-
-.homeBott {
-    margin-top: 40px;
-    padding: 30px 5%;
-    text-align: left;
-}
-
-.homeWorkouts {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    margin-top: 20px;
-    gap: 50px;
-}
-
-.homeWorkout {
-    flex: 0 0 auto;
-    aspect-ratio: 1 / 1;
-    width: calc(25% - 37.5px); /* Розрахунок: (100%/4) мінус відступи */
-    max-width: 300px; /* Обмежуємо максимальний розмір на широких екранах */
-    min-width: 200px; /* Щоб картка не була занадто малою */
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
-    border-radius: 30px;
+/* Action Buttons */
+.dashboard-actions {
     display: flex;
     justify-content: center;
-    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* --- Bottom Section (Last Workouts) --- */
+.dashboard-section-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+    border-left: 5px solid var(--gym-orange);
+    padding-left: 15px;
+    color: #333;
+}
+
+.workouts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Workout Card */
+.workout-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
     text-decoration: none;
-    color: inherit;
-    padding: 15px;
-    box-sizing: border-box;
-    transition: transform 0.2s ease-out;
+    color: #333;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    position: relative;
     overflow: hidden;
 }
 
-    .homeWorkout:hover {
-        transform: scale(1.05);
+    .workout-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+        border-color: var(--gym-orange);
     }
 
-.homeWorkoutContent {
+.workout-card-header {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 100%;
-    justify-content: center;
-    height: 100%;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 10px;
 }
 
-.homeWorkoutName {
-    font-size: 26px;
-    font-weight: 600;
+.workout-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
-.homeWorkoutDescription {
-    font-size: 16px; /* <-- Збільшено */
-    color: #555;
-    margin-top: 8px; /* <-- Відступ від назви */
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* <-- ДОЗВОЛЕНО 2 РЯДКИ */
-    -webkit-box-orient: vertical;
+.workout-xp-badge {
+    background: #222;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
 }
 
-.homeWorkoutXP {
-    font-size: 18px;
-    color: #333;
-    margin-top: 10px; /* <-- Відступ від опису */
-}
-
-.homeWorkoutDate {
-    font-size: 16px;
-    color: #666;
-    margin-top: 5px;
-}
-
-.homeWorkoutDescription {
+.workout-desc {
     font-size: 14px;
-    color: #555;
-    margin-top: 8px;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1; /* Push date to bottom */
+}
+
+.workout-date {
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
+    text-align: right;
+    margin-top: auto;
 }
 
 /*              Workout             */
@@ -914,176 +983,174 @@ a {
     font-size: 30px;
 }
 
-/* ==================================================================== */
-/* === WORKOUTS FEED: ОПТИМІЗОВАНІ СТИЛІ === */
-/* ==================================================================== */
-
-/* Загальний контейнер для стрічки */
-#workout-feed-container {
-    padding: 0 10px;
+/* ==========================================================================
+   WORKOUTS FEED STYLES
+   ========================================================================== */
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-/* --- ФІЛЬТРИ ТА КЕРУВАННЯ --- */
-#filters-container {
-    background-color: #ffffff;
-    padding: 15px 20px;
+.feed-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #333;
+    margin: 0;
+}
+
+/* Filters Bar */
+.filters-bar {
+    background: #fff;
+    padding: 15px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-bottom: 30px;
 }
 
-#filter-type, #sort-type, #author-search {
+.gym-select, .gym-search-input {
+    padding: 10px 15px;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
     transition: border-color 0.2s;
-    font-size: 16px;
-    box-shadow: none;
-    padding: 6px 10px;
+    background: #f9f9f9;
 }
 
-    #filter-type:focus, #sort-type:focus, #author-search:focus {
-        border-color: var(--ButtonColor);
-        outline: none;
+    .gym-select:focus, .gym-search-input:focus {
+        border-color: var(--gym-orange);
+        background: #fff;
     }
 
-/* --- КАРТКА ДНЯ (day-entry) --- */
+.gym-search-input {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Day Grouping */
 .day-entry {
-    background-color: #ffffff;
-    margin-bottom: 20px;
-    border-radius: 15px;
+    margin-bottom: 30px;
+    background: #fff;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    border: 1px solid #eee;
 }
 
-/* --- ЗАГОЛОВОК ДНЯ (day-header) --- */
+/* === ЗМІНА 1: Помаранчеві заголовки днів === */
 .day-header {
-    padding: 15px 20px;
-    font-weight: 600;
-    font-size: 20px;
-    color: #222;
+    background: var(--gym-orange); /* Було #222 */
+    color: #fff; /* Білий текст */
+    padding: 12px 20px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
-    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Легка тінь для читабельності */
 }
 
-/* --- СПИСОК ТРЕНУВАНЬ (workout-list) --- */
-/* УВАГА: display: none контролюється функціями slideUp/slideDown */
+    .day-header:hover {
+        background: var(--gym-orange-hover); /* Трохи темніший помаранчевий при наведенні */
+    }
+
+/* Якщо активна теплова карта на заголовку (пастельний фон), робимо текст темним */
+.heatmap-day-active {
+    color: #333 !important;
+    text-shadow: none;
+    font-weight: 800;
+    /* Фон задається через JS, тому тут ми його не чіпаємо */
+}
+
+/* Workout Row Card */
 .workout-list {
-    display: none;
+    padding: 0;
 }
 
-/* --- КАРТКА ТРЕНУВАННЯ (workout-card-row) - РЯДКОВИЙ ВИГЛЯД --- */
 .workout-card-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
+    padding: 15px 20px;
     text-decoration: none;
-    color: inherit;
-    font-size: 16px;
-    border-bottom: 1px solid #eee;
-    width: 100%;
-    box-sizing: border-box;
-    transition: background-color 0.15s, filter 0.15s; /* Додаємо transition для filter */
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    /* Додаємо плавний перехід для фільтру */
+    transition: filter 0.2s ease, background-color 0.2s ease;
 }
 
     .workout-card-row:last-child {
         border-bottom: none;
     }
 
+    /* === ЗАТЕМНЕННЯ ПРИ НАВЕДЕННІ === */
     .workout-card-row:hover {
-        /* Цей колір може працювати, коли немає heatmap, але ми покладаємося на filter */
-        background-color: #FFFFFF;
-        /* 🔥 КЛЮЧОВИЙ РЯДОК: Затемнюємо елемент на 10% при наведенні */
-        filter: brightness(0.95);
+        /* 1.0 = оригінал (100% яскравості)
+       0.9 = трохи темніше (90% яскравості) 
+       Це працює поверх БУДЬ-ЯКОГО кольору (білого або зеленого)
+    */
+        filter: brightness(0.98);
+        background-color: #ffffff;
+        /* Якщо хочеш ще сильніше затемнення, став 0.85 */
     }
 
-/* ЛІВИЙ БЛОК: Назва + XP */
 .card-left-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    flex-grow: 1;
-    min-width: 0;
-    padding-right: 20px;
+    gap: 4px;
 }
 
 .workout-name {
-    padding 20px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
 }
 
 .workout-xp {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ButtonColor);
-    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff; /* Білий текст на помаранчевому фоні виглядає краще */
+    background: var(--gym-orange);
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    width: fit-content;
 }
 
-/* ПРАВИЙ БЛОК: Дата та Автор */
 .card-right-meta {
+    text-align: right;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    font-size: 13px;
-    color: #777;
-    white-space: nowrap;
+    gap: 2px;
 }
 
 .workout-meta-date {
-    font-weight: 500;
-    color: #555;
+    font-size: 12px;
+    color: #999;
 }
 
 .workout-meta-author {
-    margin-top: 2px;
-}
-
-/* Стилі, що застосовуються, коли активовано фільтр "Show my workouts" */
-
-/* 1. Стилі для заголовка дня (постійні) */
-.heatmap-day-active {
-    /* Колір тексту для фону Heatmap */
-    color: #333 !important;
-    /* !important тут потрібен, якщо інший CSS має вищий пріоритет */
-}
-
-/* 2. Стилі для рядка тренування (постійні) */
-.heatmap-workout-active {
-    /* Постійні стилі Heatmap */
-    color: #333 !important;
-    padding: 15px !important; /* Мінімум для відображення інлайн-XP */
-    border-radius: 4px;
-}
-
-/* --- КНОПКА "LOAD MORE" --- */
-#load-more-btn {
-    width: 100%;
-    max-width: 400px;
-    display: block;
-    margin: 30px auto 50px auto !important;
-    padding: 15px 20px;
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 600;
-    color: #ffffff;
-    background-color: var(--ButtonColor);
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: #555;
 }
 
-    #load-more-btn:hover {
-        background-color: #ff8c00;
-        transform: scale(1.02);
-    }
+/* Heatmap Active Row */
+.heatmap-workout-active {
+    color: #222 !important;
+}
 
 
 /*          CreateWorkout           */
@@ -2298,13 +2365,104 @@ a {
     font-weight: 600;
 }
 
-/* Start page (Home)*/
-
-.start-page-section {
+/* ==========================================================================
+   START PAGE (Hero Section)
+   ========================================================================== */
+.hero-wrapper {
     position: relative;
-    padding: 200px 0px;
-    background-image: linear-gradient( 103deg, rgba(18, 18, 17, 0) 0%, rgba(18, 18, 17, 0.4) 50%, rgba(18, 18, 17, 0.75) 85%, rgba(18, 18, 17, 0.9) 100% ), url("/Images/startPageCover.jpg");
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: cover;
+    height: 100vh; /* На всю висоту екрана */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* Тимчасовий фон, заміни url на своє зображення, якщо треба */
+    background: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop') no-repeat center center/cover;
+    overflow: hidden;
+}
+
+/* Затемнення фону, щоб текст читався */
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(26,26,26,0.7) 100%);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 20px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-title {
+    font-size: 4rem; /* Дуже великий текст */
+    font-weight: 900;
+    color: #ffffff;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+    .hero-title span {
+        color: var(--gym-orange); /* Виділяємо частину тексту помаранчевим, якщо захочеш */
+    }
+
+.hero-description {
+    font-size: 1.25rem;
+    color: #cccccc;
+    margin-bottom: 40px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Спеціальний стиль для великих кнопок на головній */
+.hero-btn {
+    padding: 15px 40px;
+    font-size: 18px;
+    min-width: 200px;
+}
+
+/* Анімація появи */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптив для мобільних */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .hero-btn {
+        width: 100%;
+    }
 }

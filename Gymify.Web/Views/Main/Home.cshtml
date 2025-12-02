@@ -5,60 +5,65 @@
     ViewData["Title"] = Localizer["Title"];
 }
 
-<div class="text-center">
+<div class="dashboard-wrapper">
 
-    <div class="homeTop">
-        <div class="homeTitle">@Localizer["LevelText"] @Model.Level</div>
+    <div class="dashboard-header">
+        <span class="level-badge">@Localizer["LevelText"] @Model.Level</span>
 
-        <div class="progressBarContainer">
-            <div class="progressBarFill" style="width: @Math.Round(Model.ProgressPercentage)%;"></div>
+        <h1 class="dashboard-title">Keep crushing it!</h1>
+        <p class="dashboard-subtitle">@Localizer["KeepGoing"]</p>
+
+        <div class="xp-progress-container">
+            <div class="xp-progress-fill" style="width: @Math.Round(Model.ProgressPercentage)%;"></div>
         </div>
-
-        <div class="homeXPText">
+        <div class="xp-text">
             @Model.XpEarnedInThisLevel / @Model.XpNeededForThisLevel XP
         </div>
 
-        <div class="homeText">@Localizer["KeepGoing"]</div>
-
-        <div class="homeButtonContainer">
-            <a class="homeButton scaleButton" href="/Workout/Create">@Localizer["CreateWorkout"]</a>
-            <a class="homeButton scaleButton" href="/WorkoutsFeed">@Localizer["Workouts"]</a>
+        <div class="dashboard-actions">
+            <a href="/Workout/Create" class="gym-btn gym-btn-primary scale-btn">
+                @Localizer["CreateWorkout"]
+            </a>
+            <a href="/WorkoutsFeed" class="gym-btn gym-btn-secondary scale-btn">
+                @Localizer["Workouts"]
+            </a>
         </div>
     </div>
 
-    <div class="homeBott">
-        <h2 class="homeTitle">@Localizer["LastTrainings"]</h2>
+    <div>
+        <h2 class="dashboard-section-title">@Localizer["LastTrainings"]</h2>
 
-        <div class="homeWorkouts" id="last-workouts-container">
-
+        <div class="workouts-grid" id="last-workouts-container">
             @if (Model.LastWorkouts.Any())
             {
                 @foreach (var workout in Model.LastWorkouts)
                 {
-                    <a class="homeWorkout"
-                       asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
-                       title="@workout.CreatedAt.ToString("g")"
-                       data-workout-xp="@workout.TotalXP">
+                            <a class="workout-card"
+                               asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
+                               title="@workout.CreatedAt.ToString("g")"
+                               data-workout-xp="@workout.TotalXP">
 
-                        <div class="homeWorkoutContent">
-                            <span class="homeWorkoutName">@workout.Name</span>
+                                <div class="workout-card-header">
+                                    <span class="workout-name">@workout.Name</span>
+                                    <span class="workout-xp">+@workout.TotalXP XP</span>
+                                </div>
 
-                            <p class="homeWorkoutDescription">
-                                @workout.Description
-                            </p>
+                                <p class="workout-desc">
+                            @workout.Description
+                                </p>
 
-                            <span class="homeWorkoutXP">+@workout.TotalXP XP</span>
-
-                            <small class="homeWorkoutDate">
-                                @workout.CreatedAt.ToString("dd MMM yyyy")
-                            </small>
-                        </div>
-                    </a>
+                                <div class="workout-date">
+                            @workout.CreatedAt.ToString("dd MMM yyyy")
+                                </div>
+                            </a>
                 }
             }
             else
             {
-                <p>@Localizer["NoWorkouts"]</p>
+                    <div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 40px;">
+                        <p style="font-size: 18px;">@Localizer["NoWorkouts"]</p>
+                        <a href="/Workout/Create" class="gym-btn gym-btn-primary" style="margin-top:10px;">Start your first!</a>
+                    </div>
             }
         </div>
     </div>
@@ -66,36 +71,58 @@
 </div>
 
 @section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function getXPColor(xp, min, max) {
-                if (max === min) return 'hsl(120, 75%, 90%)';
-                const percentage = (xp - min) / (max - min);
-                const hue = percentage * 120;
-                return `hsl(${hue}, 75%, 90%)`;
-            }
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
 
-            function applyHomeHeatmap() {
-                const container = document.getElementById('last-workouts-container');
-                if (!container) return;
-                const workouts = container.querySelectorAll('a[data-workout-xp]');
-                if (workouts.length === 0) return;
+                // === HEATMAP LOGIC (RED -> GREEN) ===
+                function getXPColor(xp, min, max) {
+                    // Якщо всі тренування мають однаковий XP або це одне тренування -> даємо зелений
+                    if (max === min) return 'hsl(120, 80%, 90%)'; 
 
-                let minXP = Infinity, maxXP = -Infinity;
-                workouts.forEach(w => {
-                    const xp = parseInt(w.dataset.workoutXp, 10);
-                    if (!isNaN(xp)) { minXP = Math.min(minXP, xp); maxXP = Math.max(maxXP, xp); }
-                });
-                if (minXP === Infinity) return;
+                    // Нормалізуємо значення від 0 до 1
+                    const percentage = (xp - min) / (max - min);
 
-                workouts.forEach(w => {
-                    const xp = parseInt(w.dataset.workoutXp, 10);
-                    if (!isNaN(xp)) w.style.backgroundColor = getXPColor(xp, minXP, maxXP);
-                    w.style.color = '#333';
-                });
-            }
+                    // HSL Hue: 
+                    // 0 = Червоний (мало XP)
+                    // 60 = Жовтий (середньо)
+                    // 120 = Зелений (багато XP)
+                    const hue = percentage * 120;
 
-            applyHomeHeatmap();
-        });
-    </script>
+                    // Повертаємо пастельний колір (Lightness 90%, Saturation 80%)
+                    // Щоб текст залишався читабельним
+                    return `hsl(${hue}, 80%, 90%)`;
+                }
+
+                function applyHomeHeatmap() {
+                    const container = document.getElementById('last-workouts-container');
+                    if (!container) return;
+
+                    const workouts = container.querySelectorAll('a[data-workout-xp]');
+                    if (workouts.length === 0) return;
+
+                    let minXP = Infinity, maxXP = -Infinity;
+
+                    workouts.forEach(w => {
+                        const xp = parseInt(w.dataset.workoutXp, 10);
+                        if (!isNaN(xp)) { 
+                            minXP = Math.min(minXP, xp); 
+                            maxXP = Math.max(maxXP, xp); 
+                        }
+                    });
+
+                    if (minXP === Infinity) return;
+
+                    workouts.forEach(w => {
+                        const xp = parseInt(w.dataset.workoutXp, 10);
+                        if (!isNaN(xp)) {
+                            w.style.backgroundColor = getXPColor(xp, minXP, maxXP);
+                            // Оскільки фон пастельний, текст залишаємо темним
+                            w.style.color = '#333';
+                        }
+                    });
+                }
+
+                applyHomeHeatmap();
+            });
+        </script>
 }

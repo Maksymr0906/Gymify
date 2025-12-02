@@ -7,39 +7,42 @@
     ViewData["Title"] = "WorkoutsFeed";
 }
 
-<h2>@Localizer["Workouts Feed"]</h2>
+<div class="dashboard-wrapper"> <div class="feed-header">
+        <h2 class="feed-title">@Localizer["Workouts Feed"]</h2>
+    </div>
 
-<div id="filters-container" style="margin-bottom: 20px">
-    <div style="display: flex; gap: 20px; align-items: center">
-        <select id="filter-type" style="padding: 6px 10px">
+    <div class="filters-bar" id="filters-container">
+        <select id="filter-type" class="gym-select">
             <option value="mine">@Localizer["Show my workouts"]</option>
             <option value="all">@Localizer["Show all workouts"]</option>
         </select>
 
         <input type="text"
                id="author-search"
+               class="gym-search-input"
                placeholder="@Localizer["Search by author"]"
-               style="padding: 6px 10px; display: none; width: 200px" />
+               style="display: none;" />
 
-        <select id="sort-type" style="padding: 6px 10px">
+        <select id="sort-type" class="gym-select">
             <option value="desc">@Localizer["The newest first"]</option>
             <option value="asc">@Localizer["The oldest first"]</option>
         </select>
     </div>
-</div>
 
-<div id="workout-feed-container">
-    @await Html.PartialAsync("_WorkoutsList", Model)
-</div>
+    <div id="workout-feed-container">
+        @await Html.PartialAsync("_WorkoutsList", Model)
+    </div>
 
-<button id="load-more-btn" data-page="1" style="margin-top: 20px">
-    @Localizer["Load more"]
-</button>
+    <button id="load-more-btn" data-page="1" class="gym-btn gym-btn-secondary w-100" style="margin-top: 20px">
+        @Localizer["Load more"]
+    </button>
+
+</div>
 
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // === ЗМІННІ ЛОКАЛІЗАЦІЇ ДЛЯ JS (Щоб не ламалась логіка) ===
+            // === ЗМІННІ ЛОКАЛІЗАЦІЇ ДЛЯ JS ===
             const localizedWorkoutsLabel = '@Localizer["Workouts"]';
             const localizedXPLabel = '@Localizer["XP"]';
             // ==========================================================
@@ -52,19 +55,21 @@
 
             let debounceTimer;
 
+            // === HEATMAP LOGIC (Red -> Yellow -> Green) ===
             function getXPColor(xp, min, max) {
-                if (max <= min) {
-                    return "hsl(120, 75%, 90%)"; 
-                }
+                if (max <= min) return "hsl(120, 75%, 90%)"; // Default green-ish
                 const percentage = (xp - min) / (max - min);
-                const hue = percentage * 120;
-                return `hsl(${hue}, 75%, 90%)`;
+                // Hue: 0 (Red) -> 120 (Green)
+                const hue = percentage * 120; 
+                // Lightness 90% for pastel background
+                return `hsl(${hue}, 85%, 92%)`;
             }
 
             function applyHeatmap() {
                 const onlyMy = filterType.value === "mine";
                 const allDayEntries = feed.querySelectorAll(".day-entry");
 
+                // Reset styles
                 allDayEntries.forEach((day) => {
                     const header = day.querySelector(".day-header");
                     if (header) {
@@ -74,13 +79,10 @@
                     day.querySelectorAll("a[data-workout-xp]").forEach((workout) => {
                         workout.classList.remove("heatmap-workout-active");
                         workout.style.backgroundColor = "";
-                        workout.style.cssText = "";
                     });
                 });
 
-                if (!onlyMy) {
-                    return;
-                }
+                if (!onlyMy) return;
 
                 const daysWithXp = Array.from(allDayEntries).filter((day) => day.dataset.dayXp);
                 if (daysWithXp.length === 0) return;
@@ -159,8 +161,7 @@
                     loadMoreBtn.dataset.page = 1;
 
                     if (html.trim().length === 0) {
-                        // Тут можна додати ключ локалізації для "Не знайдено" якщо є
-                        feed.innerHTML = '<p style="text-align:center;">Workouts not found.</p>';
+                        feed.innerHTML = '<p style="text-align:center; color:#777; padding:20px;">No workouts found.</p>';
                         loadMoreBtn.style.display = "none";
                     } else {
                         loadMoreBtn.style.display = "block";
@@ -197,11 +198,7 @@
                     temp.innerHTML = html;
 
                     const newDayEntries = temp.querySelectorAll('.day-entry');
-
-                    // === ОНОВЛЕНО: Динамічні Regex на основі поточної мови ===
-                    // Створюємо RegExp, використовуючи значення з сервера: /Workouts\s*:\s*(\d+)/i
                     const countRegex = new RegExp(localizedWorkoutsLabel + '\\s*:\\s*(\\d+)', 'i');
-                    // =========================================================
 
                     newDayEntries.forEach(newDay => {
                         const dayId = newDay.dataset.dayId;
@@ -222,12 +219,9 @@
                                 const totalXP = existingDayXP + newDayXP;
 
                                 const existingHeaderSpan = existingDay.querySelector('.day-header span:nth-child(2)');
-
-                                // 1. Отримуємо текст
                                 const existingText = existingHeaderSpan.textContent;
                                 const newText = newDay.querySelector('.day-header span:nth-child(2)').textContent;
 
-                                // 2. Шукаємо числа через наш динамічний Regex
                                 const existingMatch = existingText.match(countRegex);
                                 const existingWorkoutCount = existingMatch ? parseInt(existingMatch[1], 10) : 0;
 
@@ -236,7 +230,6 @@
 
                                 const totalWorkoutCount = existingWorkoutCount + newWorkoutCountInBatch;
 
-                                // Переміщуємо тренування
                                 while (newWorkoutList.firstChild) {
                                     existingWorkoutList.appendChild(newWorkoutList.firstChild);
                                 }
@@ -246,14 +239,10 @@
                                 }
 
                                 if (existingHeaderSpan) {
-                                    // Формуємо новий рядок, використовуючи локалізовані змінні
                                     let newHtml = `${localizedWorkoutsLabel}: ${totalWorkoutCount}`;
-
                                     if (onlyMy) {
-                                        // Додаємо локалізований XP
                                         newHtml += ` | ${localizedXPLabel}: ${totalXP}`;
                                     }
-
                                     existingHeaderSpan.innerHTML = newHtml;
                                 }
                             }
@@ -275,7 +264,6 @@
                 }
             }
 
-            // ... (Інші обробники подій залишаються без змін) ...
             filterType.addEventListener("change", function () {
                 if (filterType.value === "all") {
                     authorSearch.style.display = "block";
@@ -293,73 +281,78 @@
             });
             loadMoreBtn.addEventListener("click", loadMoreWorkouts);
 
-            // Анімація слайду
+            // Accordion Animation
             feed.addEventListener("click", function (event) {
                 const header = event.target.closest(".day-header");
                 if (header) {
                     const workoutList = header.nextElementSibling;
                     if (!workoutList) return;
-                    if (workoutList.style.display === "block") {
-                        slideUp(workoutList, 300);
-                    } else {
+                    if (workoutList.style.display === "none") {
                         slideDown(workoutList, 300);
+                    } else {
+                        // Default state is usually visible, so we check if it is not explicitly none
+                        // However, inline style might be empty initially.
+                        // Better logic: check computed style
+                        if (window.getComputedStyle(workoutList).display !== "none") {
+                             slideUp(workoutList, 300);
+                        } else {
+                             slideDown(workoutList, 300);
+                        }
                     }
                 }
             });
             
-            // Функції анімації slideUp/slideDown (можна залишити як були)
             function slideUp(element, duration) {
-                 element.style.height = element.offsetHeight + "px";
-                    element.style.transitionProperty = "height, margin, padding";
-                    element.style.transitionDuration = duration + "ms";
-                    element.style.boxSizing = "border-box";
-                    element.offsetHeight; // force repaint
-                    element.style.overflow = "hidden";
-                    element.style.height = 0;
-                    element.style.paddingTop = 0;
-                    element.style.paddingBottom = 0;
-                    element.style.marginTop = 0;
-                    element.style.marginBottom = 0;
-                    window.setTimeout(function () {
-                        element.style.display = "none";
-                        element.style.removeProperty("height");
-                        element.style.removeProperty("padding-top");
-                        element.style.removeProperty("padding-bottom");
-                        element.style.removeProperty("margin-top");
-                        element.style.removeProperty("margin-bottom");
-                        element.style.removeProperty("overflow");
-                        element.style.removeProperty("transition-duration");
-                        element.style.removeProperty("transition-property");
-                    }, duration);
-            }
-            function slideDown(element, duration) {
-                 element.style.removeProperty("display");
-                    let display = window.getComputedStyle(element).display;
-                    if (display === "none") {
-                        display = "block";
-                    }
-                    element.style.display = display;
-                    let height = element.offsetHeight;
-                    element.style.height = 0;
-                    element.style.paddingTop = 0;
-                    element.style.paddingBottom = 0;
-                    element.style.marginTop = 0;
-                    element.style.marginBottom = 0;
-                    element.style.overflow = "hidden";
-                    element.offsetHeight;
-                    element.style.transitionProperty = "height, margin, padding";
-                    element.style.transitionDuration = duration + "ms";
-                    element.style.height = height + "px";
+                element.style.height = element.offsetHeight + "px";
+                element.style.transitionProperty = "height, margin, padding";
+                element.style.transitionDuration = duration + "ms";
+                element.style.boxSizing = "border-box";
+                element.offsetHeight; 
+                element.style.overflow = "hidden";
+                element.style.height = 0;
+                element.style.paddingTop = 0;
+                element.style.paddingBottom = 0;
+                element.style.marginTop = 0;
+                element.style.marginBottom = 0;
+                window.setTimeout(function () {
+                    element.style.display = "none";
+                    element.style.removeProperty("height");
                     element.style.removeProperty("padding-top");
                     element.style.removeProperty("padding-bottom");
                     element.style.removeProperty("margin-top");
                     element.style.removeProperty("margin-bottom");
-                    window.setTimeout(function () {
-                        element.style.removeProperty("height");
-                        element.style.removeProperty("overflow");
-                        element.style.removeProperty("transition-duration");
-                        element.style.removeProperty("transition-property");
-                    }, duration);
+                    element.style.removeProperty("overflow");
+                    element.style.removeProperty("transition-duration");
+                    element.style.removeProperty("transition-property");
+                }, duration);
+            }
+
+            function slideDown(element, duration) {
+                element.style.removeProperty("display");
+                let display = window.getComputedStyle(element).display;
+                if (display === "none") display = "block";
+                element.style.display = display;
+                let height = element.offsetHeight;
+                element.style.height = 0;
+                element.style.paddingTop = 0;
+                element.style.paddingBottom = 0;
+                element.style.marginTop = 0;
+                element.style.marginBottom = 0;
+                element.style.overflow = "hidden";
+                element.offsetHeight;
+                element.style.transitionProperty = "height, margin, padding";
+                element.style.transitionDuration = duration + "ms";
+                element.style.height = height + "px";
+                element.style.removeProperty("padding-top");
+                element.style.removeProperty("padding-bottom");
+                element.style.removeProperty("margin-top");
+                element.style.removeProperty("margin-bottom");
+                window.setTimeout(function () {
+                    element.style.removeProperty("height");
+                    element.style.removeProperty("overflow");
+                    element.style.removeProperty("transition-duration");
+                    element.style.removeProperty("transition-property");
+                }, duration);
             }
 
             applyHeatmap();
