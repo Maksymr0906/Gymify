@@ -1361,11 +1361,11 @@ a {
 }
 
 #modeVerified:checked + label {
-    color: #27ae60;
+    color: var(--gym-orange);
 }
 /* Green for Verified */
 #modePending:checked + label {
-    color: var(--gym-orange);
+    color: #111;
 }
 /* Orange for Community */
 
@@ -1459,11 +1459,11 @@ a {
 }
 
     .ex-badge.verified {
-        background: #27ae60;
+        background: var(--gym-orange);
     }
 
     .ex-badge.pending {
-        background: var(--gym-orange);
+        background: #555;
     }
 
 /* Content */
@@ -1943,164 +1943,113 @@ textarea.gym-input {
     resize: vertical;
 }
 
-/* Comments */
+/* ==========================================================================
+   COMMENTS SECTION STYLES
+   ========================================================================== */
 
+/* Container (Left Aligned) */
 .co-container {
-    max-width: 800px;
-    margin-top: 20px;
-    font-family: 'Segoe UI', sans-serif;
+    width: 100%; /* Займає всю ширину */
+    max-width: 100%; /* Прибираємо обмеження в 800px */
+    margin-top: 25px; /* Відступ зверху від заголовка "Comments" */
+    padding: 0; /* Падінги контролюються батьківським контейнером */
 }
 
-/* Форма додавання */
+/* Form Wrapper */
 .co-form-wrapper {
     display: flex;
     gap: 15px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     margin-bottom: 30px;
-    align-items: flex-start;
+    border: 1px solid #eee;
 }
 
 .co-avatar {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #eee;
-    flex-shrink: 0;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* Щоб аватар не сплющувався */
 }
 
 .co-input-block {
-    flex-grow: 1;
-    position: relative;
+    flex: 1;
 }
 
+/* Textarea */
 .co-textarea {
     width: 100%;
+    min-height: 80px;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-family: inherit;
+    font-size: 14px;
     resize: vertical;
-    min-height: 60px;
-    box-sizing: border-box;
-    font-size: 0.95rem;
+    outline: none;
     transition: border-color 0.2s;
+    background: #fafafa;
+    font-family: inherit;
+    box-sizing: border-box;
 }
 
     .co-textarea:focus {
-        outline: none;
-        border-color: #3498db;
+        border-color: var(--gym-orange);
+        background: #fff;
     }
 
-/* Кнопки (локальні стилі) */
-.co-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    color: white;
-    transition: opacity 0.2s;
-}
-
-    .co-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-.co-btn-primary {
-    background-color: #3498db;
-}
-
-    .co-btn-primary:hover {
-        background-color: #2980b9;
-    }
-
-/* Список коментарів */
+/* Comment Item */
 .co-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Окремий коментар */
 .co-item {
     display: flex;
     gap: 15px;
-    animation: co-fadeIn 0.3s ease-out;
+    animation: co-fadeIn 0.4s ease-out;
 }
 
 .co-content {
-    flex-grow: 1;
-    background: #f8f9fa;
-    padding: 12px 15px;
-    border-radius: 0 12px 12px 12px;
-    position: relative;
+    flex: 1;
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
     border: 1px solid #f0f0f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .co-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-}
-
-.co-author {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #2c3e50;
-    margin-right: 8px;
-}
-
-.co-date {
-    font-size: 0.8rem;
-    color: #95a5a6;
-}
-
-.co-text {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: #333;
-    white-space: pre-wrap; /* Зберігає переноси рядків */
-    word-break: break-word;
-}
-
-.co-delete-btn {
-    background: none;
-    border: none;
-    color: #e74c3c;
-    font-size: 0.8rem;
-    cursor: pointer;
-    opacity: 0.6;
-    padding: 0;
-}
-
-    .co-delete-btn:hover {
-        opacity: 1;
-        text-decoration: underline;
-    }
-
-.co-empty-msg {
-    text-align: center;
-    padding: 30px;
-    color: #999;
-    font-style: italic;
+    align-items: flex-start;
+    margin-bottom: 8px;
 }
 
 .co-author-link {
     font-weight: 700;
-    font-size: 0.95rem;
-    color: #2c3e50;
-    margin-right: 8px;
+    color: #333;
     text-decoration: none;
+    font-size: 14px;
 }
 
     .co-author-link:hover {
+        color: var(--gym-orange);
         text-decoration: underline;
-        color: #3498db;
     }
 
+.co-date {
+    font-size: 12px;
+    color: #999;
+    margin-left: 5px;
+}
+
+/* Actions (Edit/Delete) */
 .co-actions {
     display: flex;
     gap: 10px;
@@ -2109,14 +2058,14 @@ textarea.gym-input {
 .co-action-btn {
     background: none;
     border: none;
-    color: #7f8c8d;
-    font-size: 0.8rem;
+    font-size: 11px;
+    color: #999;
     cursor: pointer;
     padding: 0;
 }
 
     .co-action-btn:hover {
-        color: #3498db;
+        color: var(--gym-orange);
         text-decoration: underline;
     }
 
@@ -2124,33 +2073,96 @@ textarea.gym-input {
         color: #e74c3c;
     }
 
+/* Text Content */
+.co-text {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Edit Mode */
 .co-edit-area {
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 .co-edit-textarea {
     width: 100%;
+    min-height: 60px;
     padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 8px;
     font-family: inherit;
-    font-size: 0.9rem;
-    resize: vertical;
-    min-height: 50px;
     box-sizing: border-box;
 }
 
 .co-edit-controls {
-    margin-top: 5px;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
 }
 
-.hidden {
-    display: none !important;
+/* Empty State */
+.co-empty-msg {
+    text-align: left; /* Вирівнювання тексту зліва */
+    color: #999;
+    font-style: italic;
+    padding: 20px 0;
 }
+
+/* Animation */
+@keyframes co-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mini Buttons for Comments */
+.co-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+}
+
+.co-btn-primary {
+    background: var(--gym-orange);
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(255,159,28,0.3);
+}
+
+    .co-btn-primary:hover {
+        background: #ffb042;
+    }
+
+    .co-btn-primary:disabled {
+        background: #ccc;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+.co-btn-cancel {
+    background: #f0f0f0;
+    color: #666;
+}
+
+    .co-btn-cancel:hover {
+        background: #e0e0e0;
+    }
 
 /* ==========================================================================
-   2. PROFILE STYLES (Тільки для User Profile Page)
+   2. PROFILE STYLES
    ========================================================================== */
 .userProfileFullPage {
     width: 100%;
@@ -2165,7 +2177,7 @@ textarea.gym-input {
     position: relative;
     cursor: default;
 }
-    /* Коли в режимі редагування */
+
     .userProfileFullPage[data-edit-type="background"] {
         cursor: pointer;
     }
@@ -2179,23 +2191,25 @@ textarea.gym-input {
     gap: 40px;
 }
 
-/* Хедер профілю (Темний блок) */
+/* Header (Dark Block) */
 .userProfileCustoms {
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(10px);
-    padding: 30px;
+    background: rgba(0, 0, 0, 0.75); /* Трохи темніше для контрасту */
+    backdrop-filter: blur(15px);
+    padding: 40px;
     border-radius: 20px;
     display: flex;
     align-items: center;
     gap: 40px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     color: white;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .userProfileAvatarBlock {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
+    flex-shrink: 0;
 }
 
     .userProfileAvatarBlock[data-edit-type] {
@@ -2220,7 +2234,7 @@ textarea.gym-input {
     left: 8%;
     object-fit: cover;
     z-index: 5;
-    border-radius: 10px;
+    border-radius: 14px;
 }
 
 .userProfileInfoBlock {
@@ -2228,34 +2242,37 @@ textarea.gym-input {
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
     flex: 1;
 }
 
 .userProfileLevelBadge {
     display: inline-block;
-    margin-top: 25px;
-    padding: 4px 10px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 700;
+    padding: 5px 12px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 800;
     text-transform: uppercase;
-    color: #ffc107;
-    background-color: rgba(255, 193, 7, 0.1);
-    border: 1px solid #ffc107;
+    color: var(--gym-orange);
+    background-color: rgba(255, 159, 28, 0.15);
+    border: 1px solid var(--gym-orange);
     border-radius: 8px;
+    margin-top: 20px;
 }
 
 .userProfileNameView {
-    font-size: 40px;
-    font-weight: 700;
+    font-size: 3rem;
+    font-weight: 800;
     color: #fff;
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 .userProfileTitleView {
-    font-size: 20px;
-    color: #bbb;
+    font-size: 1.25rem;
+    color: #ccc;
     cursor: default;
+    font-weight: 500;
 }
 
     .userProfileTitleView[data-edit-type="title"] {
@@ -2263,96 +2280,134 @@ textarea.gym-input {
     }
 
 .userProfileNameInput {
-    font-size: 40px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+    font-size: 3rem;
+    padding: 5px 10px;
+    border-radius: 12px;
+    border: 2px solid #555;
     width: 100%;
     box-sizing: border-box;
     color: #333;
+    background: #fff;
 }
 
-/* Білі блоки контенту */
+/* Content Blocks (White) */
 .userProfileAchivmentBlock, .userProfileLastTrains, .userProfileComments {
     background-color: #ffffff;
     border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     color: #333;
 }
 
+/* Updated Titles (Orange Line) */
 .userProfileAchivmentTitle, .userProfileTrainsTitle {
-    font-size: 28px;
+    font-size: 1.75rem;
     font-weight: 800;
-    color: #222;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 10px;
+    color: #333;
+    margin-bottom: 30px;
+    border-bottom: none; /* Прибираємо лінію знизу */
+    border-left: 5px solid var(--gym-orange); /* Додаємо лінію зліва */
+    padding-left: 15px;
+    line-height: 1.2;
 }
 
-/* Сітки тренувань та ачівок */
+/* Grids */
 .userProfileTrainsList, .userProfileAchivmentsList {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+}
+
+/* Cards (Updated Style: Clean White/Grey) */
+.userProfileTrainLink, .userProfileAchivmentItem {
+    /* Прибираємо фіксоване співвідношення сторін для ачівок, щоб текст вліз */
+    min-height: 180px;
+    width: 100%;
+    background: #fff; /* Білий фон */
+    border: 1px solid #eee; /* Тонка сіра рамка */
+    border-radius: 16px;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Вирівнювання від верху */
+    text-align: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
     gap: 15px;
 }
 
-.userProfileTrainLink, .userProfileAchivmentItem {
-    aspect-ratio: 1 / 1;
-    background: #f4f7fa;
-    border: 1px solid #e1e8ed;
-    border-radius: 14px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    color: inherit;
-}
-
     .userProfileTrainLink:hover, .userProfileAchivmentItem:hover {
-        transform: scale(1.03);
-        box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+        border-color: var(--gym-orange); /* Помаранчевий акцент при наведенні */
     }
 
+/* Окремо для тренувань, бо там можна квадрат */
+.userProfileTrainLink {
+    aspect-ratio: 1 / 1;
+    justify-content: center;
+}
+
 .achievementIcon {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
-    margin-bottom: 8px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    flex-shrink: 0;
+}
+
+.achievementText {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 5px;
 }
 
 .achievementName {
     font-weight: 700;
     font-size: 14px;
-    color: #444;
+    color: #333;
+    line-height: 1.3;
+    /* Вирівнювання тексту */
+    min-height: 2.6em; /* Місце під 2 рядки */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .achievementDate {
-    font-size: 12px;
-    color: #888;
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
 }
 
-/* Item Picker Modal (Specific to Profile Edit) */
+/* Picker Modal */
 #itemPickerOverlay {
     position: fixed;
+    inset: 0;
+    height: 100vh;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 45vh;
+    height: 45vh; /* Повертаємо висоту пікера */
     background: #1a1a1a;
     color: white;
     display: none;
     z-index: 3000;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
     border-top: 1px solid #333;
     flex-direction: column;
 }
@@ -2361,14 +2416,14 @@ textarea.gym-input {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 25px;
+    padding: 20px 30px;
     background: #222;
     border-bottom: 1px solid #333;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    height: 70px;
+    min-height: 80px;
     box-sizing: border-box;
-    position: relative;
+    position: relative; /* Для правильного позиціонування всередині */
 }
 
 #itemPickerList {
@@ -2378,24 +2433,48 @@ textarea.gym-input {
     gap: 20px;
     padding: 30px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #444 #1a1a1a;
 }
 
 .pickerItem {
-    width: 110px;
-    height: 110px;
+    width: 120px;
+    height: 120px;
     object-fit: cover;
     border: 3px solid #333;
-    border-radius: 12px;
+    border-radius: 16px;
     background: #000;
     cursor: pointer;
-    transition: all 0.25s;
+    transition: all 0.2s;
 }
 
     .pickerItem.selected {
         border-color: var(--gym-orange);
-        transform: scale(1.1);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 159, 28, 0.3);
     }
+
+/* Responsive Profile */
+@media (max-width: 768px) {
+    .userProfileCustoms {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+    }
+
+    .userProfileInfoBlock {
+        align-items: center;
+    }
+
+    .userProfileNameView {
+        font-size: 2.2rem;
+    }
+
+    .userProfileAvatarBlock {
+        width: 220px;
+        height: 220px;
+    }
+}
 
 /* ==========================================================================
    3. INVENTORY STYLES (Тільки для сторінки Інвентарю)

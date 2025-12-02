@@ -1,11 +1,8 @@
 ﻿@using Gymify.Application.ViewModels.Comment
 @model CommentsSectionViewModel
 
-<style>
-    @Html.Raw("@keyframes co-fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }")
-</style>
-
 <div class="co-container">
+
     <div class="co-form-wrapper">
         <a href="@Url.Action("Profile", "User", new { userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString()) })">
             <img src="@Model.CurrentUserAvatarUrl" class="co-avatar" alt="User">
@@ -14,9 +11,13 @@
             <form id="coCommentForm">
                 <input type="hidden" name="targetId" value="@Model.TargetId" />
                 <input type="hidden" name="targetType" value="@Model.TargetType" />
+
                 <textarea name="content" id="coContentInput" class="co-textarea" placeholder="Write a comment..."></textarea>
-                <div style="text-align: right; margin-top: 8px;">
-                    <button type="submit" id="coBtnPost" class="co-btn co-btn-primary" disabled>Post Comment</button>
+
+                <div style="text-align: right; margin-top: 10px;">
+                    <button type="submit" id="coBtnPost" class="gym-btn gym-btn-primary" style="padding: 8px 20px; font-size: 14px;" disabled>
+                        Post Comment
+                    </button>
                 </div>
             </form>
         </div>
@@ -31,12 +32,16 @@
                             <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })">
                                 <img src="@comment.AuthorAvatarUrl" class="co-avatar" alt="Avatar">
                             </a>
+
                             <div class="co-content">
                                 <div class="co-header">
                                     <div>
-                                        <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })" class="co-author-link">@comment.AuthorName</a>
+                                        <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })" class="co-author-link">
+                                    @comment.AuthorName
+                                        </a>
                                         <span class="co-date">&bull; @comment.CreatedAt.ToString("g")</span>
                                     </div>
+
                             @if (comment.CanDelete)
                             {
                                             <div class="co-actions">
@@ -51,8 +56,8 @@
                                 <div class="co-edit-area hidden" id="edit-area-@comment.Id">
                                     <textarea class="co-edit-textarea" id="input-@comment.Id">@comment.Content</textarea>
                                     <div class="co-edit-controls">
-                                        <button class="co-btn co-btn-sm co-btn-cancel" onclick="editCommentCancel('@comment.Id')">Cancel</button>
-                                        <button class="co-btn co-btn-sm co-btn-primary" onclick="editCommentSave('@comment.Id')">Save</button>
+                                        <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('@comment.Id')">Cancel</button>
+                                        <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('@comment.Id')">Save</button>
                                     </div>
                                 </div>
                             </div>
@@ -74,34 +79,45 @@
         const list = document.getElementById('coCommentsList');
         const emptyMsg = document.getElementById('coNoComments');
 
-        input.addEventListener('input', () => { btn.disabled = input.value.trim().length === 0; });
+        if(input && btn) {
+            input.addEventListener('input', () => { 
+                btn.disabled = input.value.trim().length === 0; 
+            });
+        }
 
         // --- POST COMMENT ---
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const originalText = btn.innerText;
-            btn.disabled = true; btn.innerText = "Posting...";
+        if(form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const originalText = btn.innerText;
 
-            try {
-                const res = await fetch('/Comment/AddComment', { method: 'POST', body: formData });
-                if (res.ok) {
-                    const newComment = await res.json();
-                    appendCommentDOM(newComment);
-                    input.value = "";
-                } else {
-                    alertify.error("Error posting comment");
+                btn.disabled = true; 
+                btn.innerText = "Posting...";
+
+                try {
+                    const res = await fetch('/Comment/AddComment', { method: 'POST', body: formData });
+                    if (res.ok) {
+                        const newComment = await res.json();
+                        appendCommentDOM(newComment);
+                        input.value = "";
+                        btn.disabled = true; // Disable after post until input changes
+                    } else {
+                        if(typeof alertify !== 'undefined') alertify.error("Error posting comment");
+                    }
+                } catch (err) { console.error(err); } 
+                finally { 
+                    btn.innerText = originalText; 
+                    // btn stays disabled if input is empty
                 }
-            } catch (err) { console.error(err); } 
-            finally { btn.innerText = originalText; btn.disabled = true; }
-        });
+            });
+        }
 
         function appendCommentDOM(c) {
             if(emptyMsg) emptyMsg.style.display = 'none';
-            const domId = 'comment-el-' + (c.id || Date.now());
 
-            // Посилання на профіль
-            const profileUrl = `/profile?userId=${c.authorId}`; // Або згенерувати через JS, якщо є шаблон
+            const domId = 'comment-el-' + (c.id || Date.now());
+            const profileUrl = `/User/Profile?userId=${c.authorId}`; 
 
             const html = `
                 <div class="co-item" id="${domId}">
@@ -121,8 +137,8 @@
                         <div class="co-edit-area hidden" id="edit-area-${c.id}">
                             <textarea class="co-edit-textarea" id="input-${c.id}">${escapeHtml(c.content)}</textarea>
                             <div class="co-edit-controls">
-                                <button class="co-btn co-btn-sm co-btn-cancel" onclick="editCommentCancel('${c.id}')">Cancel</button>
-                                <button class="co-btn co-btn-sm co-btn-primary" onclick="editCommentSave('${c.id}')">Save</button>
+                                <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('${c.id}')">Cancel</button>
+                                <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('${c.id}')">Save</button>
                             </div>
                         </div>
                     </div>
@@ -138,21 +154,34 @@
 
         // --- EDIT LOGIC ---
         window.editCommentStart = function(id) {
-            document.getElementById(`text-${id}`).classList.add('hidden');
-            document.getElementById(`edit-area-${id}`).classList.remove('hidden');
+            const textView = document.getElementById(`text-${id}`);
+            const editView = document.getElementById(`edit-area-${id}`);
+            if(textView && editView) {
+                textView.classList.add('hidden');
+                editView.classList.remove('hidden');
+            }
         };
 
         window.editCommentCancel = function(id) {
-            document.getElementById(`text-${id}`).classList.remove('hidden');
-            document.getElementById(`edit-area-${id}`).classList.add('hidden');
-            // Скидаємо текст в textarea до оригінального
-            const originalText = document.getElementById(`text-${id}`).innerText;
-            document.getElementById(`input-${id}`).value = originalText;
+            const textView = document.getElementById(`text-${id}`);
+            const editView = document.getElementById(`edit-area-${id}`);
+            const inputEl = document.getElementById(`input-${id}`);
+
+            if(textView && editView) {
+                textView.classList.remove('hidden');
+                editView.classList.add('hidden');
+                // Restore text
+                if(inputEl) inputEl.value = textView.innerText;
+            }
         };
 
         window.editCommentSave = async function(id) {
-            const newContent = document.getElementById(`input-${id}`).value.trim();
-            if (!newContent) { alertify.error("Comment cannot be empty"); return; }
+            const inputEl = document.getElementById(`input-${id}`);
+            const newContent = inputEl.value.trim();
+            if (!newContent) { 
+                if(typeof alertify !== 'undefined') alertify.error("Comment cannot be empty"); 
+                return; 
+            }
 
             const formData = new FormData();
             formData.append('commentId', id);
@@ -161,11 +190,10 @@
             try {
                 const res = await fetch('/Comment/EditComment', { method: 'POST', body: formData });
                 if (res.ok) {
-                    // Оновлюємо UI
                     document.getElementById(`text-${id}`).innerText = newContent;
-                    editCommentCancel(id); // Закриваємо редактор
+                    editCommentCancel(id);
                 } else {
-                    alertify.error("Failed to update comment");
+                    if(typeof alertify !== 'undefined') alertify.error("Failed to update comment");
                 }
             } catch (e) { console.error(e); }
         };
@@ -179,7 +207,9 @@
                 if(res.ok) {
                     item.remove();
                     if (list.children.length === 0 && emptyMsg) emptyMsg.style.display = 'block';
-                } else alertify.error("Failed to delete");
+                } else {
+                    if(typeof alertify !== 'undefined') alertify.error("Failed to delete");
+                }
             } catch(e) { console.error(e); }
         };
     })();
