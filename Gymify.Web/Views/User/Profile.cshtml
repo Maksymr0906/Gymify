@@ -412,11 +412,11 @@
                         el.scrollIntoView({ behavior: 'smooth' });
 
                     } else {
-                        alert("Upload failed.");
+                        alertify.error("Upload failed.");
                     }
                 } catch (error) {
                     console.error(error);
-                    alert("Error uploading file.");
+                    alertify.error("Error uploading file.");
                 } finally {
                     uploadBtn.innerText = '+ Upload';
                     uploadBtn.disabled = false;
@@ -507,7 +507,7 @@
 
                 } catch (err) {
                     console.error(err);
-                    alert('Error: ' + err.message);
+                    alertify.error('Error: ' + err.message);
                     editBtn.disabled = false;
                     editBtn.innerText = 'Save changes';
                 }

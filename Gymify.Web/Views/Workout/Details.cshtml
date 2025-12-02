@@ -211,7 +211,7 @@
 
                 async function saveChanges() {
                     const nameVal = els.name.input.value.trim();
-                    if (!nameVal) { alert("Name is required"); return; }
+                        if (!nameVal) { alertify.error("Name is required"); return; }
 
                     btnEdit.innerText = "Saving...";
                     btnEdit.disabled = true;
@@ -233,13 +233,13 @@
                         if (res.ok) {
                             window.location.reload();
                         } else {
-                            alert("Update failed");
+                            alertify.error("Update failed");
                             btnEdit.disabled = false;
                             btnEdit.innerText = "Save Info";
                         }
                     } catch (e) {
                         console.error(e);
-                        alert("Error");
+                        alertify.error("Error");
                         btnEdit.disabled = false;
                         btnEdit.innerText = "Save Info";
                     }

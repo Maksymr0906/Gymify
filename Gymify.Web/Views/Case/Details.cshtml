@@ -126,7 +126,7 @@
 
                 } catch (err) {
                     console.error(err);
-                    alert("Error opening case.");
+                    alertify.error("Error opening case.");
                     openButton.disabled = false;
                     openButton.innerText = "Open Case";
                 }

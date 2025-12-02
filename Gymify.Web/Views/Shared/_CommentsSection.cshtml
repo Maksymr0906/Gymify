@@ -90,7 +90,7 @@
                     appendCommentDOM(newComment);
                     input.value = "";
                 } else {
-                    alert("Error posting comment");
+                    alertify.error("Error posting comment");
                 }
             } catch (err) { console.error(err); } 
             finally { btn.innerText = originalText; btn.disabled = true; }
@@ -152,7 +152,7 @@
 
         window.editCommentSave = async function(id) {
             const newContent = document.getElementById(`input-${id}`).value.trim();
-            if (!newContent) { alert("Comment cannot be empty"); return; }
+            if (!newContent) { alertify.error("Comment cannot be empty"); return; }
 
             const formData = new FormData();
             formData.append('commentId', id);
@@ -165,7 +165,7 @@
                     document.getElementById(`text-${id}`).innerText = newContent;
                     editCommentCancel(id); // Закриваємо редактор
                 } else {
-                    alert("Failed to update comment");
+                    alertify.error("Failed to update comment");
                 }
             } catch (e) { console.error(e); }
         };
@@ -179,7 +179,7 @@
                 if(res.ok) {
                     item.remove();
                     if (list.children.length === 0 && emptyMsg) emptyMsg.style.display = 'block';
-                } else alert("Failed to delete");
+                } else alertify.error("Failed to delete");
             } catch(e) { console.error(e); }
         };
     })();

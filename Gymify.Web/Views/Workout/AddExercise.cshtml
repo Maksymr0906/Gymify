@@ -69,14 +69,14 @@
                             // Успіх - переходимо
                             window.location.href = btnFinish.getAttribute("data-url");
                         } else {
-                            alert("Error saving. Please try again.");
+                            alertify.error("Error saving. Please try again.");
                             btnFinish.disabled = false;
                             btnFinish.innerHTML = originalText;
                         }
                     })
                     .catch(error => {
                         console.error("Fetch error:", error);
-                        alert("Something went wrong.");
+                        alertify.error("Something went wrong.");
                         btnFinish.disabled = false;
                         btnFinish.innerHTML = originalText;
                     });
