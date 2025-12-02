@@ -23,9 +23,9 @@
     </div>
 
     <div id="coCommentsList" class="co-list">
-        @if (Model.Items != null && Model.Items.Any())
+        @if (Model.CommentDtos != null && Model.CommentDtos.Any())
         {
-            @foreach (var comment in Model.Items)
+            @foreach (var comment in Model.CommentDtos)
             {
                         <div class="co-item" id="comment-el-@comment.Id">
                             <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })">

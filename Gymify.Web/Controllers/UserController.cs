@@ -64,7 +64,7 @@ namespace Gymify.Web.Controllers
                 "title" => ItemType.Title,
                 _ => throw new ArgumentException("Unknown item type: " + type),
             };
-            var items = await _itemService.GetUserItemsWithTypeAsync(userId, itemType, ukranianVer);
+            var items = await _itemService.GetUserItemsWithTypeAsync(userId, itemType, true, ukranianVer);
 
             var result = items.Select(i => new
             {
@@ -109,7 +109,7 @@ namespace Gymify.Web.Controllers
 
             bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            var items = await _itemService.GetAllUserItemsAsync(userId, ukranianVer);
+            var items = await _itemService.GetAllUserItemsAsync(userId, true, ukranianVer);
             var cases = await _caseService.GetAllUserCasesAsync(userId, ukranianVer);
 
             var userItemsViewModel = new UserItemsViewModel()
@@ -140,12 +140,6 @@ namespace Gymify.Web.Controllers
             bool ukranianVer = true;///////////////////////////////////////////////////////////////////////////////////////////////////////////////
             var achievements = await _achievementService.GetUserAchievementsAsync(userId, ukranianVer);
             return View("Achievements", achievements);
-        }
-
-        [HttpGet("workouts")]
-        public IActionResult Workouts()
-        {
-            return View("Workouts");
         }
 
     }

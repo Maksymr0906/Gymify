@@ -15,9 +15,9 @@ public class ItemService(IUnitOfWork unitOfWork, IImageService imageService) : I
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IImageService _imageService = imageService;
 
-    public async Task<ICollection<ItemDto>> GetAllUserItemsAsync(Guid userProfileId, bool ukranianVer)
+    public async Task<ICollection<ItemDto>> GetAllUserItemsAsync(Guid userProfileId, bool onlyOffical, bool ukranianVer)
     {
-        var userItems = await _unitOfWork.ItemRepository.GetAllItemsByUserIdAsync(userProfileId);
+        var userItems = await _unitOfWork.ItemRepository.GetAllItemsByUserIdAsync(userProfileId, onlyOffical);
 
         var itemDtos = userItems.Select(item => new ItemDto
         {
@@ -32,9 +32,11 @@ public class ItemService(IUnitOfWork unitOfWork, IImageService imageService) : I
         return itemDtos;
     }
     
-    public async Task<ICollection<ItemDto>> GetUserItemsWithTypeAsync(Guid userProfileId, ItemType itemType, bool ukranianVer)
+    public async Task<ICollection<ItemDto>> GetUserItemsWithTypeAsync(Guid userProfileId, ItemType itemType, bool onlyUnique, bool ukranianVer)
     {
         var userItems = await _unitOfWork.ItemRepository.GetItemsWithTypeByUserIdAsync(userProfileId, itemType);
+
+        if (onlyUnique) userItems = userItems.DistinctBy(u => u.Id).ToList();
 
         var itemDtos = userItems.Select(item => new ItemDto
         {

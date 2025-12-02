@@ -111,7 +111,7 @@
             {
                 TargetId = Model.WorkoutId,
                 TargetType = Gymify.Data.Enums.CommentTargetType.Workout,
-                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                CommentDtos = Model.Comments?.CommentDtos ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
                 CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
             };
         }

@@ -241,7 +241,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             {
                 TargetId = workout.Id,
                 TargetType = Data.Enums.CommentTargetType.Workout,
-                Items = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
+                CommentDtos = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
                 CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
             }
         };

@@ -191,7 +191,7 @@ public class UserProfileService
             {
                 TargetId = userProfileId,
                 TargetType = Data.Enums.CommentTargetType.UserProfile,
-                Items = await _commentService.GetCommentDtos(currentUserProfileId, userProfileId, Data.Enums.CommentTargetType.UserProfile),
+                CommentDtos = await _commentService.GetCommentDtos(currentUserProfileId, userProfileId, Data.Enums.CommentTargetType.UserProfile),
                 CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
             }
         };

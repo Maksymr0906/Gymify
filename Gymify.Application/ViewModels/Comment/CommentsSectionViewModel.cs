@@ -9,7 +9,7 @@ public class CommentsSectionViewModel
 
     public CommentTargetType TargetType { get; set; }
 
-    public List<CommentDto> Items { get; set; } = new();
+    public List<CommentDto> CommentDtos { get; set; } = new();
 
     public string CurrentUserAvatarUrl { get; set; } = "/images/default-avatar.png";
 }

@@ -89,7 +89,7 @@
             {
                 TargetId = Model.UserProfileId,
                 TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile,
-                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                CommentDtos = Model.Comments?.CommentDtos ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
                 CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
             };
                 }
