@@ -63,7 +63,6 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
             var userCase = new UserCase
             {
                 Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
                 UserProfileId = userProfileId,
                 CaseId = randomCase.Id
             };
@@ -92,7 +91,6 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
         var userItem = new UserItem
         {
             Id = Guid.NewGuid(),
-            CreatedAt = DateTime.UtcNow,
             UserProfileId = userProfileId,
             ItemId = rewardItemId
         };

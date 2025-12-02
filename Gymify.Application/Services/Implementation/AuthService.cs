@@ -48,7 +48,6 @@ public class AuthService : IAuthService
             {
                 Id = Guid.NewGuid(),
                 ApplicationUserId = user.Id,
-                CreatedAt = DateTime.UtcNow,
                 CurrentXP = 0,
                 Level = 1
             };

@@ -61,7 +61,6 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             AuthorAvatarUrl = avatarUrl,
             TargetId = targetId,
             TargetType = targetType,
-            CreatedAt = DateTime.UtcNow,
             CanDelete = true // Автор завжди може видалити свій коментар
         };
 

@@ -23,7 +23,11 @@
                 </div>
 
                 <div class="ae-flex-row ae-align-center ae-gap-sm ae-mt-20">
-                    <span class="ae-badge ae-badge-xp">XP: @Model.TotalXP</span>
+                    @if (Model.IsOwner)
+                    {
+                        <span class="ae-badge ae-badge-xp">XP: @Model.TotalXP</span>
+                    }
+                    
 
                     <span id="viewPrivacy" class="ae-badge ae-badge-private @(Model.IsPrivate ? "" : "ae-hidden")">
                         @Localizer["Private"]

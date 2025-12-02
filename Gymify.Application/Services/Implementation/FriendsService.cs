@@ -118,8 +118,7 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
         var invite = new FriendInvite
         {
             SenderProfileId = senderId,
-            ReceiverProfileId = receiverId,
-            CreatedAt = DateTime.UtcNow
+            ReceiverProfileId = receiverId
         };
 
         await _unitOfWork.FriendInviteRepository.CreateAsync(invite);
@@ -136,8 +135,7 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
         var chat = new Chat
         {
             Id = Guid.NewGuid(),
-            Type = ChatType.Private,
-            CreatedAt = DateTime.UtcNow
+            Type = ChatType.Private
         };
         await _unitOfWork.ChatRepository.CreateAsync(chat);
 
@@ -153,8 +151,7 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
         {
             UserProfileId1 = senderId,
             UserProfileId2 = currentUserId,
-            ChatId = chat.Id, // <--- ВАЖЛИВО
-            CreatedAt = DateTime.UtcNow
+            ChatId = chat.Id
         };
 
         await _unitOfWork.FriendshipRepository.CreateAsync(friendship);

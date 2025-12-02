@@ -42,8 +42,7 @@ public class NotificationService : INotificationService
             UserProfileId = targetUserId, 
             ContentEn = messageEn,     
             ContentUk = messageUk,     
-            Link = link,         
-            CreatedAt = DateTime.UtcNow
+            Link = link
         };
         await _unitOfWork.NotificationRepository.CreateAsync(notification);
         await _unitOfWork.SaveAsync();

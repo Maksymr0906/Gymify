@@ -1385,9 +1385,7 @@ a {
     margin-bottom: 20px;
 }
 
-
-/* Profile */
-
+/*  Profile  */
 /* 1. ПОВНОЕКРАННА ОБГОРТКА ДЛЯ ФОНУ (ID="profileRoot") */
 .userProfileFullPage {
     width: 100%;
@@ -1799,11 +1797,9 @@ a {
 }
 
 /*              Inventory               */
-
-.InventoryContainer{
-    width:92%;
+.InventoryContainer {
+    width: 92%;
     margin: 2% 4%;
-
 }
 .InventoryBlock{
 

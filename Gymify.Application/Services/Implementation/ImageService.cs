@@ -20,8 +20,7 @@ public class ImageService(IUnitOfWork unitOfWork) : IImageService
             FileName = model.FileName,
             FileExtension = model.FileExtension,
             Title = model.Title,
-            Url = model.UrlPath,
-            CreatedAt = DateTime.UtcNow
+            Url = model.UrlPath
         };
 
         await _unitOfWork.ImageRepository.CreateAsync(imageEntity);

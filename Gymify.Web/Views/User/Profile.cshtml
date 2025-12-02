@@ -3,9 +3,9 @@
     ViewData["Title"] = "Profile";
 }
 
-<div id="profileRoot" class="userProfileFullPage" 
+<div id="profileRoot" class="userProfileFullPage"
      style="background-image: url('@Model.UserEquipmentDto.BackgroundUrl');"
-     data-edit-type="background" title="Click empty space to change background">
+     data-edit-type="background">
 
     <div class="userProfileContentWrapper">
 
@@ -20,16 +20,16 @@
                 {
                     <button class="userProfileEditButton" id="editToggleBtn">Edit</button>
                 }
-                 <div>
-                     <span id="levelView" class="userProfileLevelBadge">Level @Model.Level</span>
-                 </div>
-                 <div>
-                     <span id="nameView" class="userProfileNameView">@Model.UserName</span>
-                     <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" />
-                 </div>
-                 <div>
-                     <span id="titleView" class="userProfileTitleView" data-edit-type="title">@Model.Title</span>
-                 </div>
+                <div>
+                    <span id="levelView" class="userProfileLevelBadge">Level @Model.Level</span>
+                </div>
+                <div>
+                    <span id="nameView" class="userProfileNameView">@Model.UserName</span>
+                    <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" />
+                </div>
+                <div>
+                    <span id="titleView" class="userProfileTitleView" data-edit-type="title">@Model.Title</span>
+                </div>
             </div>
         </div>
 
@@ -40,20 +40,20 @@
                 {
                     foreach (var a in Model.Achievements)
                     {
-                                <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
-                                    <div class="achievementContent">
-                                        <img src="@a.IconUrl" class="achievementIcon" />
-                                        <div class="achievementText">
-                                            <span class="achievementName">@a.Name</span>
-                                            <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
-                                        </div>
-                                    </div>
-                                </li>
+                        <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
+                            <div class="achievementContent">
+                                <img src="@a.IconUrl" class="achievementIcon" />
+                                <div class="achievementText">
+                                    <span class="achievementName">@a.Name</span>
+                                    <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
+                                </div>
+                            </div>
+                        </li>
                     }
                 }
                 else
                 {
-                        <p style="color:#666;">You haven't unlocked any achievements yet.</p>
+                    <p style="color:#666;">You haven't unlocked any achievements yet.</p>
                 }
             </ul>
         </div>
@@ -65,8 +65,8 @@
                 {
                     foreach (var workout in Model.Workouts)
                     {
-                        <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id" 
-                           class="userProfileTrainLink" 
+                        <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
+                           class="userProfileTrainLink"
                            title="@workout.CreatedAt.ToString("g")">
 
                             <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
@@ -76,7 +76,7 @@
                 }
                 else
                 {
-                        <p style="color:#666;">No workouts yet.</p>
+                    <p style="color:#666;">No workouts yet.</p>
                 }
             </ul>
         </div>
@@ -84,18 +84,16 @@
         <div class="userProfileComments">
             <div class="ae-comments-section">
                 <h3 class="ae-section-title ae-mb-20">Comments</h3>
-
-                        @{
-                            var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
-                            {
-                                TargetId = Model.UserProfileId,
-                                TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile, 
-                                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
-                                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl 
-                            };
-                        }
-
-                <partial  name="_CommentsSection" model="commentsVm" />
+                @{
+                    var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
+                    {
+                        TargetId = Model.UserProfileId,
+                        TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile,
+                        Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                        CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
+                    };
+                }
+                <partial name="_CommentsSection" model="commentsVm" />
             </div>
         </div>
 
@@ -108,6 +106,12 @@
 
         <div id="pickerTabs" style="display:flex; gap:10px; margin: 10px 0;"></div>
 
+        <div id="uploadContainer" style="margin-left: auto; display:none; align-items:center; gap: 10px;">
+            <input type="file" id="pickerFileUploadInput" accept=".png,.jpg,.jpeg" style="display:none;" />
+            <button id="pickerUploadBtn" class="userProfileEditButton" style="font-size:14px; padding:6px 12px; background:#444;">
+                + Upload
+            </button>
+        </div>
         <div>
             <button id="itemPickerCancel" class="userProfileEditButton" style="background:#666; margin-right:8px;">Cancel</button>
             <button id="itemPickerApply" class="userProfileEditButton" style="background:var(--ButtonColor,#2b8be6);">Apply</button>
@@ -117,381 +121,396 @@
 </div>
 
 <script>
-/* ====== Profile edit script (Final Consolidated Version) ====== */
-/* ====== Profile edit script (Tabs Version) ====== */
-(() => {
-    let isEditMode = false;
+    (() => {
+        let isEditMode = false;
 
-    // ID вибраних предметів
-    let selectedAvatarId = null;
-    let selectedFrameId = null;
-    let selectedBackgroundId = null;
-    let selectedTitleId = null;
+        // ID вибраних предметів
+        let selectedAvatarId = null;
+        let selectedFrameId = null;
+        let selectedBackgroundId = null;
+        let selectedTitleId = null;
 
-    // Змінні пікера
-    let pickerCurrentMode = null; // 'avatar', 'frame', 'background', 'title'
-    let pickerSelectedItemId = null;
-    let pickerSelectedItemUrl = null;
-    let pickerSelectedItemName = null;
+        // Змінні пікера
+        let pickerCurrentMode = null;
+        let pickerSelectedItemId = null;
+        let pickerSelectedItemUrl = null;
+        let pickerSelectedItemName = null;
 
-    let tempAvatarSelection = { id: null, url: null, name: null }; 
-    let tempFrameSelection = { id: null, url: null, name: null };
+        let tempAvatarSelection = { id: null, url: null, name: null };
+        let tempFrameSelection = { id: null, url: null, name: null };
 
-    // Оригінали
-    const original = {
-        name: document.getElementById('nameView').innerText.trim(),
-        titleText: document.getElementById('titleView').innerText.trim(),
-        avatarUrl: document.getElementById('avatarImage').src,
-        frameUrl: document.getElementById('frameImage').src,
-        backgroundUrl: document.getElementById('profileRoot').style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
-    };
-
-    function enterEditMode() {
-        if (isEditMode) return;
-        isEditMode = true;
-        document.getElementById('nameView').style.display = 'none';
-        document.getElementById('nameInput').style.display = 'block';
-
-        document.getElementById('titleView').style.cursor = 'pointer';
-        document.getElementById('titleView').title = "Change Title";
-
-        document.getElementById('profileRoot').style.cursor = 'pointer';
-        document.getElementById('profileRoot').title = "Change Background";
-
-        // Додаємо підказку для аватара
-        document.getElementById('avatarBlock').title = "Change Avatar or Frame";
-
-        const btn = document.getElementById('editToggleBtn');
-        if (btn) { btn.innerText = 'Save changes'; btn.style.background = '#ff9f1c'; }
-    }
-
-    function exitEditMode() {
-        isEditMode = false;
-        document.getElementById('nameView').style.display = 'block';
-        document.getElementById('nameInput').style.display = 'none';
-        document.getElementById('titleView').style.cursor = 'default';
-        document.getElementById('profileRoot').style.cursor = 'default';
-        document.getElementById('avatarBlock').title = "";
-
-        const btn = document.getElementById('editToggleBtn');
-        if (btn) { btn.innerText = 'Edit'; btn.style.background = ''; }
-    }
-
-    function stopPropagationHandler(e) {
-        // Зупиняє подальше спливання події до батьків (зокрема, до profileRoot)
-        e.stopPropagation();
-    }
-
-    // 1. Блокуємо спливання на Хедері (Avatar/Info)
-    document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
-
-    // 2. Блокуємо спливання на Картці Досягнень
-    document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
-
-    // 3. Блокуємо спливання на Картці Тренувань
-    document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
-
-    // 4. Блокуємо спливання на Коментах
-    document.querySelector('.userProfileComments').addEventListener('click', stopPropagationHandler);
-
-    // === ОБРОБНИК КЛІКІВ ===
-    document.querySelectorAll('[data-edit-type]').forEach(el => {
-        el.addEventListener('click', (ev) => {
-            if (!isEditMode) return;
-            ev.stopPropagation(); // Зупиняємо спливання
-
-            const type = el.getAttribute('data-edit-type');
-
-            if (type === 'avatar-setup') {
-                openPickerWithTabs();
-            } else {
-                openPickerSimple(type);
-            }
-        });
-    });
-
-    // Клік по фону (окремо)
-    document.getElementById('profileRoot').addEventListener('click', (ev) => {
-        if (!isEditMode) return;
-
-        // Обробляємо тільки якщо клік по самому background, не по внутрішніх елементах
-        if (ev.target !== ev.currentTarget) return;
-
-        openPickerSimple('background');
-    });
-
-
-    // === ФУНКЦІЇ ВІДКРИТТЯ ПІКЕРА ===
-
-    // 1. Просте відкриття (для Фону або Титулу)
-    function openPickerSimple(type) {
-        const tabsDiv = document.getElementById('pickerTabs');
-        tabsDiv.innerHTML = ''; // Очищаємо таби
-        loadItemsIntoPicker(type);
-    }
-
-    // 2. Відкриття з табами (для Аватара/Рамки)
-    function openPickerWithTabs() {
-        const tabsDiv = document.getElementById('pickerTabs');
-        tabsDiv.innerHTML = ''; // Очистка
-
-        // Створюємо кнопку "Avatars"
-        const btnAvatar = document.createElement('button');
-        btnAvatar.innerText = 'Avatars';
-        btnAvatar.className = 'pickerTabBtn active';
-
-        // Створюємо кнопку "Frames"
-        const btnFrame = document.createElement('button');
-        btnFrame.innerText = 'Frames';
-        btnFrame.className = 'pickerTabBtn';
-
-        // Логіка перемикання
-        btnAvatar.onclick = () => {
-            btnAvatar.classList.add('active');
-            btnFrame.classList.remove('active');
-            loadItemsIntoPicker('avatar');
+        // Оригінали
+        const original = {
+            name: document.getElementById('nameView').innerText.trim(),
+            titleText: document.getElementById('titleView').innerText.trim(),
+            avatarUrl: document.getElementById('avatarImage').src,
+            frameUrl: document.getElementById('frameImage').src,
+            backgroundUrl: document.getElementById('profileRoot').style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
         };
 
-        btnFrame.onclick = () => {
-            btnFrame.classList.add('active');
-            btnAvatar.classList.remove('active');
-            loadItemsIntoPicker('frame');
-        };
+        function enterEditMode() {
+            if (isEditMode) return;
+            isEditMode = true;
+            document.getElementById('nameView').style.display = 'none';
+            document.getElementById('nameInput').style.display = 'block';
 
-        tabsDiv.appendChild(btnAvatar);
-        tabsDiv.appendChild(btnFrame);
+            document.getElementById('titleView').style.cursor = 'pointer';
+            document.getElementById('titleView').title = "Change Title";
 
-        // За замовчуванням вантажимо аватари
-        loadItemsIntoPicker('avatar');
-    }
+            document.getElementById('profileRoot').style.cursor = 'pointer';
+            document.getElementById('profileRoot').title = "Change Background";
 
-    // === ЗАВАНТАЖЕННЯ ДАНИХ (Fetch) ===
-    async function loadItemsIntoPicker(type) {
-        // --- 1. ЗБЕРЕЖЕННЯ ПОПЕРЕДНЬОГО ВИБОРУ ---
-        // Якщо ми міняємо вкладку, зберігаємо поточний тимчасовий вибір
-        if (pickerCurrentMode === 'avatar') {
-            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
-        } else if (pickerCurrentMode === 'frame') {
-            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            document.getElementById('avatarBlock').title = "Change Avatar or Frame";
+
+            const btn = document.getElementById('editToggleBtn');
+            if (btn) { btn.innerText = 'Save changes'; btn.style.background = '#ff9f1c'; }
         }
 
-        pickerCurrentMode = type; // Встановлюємо новий режим
-        pickerSelectedItemId = null; // Скидаємо поточний вибір (буде відновлений нижче)
+        function exitEditMode() {
+            isEditMode = false;
+            document.getElementById('nameView').style.display = 'block';
+            document.getElementById('nameInput').style.display = 'none';
+            document.getElementById('titleView').style.cursor = 'default';
+            document.getElementById('profileRoot').style.cursor = 'default';
+            document.getElementById('avatarBlock').title = "";
 
-        const list = document.getElementById('itemPickerList');
-        const overlay = document.getElementById('itemPickerOverlay');
-        const titleLabel = document.getElementById('itemPickerTitle');
+            const btn = document.getElementById('editToggleBtn');
+            if (btn) { btn.innerText = 'Edit'; btn.style.background = ''; }
 
-        titleLabel.innerText = 'Choose ' + type;
-        list.innerHTML = '<div style="padding:20px;">Loading...</div>';
-        overlay.style.display = 'block';
-
-        try {
-            const resp = await fetch(`/userEquipment?type=${encodeURIComponent(type)}`);
-            const items = await resp.json();
-
-            list.innerHTML = '';
-            if (!items || items.length === 0) {
-                list.innerHTML = '<div style="color:#ccc">No items found</div>';
-                return;
-            }
-
-            // --- 2. ВИЗНАЧЕННЯ АКТИВНОГО ВИБОРУ ДЛЯ ПОТОЧНОЇ ВКЛАДКИ ---
-            let activeSelection = { id: null };
-            if (type === 'avatar') {
-                activeSelection = tempAvatarSelection;
-            } else if (type === 'frame') {
-                activeSelection = tempFrameSelection;
-            }
-
-            items.forEach(it => {
-                // ... (створення елемента el, як раніше) ...
-                let el;
-                if (type === 'title') {
-                    el = document.createElement('div');
-                    el.className = 'titleItem';
-                    el.innerText = it.name;
-                } else {
-                    el = document.createElement('img');
-                    el.className = 'pickerItem';
-                    el.src = it.url;
-                }
-
-                el.title = it.name || '';
-
-                // --- 3. ВІДНОВЛЕННЯ ВИДІЛЕННЯ (якщо елемент був вибраний раніше) ---
-                if (it.id === activeSelection.id) {
-                    el.classList.add('selected');
-                    // Оновлюємо поточні змінні пікера відновленим вибором
-                    pickerSelectedItemId = it.id;
-                    pickerSelectedItemUrl = it.url;
-                    pickerSelectedItemName = it.name;
-                }
-
-                // Логіка кліку
-                el.addEventListener('click', () => {
-                    list.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
-                    el.classList.add('selected');
-                    pickerSelectedItemId = it.id;
-                    pickerSelectedItemUrl = it.url;
-                    pickerSelectedItemName = it.name;
-                });
-                list.appendChild(el);
-            });
-
-        } catch (err) {
-            console.error(err);
-            list.innerHTML = '<div style="color:#f88">Error loading items</div>';
-        }
-    }
-
-    // --- ФУНКЦІЯ ПОВНОГО СКИДАННЯ СТАНУ МОДАЛА ---
-    function resetPickerModalState() {
-        // Скидаємо кеш для табів
-        tempAvatarSelection = { id: null, url: null, name: null };
-        tempFrameSelection = { id: null, url: null, name: null };
-
-        // Скидаємо загальні змінні модала
-        pickerSelectedItemId = null;
-        pickerSelectedItemUrl = null;
-        pickerSelectedItemName = null;
-        pickerCurrentMode = null; 
-
-        // Ховаємо модальне вікно
-        document.getElementById('itemPickerOverlay').style.display = 'none';
-    }
-
-    // === APPLY ===
-    document.getElementById('itemPickerApply').addEventListener('click', () => {
-        // Ми не перевіряємо, чи вибрано хоча б щось, бо можливо, юзер міняв аватар і фрейм
-
-        // Зберігаємо останній зроблений вибір перед закриттям
-        if (pickerCurrentMode === 'avatar') {
-            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
-        } else if (pickerCurrentMode === 'frame') {
-            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            // Закриваємо пікер, якщо він відкритий
+            document.getElementById('itemPickerOverlay').style.display = 'none';
         }
 
-        // --- 1. Застосовуємо Аватар ---
-        if (tempAvatarSelection.id) {
-             applyPickedItem('avatar', tempAvatarSelection.id, tempAvatarSelection.url, tempAvatarSelection.name);
-        }
-
-        // --- 2. Застосовуємо Фрейм ---
-        if (tempFrameSelection.id) {
-             applyPickedItem('frame', tempFrameSelection.id, tempFrameSelection.url, tempFrameSelection.name);
-        }
-
-        // --- 3. Застосовуємо Титул / Фон (якщо ми їх міняли) ---
-        // Якщо ми були в режимі Title/Background, applyPickedItem викликався одразу.
-        // Але для надійності, якщо юзер був у режимі Title/Background і натиснув apply:
-        if (pickerCurrentMode === 'title' || pickerCurrentMode === 'background') {
-             if (pickerSelectedItemId) {
-                 applyPickedItem(pickerCurrentMode, pickerSelectedItemId, pickerSelectedItemUrl, pickerSelectedItemName);
-             }
-        }
-        resetPickerModalState();
-    });
-
-    document.getElementById('itemPickerCancel').addEventListener('click', () => {
-        resetPickerModalState();
-    });
-
-    function applyPickedItem(type, id, url, name) {
-        if (type === 'avatar') {
-            document.getElementById('avatarImage').src = url;
-            selectedAvatarId = id;
-        } else if (type === 'frame') {
-            document.getElementById('frameImage').src = url;
-            selectedFrameId = id;
-        } else if (type === 'background') {
-            document.getElementById('profileRoot').style.backgroundImage = `url('${url}')`;
-            selectedBackgroundId = id;
-        } else if (type === 'title') {
-            document.getElementById('titleView').innerText = name;
-            selectedTitleId = id;
-        }
-    }
-
-    // === SAVE / CANCEL LOGIC ===
-    const editBtn = document.getElementById('editToggleBtn');
-    if (editBtn) {
-        editBtn.addEventListener('click', async (e) => {
+        function stopPropagationHandler(e) {
             e.stopPropagation();
-            if (!isEditMode) { enterEditMode(); return; }
+        }
 
-            // Блокуємо кнопку
-            editBtn.disabled = true;
-            editBtn.innerText = 'Saving...';
+        // Блокуємо спливання
+        document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
+        document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
+        document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
+        document.querySelector('.userProfileComments').addEventListener('click', stopPropagationHandler);
 
-            // Отримуємо поточні значення
-            const currentName = document.getElementById('nameInput').value.trim();
-            
+        // === ОБРОБНИК КЛІКІВ ===
+        document.querySelectorAll('[data-edit-type]').forEach(el => {
+            el.addEventListener('click', (ev) => {
+                if (!isEditMode) return;
+                ev.stopPropagation();
+                const type = el.getAttribute('data-edit-type');
+
+                if (type === 'avatar-setup') {
+                    openPickerWithTabs();
+                } else {
+                    openPickerSimple(type);
+                }
+            });
+        });
+
+        document.getElementById('profileRoot').addEventListener('click', (ev) => {
+            if (!isEditMode) return;
+            if (ev.target !== ev.currentTarget) return;
+            openPickerSimple('background');
+        });
+
+        // === ФУНКЦІЇ ВІДКРИТТЯ ПІКЕРА ===
+        function openPickerSimple(type) {
+            const tabsDiv = document.getElementById('pickerTabs');
+            tabsDiv.innerHTML = '';
+            loadItemsIntoPicker(type);
+        }
+
+        function openPickerWithTabs() {
+            const tabsDiv = document.getElementById('pickerTabs');
+            tabsDiv.innerHTML = '';
+
+            const btnAvatar = document.createElement('button');
+            btnAvatar.innerText = 'Avatars';
+            btnAvatar.className = 'pickerTabBtn active';
+
+            const btnFrame = document.createElement('button');
+            btnFrame.innerText = 'Frames';
+            btnFrame.className = 'pickerTabBtn';
+
+            btnAvatar.onclick = () => {
+                btnAvatar.classList.add('active');
+                btnFrame.classList.remove('active');
+                loadItemsIntoPicker('avatar');
+            };
+
+            btnFrame.onclick = () => {
+                btnFrame.classList.add('active');
+                btnAvatar.classList.remove('active');
+                loadItemsIntoPicker('frame');
+            };
+
+            tabsDiv.appendChild(btnAvatar);
+            tabsDiv.appendChild(btnFrame);
+
+            loadItemsIntoPicker('avatar');
+        }
+
+        // === ЗАВАНТАЖЕННЯ ДАНИХ (Fetch) ===
+        async function loadItemsIntoPicker(type) {
+            // Збереження попереднього вибору
+            if (pickerCurrentMode === 'avatar') {
+                tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            } else if (pickerCurrentMode === 'frame') {
+                tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            }
+
+            pickerCurrentMode = type;
+            pickerSelectedItemId = null;
+
+            // === ЛОГІКА ПОКАЗУ КНОПКИ ЗАВАНТАЖЕННЯ ===
+            const uploadContainer = document.getElementById('uploadContainer');
+            // Показуємо кнопку тільки для аватарів (можна змінити умову за потреби)
+            if (type === 'avatar') {
+                uploadContainer.style.display = 'flex';
+            } else {
+                uploadContainer.style.display = 'none';
+            }
+
+            const list = document.getElementById('itemPickerList');
+            const overlay = document.getElementById('itemPickerOverlay');
+            const titleLabel = document.getElementById('itemPickerTitle');
+
+            titleLabel.innerText = 'Choose ' + type;
+            list.innerHTML = '<div style="padding:20px;">Loading...</div>';
+            overlay.style.display = 'block';
+
             try {
-                // ---------------------------------------------------------
-                // 1. ОНОВЛЕННЯ ІМЕНІ (Якщо воно змінилось)
-                // ---------------------------------------------------------
-                if (currentName !== original.name) {
-                    // Використовуємо FormData для передачі простого рядка
-                    const nameData = new FormData();
-                    nameData.append('updatedUserName', currentName);
+                const resp = await fetch(`/userEquipment?type=${encodeURIComponent(type)}`);
+                const items = await resp.json();
 
-                    // Замініть '/UserProfile/UpdateName' на правильний шлях до вашого контролера
-                    const nameRes = await fetch('/updateUserName', {
-                        method: 'POST',
-                        body: nameData
-                    });
-
-                    if (!nameRes.ok) throw new Error("Failed to update name");
+                list.innerHTML = '';
+                if (!items || items.length === 0) {
+                    list.innerHTML = '<div style="color:#ccc">No items found</div>';
+                    // Не робимо return, щоб користувач міг завантажити свій
                 }
 
-                // ---------------------------------------------------------
-                // 2. ОНОВЛЕННЯ ЕКІПІРУВАННЯ (Аватар, Рамка, Фон, Титул)
-                // ---------------------------------------------------------
-                // Перевіряємо, чи були зміни в візуалі, щоб не слати зайвий запит (опціонально)
-                // Але поки лишаємо як було, щоб зберегти логіку пікера
-                
-                const equipmentPayload = {
-                    // name: currentName, // Ім'я ми вже оновили окремо, тут можна не слати або слати як дубль
-                    titleId: selectedTitleId,
-                    avatarId: selectedAvatarId,
-                    frameId: selectedFrameId,
-                    backgroundId: selectedBackgroundId
-                };
+                // Відновлення вибору
+                let activeSelection = { id: null };
+                if (type === 'avatar') {
+                    activeSelection = tempAvatarSelection;
+                } else if (type === 'frame') {
+                    activeSelection = tempFrameSelection;
+                }
 
-                const equipRes = await fetch('/updateProfile', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(equipmentPayload)
-                });
-
-                if (!equipRes.ok) throw new Error(await equipRes.text());
-
-                // Успіх - перезавантажуємо сторінку
-                location.reload();
+                if(items && items.length > 0) {
+                    items.forEach(it => {
+                        createPickerElement(it, activeSelection.id);
+                    });
+                }
 
             } catch (err) {
                 console.error(err);
-                alert('Error: ' + err.message);
-                editBtn.disabled = false;
-                editBtn.innerText = 'Save changes'; // Повертаємо текст кнопки
+                list.innerHTML = '<div style="color:#f88">Error loading items</div>';
             }
+        }
+
+        // === СТВОРЕННЯ ЕЛЕМЕНТА ПІКЕРА ===
+        function createPickerElement(item, activeId) {
+            const list = document.getElementById('itemPickerList');
+            let el;
+
+            if (pickerCurrentMode === 'title') {
+                el = document.createElement('div');
+                el.className = 'titleItem';
+                el.innerText = item.name;
+            } else {
+                el = document.createElement('img');
+                el.className = 'pickerItem';
+                el.src = item.url;
+            }
+
+            el.title = item.name || '';
+
+            if (item.id === activeId) {
+                el.classList.add('selected');
+                pickerSelectedItemId = item.id;
+                pickerSelectedItemUrl = item.url;
+                pickerSelectedItemName = item.name;
+            }
+
+            el.addEventListener('click', () => {
+                list.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
+                el.classList.add('selected');
+                pickerSelectedItemId = item.id;
+                pickerSelectedItemUrl = item.url;
+                pickerSelectedItemName = item.name;
+            });
+
+            list.appendChild(el);
+            return el;
+        }
+
+        // === UPLOAD LOGIC (ПРОВІДНИК ТА ЗАВАНТАЖЕННЯ) ===
+        const fileInput = document.getElementById('pickerFileUploadInput');
+        const uploadBtn = document.getElementById('pickerUploadBtn');
+
+        if(uploadBtn && fileInput) {
+            // Клік по кнопці викликає input file
+            uploadBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                fileInput.click();
+            });
+
+            // Коли файл обрано
+            fileInput.addEventListener('change', async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                uploadBtn.innerText = 'Uploading...';
+                uploadBtn.disabled = true;
+
+                const formData = new FormData();
+                formData.append("file", file);
+                // formData.append("type", pickerCurrentMode); // Якщо потрібно передати тип
+
+                try {
+                    const response = await fetch('/Image/UploadFromComponent', {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+
+                        const newItem = {
+                            id: result.id,
+                            url: result.url,
+                            name: "Custom Avatar"
+                        };
+
+                        // Очистити повідомлення "No items" якщо є
+                        const list = document.getElementById('itemPickerList');
+                        if (list.innerHTML.includes('No items')) list.innerHTML = '';
+
+                        // Додати новий елемент та вибрати його
+                        const el = createPickerElement(newItem, null);
+                        el.click(); // Авто-вибір
+                        el.scrollIntoView({ behavior: 'smooth' });
+
+                    } else {
+                        alert("Upload failed.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Error uploading file.");
+                } finally {
+                    uploadBtn.innerText = '+ Upload';
+                    uploadBtn.disabled = false;
+                }
+            });
+        }
+
+        // === СКИДАННЯ СТАНУ ===
+        function resetPickerModalState() {
+            tempAvatarSelection = { id: null, url: null, name: null };
+            tempFrameSelection = { id: null, url: null, name: null };
+            pickerSelectedItemId = null;
+            pickerSelectedItemUrl = null;
+            pickerSelectedItemName = null;
+            pickerCurrentMode = null;
+            document.getElementById('itemPickerOverlay').style.display = 'none';
+        }
+
+        // === APPLY ===
+        document.getElementById('itemPickerApply').addEventListener('click', () => {
+            if (pickerCurrentMode === 'avatar') {
+                tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            } else if (pickerCurrentMode === 'frame') {
+                tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            }
+
+            if (tempAvatarSelection.id) applyPickedItem('avatar', tempAvatarSelection.id, tempAvatarSelection.url, tempAvatarSelection.name);
+            if (tempFrameSelection.id) applyPickedItem('frame', tempFrameSelection.id, tempFrameSelection.url, tempFrameSelection.name);
+
+            if (pickerCurrentMode === 'title' || pickerCurrentMode === 'background') {
+                 if (pickerSelectedItemId) {
+                     applyPickedItem(pickerCurrentMode, pickerSelectedItemId, pickerSelectedItemUrl, pickerSelectedItemName);
+                 }
+            }
+            resetPickerModalState();
         });
 
-        editBtn.addEventListener('dblclick', (e) => {
-            e.stopPropagation();
-            if (!isEditMode) return;
-            // Restore logic
-            document.getElementById('nameInput').value = original.name;
-            document.getElementById('titleView').innerText = original.titleText;
-            document.getElementById('avatarImage').src = original.avatarUrl;
-            document.getElementById('frameImage').src = original.frameUrl;
-            document.getElementById('profileRoot').style.backgroundImage = `url('${original.backgroundUrl}')`;
-            selectedAvatarId = null; selectedFrameId = null; selectedBackgroundId = null; selectedTitleId = null;
-            exitEditMode();
+        document.getElementById('itemPickerCancel').addEventListener('click', () => {
+            resetPickerModalState();
         });
-    }
 
-    exitEditMode();
-})();
+        function applyPickedItem(type, id, url, name) {
+            if (type === 'avatar') {
+                document.getElementById('avatarImage').src = url;
+                selectedAvatarId = id;
+            } else if (type === 'frame') {
+                document.getElementById('frameImage').src = url;
+                selectedFrameId = id;
+            } else if (type === 'background') {
+                document.getElementById('profileRoot').style.backgroundImage = `url('${url}')`;
+                selectedBackgroundId = id;
+            } else if (type === 'title') {
+                document.getElementById('titleView').innerText = name;
+                selectedTitleId = id;
+            }
+        }
+
+        // === SAVE / CANCEL PAGE EDIT ===
+        const editBtn = document.getElementById('editToggleBtn');
+        if (editBtn) {
+            editBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!isEditMode) { enterEditMode(); return; }
+
+                editBtn.disabled = true;
+                editBtn.innerText = 'Saving...';
+
+                const currentName = document.getElementById('nameInput').value.trim();
+
+                try {
+                    if (currentName !== original.name) {
+                        const nameData = new FormData();
+                        nameData.append('updatedUserName', currentName);
+                        const nameRes = await fetch('/updateUserName', { method: 'POST', body: nameData });
+                        if (!nameRes.ok) throw new Error("Failed to update name");
+                    }
+
+                    const equipmentPayload = {
+                        titleId: selectedTitleId,
+                        avatarId: selectedAvatarId,
+                        frameId: selectedFrameId,
+                        backgroundId: selectedBackgroundId
+                    };
+
+                    const equipRes = await fetch('/updateProfile', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(equipmentPayload)
+                    });
+
+                    if (!equipRes.ok) throw new Error(await equipRes.text());
+                    location.reload();
+
+                } catch (err) {
+                    console.error(err);
+                    alert('Error: ' + err.message);
+                    editBtn.disabled = false;
+                    editBtn.innerText = 'Save changes';
+                }
+            });
+
+            editBtn.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (!isEditMode) return;
+                document.getElementById('nameInput').value = original.name;
+                document.getElementById('titleView').innerText = original.titleText;
+                document.getElementById('avatarImage').src = original.avatarUrl;
+                document.getElementById('frameImage').src = original.frameUrl;
+                document.getElementById('profileRoot').style.backgroundImage = `url('${original.backgroundUrl}')`;
+                selectedAvatarId = null; selectedFrameId = null; selectedBackgroundId = null; selectedTitleId = null;
+                exitEditMode();
+            });
+        }
+
+        exitEditMode();
+    })();
 </script>

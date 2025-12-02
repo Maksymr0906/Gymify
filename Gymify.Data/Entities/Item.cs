@@ -11,5 +11,7 @@ public class Item : BaseEntity
     public ItemType Type { get; set; } = 0;
     public ItemRarity Rarity { get; set; } = 0;
     public string ImageURL { get; set; } = string.Empty;
+    public bool IsCustom { get; set; } = false;
+    public Guid? CreatorUserId { get; set; } 
     public ICollection<UserItem> UserItems { get; set; } = [];
 }

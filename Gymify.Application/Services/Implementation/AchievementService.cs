@@ -46,7 +46,6 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
             {
                 completedAchievements.Add(achievement);
                 userAchievement.IsCompleted = true;
-                userAchievement.UnlockedAt = DateTime.UtcNow;
                 /*await _notificationService.SendNotificationAsync(
                         userProfileId,
                         $"You have completed '{achievement.Name}' achievement.",
@@ -100,8 +99,7 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
             UserProfileId = userProfileId,
             AchievementId = a.Id,
             Progress = 0,
-            IsCompleted = false,
-            UnlockedAt = DateTime.UtcNow,
+            IsCompleted = false
         }).ToList();
 
         foreach (var ua in userAchievements)

@@ -66,7 +66,6 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                         DescriptionEn = string.Empty,
                         NameUk = ukranianVer ? dto.Name : string.Empty,
                         DescriptionUk = string.Empty,
-                        CreatedAt = DateTime.UtcNow,
                         Type = (ExerciseType)dto.Type,
                         BaseXP = 10,
                         DifficultyMultiplier = 1.0,

@@ -51,11 +51,10 @@ public class UserEquipmentService(IUnitOfWork unitOfWork) : IUserEquipmentServic
         {
             Id = Guid.NewGuid(),
             UserProfileId = userProfileId,
-            CreatedAt = DateTime.UtcNow,
             AvatarId = Guid.Parse("f3c4d5e6-a7b8-4901-2345-cdef12345678"),
             BackgroundId = Guid.Parse("f2b3c4d5-e6f7-4890-1234-bcdef1234567"),
             FrameId = Guid.Parse("f1a2b3c4-d5e6-4789-9012-abcdef123456"),
-            TitleId = Guid.Parse("f4d5e6f7-b8c9-5012-3456-def123456789"),
+            TitleId = Guid.Parse("f4d5e6f7-b8c9-5012-3456-def123456789")
         };
 
         await _unitOfWork.UserEquipmentRepository.CreateAsync(userEquipment);
