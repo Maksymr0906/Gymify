@@ -53,7 +53,7 @@ public class LeaderboardService : ILeaderboardService
         {
             UserId = u.Id,
             UserName = u.ApplicationUser.UserName ?? "Unknown",
-            AvatarUrl = u.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
+            AvatarUrl = u.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
             Level = u.Level,
             TotalXP = u.CurrentXP,
             IsMe = u.Id == currentUserId,
@@ -94,7 +94,7 @@ public class LeaderboardService : ILeaderboardService
             Rank = myRank,
             UserId = myProfile.Id,
             UserName = myProfile.ApplicationUser?.UserName ?? "Me",
-            AvatarUrl = myProfile.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
+            AvatarUrl = myProfile.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
             Level = myProfile.Level,
             TotalXP = myProfile.CurrentXP,
             IsMe = true

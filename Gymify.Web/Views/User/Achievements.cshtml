@@ -1,11 +1,14 @@
 ﻿@model ICollection<Gymify.Application.DTOs.Achievement.AchievementDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Achievements";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="achievements-page-wrapper">
     <div class="achievements-header">
-        <h1 class="achievements-title">My Achievements</h1>
+        <h1 class="achievements-title">@Localizer["Header_Title"]</h1>
     </div>
 
     <div class="achievements-grid">
@@ -22,10 +25,13 @@
                 
                 <div class="achievement-icon">
                     <img src="@a.IconUrl" alt="@a.Name" loading="lazy" />
-
                 </div>
 
                 <div class="achievement-info">
+                    @* Примітка: Name та Description приходять з БД.
+                       Якщо хочете їх перекладати, в БД мають бути ключі ресурсів, 
+                       тоді тут було б @Localizer[a.Name] 
+                    *@
                     <h3>@a.Name</h3>
                     <p>@a.Description</p>
                 </div>
@@ -42,7 +48,7 @@
                 else 
                 {
                     <div class="progress-text-label" style="color: #ffc107;">
-                        Completed
+                        @Localizer["Status_Completed"]
                     </div>
                 }
             </div>

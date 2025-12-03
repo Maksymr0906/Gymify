@@ -3362,15 +3362,13 @@ textarea.gym-input {
     font-weight: 600;
 }
 
-/* Picker Modal */
+/* Picker Modal (Bottom Sheet Style) */
 #itemPickerOverlay {
     position: fixed;
-    inset: 0;
-    height: 100vh;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 45vh; /* Повертаємо висоту пікера */
+    height: 45vh;
     background: #1a1a1a;
     color: white;
     display: none;
@@ -3380,6 +3378,33 @@ textarea.gym-input {
     box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
     border-top: 1px solid #333;
     flex-direction: column;
+    animation: slideUpPicker 0.3s ease-out;
+}
+
+@keyframes slideUpPicker {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDownPicker {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(100%);
+    }
+}
+
+/* Цей клас ми будемо додавати через JS перед закриттям */
+#itemPickerOverlay.closing {
+    animation: slideDownPicker 0.3s ease-in forwards;
+    pointer-events: none; /* Щоб не можна було клікнути, поки воно їде вниз */
 }
 
 #itemPickerHeader {
@@ -3418,6 +3443,25 @@ textarea.gym-input {
     transition: all 0.2s;
 }
 
+#pickerTabs {
+    /* Абсолютне позиціонування по центру */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 10px;
+    /* Щоб таби були поверх усього, якщо екран дуже вузький */
+    z-index: 5;
+}
+
+.pickerActionsGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
     .pickerItem.selected {
         border-color: var(--gym-orange);
         transform: scale(1.05);
@@ -3443,6 +3487,27 @@ textarea.gym-input {
     .userProfileAvatarBlock {
         width: 220px;
         height: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    #itemPickerHeader {
+        flex-direction: column;
+        gap: 15px;
+        height: auto;
+        padding: 15px;
+    }
+
+    #pickerTabs {
+        position: static; /* Скасувати абсолют */
+        transform: none;
+        margin-bottom: 10px;
+    }
+
+    .pickerActionsGroup {
+        width: 100%;
+        justify-content: space-between;
+        margin-left: 0;
     }
 }
 

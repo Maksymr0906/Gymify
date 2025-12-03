@@ -1,6 +1,9 @@
 ﻿@model Gymify.Application.ViewModels.UserItems.UserItemsViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Inventory";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="inventory-page-wrapper">
@@ -9,13 +12,14 @@
     {
             <div class="inventory-section">
                 <h2 class="inventory-section-title">
+                @* Логіка вибору назви секції перекладена *@
                 @(group.Key switch
                 {
-                    1 => "Backgrounds",
-                    2 => "Avatars",
-                    3 => "Frames",
-                    4 => "Titles",
-                    _ => "Misc"
+                    1 => Localizer["Type_Backgrounds"],
+                    2 => Localizer["Type_Avatars"],
+                    3 => Localizer["Type_Frames"],
+                    4 => Localizer["Type_Titles"],
+                    _ => Localizer["Type_Misc"]
                 })
                 </h2>
 
@@ -35,13 +39,13 @@
 
                         @if (isTitle)
                         {
-                                        <div class="inventory-title-badge">@item.Name</div>
+                                            <div class="inventory-title-badge">@item.Name</div>
                         }
                         else
                         {
-                                        <div class="inventory-img-container">
-                                            <img src="@item.ImageURL" alt="@item.Name" loading="lazy" />
-                                        </div>
+                                            <div class="inventory-img-container">
+                                                <img src="@item.ImageURL" alt="@item.Name" loading="lazy" />
+                                            </div>
                         }
                                 <div class="inventory-card-name">@item.Name</div>
                             </div>
@@ -51,7 +55,7 @@
     }
 
     <div class="inventory-section">
-        <h2 class="inventory-section-title">Cases</h2>
+        <h2 class="inventory-section-title">@Localizer["Section_Cases"]</h2>
         <div class="inventory-grid">
             @foreach (var caseEntity in Model.Cases.ToList())
             {
@@ -78,27 +82,27 @@
         <button class="gym-modal-close" onclick="closeModal()">×</button>
 
         <div class="gym-modal-header">
-            <h2 id="modalName" class="gym-modal-title">Item Name</h2>
-            <span id="modalRarityBadge" class="rarity-badge">Common</span>
+            <h2 id="modalName" class="gym-modal-title">@Localizer["Modal_DefaultTitle"]</h2>
+            <span id="modalRarityBadge" class="rarity-badge">@Localizer["Modal_DefaultRarity"]</span>
         </div>
 
         <div class="gym-modal-body">
             <div class="gym-modal-image-wrapper">
-                <img id="modalImage" src="" alt="Item Preview" />
+                <img id="modalImage" src="" alt="@Localizer["Alt_ItemPreview"]" />
                 <div id="modalTitlePreview" class="title-preview-box" style="display:none;"></div>
             </div>
 
-            <p id="modalDescription" class="gym-modal-description">Description goes here...</p>
+            <p id="modalDescription" class="gym-modal-description">@Localizer["Modal_DefaultDesc"]</p>
         </div>
 
         <div class="gym-modal-footer">
             <form id="openCaseForm" method="post" asp-action="GoToCasePage" style="width:100%">
                 <input type="hidden" name="caseId" id="modalCaseId" />
                 <button type="submit" id="goToCasePageBtn" class="gym-btn gym-btn-primary w-100 hidden">
-                    Open Case
+                    @Localizer["Btn_OpenCase"]
                 </button>
             </form>
-            <button onclick="closeModal()" class="gym-btn gym-btn-secondary w-100">Close</button>
+            <button onclick="closeModal()" class="gym-btn gym-btn-secondary w-100">@Localizer["Btn_Close"]</button>
         </div>
     </div>
 </div>
@@ -118,13 +122,16 @@
 
                 // Fill Data
                 nameEl.textContent = ds.name;
-                descEl.textContent = ds.description || "No description available.";
+                // Тут ми вставляємо локалізований рядок, якщо опису немає
+                descEl.textContent = ds.description || "@Localizer["Msg_NoDescription"]";
 
                 // Rarity Logic
                 if (ds.rarity) {
                     rarityBadge.textContent = ds.rarity;
                     // Reset classes and add specific rarity class
                     rarityBadge.className = 'rarity-badge';
+                    // Note: This relies on English rarity names for CSS (e.g. rarity-common). 
+                    // If your DB returns localized rarity names, CSS might break.
                     rarityBadge.classList.add(`rarity-${ds.rarity.toLowerCase()}`);
                     rarityBadge.style.display = "inline-block";
                 } else {

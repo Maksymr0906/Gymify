@@ -1,6 +1,9 @@
 ﻿@model Gymify.Application.ViewModels.UserProfile.UserProfileViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div id="profileRoot" class="userProfileFullPage"
@@ -11,17 +14,19 @@
 
         <div class="userProfileCustoms">
             <div class="userProfileAvatarBlock" id="avatarBlock" data-edit-type="avatar-setup">
-                <img src="@Model.UserEquipmentDto.FrameUrl" class="frameImage" id="frameImage" alt="Frame" />
-                <img src="@Model.UserEquipmentDto.AvatarUrl" class="avatarImage" id="avatarImage" alt="Avatar" />
+                <img src="@Model.UserEquipmentDto.FrameUrl" class="frameImage" id="frameImage" alt="@Localizer["Alt_Frame"]" />
+                <img src="@Model.UserEquipmentDto.AvatarUrl" class="avatarImage" id="avatarImage" alt="@Localizer["Alt_Avatar"]" />
             </div>
 
             <div class="userProfileInfoBlock">
                 @if (Model.Editable == true)
                 {
-                        <button class="gym-btn gym-btn-primary" id="editToggleBtn" style="min-width: 140px;">Edit</button>
+                        <button class="gym-btn gym-btn-primary" id="editToggleBtn" style="min-width: 140px;">
+                            @Localizer["Btn_Edit"]
+                        </button>
                 }
                 <div>
-                    <span id="levelView" class="userProfileLevelBadge">Level @Model.Level</span>
+                    <span id="levelView" class="userProfileLevelBadge">@Localizer["Label_Level"] @Model.Level</span>
                 </div>
                 <div>
                     <span id="nameView" class="userProfileNameView">@Model.UserName</span>
@@ -34,12 +39,13 @@
         </div>
 
         <div class="userProfileAchivmentBlock">
-            <h2 class="userProfileAchivmentTitle">Achievements</h2>
+            <h2 class="userProfileAchivmentTitle">@Localizer["Section_Achievements"]</h2>
             <ul class="userProfileAchivmentsList" id="achievementsList">
                 @if (Model.Achievements != null && Model.Achievements.Any())
                 {
                     foreach (var a in Model.Achievements)
                     {
+                        @* Тут назви досягнень приходять з БД. Якщо вони не локалізовані в БД, вони будуть англійською *@
                                 <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
                                     <div class="achievementContent">
                                         <img src="@a.IconUrl" class="achievementIcon" />
@@ -53,13 +59,13 @@
                 }
                 else
                 {
-                        <p style="color:#666;">You haven't unlocked any achievements yet.</p>
+                        <p style="color:#666;">@Localizer["Msg_NoAchievements"]</p>
                 }
             </ul>
         </div>
 
         <div class="userProfileLastTrains">
-            <h2 class="userProfileTrainsTitle">My last trainings</h2>
+            <h2 class="userProfileTrainsTitle">@Localizer["Section_LastTrainings"]</h2>
             <ul class="userProfileTrainsList">
                 @if (Model.Workouts != null && Model.Workouts.Any())
                 {
@@ -76,14 +82,14 @@
                 }
                 else
                 {
-                        <p style="color:#666;">No workouts yet.</p>
+                        <p style="color:#666;">@Localizer["Msg_NoTrainings"]</p>
                 }
             </ul>
         </div>
 
         <div class="userProfileComments">
             <div class="ae-comments-section">
-                <h3 class="ae-section-title ae-mb-20">Comments</h3>
+                <h3 class="ae-section-title ae-mb-20">@Localizer["Section_Comments"]</h3>
                 @{
                     var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
             {
@@ -102,7 +108,7 @@
 
 <div id="itemPickerOverlay" aria-hidden="true" style="display:none;">
     <div id="itemPickerHeader">
-        <div id="itemPickerTitle" style="font-size: 20px; font-weight: bold;">Choose item</div>
+        <div id="itemPickerTitle" style="font-size: 20px; font-weight: bold;">@Localizer["Picker_TitleDefault"]</div>
 
         <div id="pickerTabs" style="display:flex; gap:10px;"></div>
 
@@ -110,12 +116,12 @@
             <div id="uploadContainer" style="display:none; align-items:center; gap: 10px;">
                 <input type="file" id="pickerFileUploadInput" accept=".png,.jpg,.jpeg" style="display:none;" />
                 <button id="pickerUploadBtn" class="gym-btn gym-btn-secondary" style="padding: 8px 16px; font-size: 14px;">
-                    + Upload
+                    @Localizer["Btn_Upload"]
                 </button>
             </div>
 
-            <button id="itemPickerCancel" class="gym-btn gym-btn-secondary" style="padding: 8px 16px; font-size: 14px;">Cancel</button>
-            <button id="itemPickerApply" class="gym-btn gym-btn-primary" style="padding: 8px 16px; font-size: 14px;">Apply</button>
+            <button id="itemPickerCancel" class="gym-btn gym-btn-secondary" style="padding: 8px 16px; font-size: 14px;">@Localizer["Btn_Cancel"]</button>
+            <button id="itemPickerApply" class="gym-btn gym-btn-primary" style="padding: 8px 16px; font-size: 14px;">@Localizer["Btn_Apply"]</button>
         </div>
     </div>
 
@@ -124,6 +130,46 @@
 
 <script>
     (() => {
+        // --- LOCALIZATION BRIDGE ---
+        // Передаємо переклади з C# в JS об'єкт
+        const JS_RESOURCES = {
+            btnEdit: '@Localizer["Btn_Edit"]',
+            btnSaveChanges: '@Localizer["Btn_SaveChanges"]',
+            btnSaving: '@Localizer["Btn_Saving"]',
+            btnUpload: '@Localizer["Btn_Upload"]',
+            btnUploading: '@Localizer["Btn_Uploading"]',
+            
+            tooltipTitle: '@Localizer["Tooltip_ChangeTitle"]',
+            tooltipBackground: '@Localizer["Tooltip_ChangeBackground"]',
+            tooltipAvatar: '@Localizer["Tooltip_ChangeAvatar"]',
+            
+            tabAvatars: '@Localizer["Tab_Avatars"]',
+            tabFrames: '@Localizer["Tab_Frames"]',
+            
+            pickerChoose: '@Localizer["Picker_ChoosePrefix"]', 
+            
+            typeAvatar: '@Localizer["Type_Avatar"]',
+            typeFrame: '@Localizer["Type_Frame"]',
+            typeBackground: '@Localizer["Type_Background"]',
+            typeTitle: '@Localizer["Type_Title"]',
+            
+            msgLoading: '@Localizer["Msg_Loading"]',
+            msgNoItems: '@Localizer["Msg_NoItems"]',
+            msgErrorLoading: '@Localizer["Msg_ErrorLoading"]',
+            msgUploadFailed: '@Localizer["Msg_UploadFailed"]',
+            msgErrorUpload: '@Localizer["Msg_ErrorUpload"]',
+            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]'
+        };
+
+        // Helper to translate internal type names to localized names
+        function getLocalizedTypeName(type) {
+            if (type === 'avatar') return JS_RESOURCES.typeAvatar;
+            if (type === 'frame') return JS_RESOURCES.typeFrame;
+            if (type === 'background') return JS_RESOURCES.typeBackground;
+            if (type === 'title') return JS_RESOURCES.typeTitle;
+            return type;
+        }
+
         let isEditMode = false;
 
         // ID вибраних предметів
@@ -157,19 +203,18 @@
             document.getElementById('nameInput').style.display = 'block';
 
             document.getElementById('titleView').style.cursor = 'pointer';
-            document.getElementById('titleView').title = "Change Title";
+            document.getElementById('titleView').title = JS_RESOURCES.tooltipTitle;
             document.getElementById('titleView').style.borderBottom = "1px dashed #777";
 
             document.getElementById('profileRoot').style.cursor = 'pointer';
-            document.getElementById('profileRoot').title = "Change Background";
+            document.getElementById('profileRoot').title = JS_RESOURCES.tooltipBackground;
 
-            document.getElementById('avatarBlock').title = "Change Avatar or Frame";
+            document.getElementById('avatarBlock').title = JS_RESOURCES.tooltipAvatar;
             document.getElementById('avatarBlock').style.cursor = "pointer";
 
             const btn = document.getElementById('editToggleBtn');
             if (btn) { 
-                btn.innerText = 'Save changes'; 
-                // Стиль змінюється класами CSS, але текст оновлюємо
+                btn.innerText = JS_RESOURCES.btnSaveChanges; 
             }
         }
 
@@ -186,7 +231,7 @@
             document.getElementById('avatarBlock').title = "";
 
             const btn = document.getElementById('editToggleBtn');
-            if (btn) { btn.innerText = 'Edit'; }
+            if (btn) { btn.innerText = JS_RESOURCES.btnEdit; }
 
             document.getElementById('itemPickerOverlay').style.display = 'none';
         }
@@ -195,7 +240,7 @@
             e.stopPropagation();
         }
 
-        // Блокуємо спливання, щоб клік по контенту не міняв фон
+        // Блокуємо спливання
         document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
         document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
         document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
@@ -233,15 +278,14 @@
             const tabsDiv = document.getElementById('pickerTabs');
             tabsDiv.innerHTML = '';
 
-            // Використовуємо gym-btn класи для табів
             const btnAvatar = document.createElement('button');
-            btnAvatar.innerText = 'Avatars';
+            btnAvatar.innerText = JS_RESOURCES.tabAvatars;
             btnAvatar.className = 'gym-btn gym-btn-primary';
             btnAvatar.style.padding = '6px 12px';
             btnAvatar.style.fontSize = '14px';
 
             const btnFrame = document.createElement('button');
-            btnFrame.innerText = 'Frames';
+            btnFrame.innerText = JS_RESOURCES.tabFrames;
             btnFrame.className = 'gym-btn gym-btn-secondary';
             btnFrame.style.padding = '6px 12px';
             btnFrame.style.fontSize = '14px';
@@ -286,9 +330,11 @@
             const overlay = document.getElementById('itemPickerOverlay');
             const titleLabel = document.getElementById('itemPickerTitle');
 
-            titleLabel.innerText = 'Choose ' + type;
-            list.innerHTML = '<div style="padding:20px;">Loading...</div>';
-            overlay.style.display = 'flex'; // Flex для column layout
+            // Локалізований заголовок
+            titleLabel.innerText = JS_RESOURCES.pickerChoose + ' ' + getLocalizedTypeName(type);
+            
+            list.innerHTML = `<div style="padding:20px;">${JS_RESOURCES.msgLoading}</div>`;
+            overlay.style.display = 'flex';
 
             try {
                 const resp = await fetch(`/userEquipment?type=${encodeURIComponent(type)}`);
@@ -296,7 +342,7 @@
 
                 list.innerHTML = '';
                 if (!items || items.length === 0) {
-                    list.innerHTML = '<div style="color:#ccc; padding: 20px;">No items found</div>';
+                    list.innerHTML = `<div style="color:#ccc; padding: 20px;">${JS_RESOURCES.msgNoItems}</div>`;
                 }
 
                 let activeSelection = { id: null };
@@ -311,7 +357,7 @@
 
             } catch (err) {
                 console.error(err);
-                list.innerHTML = '<div style="color:#f88; padding: 20px;">Error loading items</div>';
+                list.innerHTML = `<div style="color:#f88; padding: 20px;">${JS_RESOURCES.msgErrorLoading}</div>`;
             }
         }
 
@@ -322,8 +368,7 @@
 
             if (pickerCurrentMode === 'title') {
                 el = document.createElement('div');
-                el.className = 'titleItem'; // Стиль в Global CSS або inline
-                // Додаємо інлайн стиль для TitleItem, бо в CSS його може не бути в розділі Inventory
+                el.className = 'titleItem'; 
                 el.style.display = 'inline-flex';
                 el.style.alignItems = 'center';
                 el.style.justifyContent = 'center';
@@ -340,7 +385,7 @@
                 el.innerText = item.name;
             } else {
                 el = document.createElement('img');
-                el.className = 'pickerItem'; // Це є в CSS
+                el.className = 'pickerItem'; 
                 el.src = item.url;
             }
 
@@ -348,7 +393,6 @@
 
             if (item.id === activeId) {
                 el.classList.add('selected');
-                // Якщо titleItem, додаємо візуально
                 if(pickerCurrentMode === 'title') el.style.borderColor = '#ff9f1c';
 
                 pickerSelectedItemId = item.id;
@@ -388,7 +432,7 @@
                 const file = fileInput.files[0];
                 if (!file) return;
 
-                uploadBtn.innerText = 'Uploading...';
+                uploadBtn.innerText = JS_RESOURCES.btnUploading;
                 uploadBtn.disabled = true;
 
                 const formData = new FormData();
@@ -405,20 +449,20 @@
                         const newItem = { id: result.id, url: result.url, name: "Custom Avatar" };
 
                         const list = document.getElementById('itemPickerList');
-                        if (list.innerHTML.includes('No items')) list.innerHTML = '';
+                        if (list.innerHTML.includes(JS_RESOURCES.msgNoItems)) list.innerHTML = '';
 
                         const el = createPickerElement(newItem, null);
                         el.click();
                         el.scrollIntoView({ behavior: 'smooth' });
 
                     } else {
-                        alertify.error("Upload failed.");
+                        alertify.error(JS_RESOURCES.msgUploadFailed);
                     }
                 } catch (error) {
                     console.error(error);
-                    alertify.error("Error uploading file.");
+                    alertify.error(JS_RESOURCES.msgErrorUpload);
                 } finally {
-                    uploadBtn.innerText = '+ Upload';
+                    uploadBtn.innerText = JS_RESOURCES.btnUpload;
                     uploadBtn.disabled = false;
                 }
             });
@@ -426,10 +470,22 @@
 
         // === APPLY & CANCEL ===
         function resetPickerModalState() {
-            tempAvatarSelection = { id: null, url: null, name: null };
-            tempFrameSelection = { id: null, url: null, name: null };
-            pickerSelectedItemId = null;
-            document.getElementById('itemPickerOverlay').style.display = 'none';
+            const overlay = document.getElementById('itemPickerOverlay');
+
+            // 1. Додаємо клас, який запускає анімацію вниз
+            overlay.classList.add('closing');
+
+            // 2. Чекаємо, поки анімація пройде (300мс, як в CSS), і тільки тоді ховаємо
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.classList.remove('closing'); // Чистимо клас для наступного відкриття
+
+                // Скидаємо змінні
+                tempAvatarSelection = { id: null, url: null, name: null };
+                tempFrameSelection = { id: null, url: null, name: null };
+                pickerSelectedItemId = null;
+
+            }, 280); // Ставимо трохи менше 300, щоб не блимнуло в кінці
         }
 
         document.getElementById('itemPickerApply').addEventListener('click', () => {
@@ -478,7 +534,7 @@
                 if (!isEditMode) { enterEditMode(); return; }
 
                 editBtn.disabled = true;
-                editBtn.innerText = 'Saving...';
+                editBtn.innerText = JS_RESOURCES.btnSaving;
 
                 const currentName = document.getElementById('nameInput').value.trim();
 
@@ -507,9 +563,9 @@
 
                 } catch (err) {
                     console.error(err);
-                    alertify.error('Error: ' + err.message);
+                    alertify.error(JS_RESOURCES.msgErrorGeneric + ' ' + err.message);
                     editBtn.disabled = false;
-                    editBtn.innerText = 'Save changes';
+                    editBtn.innerText = JS_RESOURCES.btnSaveChanges;
                 }
             });
         }

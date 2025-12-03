@@ -11,5 +11,5 @@ public class CommentsSectionViewModel
 
     public List<CommentDto> CommentDtos { get; set; } = new();
 
-    public string CurrentUserAvatarUrl { get; set; } = "/images/default-avatar.png";
+    public string CurrentUserAvatarUrl { get; set; } = "/Images/DefaultAvatar.png";
 }

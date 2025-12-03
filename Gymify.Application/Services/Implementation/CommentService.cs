@@ -29,7 +29,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
 
             // ✅ БЕРЕМО АВАТАР З НАВІГАЦІЙНИХ ВЛАСТИВОСТЕЙ (БЕЗ ЗАЙВИХ ЗАПИТІВ)
             // Припускаємо, що навігаційна властивість в UserProfile називається 'UserEquipment' або 'Equipment'
-            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
+            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
 
             // Спрощена логіка CanDelete
             CanDelete = comment.AuthorId == currentProfileUserId,
@@ -50,7 +50,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
         if (currentUser == null) throw new Exception("User not found");
 
         // Дістаємо URL безпечно
-        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png";
+        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png";
 
         var commentDto = new CommentDto
         {

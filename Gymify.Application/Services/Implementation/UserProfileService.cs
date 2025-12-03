@@ -186,13 +186,13 @@ public class UserProfileService
             Workouts = userWorkouts,
             UserEquipmentDto = userEquipment,
             UpdateUserEquipmentDto = new(),
-            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
             Comments = new CommentsSectionViewModel
             {
                 TargetId = userProfileId,
                 TargetType = Data.Enums.CommentTargetType.UserProfile,
                 CommentDtos = await _commentService.GetCommentDtos(currentUserProfileId, userProfileId, Data.Enums.CommentTargetType.UserProfile),
-                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
+                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
             }
         };
     }
