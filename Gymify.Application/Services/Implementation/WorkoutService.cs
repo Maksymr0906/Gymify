@@ -98,7 +98,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         {
             Id = Guid.NewGuid(),
             Name = model.Name,
-            Description = model.Description,
+            Description = model.Description ?? string.Empty,
+            Conclusion = model.Conclusion ?? string.Empty,
             IsPrivate = model.IsPrivate,
             UserProfileId = userProfileId
         };

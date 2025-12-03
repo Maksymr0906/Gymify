@@ -121,7 +121,7 @@
     <value>Введіть коректну електронну пошту.</value>
   </data>
   <data name="NameLength" xml:space="preserve">
-    <value>Ім'я має бути від {2} до {1} символів.</value>
+    <value>Назва має бути від {2} до {1} символів.</value>
     <comment>{1} – Макс. довжина, {2} – Мін. довжина</comment>
   </data>
   <data name="PasswordLength" xml:space="preserve">
