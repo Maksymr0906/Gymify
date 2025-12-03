@@ -3,7 +3,7 @@
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Finish Workout";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="ae-page-container">
@@ -11,8 +11,8 @@
     <div class="finish-wrapper">
 
         <div style="text-align: center; margin-bottom: 30px;">
-            <h1 class="ae-page-title">@Localizer["FinishWorkout"]</h1>
-            <p class="ae-lead-text">@Localizer["FinishWorkoutLead"]</p>
+            <h1 class="ae-page-title">@Localizer["Header_Title"]</h1>
+            <p class="ae-lead-text">@Localizer["Header_Subtitle"]</p>
         </div>
 
         <div class="finish-card">
@@ -23,23 +23,23 @@
 
                 <div class="workout-form-group" style="margin-bottom: 25px;">
                     <label asp-for="Conclusions" class="ae-label-mini" style="font-size: 14px; margin-bottom: 10px;">
-                        @Localizer["Conclusions"]
+                        @Localizer["Label_Conclusions"]
                     </label>
 
                     <textarea asp-for="Conclusions"
                               class="gym-input finish-textarea"
-                              placeholder="@Localizer["ConclusionsPlaceholder"]"></textarea>
+                              placeholder="@Localizer["Placeholder_Conclusions"]"></textarea>
                 </div>
 
                 <button type="submit" class="gym-btn gym-btn-primary w-100 scale-btn" style="padding: 15px; font-size: 18px;">
-                    @Localizer["CompleteWorkout"] <i class="fa-solid fa-trophy" style="margin-left: 10px;"></i>
+                    @Localizer["Btn_Complete"] <i class="fa-solid fa-trophy" style="margin-left: 10px;"></i>
                 </button>
             </form>
 
             <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #eee;">
                 <form method="post" asp-action="RemoveWorkout" asp-route-workoutId="@Model.WorkoutId">
                     <button type="submit" class="gym-btn gym-btn-secondary w-100" style="color: #e74c3c; border-color: #fadbd8;">
-                        @Localizer["CancelAndDeleteWorkout"]
+                        @Localizer["Btn_CancelDelete"]
                     </button>
                 </form>
             </div>

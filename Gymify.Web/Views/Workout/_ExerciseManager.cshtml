@@ -15,31 +15,31 @@
 
     <div class="ae-add-panel">
         <div style="flex-grow: 1; min-width: 250px; position: relative;">
-            <label class="ae-label-mini">@Localizer["ExerciseName"]</label>
-            <input type="text" id="mgrName" class="ae-input-std" placeholder="@Localizer["Search"]..." autocomplete="off">
+            <label class="ae-label-mini">@Localizer["Label_ExerciseName"]</label>
+            <input type="text" id="mgrName" class="ae-input-std" placeholder="@Localizer["Placeholder_Search"]..." autocomplete="off">
             <ul id="mgrSuggestions" class="ae-suggestions" style="display:none;"></ul>
         </div>
         
         <div class="ae-group-small">
-            <label class="ae-label-mini">@Localizer["Sets"]</label>
+            <label class="ae-label-mini">@Localizer["Label_Sets"]</label>
             <input type="number" id="mgrSets" class="ae-input-std" value="3">
         </div>
         <div class="ae-group-small">
-            <label class="ae-label-mini">@Localizer["Reps"]</label>
+            <label class="ae-label-mini">@Localizer["Label_Reps"]</label>
             <input type="number" id="mgrReps" class="ae-input-std" value="12">
         </div>
         <div class="ae-group-small">
-            <label class="ae-label-mini">@Localizer["Kg"]</label>
+            <label class="ae-label-mini">@Localizer["Label_Kg"]</label>
             <input type="number" id="mgrWeight" class="ae-input-std" value="0" step="0.5">
         </div>
         <div class="ae-group-small">
-            <label class="ae-label-mini">@Localizer["Min"]</label>
+            <label class="ae-label-mini">@Localizer["Label_Min"]</label>
             <input type="number" id="mgrDuration" class="ae-input-std" value="0">
         </div>
         
         <div>
             <button type="button" id="mgrBtnAdd" class="gym-btn gym-btn-primary" style="height: 42px; margin-top: 19px;">
-                @Localizer["Add"]
+                @Localizer["Btn_Add"]
             </button>
         </div>
     </div>
@@ -49,7 +49,7 @@
 
         <div id="mgrList" class="ae-list-container">
             <div id="mgrEmpty" class="ae-empty-state">
-                @Localizer["NoExercises"]
+                @Localizer["Msg_NoExercises"]
             </div>
             
             @for (int i = 0; i < Model.Count; i++)
@@ -61,25 +61,25 @@
                     <div class="ae-item-header">
                         <span class="ae-item-title">@Model[i].Name</span>
                         <button type="button" class="gym-btn gym-btn-secondary ae-btn-remove" style="padding: 4px 10px; font-size: 12px; color: #e74c3c; border-color: #fadbd8;">
-                            @Localizer["Remove"]
+                            @Localizer["Btn_Remove"]
                         </button>
                     </div>
                     
                     <div class="ae-item-grid">
                         <div>
-                            <label class="ae-label-mini">@Localizer["Sets"]</label>
+                            <label class="ae-label-mini">@Localizer["Label_Sets"]</label>
                             <input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" />
                         </div>
                         <div>
-                            <label class="ae-label-mini">@Localizer["Reps"]</label>
+                            <label class="ae-label-mini">@Localizer["Label_Reps"]</label>
                             <input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" />
                         </div>
                         <div>
-                            <label class="ae-label-mini">@Localizer["Kg"]</label>
+                            <label class="ae-label-mini">@Localizer["Label_Kg"]</label>
                             <input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" />
                         </div>
                         <div>
-                            <label class="ae-label-mini">@Localizer["Min"]</label>
+                            <label class="ae-label-mini">@Localizer["Label_Min"]</label>
                             <input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" />
                         </div>
                     </div>
@@ -90,9 +90,9 @@
         @if (!hideButtons)
         {
             <div class="ae-flex-end" style="padding: 20px; background: #fcfcfc;">
-                <span id="mgrSaveStatus" style="display:none; font-weight:bold; color: #27ae60; margin-right: 10px;">Saved!</span>
-                <button type="button" id="mgrBtnCancel" class="gym-btn gym-btn-secondary">@Localizer["Cancel"]</button>
-                <button type="submit" id="mgrBtnSave" class="gym-btn gym-btn-primary">@Localizer["SaveChanges"]</button>
+                <span id="mgrSaveStatus" style="display:none; font-weight:bold; color: #27ae60; margin-right: 10px;">@Localizer["Msg_Saved"]</span>
+                <button type="button" id="mgrBtnCancel" class="gym-btn gym-btn-secondary">@Localizer["Btn_Cancel"]</button>
+                <button type="submit" id="mgrBtnSave" class="gym-btn gym-btn-primary">@Localizer["Btn_SaveChanges"]</button>
             </div>
         }
     </form>
@@ -106,21 +106,29 @@
         <div class="ae-item-header">
             <span class="ae-item-title card-title-text"></span>
             <button type="button" class="gym-btn gym-btn-secondary ae-btn-remove" style="padding: 4px 10px; font-size: 12px; color: #e74c3c; border-color: #fadbd8;">
-                @Localizer["Remove"]
+                @Localizer["Btn_Remove"]
             </button>
         </div>
         
         <div class="ae-item-grid">
-            <div><label class="ae-label-mini">@Localizer["Sets"]</label><input type="number" class="ae-input-std inp-sets"></div>
-            <div><label class="ae-label-mini">@Localizer["Reps"]</label><input type="number" class="ae-input-std inp-reps"></div>
-            <div><label class="ae-label-mini">@Localizer["Kg"]</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
-            <div><label class="ae-label-mini">@Localizer["Min"]</label><input type="number" class="ae-input-std inp-duration"></div>
+            <div><label class="ae-label-mini">@Localizer["Label_Sets"]</label><input type="number" class="ae-input-std inp-sets"></div>
+            <div><label class="ae-label-mini">@Localizer["Label_Reps"]</label><input type="number" class="ae-input-std inp-reps"></div>
+            <div><label class="ae-label-mini">@Localizer["Label_Kg"]</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
+            <div><label class="ae-label-mini">@Localizer["Label_Min"]</label><input type="number" class="ae-input-std inp-duration"></div>
         </div>
     </div>
 </template>
 
 <script>
     (function() {
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            msgSaved: '@Localizer["Msg_Saved"]',
+            msgError: '@Localizer["Msg_Error"]',
+            btnSaving: '@Localizer["Btn_Saving"]',
+            btnSaveChanges: '@Localizer["Btn_SaveChanges"]'
+        };
+
         const initialData = @Html.Raw(initialJson);
         const container = document.getElementById("mgrList");
         const emptyMsg = document.getElementById("mgrEmpty");
@@ -130,14 +138,8 @@
         const suggestions = document.getElementById("mgrSuggestions");
         const btnAdd = document.getElementById("mgrBtnAdd");
         
-        // ... (Решта JS логіки залишається ідентичною, вона прив'язана до ID, які ми не змінювали)
-        // Тільки зверни увагу на класи, якщо ти десь в JS шукаєш по класу (тут використовується .ae-card-item -> .ae-item-card)
-        // Я оновив класи в HTML вище, але перевір JS нижче:
-
-        // ОНОВЛЕНИЙ JS ДЛЯ НОВИХ КЛАСІВ:
-        
         function restoreInitialState() {
-            container.querySelectorAll(".ae-item-card").forEach(el => el.remove()); // .ae-item-card
+            container.querySelectorAll(".ae-item-card").forEach(el => el.remove()); 
             initialData.forEach(item => createCardDOM(item));
             inName.value = "";
             document.getElementById("mgrSets").value = 3;
@@ -148,7 +150,7 @@
 
         function createCardDOM(data) {
             const clone = template.content.cloneNode(true);
-            const card = clone.querySelector(".ae-item-card"); // .ae-item-card
+            const card = clone.querySelector(".ae-item-card"); 
 
             card.querySelector(".card-title-text").textContent = data.name;
             card.querySelector(".inp-id").value = data.id;
@@ -159,15 +161,11 @@
             card.querySelector(".inp-duration").value = data.durationMinutes !== undefined ? data.durationMinutes : (data.duration || 0);
 
             card.querySelector(".ae-btn-remove").addEventListener("click", removeCard);
-            
-            // Вставка перед empty state або в кінець
-            // container.appendChild(card); // Просто в кінець
-            // Але оскільки emptyMsg всередині, краще вставляти ПІСЛЯ нього
             container.appendChild(card);
         }
 
         function removeCard(e) {
-            e.target.closest(".ae-item-card").remove(); // .ae-item-card
+            e.target.closest(".ae-item-card").remove(); 
             reindex();
             checkEmpty();
         }
@@ -182,7 +180,7 @@
         }
 
         function reindex() {
-            const cards = container.querySelectorAll(".ae-item-card"); // .ae-item-card
+            const cards = container.querySelectorAll(".ae-item-card"); 
             cards.forEach((card, index) => {
                 setName(card, ".inp-id", `exercises[${index}].Id`);
                 setName(card, ".inp-name", `exercises[${index}].Name`);
@@ -266,7 +264,10 @@
         if(form) {
             form.addEventListener("submit", function(e) {
                 e.preventDefault();
-                if (btnSave) { btnSave.innerHTML = 'Saving...'; btnSave.disabled = true; }
+                if (btnSave) { 
+                    btnSave.innerHTML = JS_RESOURCES.btnSaving; 
+                    btnSave.disabled = true; 
+                }
                 if (statusMsg) statusMsg.style.display = "none";
                 reindex();
                 const formData = new FormData(form);
@@ -276,7 +277,7 @@
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
                         statusMsg.style.color = "#28a745";
-                        statusMsg.innerHTML = 'Saved!';
+                        statusMsg.innerHTML = JS_RESOURCES.msgSaved;
                         setTimeout(() => { statusMsg.style.display = "none"; }, 2000);
                     }
                     document.dispatchEvent(new CustomEvent('exercises-saved'));
@@ -286,11 +287,14 @@
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
                         statusMsg.style.color = "#dc3545";
-                        statusMsg.textContent = "Error!";
+                        statusMsg.textContent = JS_RESOURCES.msgError;
                     }
                 })
                 .finally(() => {
-                    if (btnSave) { btnSave.innerHTML = "Save Changes"; btnSave.disabled = false; }
+                    if (btnSave) { 
+                        btnSave.innerHTML = JS_RESOURCES.btnSaveChanges; 
+                        btnSave.disabled = false; 
+                    }
                 });
             });
         }

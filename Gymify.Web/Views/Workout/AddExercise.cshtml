@@ -4,7 +4,7 @@
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Add Exercises";
+    ViewData["Title"] = Localizer["PageTitle"];
     var workoutId = ViewBag.WorkoutId;
     var detailsUrl = Url.Action("Finish", "Workout", new { workoutId = workoutId });
 }
@@ -12,10 +12,11 @@
 <div class="ae-page-container">
 
     <div style="text-align: center; margin-bottom: 40px;">
-        <h1 class="ae-page-title">@Localizer["WorkoutExercises"]</h1>
-        <p class="ae-lead-text">@Localizer["AddExercisesToAccomplishWorkoutCreation"]</p>
+        <h1 class="ae-page-title">@Localizer["Header_Title"]</h1>
+        <p class="ae-lead-text">@Localizer["Header_Subtitle"]</p>
     </div>
 
+    @* Переконайтеся, що Partial теж готовий до локалізації, якщо він має власні тексти *@
     <partial name="_ExerciseManager" 
              model="Model" 
              view-data='@new ViewDataDictionary(ViewData) { ["HideSaveButtons"] = true }' />
@@ -27,13 +28,13 @@
                 data-url="@detailsUrl"
                 class="gym-btn gym-btn-primary scale-btn"
                 style="padding: 15px 50px; font-size: 18px;">
-            @Localizer["FinishCreation"] <i class="bi bi-check-lg" style="margin-left: 10px;"></i>
+            @Localizer["Btn_Finish"] <i class="bi bi-check-lg" style="margin-left: 10px;"></i>
         </button>
 
         <div style="margin-top: 20px;">
             <form method="post" asp-action="RemoveWorkout" asp-route-workoutId="@workoutId">
                 <button type="submit" class="gym-btn gym-btn-secondary" style="border:none; color: #999; padding: 10px;">
-                    @Localizer["CancelAndDeleteWorkout"]
+                    @Localizer["Btn_Cancel"]
                 </button>
             </form>
         </div>
@@ -43,15 +44,22 @@
 
 @section Scripts {
     <script>
+        // Localization bridge
+        const JS_RESOURCES = {
+            btnSaving: '@Localizer["Btn_Saving"]',
+            msgError: '@Localizer["Msg_ErrorSaving"]'
+        };
+
         document.addEventListener("DOMContentLoaded", () => {
             const btnFinish = document.getElementById("btnFinish");
-            const form = document.getElementById("mgrForm");
+            const form = document.getElementById("mgrForm"); // Ensure _ExerciseManager contains a form with this ID
 
             if(btnFinish && form) {
                 btnFinish.addEventListener("click", function() {
                     const originalText = btnFinish.innerHTML;
                     btnFinish.disabled = true;
-                    btnFinish.innerHTML = 'Saving...'; 
+                    // Використовуємо локалізований текст
+                    btnFinish.innerHTML = JS_RESOURCES.btnSaving; 
 
                     const formData = new FormData(form);
 
@@ -64,8 +72,8 @@
                             window.location.href = btnFinish.getAttribute("data-url");
                         } else {
                             // Using alertify if available, or alert
-                            if(typeof alertify !== 'undefined') alertify.error("Error saving.");
-                            else alert("Error saving.");
+                            if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgError);
+                            else alert(JS_RESOURCES.msgError);
                             
                             btnFinish.disabled = false;
                             btnFinish.innerHTML = originalText;

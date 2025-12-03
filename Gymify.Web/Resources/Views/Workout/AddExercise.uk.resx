@@ -117,19 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AddExercises" xml:space="preserve">
-    <value>Додати вправи</value>
-  </data>
-  <data name="AddExercisesToAccomplishWorkoutCreation" xml:space="preserve">
-    <value>Додайте вправи для завершення створення тренування.</value>
-  </data>
-  <data name="CancelAndDeleteWorkout" xml:space="preserve">
+  <data name="Btn_Cancel" xml:space="preserve">
     <value>Скасувати та видалити тренування</value>
   </data>
-  <data name="FinishCreation" xml:space="preserve">
+  <data name="Btn_Finish" xml:space="preserve">
     <value>Завершити створення</value>
   </data>
-  <data name="WorkoutExercises" xml:space="preserve">
+  <data name="Btn_Saving" xml:space="preserve">
+    <value>Збереження...</value>
+  </data>
+  <data name="Header_Subtitle" xml:space="preserve">
+    <value>Додайте вправи, щоб завершити створення тренування.</value>
+  </data>
+  <data name="Header_Title" xml:space="preserve">
     <value>Вправи тренування</value>
+  </data>
+  <data name="Msg_ErrorSaving" xml:space="preserve">
+    <value>Помилка збереження.</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Додати вправи</value>
   </data>
 </root>

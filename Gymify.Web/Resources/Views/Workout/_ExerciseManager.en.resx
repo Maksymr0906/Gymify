@@ -117,43 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Add" xml:space="preserve">
+  <data name="Btn_Add" xml:space="preserve">
     <value>Add</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
+  <data name="Btn_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="ErrorSaving" xml:space="preserve">
-    <value>Error saving!</value>
-  </data>
-  <data name="ExerciseName" xml:space="preserve">
-    <value>Exercise Name</value>
-  </data>
-  <data name="Kg" xml:space="preserve">
-    <value>Kg</value>
-  </data>
-  <data name="Min" xml:space="preserve">
-    <value>Minutes</value>
-  </data>
-  <data name="NoExercises" xml:space="preserve">
-    <value>No exercises added yet.</value>
-  </data>
-  <data name="Remove" xml:space="preserve">
+  <data name="Btn_Remove" xml:space="preserve">
     <value>Remove</value>
   </data>
-  <data name="Reps" xml:space="preserve">
-    <value>Reps</value>
-  </data>
-  <data name="SaveChanges" xml:space="preserve">
+  <data name="Btn_SaveChanges" xml:space="preserve">
     <value>Save Changes</value>
   </data>
-  <data name="Saved" xml:space="preserve">
+  <data name="Btn_Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="Label_ExerciseName" xml:space="preserve">
+    <value>Exercise Name</value>
+  </data>
+  <data name="Label_Kg" xml:space="preserve">
+    <value>Kg</value>
+  </data>
+  <data name="Label_Min" xml:space="preserve">
+    <value>Min</value>
+  </data>
+  <data name="Label_Reps" xml:space="preserve">
+    <value>Reps</value>
+  </data>
+  <data name="Label_Sets" xml:space="preserve">
+    <value>Sets</value>
+  </data>
+  <data name="Msg_Error" xml:space="preserve">
+    <value>Error!</value>
+  </data>
+  <data name="Msg_NoExercises" xml:space="preserve">
+    <value>No exercises added yet.</value>
+  </data>
+  <data name="Msg_Saved" xml:space="preserve">
     <value>Saved!</value>
   </data>
-  <data name="Search" xml:space="preserve">
-    <value>Search...</value>
-  </data>
-  <data name="Sets" xml:space="preserve">
-    <value>Sets</value>
+  <data name="Placeholder_Search" xml:space="preserve">
+    <value>Search</value>
   </data>
 </root>

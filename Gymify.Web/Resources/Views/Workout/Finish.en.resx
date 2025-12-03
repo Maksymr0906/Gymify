@@ -117,22 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CancelAndDeleteWorkout" xml:space="preserve">
-    <value>Cancel and Delete Workout</value>
+  <data name="Btn_CancelDelete" xml:space="preserve">
+    <value>Cancel &amp; Delete Workout</value>
   </data>
-  <data name="CompleteWorkout" xml:space="preserve">
+  <data name="Btn_Complete" xml:space="preserve">
     <value>Complete Workout</value>
   </data>
-  <data name="Conclusions" xml:space="preserve">
-    <value>Conclusions (Optional)</value>
+  <data name="Header_Subtitle" xml:space="preserve">
+    <value>Great job! How did it go? Write down your thoughts before finalizing.</value>
   </data>
-  <data name="ConclusionsPlaceholder" xml:space="preserve">
-    <value>Write your thoughts here (e.g., 'Personal best on bench press', 'Need to improve form on squats')...</value>
-  </data>
-  <data name="FinishWorkout" xml:space="preserve">
+  <data name="Header_Title" xml:space="preserve">
     <value>Finish Workout</value>
   </data>
-  <data name="FinishWorkoutLead" xml:space="preserve">
-    <value>Great job! Summarize your session before finishing.</value>
+  <data name="Label_Conclusions" xml:space="preserve">
+    <value>Conclusions / Notes</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Finish Workout</value>
+  </data>
+  <data name="Placeholder_Conclusions" xml:space="preserve">
+    <value>e.g. Felt strong, increased weight on bench press...</value>
   </data>
 </root>

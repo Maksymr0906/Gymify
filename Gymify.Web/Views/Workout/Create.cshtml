@@ -3,43 +3,43 @@
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Create Workout";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="dashboard-wrapper">
     <div class="workout-page-container">
 
         <div class="workout-form-card">
-            <h1 class="workout-page-title">@Localizer["Create Workout"]</h1>
+            <h1 class="workout-page-title">@Localizer["Header_Title"]</h1>
 
             <form asp-action="GenerateWorkout" method="post">
 
                 <div class="workout-form-group">
-                    <label asp-for="Name" class="workout-label">@Localizer["Workout name"]</label>
-                    <input asp-for="Name" class="gym-input" placeholder="e.g. Leg Day Destruction" required />
+                    <label asp-for="Name" class="workout-label">@Localizer["Label_Name"]</label>
+                    <input asp-for="Name" class="gym-input" placeholder="@Localizer["Placeholder_Name"]" required />
                     <span asp-validation-for="Name" class="text-danger" style="font-size: 12px;"></span>
                 </div>
 
                 <div class="workout-form-group">
-                    <label asp-for="Description" class="workout-label">@Localizer["Description"]</label>
-                    <textarea asp-for="Description" class="gym-input" rows="3" placeholder="Describe your goals..." required></textarea>
+                    <label asp-for="Description" class="workout-label">@Localizer["Label_Description"]</label>
+                    <textarea asp-for="Description" class="gym-input" rows="3" placeholder="@Localizer["Placeholder_Description"]" required></textarea>
                     <span asp-validation-for="Description" class="text-danger" style="font-size: 12px;"></span>
                 </div>
 
                 <div class="form-check" style="margin-bottom: 30px;">
                     <input asp-for="IsPrivate" class="form-check-input" id="isPrivateCheck" />
                     <label asp-for="IsPrivate" class="form-check-label" for="isPrivateCheck">
-                        @Localizer["IsPrivate"]
+                        @Localizer["Label_IsPrivate"]
                     </label>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <button type="submit" class="gym-btn gym-btn-primary w-100 scale-btn">
-                        @Localizer["Continue"]
+                        @Localizer["Btn_Continue"]
                     </button>
                     
-                    <a href="/Home" class="gym-btn gym-btn-secondary w-100 scale-btn">
-                        @Localizer["Cancel"]
+                    <a href="/" class="gym-btn gym-btn-secondary w-100 scale-btn">
+                        @Localizer["Btn_Cancel"]
                     </a>
                 </div>
             </form>

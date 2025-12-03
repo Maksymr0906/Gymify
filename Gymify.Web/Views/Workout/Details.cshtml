@@ -16,10 +16,10 @@
             
             <div style="flex: 1; margin-right: 20px;">
                 <h1 id="viewName" class="ae-page-title" style="text-align: left; margin-bottom: 5px;">@Model.Name</h1>
-                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="@Localizer["Workout Name"]" style="font-size: 1.5rem; font-weight: 700;" />
+                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="@Localizer["Placeholder_WorkoutName"]" style="font-size: 1.5rem; font-weight: 700;" />
 
                 <div class="ae-text-muted ae-mt-20">
-                    @Localizer["CreatedBy"] <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                    @Localizer["Label_CreatedBy"] <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
                 </div>
 
                 <div class="ae-flex-row ae-align-center ae-gap-sm ae-mt-20">
@@ -29,12 +29,12 @@
                     }
                     
                     <span id="viewPrivacy" class="ae-badge ae-badge-private @(Model.IsPrivate ? "" : "ae-hidden")">
-                        <i class="fa-solid fa-lock" style="margin-right: 5px;"></i> @Localizer["Private"]
+                        <i class="fa-solid fa-lock" style="margin-right: 5px;"></i> @Localizer["Badge_Private"]
                     </span>
 
                     <div id="inputPrivacyWrapper" class="ae-toggle-wrapper ae-hidden">
                         <input type="checkbox" id="inputPrivacy" class="ae-toggle-input" @(Model.IsPrivate ? "checked" : "")>
-                        <label for="inputPrivacy" class="ae-text-muted" style="cursor:pointer;">@Localizer["Private Mode"]</label>
+                        <label for="inputPrivacy" class="ae-text-muted" style="cursor:pointer;">@Localizer["Label_PrivateMode"]</label>
                     </div>
                 </div>
             </div>
@@ -44,17 +44,18 @@
                 <div style="display: flex; align-items: center; gap: 10px; align-self: flex-start;">
                     
                     <button id="btnCancelInfo" class="gym-btn gym-btn-secondary ae-hidden">
-                        @Localizer["Cancel"]
+                        @Localizer["Btn_Cancel"]
                     </button>
 
                     <button id="btnEditInfo" class="gym-btn gym-btn-secondary">
-                        @Localizer["Edit Info"]
+                        @Localizer["Btn_EditInfo"]
                     </button>
                     
                     <form method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId"
-                          onsubmit="return confirm('Are you sure you want to delete this workout? This action cannot be undone.');"
-                          style="margin: 0;"> <button type="submit" class="gym-btn gym-btn-danger">
-                            <i class="bi bi-trash" style="margin-right: 5px;"></i> @Localizer["Delete"]
+                          onsubmit="return confirm('@Localizer["Msg_DeleteConfirm"]');"
+                          style="margin: 0;"> 
+                        <button type="submit" class="gym-btn gym-btn-danger">
+                            <i class="bi bi-trash" style="margin-right: 5px;"></i> @Localizer["Btn_Delete"]
                         </button>
                     </form>
                 </div>
@@ -63,18 +64,18 @@
 
         <div class="ae-mt-20">
             <div id="viewDescription" class="ae-lead-text" style="text-align: left; white-space: pre-wrap; margin-bottom: 20px;">@Model.Description</div>
-            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="@Localizer["Description"]">@Model.Description</textarea>
+            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="@Localizer["Placeholder_Description"]">@Model.Description</textarea>
         </div>
 
         <div class="ae-mt-20">
             <div id="viewConclusionWrapper" class="ae-conclusion-box @(string.IsNullOrEmpty(Model.Conclusion) ? "ae-hidden" : "")">
-                <strong style="color: #333;">@Localizer["Conclusion"]:</strong>
+                <strong style="color: #333;">@Localizer["Label_Conclusion"]:</strong>
                 <p id="viewConclusion" style="margin: 5px 0 0 0; font-style: italic;">@Model.Conclusion</p>
             </div>
 
             <div id="inputConclusionWrapper" class="ae-hidden">
-                <label class="ae-label-mini">@Localizer["Conclusion"]</label>
-                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="@Localizer["HowDidItGo"]">@Model.Conclusion</textarea>
+                <label class="ae-label-mini">@Localizer["Label_Conclusion"]</label>
+                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="@Localizer["Placeholder_Conclusion"]">@Model.Conclusion</textarea>
             </div>
         </div>
     </div>
@@ -83,12 +84,12 @@
 
     <div class="ae-exercises-section">
         <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20">
-            <h3 class="ae-section-title">@Localizer["Workout Plan"]</h3>
+            <h3 class="ae-section-title">@Localizer["Header_WorkoutPlan"]</h3>
             
             @if (Model.IsOwner)
             {
                 <button id="btnToggleEdit" class="gym-btn gym-btn-secondary" style="font-size: 14px; padding: 8px 16px;">
-                    <i class="fa-solid fa-pen" style="margin-right: 5px;"></i> @Localizer["Edit Exercises"]
+                    <i class="fa-solid fa-pen" style="margin-right: 5px;"></i> @Localizer["Btn_EditExercises"]
                 </button>
             }
         </div>
@@ -110,7 +111,7 @@
     <div class="ae-separator"></div>
 
     <div class="ae-comments-section">
-        <h3 class="ae-section-title ae-mb-20">@Localizer["Comments"]</h3>
+        <h3 class="ae-section-title ae-mb-20">@Localizer["Header_Comments"]</h3>
         @{
             var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
             {
@@ -126,6 +127,15 @@
 
 @section Scripts {
     <script>
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            btnEditInfo: '@Localizer["Btn_EditInfo"]',
+            btnSaveInfo: '@Localizer["Btn_SaveInfo"]',
+            btnSaving: '@Localizer["Btn_Saving"]',
+            msgNameRequired: "@Localizer["Msg_NameRequired"]",
+            msgUpdateFailed: '@Localizer["Msg_UpdateFailed"]'
+        };
+
         document.addEventListener("DOMContentLoaded", () => {
             const btnEdit = document.getElementById("btnEditInfo");
             const btnCancel = document.getElementById("btnCancelInfo");
@@ -141,7 +151,8 @@
 
             if (btnEdit) {
                 btnEdit.addEventListener("click", async () => {
-                    if (btnEdit.innerText.includes("Edit")) {
+                    // Перевіряємо текст кнопки через JS_RESOURCES, або просто за станом класу
+                    if (btnEdit.innerText.includes(JS_RESOURCES.btnEditInfo)) {
                         enterEditMode();
                     } else {
                         await saveChanges();
@@ -165,7 +176,7 @@
                 };
 
                 toggleVis(true);
-                btnEdit.innerText = "Save Info";
+                btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
                 btnEdit.classList.remove("gym-btn-secondary");
                 btnEdit.classList.add("gym-btn-primary");
                 btnCancel.classList.remove("ae-hidden");
@@ -173,7 +184,7 @@
 
             function exitEditMode() {
                 toggleVis(false);
-                btnEdit.innerText = "Edit Info";
+                btnEdit.innerText = JS_RESOURCES.btnEditInfo;
                 btnEdit.classList.add("gym-btn-secondary");
                 btnEdit.classList.remove("gym-btn-primary");
                 btnEdit.disabled = false;
@@ -216,12 +227,12 @@
             async function saveChanges() {
                 const nameVal = els.name.input.value.trim();
                 if (!nameVal) { 
-                    if(typeof alertify !== 'undefined') alertify.error("Name is required");
-                    else alert("Name is required");
+                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNameRequired);
+                    else alert(JS_RESOURCES.msgNameRequired);
                     return; 
                 }
 
-                btnEdit.innerText = "Saving...";
+                btnEdit.innerText = JS_RESOURCES.btnSaving;
                 btnEdit.disabled = true;
 
                 const payload = {
@@ -241,14 +252,14 @@
                     if (res.ok) {
                         window.location.reload();
                     } else {
-                        if(typeof alertify !== 'undefined') alertify.error("Update failed");
+                        if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgUpdateFailed);
                         btnEdit.disabled = false;
-                        btnEdit.innerText = "Save Info";
+                        btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
                     }
                 } catch (e) {
                     console.error(e);
                     btnEdit.disabled = false;
-                    btnEdit.innerText = "Save Info";
+                    btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
                 }
             }
 

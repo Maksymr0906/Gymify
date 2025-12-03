@@ -117,22 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CancelAndDeleteWorkout" xml:space="preserve">
-    <value>Відмінити та видалити тренування</value>
+  <data name="Btn_CancelDelete" xml:space="preserve">
+    <value>Скасувати та видалити</value>
   </data>
-  <data name="CompleteWorkout" xml:space="preserve">
+  <data name="Btn_Complete" xml:space="preserve">
     <value>Завершити тренування</value>
   </data>
-  <data name="Conclusions" xml:space="preserve">
-    <value>Висновки (необов’язково)</value>
+  <data name="Header_Subtitle" xml:space="preserve">
+    <value>Чудова робота! Як все пройшло? Запишіть свої думки перед завершенням.</value>
   </data>
-  <data name="ConclusionsPlaceholder" xml:space="preserve">
-    <value>Напишіть свої думки тут (наприклад, «Особистий рекорд на жимі лежачи», «Потрібно покращити техніку присідань»)…</value>
-  </data>
-  <data name="FinishWorkout" xml:space="preserve">
+  <data name="Header_Title" xml:space="preserve">
     <value>Завершити тренування</value>
   </data>
-  <data name="FinishWorkoutLead" xml:space="preserve">
-    <value>Молодець! Підсумуйте свою сесію перед завершенням.</value>
+  <data name="Label_Conclusions" xml:space="preserve">
+    <value>Висновки / Нотатки</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Завершити тренування</value>
+  </data>
+  <data name="Placeholder_Conclusions" xml:space="preserve">
+    <value>напр. Відчував силу, збільшив вагу в жимі лежачи...</value>
   </data>
 </root>
