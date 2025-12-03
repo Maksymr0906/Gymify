@@ -3,7 +3,7 @@ using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Persistence;
 using Gymify.Persistence.SeedData;
-using Gymify.ValidationLocalization;
+using Gymify.Web.Resources.Shared;
 using Gymify.Web.Hubs;
 using Gymify.Web.Seed;
 using Gymify.Web.Services;
@@ -19,10 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-// 1. Налаштування шляху до ресурсів
+// 1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-// 2. Налаштування підтримуваних мов
+// 2. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
