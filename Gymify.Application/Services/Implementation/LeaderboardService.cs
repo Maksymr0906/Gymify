@@ -1,26 +1,45 @@
 ﻿using Gymify.Application.DTOs.Leaderboard;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Leaderboard;
+using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
+using Microsoft.AspNetCore.Identity;
+using System.Linq;
 
 namespace Gymify.Application.Services.Implementation;
 
 public class LeaderboardService : ILeaderboardService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public LeaderboardService(IUnitOfWork unitOfWork)
+    public LeaderboardService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
     {
         _unitOfWork = unitOfWork;
+        _userManager = userManager;
     }
 
     public async Task<LeaderboardViewModel> GetLeaderboardAsync(Guid currentUserId, int page = 1, int pageSize = 20)
     {
-        var friendIds = new List<Guid>(); // Поки що пустий список
+        var friendships = await _unitOfWork.FriendshipRepository.GetAllForUserAsync(currentUserId);
+
+        var friendsIds = friendships.Select(f => f.UserProfileId1 == currentUserId ? f.UserProfileId2 : f.UserProfileId1).ToList();
 
         // 1. Викликаємо репозиторій для отримання сторінки
         var (usersEntities, totalUsers) = await _unitOfWork.UserProfileRepository
             .GetLeaderboardPageAsync(page, pageSize);
+
+        var nonAdminUsers = new List<UserProfile>();
+        foreach (var u in usersEntities)
+        {
+            var appUser = await _userManager.FindByIdAsync(u.ApplicationUserId.ToString());
+            if (appUser != null && !await _userManager.IsInRoleAsync(appUser, "Admin"))
+            {
+                nonAdminUsers.Add(u);
+            }
+        }
+
+        usersEntities = nonAdminUsers;
 
         // 2. Розрахунок сторінок
         var totalPages = (int)Math.Ceiling(totalUsers / (double)pageSize);
@@ -38,7 +57,7 @@ public class LeaderboardService : ILeaderboardService
             Level = u.Level,
             TotalXP = u.CurrentXP,
             IsMe = u.Id == currentUserId,
-            IsFriend = friendIds.Contains(u.Id)
+            IsFriend = friendsIds.Contains(u.Id)
         }).ToList();
 
         // 4. Проставляємо ранги

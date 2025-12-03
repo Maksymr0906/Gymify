@@ -117,100 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="A_Achievements" xml:space="preserve">
-    <value>Achievements are milestones (e.g., "Reach Level 10", "Lift 1000kg total"). Unlocking achievements grants you special &lt;strong&gt;Titles&lt;/strong&gt; that appear next to your name in the Leaderboard.</value>
+  <data name="Badge_Community" xml:space="preserve">
+    <value>Спільнота</value>
   </data>
-  <data name="A_CasesInventory_Intro" xml:space="preserve">
-    <value>As you level up, you can earn or buy &lt;strong&gt;Cases&lt;/strong&gt;. Opening a case (via the Roulette minigame) grants you cosmetic items:</value>
+  <data name="Badge_Community_Tooltip" xml:space="preserve">
+    <value>Контент від спільноти</value>
   </data>
-  <data name="A_CasesInventory_Item1" xml:space="preserve">
-    <value>&lt;strong&gt;Avatars:&lt;/strong&gt; Custom profile pictures.</value>
+  <data name="Badge_Verified" xml:space="preserve">
+    <value>Перевірено</value>
   </data>
-  <data name="A_CasesInventory_Item2" xml:space="preserve">
-    <value>&lt;strong&gt;Frames:&lt;/strong&gt; Borders around your avatar.</value>
+  <data name="Badge_Verified_Tooltip" xml:space="preserve">
+    <value>Офіційний контент</value>
   </data>
-  <data name="A_CasesInventory_Item3" xml:space="preserve">
-    <value>&lt;strong&gt;Backgrounds:&lt;/strong&gt; Custom themes for your profile page.</value>
+  <data name="Balance" xml:space="preserve">
+    <value>Баланс</value>
   </data>
-  <data name="A_CasesInventory_Outro" xml:space="preserve">
-    <value>You can equip these items in your &lt;strong&gt;Profile&lt;/strong&gt;.</value>
+  <data name="Cardio" xml:space="preserve">
+    <value>Кардіо</value>
   </data>
-  <data name="A_CreateWorkout_Intro" xml:space="preserve">
-    <value>It's simple:</value>
+  <data name="Empty_Subtitle" xml:space="preserve">
+    <value>Спробуйте змінити параметри пошуку або фільтри.</value>
   </data>
-  <data name="A_CreateWorkout_Step1" xml:space="preserve">
-    <value>Go to the &lt;strong&gt;Workouts Feed&lt;/strong&gt; or Home Dashboard.</value>
+  <data name="Empty_Title" xml:space="preserve">
+    <value>Вправ не знайдено</value>
   </data>
-  <data name="A_CreateWorkout_Step2" xml:space="preserve">
-    <value>Click the big orange &lt;strong&gt;"Create Workout"&lt;/strong&gt; button.</value>
+  <data name="Endurance" xml:space="preserve">
+    <value>Виносливість</value>
   </data>
-  <data name="A_CreateWorkout_Step3" xml:space="preserve">
-    <value>Add a name (e.g., "Leg Day") and description.</value>
+  <data name="Flexibility" xml:space="preserve">
+    <value>Гнучкість</value>
   </data>
-  <data name="A_CreateWorkout_Step4" xml:space="preserve">
-    <value>Add exercises from our library, specifying sets, reps, and weight.</value>
+  <data name="Mobility" xml:space="preserve">
+    <value>Мобільність</value>
   </data>
-  <data name="A_CreateWorkout_Step5" xml:space="preserve">
-    <value>Save it, and you'll instantly earn XP!</value>
+  <data name="Pagination_Info" xml:space="preserve">
+    <value>Сторінка {0} з {1}</value>
   </data>
-  <data name="A_EarnXP" xml:space="preserve">
-    <value>XP (Experience Points) are calculated based on the volume of your workout. The more weight you lift and the more reps you do, the more XP you gain. Consistency also matters!</value>
+  <data name="Pagination_Next" xml:space="preserve">
+    <value>Наст. →</value>
   </data>
-  <data name="A_EditWorkout" xml:space="preserve">
-    <value>Currently, workouts are recorded as history logs. While you cannot edit a past log to "cheat" your stats, you can delete accidental entries.</value>
+  <data name="Pagination_Prev" xml:space="preserve">
+    <value>← Попер.</value>
   </data>
-  <data name="A_IsItFree" xml:space="preserve">
-    <value>Yes! The core functionality of tracking workouts and leveling up is completely free. You can earn in-game currency by working out to unlock cosmetic items for your profile.</value>
+  <data name="Strength" xml:space="preserve">
+    <value>Силова</value>
   </data>
-  <data name="A_WhatIsGymify" xml:space="preserve">
-    <value>Gymify is a gamified fitness tracker designed to make your workouts addictive. We combine traditional tracking (sets, reps, weight) with RPG elements like XP, Levels, and Loot Boxes to keep you motivated.</value>
-  </data>
-  <data name="PageTitle" xml:space="preserve">
-    <value>Guide &amp; FAQ</value>
-  </data>
-  <data name="Q_Achievements" xml:space="preserve">
-    <value>What are Achievements?</value>
-  </data>
-  <data name="Q_CasesInventory" xml:space="preserve">
-    <value>What are Cases and Inventory?</value>
-  </data>
-  <data name="Q_CreateWorkout" xml:space="preserve">
-    <value>How do I create a workout?</value>
-  </data>
-  <data name="Q_EarnXP" xml:space="preserve">
-    <value>How do I earn XP?</value>
-  </data>
-  <data name="Q_EditWorkout" xml:space="preserve">
-    <value>Can I edit a workout later?</value>
-  </data>
-  <data name="Q_IsItFree" xml:space="preserve">
-    <value>Is it free to use?</value>
-  </data>
-  <data name="Q_WhatIsGymify" xml:space="preserve">
-    <value>What is Gymify?</value>
-  </data>
-  <data name="Section_GettingStarted" xml:space="preserve">
-    <value>Getting Started</value>
-  </data>
-  <data name="Section_Rewards" xml:space="preserve">
-    <value>Leveling Up &amp; Rewards</value>
-  </data>
-  <data name="Section_Workouts" xml:space="preserve">
-    <value>Workouts &amp; Tracking</value>
-  </data>
-  <data name="Support_Btn" xml:space="preserve">
-    <value>Contact Support</value>
-  </data>
-  <data name="Support_Subtitle" xml:space="preserve">
-    <value>We are here to help you get the best shape of your life.</value>
-  </data>
-  <data name="Support_Title" xml:space="preserve">
-    <value>Still have questions?</value>
-  </data>
-  <data name="WelcomeSubtitle" xml:space="preserve">
-    <value>Your ultimate companion for tracking progress, earning rewards, and staying consistent. Here is everything you need to know to get started.</value>
-  </data>
-  <data name="WelcomeTitle" xml:space="preserve">
-    <value>Welcome to Gymify</value>
+  <data name="XP_Suffix" xml:space="preserve">
+    <value>XP</value>
   </data>
 </root>

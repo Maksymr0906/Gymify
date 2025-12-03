@@ -130,7 +130,7 @@
     <value>Пароль</value>
   </data>
   <data name="PleaseEnterDetails" xml:space="preserve">
-    <value>Please enter your details to sign in</value>
+    <value>Введіть свої дані, щоб авторизуватись</value>
   </data>
   <data name="RememberMe" xml:space="preserve">
     <value>Запам'ятати мене</value>

@@ -1,5 +1,6 @@
 ﻿using Gymify.Data.Entities;
 using Gymify.Persistence.SeedData;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,12 +1,14 @@
 ﻿@using Gymify.Application.ViewModels.ExerciseLibrary
 @using Gymify.Data.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model ExerciseLibraryViewModel
 
 @if (!Model.Exercises.Any())
 {
     <div style="text-align: center; padding: 60px 20px; color: #999;">
-        <h3 style="color: #555; margin-bottom: 10px;">No exercises found</h3>
-        <p style="font-size: 14px;">Try adjusting your search or filters.</p>
+        <h3 style="color: #555; margin-bottom: 10px;">@Localizer["Empty_Title"]</h3>
+        <p style="font-size: 14px;">@Localizer["Empty_Subtitle"]</p>
     </div>
 }
 else
@@ -18,11 +20,15 @@ else
                 
                 @if (ex.IsApproved)
                 {
-                    <div class="ex-badge verified" title="Official Content">Verified</div>
+                    <div class="ex-badge verified" title="@Localizer["Badge_Verified_Tooltip"]">
+                        @Localizer["Badge_Verified"]
+                    </div>
                 }
                 else
                 {
-                    <div class="ex-badge pending" title="Community Content">Community</div>
+                    <div class="ex-badge pending" title="@Localizer["Badge_Community_Tooltip"]">
+                        @Localizer["Badge_Community"]
+                    </div>
                 }
 
                 <div class="ex-thumbnail-wrapper">
@@ -38,7 +44,8 @@ else
 
                 <div class="ex-card-body">
                     <div class="ex-type-badge">
-                        @((ExerciseType)ex.Type)
+                        @* Тут ми беремо string значення Enum і шукаємо його в ресурсах *@
+                        @Localizer[((ExerciseType)ex.Type).ToString()]
                     </div>
                     
                     <h3 class="ex-title-text">@ex.Name</h3>
@@ -51,7 +58,7 @@ else
                 <div class="ex-card-footer">
                     <span>
                         <i class="fa-solid fa-star" style="color: #ffc107; margin-right: 4px;"></i> 
-                        @ex.BaseXP XP
+                        @ex.BaseXP @Localizer["XP_Suffix"]
                     </span>
                 </div>
             </div>
@@ -66,30 +73,30 @@ else
         @if (Model.CurrentPage > 1)
         {
             <button class="gym-btn gym-btn-secondary page-link" data-page="@(Model.CurrentPage - 1)" style="padding: 8px 20px;">
-                &larr; Prev
+                @Localizer["Pagination_Prev"]
             </button>
         }
         else
         {
             <button class="gym-btn gym-btn-secondary" disabled style="opacity: 0.5; cursor: default; padding: 8px 20px;">
-                &larr; Prev
+                @Localizer["Pagination_Prev"]
             </button>
         }
 
         <span style="font-weight: 700; color: #555; font-size: 14px;">
-            Page @Model.CurrentPage of @Model.TotalPages
+            @Localizer["Pagination_Info", Model.CurrentPage, Model.TotalPages]
         </span>
 
         @if (Model.CurrentPage < Model.TotalPages)
         {
             <button class="gym-btn gym-btn-secondary page-link" data-page="@(Model.CurrentPage + 1)" style="padding: 8px 20px;">
-                Next &rarr;
+                @Localizer["Pagination_Next"]
             </button>
         }
         else
         {
             <button class="gym-btn gym-btn-secondary" disabled style="opacity: 0.5; cursor: default; padding: 8px 20px;">
-                Next &rarr;
+                @Localizer["Pagination_Next"]
             </button>
         }
     </div>

@@ -1,122 +1,128 @@
-﻿@{
-    ViewData["Title"] = "Guide & FAQ";
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="dashboard-wrapper">
 
     <div class="faq-header">
-        <h1 class="faq-title">Welcome to Gymify</h1>
+        <h1 class="faq-title">@Localizer["WelcomeTitle"]</h1>
         <p class="faq-subtitle">
-            Your ultimate companion for tracking progress, earning rewards, and staying consistent. 
-            Here is everything you need to know to get started.
+            @Localizer["WelcomeSubtitle"]
         </p>
     </div>
 
+    @* --- Section: Getting Started --- *@
     <div class="faq-section">
-        <h2 class="faq-section-title">Getting Started</h2>
+        <h2 class="faq-section-title">@Localizer["Section_GettingStarted"]</h2>
         
         <div class="faq-item">
             <div class="faq-question">
-                What is Gymify?
+                @Localizer["Q_WhatIsGymify"]
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                <p>Gymify is a gamified fitness tracker designed to make your workouts addictive. We combine traditional tracking (sets, reps, weight) with RPG elements like XP, Levels, and Loot Boxes to keep you motivated.</p>
+                <p>@Localizer["A_WhatIsGymify"]</p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question">
-                Is it free to use?
+                @Localizer["Q_IsItFree"]
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                <p>Yes! The core functionality of tracking workouts and leveling up is completely free. You can earn in-game currency by working out to unlock cosmetic items for your profile.</p>
+                <p>@Localizer["A_IsItFree"]</p>
             </div>
         </div>
     </div>
 
+    @* --- Section: Workouts & Tracking --- *@
     <div class="faq-section">
-        <h2 class="faq-section-title">Workouts & Tracking</h2>
+        <h2 class="faq-section-title">@Localizer["Section_Workouts"]</h2>
 
         <div class="faq-item">
             <div class="faq-question">
-                How do I create a workout?
+                @Localizer["Q_CreateWorkout"]
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                <p>It's simple:</p>
+                <p>@Localizer["A_CreateWorkout_Intro"]</p>
                 <ul>
-                    <li>Go to the <strong>Workouts Feed</strong> or Home Dashboard.</li>
-                    <li>Click the big orange <strong>"Create Workout"</strong> button.</li>
-                    <li>Add a name (e.g., "Leg Day") and description.</li>
-                    <li>Add exercises from our library, specifying sets, reps, and weight.</li>
-                    <li>Save it, and you'll instantly earn XP!</li>
+                    <li>@Localizer["A_CreateWorkout_Step1"]</li>
+                    <li>@Localizer["A_CreateWorkout_Step2"]</li>
+                    <li>@Localizer["A_CreateWorkout_Step3"]</li>
+                    <li>@Localizer["A_CreateWorkout_Step4"]</li>
+                    <li>@Localizer["A_CreateWorkout_Step5"]</li>
                 </ul>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question">
-                Can I edit a workout later?
+                @Localizer["Q_EditWorkout"]
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                <p>Currently, workouts are recorded as history logs. While you cannot edit a past log to "cheat" your stats, you can delete accidental entries.</p>
+                <p>@Localizer["A_EditWorkout"]</p>
             </div>
         </div>
     </div>
 
+    @* --- Section: Leveling Up & Rewards --- *@
     <div class="faq-section">
-        <h2 class="faq-section-title">Leveling Up & Rewards</h2>
+        <h2 class="faq-section-title">@Localizer["Section_Rewards"]</h2>
 
         <div class="faq-item">
             <div class="faq-question">
-                How do I earn XP?
+                @Localizer["Q_EarnXP"]
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                <p>XP (Experience Points) are calculated based on the volume of your workout. The more weight you lift and the more reps you do, the more XP you gain. Consistency also matters!</p>
+                <p>@Localizer["A_EarnXP"]</p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question">
-                What are Cases and Inventory?
+                @Localizer["Q_CasesInventory"]
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                <p>As you level up, you can earn or buy <strong>Cases</strong>. Opening a case (via the Roulette minigame) grants you cosmetic items:</p>
+                <p>@Localizer["A_CasesInventory_Intro"]</p>
                 <ul>
-                    <li><strong>Avatars:</strong> Custom profile pictures.</li>
-                    <li><strong>Frames:</strong> Borders around your avatar.</li>
-                    <li><strong>Backgrounds:</strong> Custom themes for your profile page.</li>
+                    <li>@Localizer["A_CasesInventory_Item1"]</li>
+                    <li>@Localizer["A_CasesInventory_Item2"]</li>
+                    <li>@Localizer["A_CasesInventory_Item3"]</li>
                 </ul>
-                <p>You can equip these items in your <strong>Profile</strong>.</p>
+                <p>@Localizer["A_CasesInventory_Outro"]</p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question">
-                What are Achievements?
+                @Localizer["Q_Achievements"]
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                <p>Achievements are milestones (e.g., "Reach Level 10", "Lift 1000kg total"). Unlocking achievements grants you special <strong>Titles</strong> that appear next to your name in the Leaderboard.</p>
+                <p>@Localizer["A_Achievements"]</p>
             </div>
         </div>
     </div>
 
     <div style="text-align: center; margin-top: 60px; padding: 40px; background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-        <h3 style="margin-bottom: 10px;">Still have questions?</h3>
-        <p style="color: #777; margin-bottom: 20px;">We are here to help you get the best shape of your life.</p>
-        <a href="#" class="gym-btn gym-btn-primary">Contact Support</a>
+        <h3 style="margin-bottom: 10px;">@Localizer["Support_Title"]</h3>
+        <p style="color: #777; margin-bottom: 20px;">@Localizer["Support_Subtitle"]</p>
+        <a href="#" class="gym-btn gym-btn-primary">@Localizer["Support_Btn"]</a>
     </div>
 
 </div>
 
 @section Scripts {
     <script>
+        // Скрипт залишається без змін, оскільки він не містить видимого тексту
         document.addEventListener('DOMContentLoaded', function () {
             const items = document.querySelectorAll('.faq-item');
 
@@ -125,15 +131,6 @@
                 const answer = item.querySelector('.faq-answer');
 
                 question.addEventListener('click', () => {
-                    // Close other items (optional - accordion behavior)
-                    // items.forEach(i => {
-                    //     if (i !== item) {
-                    //         i.classList.remove('active');
-                    //         slideUp(i.querySelector('.faq-answer'), 300);
-                    //     }
-                    // });
-
-                    // Toggle current
                     if (item.classList.contains('active')) {
                         item.classList.remove('active');
                         slideUp(answer, 300);
@@ -144,13 +141,12 @@
                 });
             });
 
-            // Reusing slide functions from your existing code
             function slideUp(element, duration) {
                 element.style.height = element.offsetHeight + "px";
                 element.style.transitionProperty = "height, margin, padding";
                 element.style.transitionDuration = duration + "ms";
                 element.style.boxSizing = "border-box";
-                element.offsetHeight; // force repaint
+                element.offsetHeight; 
                 element.style.overflow = "hidden";
                 element.style.height = 0;
                 element.style.paddingTop = 0;

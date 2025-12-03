@@ -1,36 +1,47 @@
 ﻿@using Gymify.Data.Enums
 @using Gymify.Application.ViewModels.ExerciseLibrary
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model ExerciseLibraryViewModel
 
 @{
-    ViewData["Title"] = "Exercise Library";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <partial name="_VideoModal" />
 
-<div class="dashboard-wrapper"> <div class="ex-header">
-        <h1 class="ex-title">Exercise Library</h1>
-        <p class="ex-subtitle">Discover new moves or add your own to the community.</p>
+<div class="dashboard-wrapper"> 
+    <div class="ex-header">
+        <h1 class="ex-title">@Localizer["HeaderTitle"]</h1>
+        <p class="ex-subtitle">@Localizer["Subtitle"]</p>
     </div>
 
     <div class="ex-filter-bar">
         
         <div style="flex-grow: 1; min-width: 250px;">
-            <input type="text" id="filterSearch" class="gym-search-input w-100" placeholder="Search exercises..." autocomplete="off" />
+            <input type="text" id="filterSearch" class="gym-search-input w-100" placeholder="@Localizer["SearchPlaceholder"]" autocomplete="off" />
         </div>
 
         <div style="min-width: 180px;">
-            <select id="filterType" class="gym-select w-100" asp-items="Html.GetEnumSelectList<ExerciseType>()">
-                <option value="">All Types</option>
+            <select id="filterType" class="gym-select w-100">
+                @* Опція "Всі типи" *@
+                <option value="">@Localizer["Filter_AllTypes"]</option>
+
+                @* Проходимось по всіх значеннях Enum *@
+                @foreach (ExerciseType type in Enum.GetValues(typeof(ExerciseType)))
+                {
+                    @* Value = числове значення (як в базі), Text = переклад *@
+                    <option value="@((int)type)">@Localizer[type.ToString()]</option>
+                }
             </select>
         </div>
 
         <div class="ex-switch-container">
             <input type="radio" id="modeVerified" name="statusMode" class="ex-switch-radio" value="false" checked>
-            <label for="modeVerified" class="ex-switch-label">Verified</label>
+            <label for="modeVerified" class="ex-switch-label">@Localizer["Filter_Verified"]</label>
 
             <input type="radio" id="modePending" name="statusMode" class="ex-switch-radio" value="true">
-            <label for="modePending" class="ex-switch-label">Community</label>
+            <label for="modePending" class="ex-switch-label">@Localizer["Filter_Community"]</label>
 
             <div class="ex-switch-bg"></div>
         </div>
@@ -41,7 +52,7 @@
         
         <div id="loadingSpinner">
             <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">@Localizer["LoadingText"]</span>
             </div>
         </div>
 
@@ -81,14 +92,6 @@
                     const res = await fetch(`/Main/FilterExercises?${query}`);
                     const html = await res.text();
 
-                    // Оновлення контенту
-                    // Створюємо тимчасовий елемент, щоб не затерти Loader
-                    // (Хоча тут ми все одно повністю оновлюємо DOM, лоадер "зникне" якщо він всередині innerHTML)
-                    // Краще рішення: Loader має бути поверх контенту, тому ми оновлюємо лише сусідні елементи або весь блок
-                    
-                    // Але в нас Loader всередині container.
-                    // Тому ми зробимо так: збережемо Loader, очистимо решту, вставимо нове
-                    
                     // Зберігаємо лоадер
                     const savedLoader = container.querySelector('#loadingSpinner');
                     
@@ -96,7 +99,7 @@
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = html;
 
-                    // Очищаємо контейнер (крім лоадера, якщо він там є, але простіше просто очистити все і додати лоадер назад)
+                    // Очищаємо контейнер 
                     container.innerHTML = '';
                     
                     // Додаємо лоадер назад (він буде схований через finally)
