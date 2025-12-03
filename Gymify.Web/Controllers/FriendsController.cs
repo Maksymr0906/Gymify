@@ -25,13 +25,12 @@ namespace Gymify.Web.Controllers
             {
                 Friends = await _friendsService.GetFriendsAsync(userId),
                 IncomingRequests = await _friendsService.GetIncomingInvitesAsync(userId),
-                OutgoingRequests = await _friendsService.GetOutgoingInvitesAsync(userId) // <--- Додали
+                OutgoingRequests = await _friendsService.GetOutgoingInvitesAsync(userId) 
             };
 
             return View(model);
         }
 
-        // Метод для скасування (кнопка Cancel)
 
         [HttpGet]
         public async Task<IActionResult> Search(string query)

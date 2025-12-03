@@ -117,10 +117,49 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Workouts" xml:space="preserve">
-    <value>Workouts</value>
+  <data name="Btn_Login" xml:space="preserve">
+    <value>Вхід</value>
   </data>
-  <data name="XP" xml:space="preserve">
-    <value>XP</value>
+  <data name="Btn_Register" xml:space="preserve">
+    <value>Реєстрація</value>
+  </data>
+  <data name="Menu_Achievements" xml:space="preserve">
+    <value>Досягнення</value>
+  </data>
+  <data name="Menu_Admin" xml:space="preserve">
+    <value>Адмін</value>
+  </data>
+  <data name="Menu_Chats" xml:space="preserve">
+    <value>Чати</value>
+  </data>
+  <data name="Menu_Dashboard" xml:space="preserve">
+    <value>Дашборд</value>
+  </data>
+  <data name="Menu_Exercises" xml:space="preserve">
+    <value>Вправи</value>
+  </data>
+  <data name="Menu_Friends" xml:space="preserve">
+    <value>Друзі</value>
+  </data>
+  <data name="Menu_Inventory" xml:space="preserve">
+    <value>Інвентар</value>
+  </data>
+  <data name="Menu_Leaderboard" xml:space="preserve">
+    <value>Таблиця лідерів</value>
+  </data>
+  <data name="Menu_Logout" xml:space="preserve">
+    <value>Вийти</value>
+  </data>
+  <data name="Menu_ManageComments" xml:space="preserve">
+    <value>Управління коментарями</value>
+  </data>
+  <data name="Menu_ManageExercises" xml:space="preserve">
+    <value>Управління вправами</value>
+  </data>
+  <data name="Menu_ManageUsers" xml:space="preserve">
+    <value>Управління користувачами</value>
+  </data>
+  <data name="Menu_Profile" xml:space="preserve">
+    <value>Профіль</value>
   </data>
 </root>

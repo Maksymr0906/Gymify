@@ -10,11 +10,11 @@ public class ItemRepository(GymifyDbContext context)
 {
     private readonly GymifyDbContext _context = context;
 
-    public async Task<ICollection<Item>> GetAllItemsByUserIdAsync(Guid userProfileId)
+    public async Task<ICollection<Item>> GetAllItemsByUserIdAsync(Guid userProfileId, bool onlyOffical)
     {
         return await _context.UserItems
             .Include(ui => ui.Item)
-            .Where(ui => ui.UserProfileId == userProfileId)
+            .Where(ui => ui.UserProfileId == userProfileId & ui.Item.IsCustom == !onlyOffical)
             .Select(ui => ui.Item)
             .ToListAsync();
     }

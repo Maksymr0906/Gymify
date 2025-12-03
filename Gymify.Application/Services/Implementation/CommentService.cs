@@ -29,7 +29,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
 
             // ✅ БЕРЕМО АВАТАР З НАВІГАЦІЙНИХ ВЛАСТИВОСТЕЙ (БЕЗ ЗАЙВИХ ЗАПИТІВ)
             // Припускаємо, що навігаційна властивість в UserProfile називається 'UserEquipment' або 'Equipment'
-            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
+            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
 
             // Спрощена логіка CanDelete
             CanDelete = comment.AuthorId == currentProfileUserId,
@@ -50,7 +50,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
         if (currentUser == null) throw new Exception("User not found");
 
         // Дістаємо URL безпечно
-        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png";
+        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png";
 
         var commentDto = new CommentDto
         {
@@ -61,7 +61,6 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             AuthorAvatarUrl = avatarUrl,
             TargetId = targetId,
             TargetType = targetType,
-            CreatedAt = DateTime.UtcNow,
             CanDelete = true // Автор завжди може видалити свій коментар
         };
 
@@ -79,20 +78,32 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(targetId);
             receiverId = workout.UserProfileId;
         }
-
-        // Перевірка: не сповіщати, якщо коментуєш сам себе
+        
         if (receiverId != Guid.Empty && receiverId != currentProfileUserId)
         {
             var senderName = currentUser.ApplicationUser?.UserName ?? "Someone";
-            var message = targetType == CommentTargetType.Workout ?
-                $"{senderName} commented your workout." : $"{senderName} commented your profile.";
 
-            // Формуємо посилання, куди перейде юзер при кліку
+            string messageEn;
+            string messageUk;
+
+            if (targetType == CommentTargetType.Workout)
+            {
+                messageEn = $"{senderName} commented your workout.";
+
+                messageUk = $"{senderName} прокоментував ваше тренування.";
+            }
+            else
+            {
+                messageEn = $"{senderName} commented your profile.";
+
+                messageUk = $"{senderName} прокоментував ваш профіль.";
+            }
+
             string link = targetType == CommentTargetType.Workout
                 ? $"/Workout/Details?workoutId={targetId}"
                 : $"/Profile?userId={targetId}";
 
-            await _notificationService.SendNotificationAsync(receiverId, message, link);
+            await _notificationService.SendNotificationAsync(receiverId, messageEn, messageUk, link);
         }
 
         return commentDto;

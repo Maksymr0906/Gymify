@@ -21,7 +21,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
     private readonly ICaseService _caseService = caseService;
     private readonly INotificationService _notificationService = notificationService;
 
-    public async Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model)
+    public async Task<CompleteWorkoutResponseDto> CompleteWorkoutAsync(CompleteWorkoutRequestDto model, bool ukranianVer)
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdWithDetailsAsync(model.WorkoutId);
 
@@ -56,7 +56,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
 
         await _notificationService.SendNotificationAsync(
                         userProfile.Id,
-                        $"You have created '{workout.Name}' workout.",
+                        $"You have created workout '{workout.Name}'.",
+                        $"Ви створили тренування '{workout.Name}'.",
                         $"/Workout/Details?workoutId={workout.Id}" 
                     );
 
@@ -77,8 +78,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             AchievementDtos = newAchievements.Select(a => new AchievementDto
             {
                 AchievementId = a.Id,
-                Name = a.Name,
-                Description = a.Description,
+                Name = ukranianVer ? a.NameUk : a.NameEn,
+                Description = ukranianVer ? a.DescriptionUk : a.DescriptionEn,
                 IconUrl = a.IconUrl,
                 RewardItemId = a.RewardItemId,
                 TargetProperty = a.TargetProperty,
@@ -186,7 +187,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         return groupedWorkouts;
     }
 
-    public async Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentProfileUserId, Guid workoutId)
+    public async Task<WorkoutDetailsViewModel> GetWorkoutDetailsViewModel(Guid currentProfileUserId, Guid workoutId, bool ukranianVer)
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
 
@@ -214,7 +215,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
         {
             Id = e.Id,
             WorkoutId = e.WorkoutId,
-            Name = e.Name,
+            Name = ukranianVer ? e.NameUk : e.NameEn,
             Sets = e.Sets,
             Reps = e.Reps,
             Weight = e.Weight,
@@ -229,7 +230,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Description = workout.Description,
             Conclusion = workout.Conclusion,
             AuthorName = workoutAuthor.ApplicationUser?.UserName ?? "Unknown",
-            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png", 
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png", 
             AuthorId = workout.UserProfileId,
             CreatedAt = workout.CreatedAt,
             TotalXP = workout.TotalXP,
@@ -240,8 +241,8 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             {
                 TargetId = workout.Id,
                 TargetType = Data.Enums.CommentTargetType.Workout,
-                Items = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
-                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/images/default-avatar.png",
+                CommentDtos = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
+                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
             }
         };
     }

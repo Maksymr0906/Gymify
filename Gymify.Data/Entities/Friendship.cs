@@ -8,5 +8,5 @@ public class Friendship
     public UserProfile UserProfile2 { get; set; } = null!;
     public Guid ChatId { get; set; }
     public Chat Chat { get; set; } = null!;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 }

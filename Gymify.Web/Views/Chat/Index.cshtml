@@ -1,360 +1,22 @@
 ﻿@using Gymify.Application.DTOs.Chat
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
 @model List<ChatDto>
 
 @{
-    ViewData["Title"] = "Messages";
+    ViewData["Title"] = Localizer["PageTitle"];
     var currentUserId = User.FindFirst("UserProfileId")?.Value;
     var openChatId = Context.Request.Query["openChatId"].ToString();
+    // Get current culture for JS date formatting (e.g., "en-US", "uk-UA")
+    var currentCulture = CultureInfo.CurrentCulture.Name;
 }
-
-<style>
-    /* --- 1. GLOBAL LAYOUT & WRAPPER --- */
-
-    /* Обгортка на весь екран (мінус висота хедера ~80px) */
-    .ch-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        height: calc(100vh - 80px); 
-        box-sizing: border-box;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* Головний контейнер-сітка: Сайдбар (320px) | Чат (все інше) */
-    .ch-container {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        height: 100%;
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    }
-
-    /* --- 2. SIDEBAR (ЛІВА КОЛОНКА) --- */
-
-    .ch-sidebar {
-        border-right: 1px solid #f0f0f0;
-        display: flex;
-        flex-direction: column;
-        background: #fcfcfc;
-    }
-
-    .ch-sidebar-header {
-        height: 70px;
-        padding: 0 20px;
-        border-bottom: 1px solid #f0f0f0;
-        background: #fff;
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-    }
-
-    .ch-list {
-        flex-grow: 1;
-        overflow-y: auto;
-        /* Кастомний скролбар */
-        scrollbar-width: thin;
-        scrollbar-color: #ddd transparent;
-    }
-
-    /* --- CHAT LIST ITEM --- */
-    .ch-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 15px 20px;
-        cursor: pointer;
-        transition: background 0.2s;
-        border-bottom: 1px solid #f9f9f9;
-        position: relative;
-    }
-
-    .ch-item:hover { background-color: #f2f4f7; }
-
-    /* Активний (вибраний) чат */
-    .ch-item.active { 
-        background-color: #eef7fe; 
-    }
-    .ch-item.active::before {
-        content: ''; 
-        position: absolute; 
-        left: 0; top: 0; bottom: 0; 
-        width: 4px; 
-        background-color: #3498db;
-    }
-
-    .ch-avatar {
-        width: 48px; 
-        height: 48px; 
-        border-radius: 50%; 
-        object-fit: cover;
-        border: 1px solid #eee; 
-        flex-shrink: 0;
-        background-color: #fff;
-    }
-
-    .ch-info { 
-        flex-grow: 1; 
-        overflow: hidden; 
-        min-width: 0; /* Важливо для ellipsis */
-    }
-
-    .ch-name {
-        font-weight: 700; 
-        color: #2c3e50; 
-        font-size: 0.95rem; 
-        margin-bottom: 4px;
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis;
-    }
-
-    .ch-preview {
-        font-size: 0.85rem; 
-        color: #888;
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis;
-    }
-
-    /* Жирний шрифт для нового повідомлення */
-    .ch-preview.new-msg { 
-        color: #333; 
-        font-weight: 700; 
-    }
-
-    .ch-time {
-        font-size: 0.7rem; 
-        color: #aaa; 
-        position: absolute; 
-        top: 15px; 
-        right: 15px;
-    }
-
-    /* --- 3. MAIN AREA (ПРАВА КОЛОНКА) --- */
-
-    .ch-main {
-        display: flex;
-        flex-direction: column;
-        background: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* Заглушка (коли чат не вибрано) */
-    .ch-empty {
-        position: absolute; 
-        top: 0; left: 0; width: 100%; height: 100%;
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center;
-        color: #ccc; 
-        z-index: 10; 
-        background: white;
-    }
-
-    /* Хедер чату */
-    .ch-header {
-        height: 70px;
-        padding: 0 25px;
-        border-bottom: 1px solid #f0f0f0;
-        display: flex; 
-        align-items: center; 
-        gap: 15px;
-        background: #fff;
-        z-index: 2;
-        flex-shrink: 0;
-    }
-
-    /* Клікабельний блок профілю */
-    .ch-header-link {
-        display: flex; 
-        align-items: center; 
-        gap: 15px; 
-        text-decoration: none; 
-        color: inherit;
-        transition: opacity 0.2s;
-    }
-    .ch-header-link:hover { opacity: 0.7; }
-
-    .ch-header-name { font-weight: 700; font-size: 1.1rem; color: #2c3e50; }
-    .ch-header-status { font-size: 0.8rem; color: #27ae60; }
-
-    /* --- 4. MESSAGES AREA --- */
-
-    .ch-messages {
-        flex-grow: 1;
-        padding: 25px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        background-color: #fff;
-        scrollbar-width: thin;
-    }
-
-    /* --- MESSAGE ROW (Аватар + Бульбашка) --- */
-    .ch-msg-row {
-        display: flex;
-        gap: 10px;
-        align-items: flex-end; /* Аватарка знизу */
-        margin-bottom: 15px;
-        max-width: 80%; 
-    }
-
-    /* Мої повідомлення (справа) */
-    .ch-msg-row.me {
-        align-self: flex-end;
-        justify-content: flex-end;
-        text-align: right;
-    }
-
-    /* Чужі повідомлення (зліва) */
-    .ch-msg-row.them {
-        align-self: flex-start;
-        justify-content: flex-start;
-        text-align: left;
-    }
-
-    /* Аватарка в повідомленні */
-    .ch-msg-avatar {
-        width: 36px; 
-        height: 36px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 1px solid #eee;
-        flex-shrink: 0;
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-    .ch-msg-avatar:hover { transform: scale(1.1); }
-
-    /* Бульбашка з текстом */
-    .ch-msg {
-        padding: 10px 16px;
-        border-radius: 18px;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        position: relative;
-        word-wrap: break-word;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        text-align: left; /* Текст всередині завжди зліва */
-    }
-
-    /* Стилі бульбашки "Я" */
-    .ch-msg.me {
-        background-color: #3498db;
-        color: white;
-        border-bottom-right-radius: 4px; /* "Хвостик" */
-    }
-    .ch-msg.me a { color: #cce5ff; text-decoration: underline; }
-
-    /* Стилі бульбашки "Він" */
-    .ch-msg.them {
-        background-color: #f1f2f6;
-        color: #333;
-        border-bottom-left-radius: 4px; /* "Хвостик" */
-    }
-
-    .ch-msg-time {
-        font-size: 0.7rem;
-        margin-top: 4px;
-        opacity: 0.7;
-        text-align: right;
-        display: block;
-    }
-
-    /* --- 5. INPUT AREA --- */
-
-    .ch-input-area {
-        padding: 20px;
-        border-top: 1px solid #f0f0f0;
-        display: flex; 
-        gap: 15px; 
-        align-items: center;
-        background: #fff;
-        flex-shrink: 0;
-    }
-
-    .ch-input {
-        width: 100%;
-        padding: 12px 20px;
-        border: 1px solid #e0e0e0;
-        border-radius: 24px;
-        background-color: #f9f9f9;
-        font-size: 0.95rem;
-        outline: none;
-        transition: all 0.2s;
-    }
-    .ch-input:focus { 
-        background-color: #fff; 
-        border-color: #3498db; 
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
-
-    /* Кнопка відправки */
-    .ch-btn-send {
-        width: 45px; height: 45px; 
-        border-radius: 50%; 
-        border: none;
-        background-color: #3498db; 
-        color: white;
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        cursor: pointer;
-        transition: transform 0.1s, background-color 0.2s;
-        flex-shrink: 0;
-        font-size: 1.1rem;
-    }
-    .ch-btn-send:hover { background-color: #2980b9; transform: scale(1.05); }
-    .ch-btn-send:active { transform: scale(0.95); }
-
-    /* Мобільна кнопка "Назад" */
-    .ch-btn-back {
-        background: none; 
-        border: 1px solid #ddd; 
-        border-radius: 8px;
-        padding: 6px 12px; 
-        cursor: pointer; 
-        color: #555;
-        margin-right: 10px; 
-        display: none; /* Ховаємо на десктопі */
-    }
-
-    /* Додатково: Стилі для меню дій */
-    .ch-msg-actions { 
-        opacity: 0; transition: opacity 0.2s; margin-right: 10px;
-        align-self: center; display: flex; gap: 5px;
-    }
-    .ch-msg-row:hover .ch-msg-actions { opacity: 1; }
-
-    .ch-action-btn {
-        background: none; border: none; color: #999; cursor: pointer; font-size: 0.85rem;
-    }
-    .ch-action-btn:hover { color: #3498db; }
-    .ch-action-btn.del:hover { color: #e74c3c; }
-
-    /* Позначка "відредаговано" */
-    .ch-edited-mark { font-size: 0.65rem; font-style: italic; opacity: 0.6; margin-left: 5px; }
-
-    /* Утиліта для приховування */
-    .hidden { display: none !important; }
-
-    /* Анімація появи повідомлення */
-    @Html.Raw("@keyframes msgPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }")
-
-    /* --- 6. MOBILE RESPONSIVENESS --- */
-    @Html.Raw("@media (max-width: 768px) { .ch-container { grid-template-columns: 1fr; } .ch-main { display: none; width: 100%; height: 100%; } .ch-main.active { display: flex; position: fixed; top: 0; left: 0; z-index: 1000; } .ch-sidebar { width: 100%; } .ch-btn-back { display: block; } .ch-wrapper { padding: 0; height: calc(100vh - 60px); } .ch-container { border: none; border-radius: 0; } }")
-</style>
 
 <div class="ch-wrapper">
     <div class="ch-container">
         <div class="ch-sidebar">
             <div class="ch-sidebar-header">
-                <input type="text" class="ch-input" placeholder="Search chats..." />
+                <input type="text" class="ch-input-search" placeholder="@Localizer["Placeholder_Search"]" />
             </div>
 
             <div class="ch-list" id="chatList">
@@ -362,49 +24,50 @@
                 {
                     foreach (var chat in Model)
                     {
-                                <div class="ch-item" 
-                                     id="chat-item-@chat.ChatId"
-                                     onclick="openChat('@chat.ChatId', '@chat.ChatName', '@chat.ChatAvatarUrl', '@chat.TargetUserId', this)">
+                        <div class="ch-item" 
+                             id="chat-item-@chat.ChatId"
+                             onclick="openChat('@chat.ChatId', '@chat.ChatName', '@chat.ChatAvatarUrl', '@chat.TargetUserId', this)">
 
-                                    <img src="@chat.ChatAvatarUrl" class="ch-avatar" alt="Avatar" />
+                            <img src="@chat.ChatAvatarUrl" class="ch-avatar" alt="@Localizer["Alt_Avatar"]" loading="lazy" />
 
-                                    <div class="ch-info">
-                                        <div class="ch-name">@chat.ChatName</div>
-
-                                        <div class="ch-preview" id="preview-@chat.ChatId">
-                                    @(string.IsNullOrEmpty(chat.LastMessageContent) ? "No messages yet" : chat.LastMessageContent)
-                                        </div>
-                                    </div>
+                            <div class="ch-info">
+                                <div class="ch-name">@chat.ChatName</div>
+                                <div class="ch-preview" id="preview-@chat.ChatId">
+                                    @(string.IsNullOrEmpty(chat.LastMessageContent) ? Localizer["Msg_NoMessagesYet"] : chat.LastMessageContent)
+                                </div>
+                            </div>
 
                             @if (chat.LastMessageTime.HasValue)
                             {
-                                            <div class="ch-time">
-                                    @chat.LastMessageTime.Value.ToString("dd.MM.yyyy HH:mm")
-                                            </div>
-                            }
+                                <div class="ch-time">
+                                    @chat.LastMessageTime.Value.ToString("g")
                                 </div>
+                            }
+                        </div>
                     }
                 }
                 else
                 {
-                        <div style="padding:20px; text-align:center; color:#999;">No chats yet.</div>
+                    <div style="padding:20px; text-align:center; color:#999;">@Localizer["Msg_NoChatsYet"]</div>
                 }
             </div>
         </div>
 
         <div class="ch-main" id="chatMainArea">
+            
             <div id="chatPlaceholder" class="ch-empty">
                 <i class="fa-regular fa-comments" style="font-size:4rem; margin-bottom:20px; opacity:0.2;"></i>
-                <p>Select a chat</p>
+                <p>@Localizer["Msg_SelectChat"]</p>
             </div>
 
             <div id="chatHeader" class="ch-header hidden">
-                <button class="ch-btn-back" id="backBtn" onclick="closeChatMobile()"><i class="fa-solid fa-arrow-left"></i></button>
-                <a href="#" id="headerLink" class="ch-header-link" style="display: flex; align-items: center; gap: 15px; text-decoration: none; color: inherit;">
-                    <img id="headerAvatar" src="" class="ch-avatar" style="width:40px; height:40px;">
+                <button class="ch-btn-back" id="backBtn" onclick="closeChatMobile()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <a href="#" id="headerLink" class="ch-header-link">
+                    <img id="headerAvatar" src="" class="ch-avatar" style="width:40px; height:40px;" alt="@Localizer["Alt_Avatar"]">
                     <div>
                         <div id="headerName" class="ch-header-name">User</div>
-                        <div class="ch-header-status; hidden">Online</div>
                     </div>
                 </a>
             </div>
@@ -416,7 +79,7 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
-                <input type="text" id="msgInput" class="ch-input" placeholder="Type a message..." autocomplete="off" />
+                <input type="text" id="msgInput" class="ch-input" placeholder="@Localizer["Placeholder_TypeMessage"]" autocomplete="off" />
                 
                 <button class="ch-btn-send" id="sendBtn" onclick="sendMessage()">
                     <i class="fa-solid fa-arrow-up"></i>
@@ -425,304 +88,263 @@
         </div>
     </div>
 </div>
+
 @section scripts {
-<script>
-    let currentChatId = null;
-    const currentUserId = "@currentUserId";
-    let editingMessageId = null;
+    <script>
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            loading: '@Localizer["Msg_Loading"]',
+            noMessages: '@Localizer["Msg_NoMessages"]',
+            errorLoading: '@Localizer["Msg_ErrorLoading"]',
+            reconnecting: '@Localizer["Msg_Reconnecting"]',
+            errorSending: '@Localizer["Msg_ErrorSending"]',
+            errorEditing: '@Localizer["Msg_ErrorEditing"]',
+            confirmDelete: '@Localizer["Msg_ConfirmDelete"]',
+            errorDeleting: '@Localizer["Msg_ErrorDeleting"]',
+            currentCulture: '@currentCulture' 
+        };
 
-    const chatMain = document.getElementById('chatMainArea');
-    const msgInput = document.getElementById('msgInput');
-    const messagesArea = document.getElementById('messagesArea');
-    const searchInput = document.querySelector('.ch-sidebar-header input');
-    const sendBtn = document.getElementById('sendBtn'); // Якщо ти використовуєш ID, перевір HTML
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
+        let currentChatId = null;
+        const currentUserId = "@currentUserId";
+        let editingMessageId = null;
 
-    // --- 1. SIGNALR SETUP ---
-    const chatConnection = new signalR.HubConnectionBuilder()
-        .withUrl("/chatHub")
-        .withAutomaticReconnect()
-        .build();
+        const chatMain = document.getElementById('chatMainArea');
+        const msgInput = document.getElementById('msgInput');
+        const messagesArea = document.getElementById('messagesArea');
+        const searchInput = document.querySelector('.ch-input-search'); 
+        const sendBtn = document.getElementById('sendBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-    chatConnection.on("ReceiveMessage", function (msg) {
-        // 1. Додаємо в діалог, якщо він відкритий
-        if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
-            appendMessage(msg);
-            scrollToBottom();
-        }
-        // 2. Оновлюємо сайдбар
-        updateSidebarPreview(msg.chatId, msg.content, msg.createdAt, true);
-    });
+        // ... (SignalR Init) ...
+        const chatConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
 
-    chatConnection.on("MessageEdited", function (msg) {
-        if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
-            const contentDiv = document.getElementById(`content-${msg.id}`);
-            if (contentDiv) contentDiv.innerText = msg.content;
-            const metaDiv = document.getElementById(`meta-${msg.id}`);
-            // if (metaDiv && !metaDiv.querySelector('.ch-edited-mark')) {
-            //     metaDiv.insertAdjacentHTML('afterbegin', '<span class="ch-edited-mark" style="font-style:italic; font-size:0.7em; margin-right:5px;"></span>');
-            // }
-        }
-        updateSidebarPreview(msg.chatId, msg.content, null, false);
-    });
-
-    chatConnection.on("MessageDeleted", function (msgId) {
-        const row = document.getElementById(`row-${msgId}`);
-        if (row) {
-            row.style.opacity = "0";
-            setTimeout(() => row.remove(), 300);
-        }
-    });
-
-    // Д) Оновлення прев'ю чату (коли видалили останнє повідомлення)
-    chatConnection.on("ChatPreviewUpdated", function (data) {
-        // Використовуємо існуючу функцію оновлення сайдбару
-        // isNew = false (щоб не робити жирним і не піднімати, якщо це старе повідомлення)
-        // Або isNew = true, якщо хочеш підняти (але логічно, що при видаленні чат може опуститись, а не піднятись)
-            
-        // Тут ми просто оновимо текст і час
-        updateSidebarPreview(data.chatId, data.content, data.createdAt, false);
-    });
-
-    // --- 2. START & AUTO OPEN (ВИПРАВЛЕНО) ---
-    
-    async function startSignalR() {
-        try {
-            await chatConnection.start();
-            console.log("✅ SignalR Connected");
-
-            // ❗ Тільки ТЕПЕР перевіряємо, чи треба відкрити чат автоматично
-            const autoOpenId = "@openChatId";
-            if (autoOpenId) {
-                const chatItem = document.getElementById(`chat-item-${autoOpenId}`);
-                if (chatItem) {
-                    console.log("Auto-opening chat:", autoOpenId);
-                    chatItem.click(); // Тепер це безпечно, бо зв'язок є
-                }
+        chatConnection.on("ReceiveMessage", function (msg) {
+            if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
+                appendMessage(msg);
+                scrollToBottom();
             }
-        } catch (err) {
-            console.error("❌ SignalR Error:", err);
-            // Можна спробувати реконнект через 5 сек
-            setTimeout(startSignalR, 5000);
-        }
-    }
+            updateSidebarPreview(msg.chatId, msg.content, msg.createdAt, true);
+        });
 
-    // Запускаємо процес
-    startSignalR();
+        chatConnection.on("MessageEdited", function (msg) {
+            if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
+                const contentDiv = document.getElementById(`content-${msg.id}`);
+                if (contentDiv) contentDiv.innerText = msg.content;
+            }
+            updateSidebarPreview(msg.chatId, msg.content, null, false);
+        });
 
+        chatConnection.on("MessageDeleted", function (msgId) {
+            const row = document.getElementById(`row-${msgId}`);
+            if (row) {
+                row.style.opacity = "0";
+                setTimeout(() => row.remove(), 300);
+            }
+        });
 
-    // --- 3. OPEN CHAT ---
-    async function openChat(chatId, name, avatarUrl, targetUserId, el) {
-        cancelEditMode();
+        chatConnection.on("ChatPreviewUpdated", function (data) {
+            updateSidebarPreview(data.chatId, data.content, data.createdAt, false);
+        });
 
-        // UI Active State
-        document.querySelectorAll('.ch-item').forEach(i => i.classList.remove('active'));
-        if(el) {
-            el.classList.add('active');
-            const preview = el.querySelector('.ch-preview');
-            if(preview) preview.classList.remove("new-msg");
-        }
-
-        // UI Show Main
-        chatMain.classList.add('active'); 
-        if(window.innerWidth <= 768) document.getElementById('backBtn').style.display = 'block';
-        
-        document.getElementById('chatPlaceholder').classList.add('hidden');
-        document.getElementById('chatHeader').classList.remove('hidden');
-        document.getElementById('inputArea').classList.remove('hidden');
-        messagesArea.classList.remove('hidden');
-
-        // Set Header Data
-        document.getElementById('headerName').innerText = name;
-        document.getElementById('headerAvatar').src = avatarUrl;
-        
-        const headerLink = document.getElementById('headerLink');
-        if (targetUserId && targetUserId !== "null") {
-            headerLink.href = `/profile?userId=${targetUserId}`;
-            headerLink.style.pointerEvents = "auto";
-            // Тут можна додати checkOnlineStatus(targetUserId)
-        } else {
-            headerLink.href = "#";
-            headerLink.style.pointerEvents = "none";
-        }
-
-        messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:#ccc;">Loading...</div>';
-
-        // --- SIGNALR ROOM LOGIC ---
-        // Перевіряємо стан з'єднання перед викликом
-        if (chatConnection.state === "Connected") {
+        async function startSignalR() {
             try {
-                if (currentChatId) await chatConnection.invoke("LeaveChat", currentChatId);
+                await chatConnection.start();
+                const autoOpenId = "@openChatId";
+                if (autoOpenId) {
+                    const chatItem = document.getElementById(`chat-item-${autoOpenId}`);
+                    if (chatItem) chatItem.click();
+                }
+            } catch (err) { setTimeout(startSignalR, 5000); }
+        }
+        startSignalR();
+
+        async function openChat(chatId, name, avatarUrl, targetUserId, el) {
+            cancelEditMode();
+            document.querySelectorAll('.ch-item').forEach(i => i.classList.remove('active'));
+            if(el) {
+                el.classList.add('active');
+                const preview = el.querySelector('.ch-preview');
+                if(preview) preview.classList.remove("new-msg");
+            }
+
+            chatMain.classList.add('active'); 
+            if(window.innerWidth <= 768) document.getElementById('backBtn').style.display = 'block';
+            
+            document.getElementById('chatPlaceholder').classList.add('hidden');
+            document.getElementById('chatHeader').classList.remove('hidden');
+            document.getElementById('inputArea').classList.remove('hidden');
+            messagesArea.classList.remove('hidden');
+
+            document.getElementById('headerName').innerText = name;
+            document.getElementById('headerAvatar').src = avatarUrl;
+            
+            const headerLink = document.getElementById('headerLink');
+            if (targetUserId && targetUserId !== "null") {
+                headerLink.href = `/Profile?userId=${targetUserId}`;
+                headerLink.style.pointerEvents = "auto";
+            } else {
+                headerLink.href = "#";
+                headerLink.style.pointerEvents = "none";
+            }
+
+            // Localized Loading
+            messagesArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ccc;">${JS_RESOURCES.loading}</div>`;
+
+            if (chatConnection.state === "Connected") {
+                try {
+                    if (currentChatId) await chatConnection.invoke("LeaveChat", currentChatId);
+                    currentChatId = chatId;
+                    await chatConnection.invoke("JoinChat", chatId);
+                } catch(e) { console.error(e); }
+            } else {
                 currentChatId = chatId;
-                await chatConnection.invoke("JoinChat", chatId);
-            } catch(e) { console.error("SignalR Group Error:", e); }
-        } else {
-            console.warn("SignalR not connected yet. Chat ID set locally.");
-            currentChatId = chatId;
+            }
+
+            try {
+                const res = await fetch(`/Chat/GetHistory?chatId=${chatId}`);
+                if (!res.ok) throw new Error("History fetch error");
+                
+                const msgs = await res.json();
+                messagesArea.innerHTML = '';
+                
+                if(msgs.length === 0) {
+                    messagesArea.innerHTML = `<div style="text-align:center; padding:40px; color:#eee;">${JS_RESOURCES.noMessages}</div>`;
+                }
+                else msgs.forEach(m => appendMessage(m));
+                
+                scrollToBottom();
+                if(window.innerWidth > 768) msgInput.focus();
+            } catch (e) {
+                messagesArea.innerHTML = `<div style="text-align:center; color:red;">${JS_RESOURCES.errorLoading}</div>`;
+            }
         }
 
-        // Fetch History
-        try {
-            const res = await fetch(`/Chat/GetHistory?chatId=${chatId}`);
-            if (!res.ok) throw new Error("History fetch error");
-            
-            const msgs = await res.json();
-            messagesArea.innerHTML = '';
-            
-            if(msgs.length === 0) messagesArea.innerHTML = '<div style="text-align:center; padding:40px; color:#eee;">No messages. Say hi! 👋</div>';
-            else msgs.forEach(m => appendMessage(m));
-            
-            scrollToBottom();
-            if(window.innerWidth > 768) msgInput.focus();
-        } catch (e) {
-            messagesArea.innerHTML = '<div style="text-align:center; color:red;">Error loading messages.</div>';
-        }
-    }
+        async function sendMessage() {
+            if (editingMessageId) { await submitEdit(); return; }
+            const text = msgInput.value.trim();
+            if (!text || !currentChatId) return;
+            if (chatConnection.state !== "Connected") { alert(JS_RESOURCES.reconnecting); return; }
 
-    // --- 4. SEND MESSAGE ---
-    async function sendMessage() {
-        if (editingMessageId) {
-            await submitEdit(); return;
+            try {
+                await chatConnection.invoke("SendMessage", currentChatId, text);
+                msgInput.value = '';
+                msgInput.focus();
+            } catch (e) { alert(JS_RESOURCES.errorSending); }
         }
 
-        const text = msgInput.value.trim();
-        if (!text || !currentChatId) return;
-
-        // Блокуємо повторну відправку, поки не підключено
-        if (chatConnection.state !== "Connected") {
-            alert("Reconnecting... Please wait.");
-            return;
-        }
-
-        try {
-            await chatConnection.invoke("SendMessage", currentChatId, text);
-            msgInput.value = '';
-            msgInput.focus();
-        } catch (e) { alert("Error sending"); }
-    }
-
-    // --- UTILS (Update Preview, Append, Edit, etc.) ---
-    
-    function updateSidebarPreview(chatId, text, dateStr, isNew) {
+        function updateSidebarPreview(chatId, text, dateStr, isNew) {
             const preview = document.getElementById(`preview-${chatId}`);
             if (!preview) return;
-
             preview.innerText = text;
             
-            // Оновлюємо час, якщо він прийшов
             if (dateStr) {
                 const chatItem = document.getElementById(`chat-item-${chatId}`);
                 const dateObj = new Date(dateStr);
-                const timeFormatted = dateObj.toLocaleString('uk-UA', { 
+                // Use dynamic culture from server
+                const timeFormatted = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
                     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
                 }).replace(',', '');
-                
                 let timeDiv = chatItem.querySelector('.ch-time');
                 if (timeDiv) timeDiv.innerText = timeFormatted;
             }
-
             if (isNew) {
-                //preview.classList.add("new-msg");
                 const item = document.getElementById(`chat-item-${chatId}`);
                 const list = document.getElementById('chatList');
                 if (item && list) list.prepend(item);
             }
         }
 
-    function appendMessage(msg) {
-        const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());
-        const dateObj = new Date(msg.createdAt);
-        const time = dateObj.toLocaleString('uk-UA', { 
-            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
-        }).replace(',', '');
+        function appendMessage(msg) {
+            const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());
+            const dateObj = new Date(msg.createdAt);
+            // Use dynamic culture from server
+            const time = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+            }).replace(',', '');
 
-        const avatarUrl = msg.senderAvatarUrl || '/images/default-avatar.png';
-        const profileUrl = `/profile?userId=${msg.senderId}`;
-        const userName = escapeHtml(msg.senderName);
-        const safeContent = escapeHtml(msg.content).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            const avatarUrl = msg.senderAvatarUrl || '/images/default-avatar.png';
+            const profileUrl = `/Profile?userId=${msg.senderId}`;
+            const userName = escapeHtml(msg.senderName);
+            const safeContent = escapeHtml(msg.content).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
 
-        let actionsHtml = '';
-        if (isMe) {
-            actionsHtml = `
-                <div class="ch-msg-actions">
-                    <button class="ch-action-btn" onclick="enableEditMode('${msg.id}', '${safeContent}')"><i class="fa-solid fa-pen"></i></button>
-                    <button class="ch-action-btn del" onclick="deleteMessageNode('${msg.id}')"><i class="fa-solid fa-trash"></i></button>
-                </div>`;
+            let actionsHtml = '';
+            if (isMe) {
+                actionsHtml = `
+                    <div class="ch-msg-actions">
+                        <button class="ch-action-btn" onclick="enableEditMode('${msg.id}', '${safeContent}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="ch-action-btn del" onclick="deleteMessageNode('${msg.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>`;
+            }
+
+            let html = '';
+            if (isMe) {
+                html = `
+                    <div class="ch-msg-row me" id="row-${msg.id}">
+                        ${actionsHtml}
+                        <div class="ch-msg me">
+                            <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
+                            <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
+                        </div>
+                        <a href="${profileUrl}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
+                    </div>`;
+            } else {
+                html = `
+                    <div class="ch-msg-row them" id="row-${msg.id}">
+                        <a href="${profileUrl}" title="${userName}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
+                        <div class="ch-msg them">
+                            <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
+                            <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
+                        </div>
+                    </div>`;
+            }
+            messagesArea.insertAdjacentHTML('beforeend', html);
         }
 
-        //const editedMark = msg.isEdited ? '<span class="ch-edited-mark" style="font-style:italic; font-size:0.7em; margin-right:5px;">edited</span>' : '';
-
-        let html = '';
-        if (isMe) {
-            html = `
-                <div class="ch-msg-row me" id="row-${msg.id}">
-                    ${actionsHtml}
-                    <div class="ch-msg me">
-                        <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
-                        <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
-                    </div>
-                    <a href="${profileUrl}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
-                </div>`;
-        } else {
-            html = `
-                <div class="ch-msg-row them" id="row-${msg.id}">
-                    <a href="${profileUrl}" title="${userName}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
-                    <div class="ch-msg them">
-                        <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
-                        <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
-                    </div>
-                </div>`;
+        function enableEditMode(msgId, content) {
+            const contentDiv = document.getElementById(`content-${msgId}`);
+            const currentText = contentDiv ? contentDiv.innerText : content;
+            editingMessageId = msgId;
+            msgInput.value = currentText;
+            msgInput.focus();
+            if(cancelEditBtn) cancelEditBtn.style.display = 'block';
+            if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
         }
-        messagesArea.insertAdjacentHTML('beforeend', html);
-    }
 
-    // ... Решта функцій (Edit, Delete, Scroll, Escape) без змін ...
-    
-    function enableEditMode(msgId, content) {
-        const contentDiv = document.getElementById(`content-${msgId}`);
-        const currentText = contentDiv ? contentDiv.innerText : content;
-        editingMessageId = msgId;
-        msgInput.value = currentText;
-        msgInput.focus();
-        if(cancelEditBtn) cancelEditBtn.style.display = 'block';
-        if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-    }
+        function cancelEditMode() {
+            editingMessageId = null;
+            msgInput.value = '';
+            if(cancelEditBtn) cancelEditBtn.style.display = 'none';
+            if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+        }
+        
+        async function submitEdit() {
+             const text = msgInput.value.trim();
+             if (!text || !editingMessageId) { cancelEditMode(); return; }
+             try { await chatConnection.invoke("EditMessage", editingMessageId, text); cancelEditMode(); } 
+             catch (e) { alert(JS_RESOURCES.errorEditing); }
+        }
 
-    function cancelEditMode() {
-        editingMessageId = null;
-        msgInput.value = '';
-        if(cancelEditBtn) cancelEditBtn.style.display = 'none';
-        if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-    }
-    
-    async function submitEdit() {
-         const text = msgInput.value.trim();
-         const contentDiv = document.getElementById(`content-${editingMessageId}`);
-         const oldText = contentDiv ? contentDiv.innerText : "";
-         if (!text || !editingMessageId || text === oldText) { cancelEditMode(); return; }
-         try { await chatConnection.invoke("EditMessage", editingMessageId, text); cancelEditMode(); } 
-         catch (e) { alert("Error editing"); }
-    }
+        async function deleteMessageNode(msgId) {
+             if(!confirm(JS_RESOURCES.confirmDelete)) return;
+             try { await chatConnection.invoke("DeleteMessage", msgId, currentChatId); } 
+             catch(e) { alert(JS_RESOURCES.errorDeleting); }
+        }
 
-    async function deleteMessageNode(msgId) {
-         try { await chatConnection.invoke("DeleteMessage", msgId, currentChatId); } 
-         catch(e) { alert("Error deleting"); }
-    }
+        function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
+        function closeChatMobile() { document.getElementById('chatMainArea').classList.remove('active'); msgInput.blur(); }
+        function escapeHtml(text) { if (!text) return ""; return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
-    function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
-    function closeChatMobile() { document.getElementById('chatMainArea').classList.remove('active'); msgInput.blur(); }
-    function escapeHtml(text) { if (!text) return ""; return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-
-    msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-    msgInput.addEventListener('keydown', (e) => { if (e.key === 'Escape' && editingMessageId) cancelEditMode(); });
-    
-    // Search
-    searchInput.addEventListener('input', function(e) {
-        const term = e.target.value.toLowerCase();
-        document.querySelectorAll('.ch-item').forEach(item => {
-            item.style.display = item.querySelector('.ch-name').innerText.toLowerCase().includes(term) ? 'flex' : 'none';
+        msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        msgInput.addEventListener('keydown', (e) => { if (e.key === 'Escape' && editingMessageId) cancelEditMode(); });
+        
+        searchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.ch-item').forEach(item => {
+                item.style.display = item.querySelector('.ch-name').innerText.toLowerCase().includes(term) ? 'flex' : 'none';
+            });
         });
-    });
-    
     </script>
 }

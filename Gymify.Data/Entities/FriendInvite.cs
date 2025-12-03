@@ -8,5 +8,5 @@ public class FriendInvite
     public Guid ReceiverProfileId { get; set; }
     public UserProfile SenderProfile { get; set; } = null!;
     public UserProfile ReceiverProfile { get; set; } = null!;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 }

@@ -117,16 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MinutesShort" xml:space="preserve">
+  <data name="Label_Kg" xml:space="preserve">
+    <value>kg</value>
+  </data>
+  <data name="Label_Min" xml:space="preserve">
     <value>min</value>
   </data>
-  <data name="NoExercises" xml:space="preserve">
-    <value>No exercises added yet.</value>
-  </data>
-  <data name="Reps" xml:space="preserve">
+  <data name="Label_Reps" xml:space="preserve">
     <value>Reps</value>
   </data>
-  <data name="Sets" xml:space="preserve">
+  <data name="Label_Sets" xml:space="preserve">
     <value>Sets</value>
+  </data>
+  <data name="Msg_NoExercises" xml:space="preserve">
+    <value>No exercises in this plan.</value>
   </data>
 </root>

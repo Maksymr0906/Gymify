@@ -1,10 +1,28 @@
 ﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Welcome";
+}
 
-<div class="startPageBg"></div>
-    <div class="df startPageContainer"><h1 class="mainTitle">@Localizer["MainTitle"]</h1>
-    <h3 class="mainDescription">@Localizer["MainDescription"]</h3>
+<div class="hero-wrapper">
+    <div class="hero-overlay"></div>
 
-    <a class="mainRegistration scaleButton" href="/Register">@Localizer["GetStarted"]</a>
-    <a class="mainLogin scaleButton" href="/Login">@Localizer["AlreadyRegistered"]</a>
+    <div class="hero-content">
+        <h1 class="hero-title">
+            @Localizer["MainTitle"]
+        </h1>
 
+        <h3 class="hero-description">
+            @Localizer["MainDescription"]
+        </h3>
+
+        <div class="hero-buttons">
+            <a href="/Register" class="gym-btn gym-btn-primary scale-btn hero-btn">
+                @Localizer["GetStarted"]
+            </a>
+
+            <a href="/Login" class="gym-btn gym-btn-secondary scale-btn hero-btn">
+                @Localizer["AlreadyRegistered"]
+            </a>
+        </div>
+    </div>
 </div>

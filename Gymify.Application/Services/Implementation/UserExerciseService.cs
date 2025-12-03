@@ -12,7 +12,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
     private readonly INotificationService _notificationService = notificationService;
     private const int DefaultPendingExerciseXP = 10;
 
-    public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<UserExerciseDto> dtos, Guid userId)
+    public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<UserExerciseDto> dtos, Guid userId, bool ukranianVer)
     {
         var currentExercises = await _unitOfWork.UserExerciseRepository
             .GetAllByWorkoutIdAsync(workoutId);
@@ -55,16 +55,17 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
             }
             else
             {
-                var baseExercise = await _unitOfWork.ExerciseRepository.GetByNameAsync(dto.Name);
+                var baseExercise = await _unitOfWork.ExerciseRepository.GetByNameAsync(dto.Name, ukranianVer);
 
                 if (baseExercise == null)
                 {
                     baseExercise = new Exercise
                     {
                         Id = Guid.NewGuid(),
-                        Name = dto.Name,
-                        Description = string.Empty,
-                        CreatedAt = DateTime.UtcNow,
+                        NameEn = ukranianVer ? string.Empty : dto.Name,
+                        DescriptionEn = string.Empty,
+                        NameUk = ukranianVer ? dto.Name : string.Empty,
+                        DescriptionUk = string.Empty,
                         Type = (ExerciseType)dto.Type,
                         BaseXP = 10,
                         DifficultyMultiplier = 1.0,
@@ -75,7 +76,8 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                     await _notificationService.SendNotificationAsync(
                         userId,
                         $"Exercise '{dto.Name}' was sended for a moderation.",
-                        "#" // Клікати нікуди не треба, це просто інфо
+                        $"Вправа '{dto.Name}' була відправлена на модерацію.",
+                        "#" 
                     );
                 }
 
@@ -92,7 +94,8 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                     Id = dto.Id,
                     WorkoutId = workoutId,
                     ExerciseId = baseExercise.Id,
-                    Name = baseExercise.Name,
+                    NameEn = baseExercise.NameEn,
+                    NameUk = baseExercise.NameUk,
                     Type = baseExercise.Type,
                     Sets = dto.Sets,
                     Reps = dto.Reps,
@@ -108,7 +111,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<List<UserExerciseDto>> GetAllWorkoutExercisesAsync(Guid workoutId)
+    public async Task<List<UserExerciseDto>> GetAllWorkoutExercisesAsync(Guid workoutId, bool ukranianVer)
     {
         var userExercises = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
 
@@ -120,7 +123,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
             {
                 Id = userExercise.Id,
                 WorkoutId = userExercise.WorkoutId,
-                Name = userExercise.Name,
+                Name = ukranianVer ? userExercise.NameUk : userExercise.NameEn,
                 Type = (int)userExercise.Type,
                 Sets = userExercise.Sets,
                 Reps = userExercise.Reps,

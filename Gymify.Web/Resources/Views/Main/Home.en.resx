@@ -120,6 +120,9 @@
   <data name="CreateWorkout" xml:space="preserve">
     <value>Create new workout</value>
   </data>
+  <data name="KeepCrushing" xml:space="preserve">
+    <value>Keep Crushing It!</value>
+  </data>
   <data name="KeepGoing" xml:space="preserve">
     <value>Keep going strong!</value>
   </data>

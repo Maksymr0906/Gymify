@@ -46,7 +46,6 @@ namespace Gymify.Web.Controllers
             try
             {
                 var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-                // Припускаємо, що у тебе є метод в сервісі, який перевіряє права і оновлює
                 await _commentService.UpdateCommentAsync(commentId, userId, newContent);
                 return Ok();
             }

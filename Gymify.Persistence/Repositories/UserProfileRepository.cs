@@ -22,6 +22,14 @@ public class UserProfileRepository(GymifyDbContext context)
     }
     public async Task<(List<UserProfile> Users, int TotalCount)> GetLeaderboardPageAsync(int page, int pageSize)
     {
+        // 1. Спочатку дістаємо ID ролі "Admin" з бази (динамічно)
+        // Вам потрібен доступ до RoleManager або просто до контексту (DbContext)
+        var adminRoleId = _context.Roles
+            .Where(r => r.Name == "Admin")
+            .Select(r => r.Id)
+            .FirstOrDefault();
+
+        // 2. Тепер використовуємо цей ID у вашому запиті
         var query = Entities
             .AsNoTracking()
             .Include(u => u.ApplicationUser)

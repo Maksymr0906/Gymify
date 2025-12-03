@@ -120,6 +120,9 @@
   <data name="CreateWorkout" xml:space="preserve">
     <value>Створити нове тренування</value>
   </data>
+  <data name="KeepCrushing" xml:space="preserve">
+    <value>Не зупиняйся!</value>
+  </data>
   <data name="KeepGoing" xml:space="preserve">
     <value>Продовжуй у тому ж дусі!</value>
   </data>

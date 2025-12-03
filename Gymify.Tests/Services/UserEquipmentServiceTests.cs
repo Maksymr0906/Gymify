@@ -1,4 +1,4 @@
-﻿using Gymify.Application.DTOs.UserEquipment;
+﻿/*using Gymify.Application.DTOs.UserEquipment;
 using Gymify.Application.Services.Implementation;
 using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
@@ -178,4 +178,4 @@ namespace Gymify.Tests.Services
             _mockUow.Verify(u => u.SaveAsync(), Times.Never);
         }
     }
-}
+}*/

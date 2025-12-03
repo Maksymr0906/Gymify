@@ -14,5 +14,5 @@ public class UserChat
     public Chat Chat { get; set; } = null!;
     public UserProfile UserProfile { get; set; } = null!;
     public bool IsOwner { get; set; } = false;
-    public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+    public DateTime JoinedAt { get; set; }
 }

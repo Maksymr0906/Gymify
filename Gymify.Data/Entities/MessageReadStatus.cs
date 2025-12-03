@@ -14,5 +14,5 @@ public class MessageReadStatus
     public Guid UserProfileId { get; set; }
     public UserProfile UserProfile { get; set; } = null!;
 
-    public DateTime ReadAt { get; set; } = DateTime.UtcNow;
+    public DateTime ReadAt { get; set; }
 }

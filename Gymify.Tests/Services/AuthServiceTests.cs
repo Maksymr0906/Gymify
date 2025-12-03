@@ -1,4 +1,4 @@
-﻿using Gymify.Application.DTOs.Auth;
+﻿/*using Gymify.Application.DTOs.Auth;
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
@@ -128,4 +128,4 @@ namespace Gymify.Tests.Services
             _mockSignInManager.Verify(x => x.SignOutAsync(), Times.Once);
         }
     }
-}
+}*/

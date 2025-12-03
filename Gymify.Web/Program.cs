@@ -7,8 +7,9 @@ using Gymify.Web.Hubs;
 using Gymify.Web.Seed;
 using Gymify.Web.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 
@@ -17,23 +18,22 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
+// 1. Налаштування шляху до ресурсів
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
+// 2. Налаштування підтримуваних мов
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    var cultures = new[]
+    var supportedCultures = new[]
     {
-        new CultureInfo("en"),
-        new CultureInfo("uk")
+        new CultureInfo("en-US"),
+        new CultureInfo("uk-UA")
     };
 
-    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en");
-    options.SupportedCultures = cultures;
-    options.SupportedUICultures = cultures;
-
-    options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.QueryStringRequestCultureProvider());
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
 });
-
 
 services.Configure<SeedDataOptions>(configuration.GetSection("SeedDataOptions"));
 
@@ -43,7 +43,6 @@ services
 
 services.AddSignalR();
 services.AddSingleton<IUserIdProvider, CustomUserIdProviderService>();
-
 
 services.AddScoped<INotifierService, SignalRNotifierService>();
 
@@ -66,12 +65,13 @@ services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });
+
 services.AddControllersWithViews()
-        .AddViewLocalization()          
-        .AddDataAnnotationsLocalization();  
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix) // Шукає файли .uk.resx
+    .AddDataAnnotationsLocalization();
 
+var app = builder.Build();
 
-var app = builder.Build(); 
 var localizationOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>()!.Value;
 app.UseRequestLocalization(localizationOptions);
 
@@ -90,14 +90,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.MapControllerRoute(
     name: "default",

@@ -1,104 +1,59 @@
 ﻿@using Gymify.Data.Enums
 @using Gymify.Application.ViewModels.ExerciseLibrary
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model ExerciseLibraryViewModel
 
 @{
-    ViewData["Title"] = "Exercise Library";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
-
-<style>
-    /* Фільтр-бар */
-    .ae-filter-bar {
-        background: white; padding: 20px; border-radius: 16px;
-        border: 1px solid #eee; margin-bottom: 30px;
-        display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-    }
-
-    /* Кастомний перемикач (Segmented Control) */
-    .ae-switch-container {
-        display: flex; background: #f1f3f5; padding: 4px; border-radius: 8px;
-        position: relative; height: 42px; box-sizing: border-box;
-    }
-    .ae-switch-radio { display: none; } /* Ховаємо радіобатони */
-
-    .ae-switch-label {
-        flex: 1; text-align: center; padding: 0 15px; font-size: 0.9rem; font-weight: 600;
-        color: #7f8c8d; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center;
-        transition: color 0.3s; user-select: none; min-width: 100px;
-    }
-
-    /* Пливучий фон для активного елемента */
-    .ae-switch-bg {
-        position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
-        background: white; border-radius: 6px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        z-index: 1;
-    }
-
-    /* Логіка перемикання кольорів та руху фону */
-    #modeVerified:checked ~ .ae-switch-bg { transform: translateX(0); }
-    #modePending:checked ~ .ae-switch-bg { transform: translateX(100%); }
-
-    #modeVerified:checked + label { color: #27ae60; }
-    #modePending:checked + label { color: #f39c12; }
-
-    /* Cards Styles (ті самі, що були) */
-    .ex-card { position: relative; transition: transform 0.2s; border: 1px solid #e0e0e0; border-radius: 10px; overflow:hidden; background: white; }
-    .ex-card:hover { transform: translateY(-3px); border-color:#ccc; }
-    .ex-card.pending { border: 2px dashed #f39c12; background-color: #fffdf9; }
-
-    .ex-badge { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; z-index: 2; color: white; }
-    .ex-badge.verified { background: #27ae60; }
-    .ex-badge.pending { background: #f39c12; }
-
-    .ex-thumbnail-wrapper { position: relative; width: 100%; height: 160px; background: #000; cursor: pointer; }
-    .ex-thumbnail { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
-    .ex-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
-
-    .ex-type { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #555; background: #eee; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; margin-top: 10px; margin-left: 15px; }
-    .ae-card-header-title { margin-left: 15px; margin-right: 15px; font-weight: bold; font-size: 1.1rem; }
-    .ae-text-muted { margin: 0 15px 15px 15px; color: #777; }
-    .ae-card-stats { border-top: 1px solid #f0f0f0; padding: 10px 15px; font-size: 0.85rem; color: #555; display: flex; align-items: center; gap: 5px;}
-</style>
 
 <partial name="_VideoModal" />
 
-<div class="ae-page-container">
-
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h1 class="ae-page-title">Exercise Library</h1>
-        <p class="ae-lead-text ae-text-muted">Discover new moves or add your own.</p>
+<div class="dashboard-wrapper"> 
+    <div class="ex-header">
+        <h1 class="ex-title">@Localizer["HeaderTitle"]</h1>
+        <p class="ex-subtitle">@Localizer["Subtitle"]</p>
     </div>
 
-    <div class="ae-filter-bar">
-
+    <div class="ex-filter-bar">
+        
         <div style="flex-grow: 1; min-width: 250px;">
-            <input type="text" id="filterSearch" class="ae-input-std" placeholder="🔍 Search exercises..." autocomplete="off" />
+            <input type="text" id="filterSearch" class="gym-search-input w-100" placeholder="@Localizer["SearchPlaceholder"]" autocomplete="off" />
         </div>
 
-        <div style="min-width: 160px;">
-            <select id="filterType" class="ae-input-std" asp-items="Html.GetEnumSelectList<ExerciseType>()">
-                <option value="">All Types</option>
+        <div style="min-width: 180px;">
+            <select id="filterType" class="gym-select w-100">
+                @* Опція "Всі типи" *@
+                <option value="">@Localizer["Filter_AllTypes"]</option>
+
+                @* Проходимось по всіх значеннях Enum *@
+                @foreach (ExerciseType type in Enum.GetValues(typeof(ExerciseType)))
+                {
+                    @* Value = числове значення (як в базі), Text = переклад *@
+                    <option value="@((int)type)">@Localizer[type.ToString()]</option>
+                }
             </select>
         </div>
 
-        <div class="ae-switch-container">
-            <input type="radio" id="modeVerified" name="statusMode" class="ae-switch-radio" value="false" checked>
-            <label for="modeVerified" class="ae-switch-label">Verified</label>
+        <div class="ex-switch-container">
+            <input type="radio" id="modeVerified" name="statusMode" class="ex-switch-radio" value="false" checked>
+            <label for="modeVerified" class="ex-switch-label">@Localizer["Filter_Verified"]</label>
 
-            <input type="radio" id="modePending" name="statusMode" class="ae-switch-radio" value="true">
-            <label for="modePending" class="ae-switch-label">Community</label>
+            <input type="radio" id="modePending" name="statusMode" class="ex-switch-radio" value="true">
+            <label for="modePending" class="ex-switch-label">@Localizer["Filter_Community"]</label>
 
-            <div class="ae-switch-bg"></div>
+            <div class="ex-switch-bg"></div>
         </div>
 
     </div>
 
-    <div id="exercisesContainer" style="position: relative; min-height: 200px;">
-        <div id="loadingSpinner" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:10; align-items:center; justify-content:center;">
-            <div class="spinner-border text-primary" role="status"></div>
+    <div id="exercisesContainer" style="position: relative; min-height: 400px;">
+        
+        <div id="loadingSpinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">@Localizer["LoadingText"]</span>
+            </div>
         </div>
 
         <partial name="_ExerciseGrid" model="Model" />
@@ -107,100 +62,96 @@
 </div>
 
 @section Scripts {
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const searchInput = document.getElementById("filterSearch");
-                const typeSelect = document.getElementById("filterType");
-                const statusRadios = document.querySelectorAll('input[name="statusMode"]');
-                const container = document.getElementById("exercisesContainer");
-                const loader = document.getElementById("loadingSpinner");
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById("filterSearch");
+            const typeSelect = document.getElementById("filterType");
+            const statusRadios = document.querySelectorAll('input[name="statusMode"]');
+            const container = document.getElementById("exercisesContainer");
+            const loader = document.getElementById("loadingSpinner");
 
-                // Зберігаємо поточний стан
-                let state = {
-                    search: "",
-                    type: "",
-                    pendingOnly: "false",
-                    page: 1
-                };
+            let state = {
+                search: "",
+                type: "",
+                pendingOnly: "false",
+                page: 1
+            };
 
-                // 1. Функція завантаження (AJAX)
-                async function loadExercises() {
-                    // Показуємо лоадер
-                    if(loader) loader.style.display = "flex";
-                    container.style.opacity = "0.5";
-
-                    const query = new URLSearchParams({
-                        search: state.search,
-                        type: state.type,
-                        pendingOnly: state.pendingOnly,
-                        page: state.page
-                    });
-
-                    try {
-                        const res = await fetch(`/Main/FilterExercises?${query}`);
-                        const html = await res.text();
-
-                        // Оновлюємо вміст контейнера (разом з пагінацією)
-                        // Важливо: ми не замінюємо сам container, а його innerHTML, щоб loader не зник з DOM
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = html;
-
-                        // Чистимо контейнер, залишаючи лоадер
-                        Array.from(container.children).forEach(child => {
-                            if (child.id !== 'loadingSpinner') child.remove();
-                        });
-
-                        // Вставляємо нове
-                        while (tempDiv.firstChild) {
-                            container.appendChild(tempDiv.firstChild);
-                        }
-
-                    } catch (err) {
-                        console.error(err);
-                    } finally {
-                        if(loader) loader.style.display = "none";
-                        container.style.opacity = "1";
-                    }
-                }
-
-                // 2. Debounce функція
-                function debounce(func, wait) {
-                    let timeout;
-                    return function(...args) {
-                        clearTimeout(timeout);
-                        timeout = setTimeout(() => func.apply(this, args), wait);
-                    };
-                }
-
-                // 3. Обробник зміни параметрів
-                const onFilterChange = debounce(() => {
-                    state.page = 1; // При зміні фільтру завжди скидаємо на 1 сторінку
-                    state.search = searchInput.value;
-                    state.type = typeSelect.value;
-                    state.pendingOnly = document.querySelector('input[name="statusMode"]:checked').value;
-
-                    loadExercises();
-                }, 400); // 400мс затримка
-
-                // 4. Підписка на події
-                searchInput.addEventListener("input", onFilterChange);
-                typeSelect.addEventListener("change", onFilterChange);
-                statusRadios.forEach(r => r.addEventListener("change", onFilterChange));
-
-                // 5. Обробка кліків по пагінації (делегування подій)
-                container.addEventListener("click", (e) => {
-                    // Якщо клікнули на кнопку з класом .page-link
-                    if (e.target.classList.contains("page-link")) {
-                        e.preventDefault();
-                        const newPage = e.target.getAttribute("data-page");
-                        if (newPage) {
-                            state.page = newPage;
-                            loadExercises();
-                            // Скрол нагору до списку
-                            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }
+            // 1. AJAX Load Function
+            async function loadExercises() {
+                if(loader) loader.style.display = "flex";
+                
+                const query = new URLSearchParams({
+                    search: state.search,
+                    type: state.type,
+                    pendingOnly: state.pendingOnly,
+                    page: state.page
                 });
+
+                try {
+                    const res = await fetch(`/Main/FilterExercises?${query}`);
+                    const html = await res.text();
+
+                    // Зберігаємо лоадер
+                    const savedLoader = container.querySelector('#loadingSpinner');
+                    
+                    // Парсимо новий HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+
+                    // Очищаємо контейнер 
+                    container.innerHTML = '';
+                    
+                    // Додаємо лоадер назад (він буде схований через finally)
+                    if(savedLoader) container.appendChild(savedLoader);
+                    
+                    // Додаємо новий контент
+                    while (tempDiv.firstChild) {
+                        container.appendChild(tempDiv.firstChild);
+                    }
+
+                } catch (err) {
+                    console.error("Error loading exercises:", err);
+                } finally {
+                    if(loader) loader.style.display = "none";
+                }
+            }
+
+            // 2. Debounce Helper
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            // 3. Filter Change Handler
+            const onFilterChange = debounce(() => {
+                state.page = 1;
+                state.search = searchInput.value;
+                state.type = typeSelect.value;
+                state.pendingOnly = document.querySelector('input[name="statusMode"]:checked').value;
+                loadExercises();
+            }, 400);
+
+            // 4. Event Listeners
+            searchInput.addEventListener("input", onFilterChange);
+            typeSelect.addEventListener("change", onFilterChange);
+            statusRadios.forEach(r => r.addEventListener("change", onFilterChange));
+
+            // 5. Pagination Handler (Delegation)
+            container.addEventListener("click", (e) => {
+                if (e.target.classList.contains("page-link")) {
+                    e.preventDefault();
+                    const newPage = e.target.getAttribute("data-page");
+                    if (newPage) {
+                        state.page = newPage;
+                        loadExercises();
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
             });
-        </script>
+        });
+    </script>
 }

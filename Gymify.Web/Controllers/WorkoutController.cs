@@ -4,6 +4,7 @@ using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Workout;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace Gymify.Web.Controllers
@@ -14,6 +15,7 @@ namespace Gymify.Web.Controllers
         private readonly IWorkoutService _workoutService;
         private readonly IExerciseService _exerciseService;
         private readonly IUserExersiceService _userExerciseService;
+        private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
         public WorkoutController(
             IWorkoutService workoutService,
@@ -77,7 +79,7 @@ namespace Gymify.Web.Controllers
             try
             {
                 var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-                await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId);
+                await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId, IsUkrainian);
 
                 return Ok(new { success = true, message = "Exercise saved!" });
             }
@@ -93,7 +95,7 @@ namespace Gymify.Web.Controllers
             if (string.IsNullOrWhiteSpace(query))
                 return Json(new List<string>());
 
-            var exercises = await _exerciseService.FindByNameAsync(query);
+            var exercises = await _exerciseService.FindByNameAsync(query, IsUkrainian);
             return Json(exercises.Select(e => e.Name));
         }
 
@@ -111,7 +113,7 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
         {
-            await _workoutService.CompleteWorkoutAsync(dto);
+            await _workoutService.CompleteWorkoutAsync(dto, IsUkrainian);
             return RedirectToAction("Index", "Main");
         }
 
@@ -121,7 +123,7 @@ namespace Gymify.Web.Controllers
             try
             {
                 var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value);
-                var model = await _workoutService.GetWorkoutDetailsViewModel(userId, workoutId);
+                var model = await _workoutService.GetWorkoutDetailsViewModel(userId, workoutId, IsUkrainian);
                 return View(model);
             }
             catch (KeyNotFoundException)
@@ -141,7 +143,7 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetExercisesPartial(Guid workoutId)
         {
-            var exerciseDtos = await _userExerciseService.GetAllWorkoutExercisesAsync(workoutId);
+            var exerciseDtos = await _userExerciseService.GetAllWorkoutExercisesAsync(workoutId, IsUkrainian);
 
             return PartialView("_ExerciseListReadOnly", exerciseDtos);
         }

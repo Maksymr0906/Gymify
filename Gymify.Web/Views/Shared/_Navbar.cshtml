@@ -1,7 +1,17 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light shadow-sm">
+﻿@using Microsoft.AspNetCore.Identity
+@using Gymify.Data.Entities
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+}
+
+<nav class="navbar navbar-expand-lg navbar-light shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" asp-controller="Main" asp-action="Index">
-            <i class="fa-solid fa-dumbbell"></i> Gymify
+            <i class="fa-solid fa-dumbbell" style="color: var(--gym-orange);"></i> Gym<span>ify</span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -12,21 +22,34 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Main" asp-action="Index">Home</a>
+                    <a class="nav-link gym-nav-link @(currentController == "Main" && currentAction == "Index" ? "active" : "")" 
+                       asp-controller="Main" asp-action="Index">
+                       @Localizer["Nav_Home"]
+                    </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Main" asp-action="Privacy">Privacy</a>
+                    <a class="nav-link gym-nav-link @(currentController == "Main" && currentAction == "FAQ" ? "active" : "")" 
+                       asp-controller="Main" asp-action="FAQ">
+                       @Localizer["Nav_FAQ"]
+                    </a>
                 </li>
+
             </ul>
+
 
             <div class="d-flex align-items-center gap-3">
 
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            @await Component.InvokeAsync("NotificationBell")
-                        }
+                <ul class="navbar-nav">
+                    <partial name="_LanguageSwitcher" />
+                </ul>
 
+                @if (User.Identity.IsAuthenticated)
+                {
+                    @await Component.InvokeAsync("NotificationBell")
+                }
                 <partial name="_LoginPartial" />
             </div>
 

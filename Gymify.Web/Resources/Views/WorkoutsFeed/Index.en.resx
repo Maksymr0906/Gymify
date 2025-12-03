@@ -117,25 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Load more" xml:space="preserve">
+  <data name="Btn_LoadMore" xml:space="preserve">
     <value>Load more</value>
   </data>
-  <data name="Search by author" xml:space="preserve">
-    <value>Search by author</value>
-  </data>
-  <data name="Show all workouts" xml:space="preserve">
+  <data name="Filter_All" xml:space="preserve">
     <value>Show all workouts</value>
   </data>
-  <data name="Show my workouts" xml:space="preserve">
+  <data name="Filter_Mine" xml:space="preserve">
     <value>Show my workouts</value>
   </data>
-  <data name="The newest first" xml:space="preserve">
+  <data name="Header_Feed" xml:space="preserve">
+    <value>Workouts Feed</value>
+  </data>
+  <data name="Label_Workouts" xml:space="preserve">
+    <value>Workouts</value>
+  </data>
+  <data name="Label_XP" xml:space="preserve">
+    <value>XP</value>
+  </data>
+  <data name="Msg_NoWorkouts" xml:space="preserve">
+    <value>No workouts found.</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Workouts Feed</value>
+  </data>
+  <data name="Placeholder_SearchAuthor" xml:space="preserve">
+    <value>Search by author</value>
+  </data>
+  <data name="Sort_Newest" xml:space="preserve">
     <value>The newest first</value>
   </data>
-  <data name="The oldest first" xml:space="preserve">
+  <data name="Sort_Oldest" xml:space="preserve">
     <value>The oldest first</value>
-  </data>
-  <data name="Workouts Feed" xml:space="preserve">
-    <value>Workouts Feed</value>
   </data>
 </root>

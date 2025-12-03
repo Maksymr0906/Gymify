@@ -11,6 +11,7 @@ public class NotificationRepository(GymifyDbContext context)
     public async Task<int> GetUnreadCountAsync(Guid userProfileId)
     {
         return await _context.Notifications
+            .Where(n => n.UserProfileId == userProfileId)
             .CountAsync();
     }
 

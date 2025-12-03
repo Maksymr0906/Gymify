@@ -6,7 +6,7 @@ public interface IWorkoutRepository : IRepository<Workout>
 {
     Task<Workout> GetByIdWithDetailsAsync(Guid id);
     Task<ICollection<Workout>> GetAllByUserIdAsync(Guid userId);
-    Task<ICollection<Workout>> GetLastWorkouts(Guid userId, int count = 4);
+    Task<ICollection<Workout>> GetLastWorkouts(Guid userId, int count = 6);
     Task<ICollection<Workout>> GetWorkoutsPageAsync(
     Guid userId,
     string? authorName,
