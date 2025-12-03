@@ -256,10 +256,18 @@
                 
                 // --- МІНІМАЛЬНА КЛІЄНТСЬКА ВАЛІДАЦІЯ ---
                 if (!name) { 
-                    alert(JS_RESOURCES.msgExerciseNameRequired); 
-                    inName.focus();
-                    return;
+                    if(typeof alertify !== 'undefined') {
+                        alertify.error(JS_RESOURCES.msgExerciseNameRequired, 10);
+                        inName.focus();
+                        return; // 0 означає нескінченний таймаут
+                    } else {
+                        alert(JS_RESOURCES.msgExerciseNameRequired); 
+                        inName.focus();
+                        return;
+                    }
                 }
+
+                
                 
                 const data = {
                     id: generateUUID(),
