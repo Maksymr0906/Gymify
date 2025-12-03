@@ -45,83 +45,6 @@ body {
     background-color: var(--BackgroundColor);
 }
 
-* {
-    transition: all 0.4s ease;
-}
-.navbar{
-    background-color: var(--NavBarColor);
-}
-    .navbar .nav-link,
-    .navbar .navbar-brand {
-        color: white !important;
-    }
-a {
-    color: black;
-    text-decoration: none;
-}
-
-    a:hover {
-        color: black;
-    }
-
-.scaleButton:hover {
-    transform: scale(1.05);
-    background: var(--ButtonHoverColor);
-    opacity: 0.7;
-    color: var(--TextHoverColor);
-    border-color: var(--ButtonHoverColor);
-}
-.startPageContainer {
-    padding-bottom: 50px;
-}
-.mainTitle {
-    font-size: 212px;
-    color: white;
-}
-
-.mainDescription {
-    color: white;
-    text-align: center;
-    flex: auto;
-    width: 70%;
-    margin-bottom: 20px;
-}
-
-.mainRegistration {
-    margin-top: 18px;
-    font-size: 48px;
-    border-radius: 25px;
-    padding: 20px;
-    box-sizing: border-box;
-    background-color: var(--ButtonColor);
-}
-
-.mainLogin {
-    margin-top: 25px;
-    font-size: 36px;
-    border-radius: 20px;
-    padding: 15px;
-    box-sizing: border-box;
-    background-color: var(--ButtonColor);
-}
-
-.df {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.startPageBg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), var(--BackgroundImg);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    z-index: -1;
-}
 
 /* ==========================================================================
    1. GYM GLOBAL (Загальні стилі, Змінні, Кнопки, Модалки, Бейджі)
@@ -392,7 +315,7 @@ a {
 
 /* Nav Links */
 .gym-nav-link {
-    color: #ccc !important; /* Світло-сірий текст */
+    color: #EEE !important; /* Світло-сірий текст */
     font-weight: 600;
     padding: 8px 15px !important;
     transition: color 0.2s;
@@ -435,7 +358,7 @@ a {
     padding: 8px 15px; /* Стандартні відступи як у інших лінків */
     border-radius: 30px; /* Залишаємо скруглення для ховер ефекту */
     transition: color 0.2s, background-color 0.2s;
-    color: #ccc !important; /* Сірий колір, як у інших пунктів меню */
+    color: #eee !important; /* Сірий колір, як у інших пунктів меню */
     font-weight: 600;
     text-decoration: none;
     background-color: transparent; /* Прозорий фон */
@@ -3653,7 +3576,14 @@ textarea.gym-input {
     text-align: center;
     padding: 40px;
     background: var(--gym-page-bg);
-    min-height: 80vh;
+    /* Змінюємо тут: */
+    /* Розраховуємо висоту: 100vh мінус висота хедера (~60-80px) */
+    /* Це гарантує, що блок завжди буде дотягуватись до низу */
+    min-height: calc(100vh - 60px);
+    /* Або просто 100vh, якщо хедер накладається зверху */
+    /* min-height: 100vh; */
+
+    box-sizing: border-box; /* Щоб padding не збільшував висоту */
 }
 
 .case-title {
