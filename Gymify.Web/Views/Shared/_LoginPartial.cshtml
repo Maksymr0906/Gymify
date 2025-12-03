@@ -3,41 +3,42 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav ms-auto">
-    @if (SignInManager.IsSignedIn(User))
+<ul class="navbar-nav ms-auto align-items-center"> @if (SignInManager.IsSignedIn(User))
     {
         @if (User.IsInRole("Admin"))
         {
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown"
+                <a class="nav-link dropdown-toggle gym-user-trigger" href="#" id="adminDropdown"
                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    👑 Admin Panel
+                   <i class="fa-solid fa-shield-halved"></i> Admin
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                <ul class="dropdown-menu dropdown-menu-end gym-dropdown-menu" aria-labelledby="adminDropdown">
                     <li>
-                        <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
-                            Dashboard
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                            <i class="fa-solid fa-gauge"></i> Dashboard
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Exercises" asp-action="Manage">
-                            Manage Exercises
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Exercises" asp-action="Manage">
+                            <i class="fa-solid fa-dumbbell"></i> Manage Exercises
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Users" asp-action="Manage">
-                            Manage Users
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Users" asp-action="Manage">
+                            <i class="fa-solid fa-users-gear"></i> Manage Users
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Comments" asp-action="Manage">
-                            Manage Comments
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Comments" asp-action="Manage">
+                            <i class="fa-solid fa-comments"></i> Manage Comments
                         </a>
                     </li>
                     <li><hr class="dropdown-divider" /></li>
                     <li>
                         <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                            <button type="submit" class="dropdown-item gym-dropdown-item text-danger">
+                                <i class="fa-solid fa-right-from-bracket"></i> Logout
+                            </button>
                         </form>
                     </li>
                 </ul>
@@ -46,50 +47,53 @@
         else
         {
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown"
+                <a class="nav-link dropdown-toggle gym-user-trigger" href="#" id="userDropdown"
                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Hello, @UserManager.GetUserName(User)!
+                    <i class="fa-regular fa-user-circle" style="font-size: 1.2rem;"></i>
+                    @UserManager.GetUserName(User)
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <ul class="dropdown-menu dropdown-menu-end gym-dropdown-menu" aria-labelledby="userDropdown">
                     <li>
-                        <a class="dropdown-item" asp-controller="User" asp-action="Profile" asp-route-userId="@Guid.Parse(User.FindFirst("UserProfileId").Value)">
-                            Profile
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="User" asp-action="Profile" asp-route-userId="@Guid.Parse(User.FindFirst("UserProfileId").Value)">
+                            <i class="fa-solid fa-id-card"></i> Profile
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="User" asp-action="Inventory">
-                            Inventory
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="User" asp-action="Inventory">
+                            <i class="fa-solid fa-box-open"></i> Inventory
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Friends" asp-action="Index">
-                            Friends
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Friends" asp-action="Index">
+                            <i class="fa-solid fa-user-group"></i> Friends
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Chat" asp-action="Index">
-                            Chats
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Chat" asp-action="Index">
+                            <i class="fa-solid fa-comments"></i> Chats
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Main" asp-action="Exercises">
-                            Exercises
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Main" asp-action="Exercises">
+                            <i class="fa-solid fa-book-open"></i> Exercises
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="Main" asp-action="Leaderboard">
-                            Leaderboard
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Main" asp-action="Leaderboard">
+                            <i class="fa-solid fa-trophy"></i> Leaderboard
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" asp-controller="User" asp-action="Achievements">
-                            Achievements
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="User" asp-action="Achievements">
+                            <i class="fa-solid fa-medal"></i> Achievements
                         </a>
                     </li>
                     <li><hr class="dropdown-divider" /></li>
                     <li>
                         <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                            <button type="submit" class="dropdown-item gym-dropdown-item text-danger">
+                                <i class="fa-solid fa-right-from-bracket"></i> Logout
+                            </button>
                         </form>
                     </li>
                 </ul>
@@ -99,10 +103,12 @@
     else
     {
         <li class="nav-item">
-            <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
+            <a class="nav-link gym-nav-link" asp-controller="Auth" asp-action="Login">Login</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" asp-controller="Auth" asp-action="Register">Register</a>
+            <a class="nav-link gym-btn gym-btn-primary scale-btn" style="padding: 8px 20px !important; color: white !important; margin-left: 10px;" asp-controller="Auth" asp-action="Register">
+                Register
+            </a>
         </li>
     }
 </ul>

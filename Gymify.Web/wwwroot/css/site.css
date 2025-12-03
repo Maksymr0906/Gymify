@@ -367,6 +367,158 @@ a {
 }
 
 /* ==========================================================================
+   HEADER / NAVBAR STYLES (DARK VERSION)
+   ========================================================================== */
+
+/* Navbar Container */
+.navbar {
+    background-color: #111111 !important; /* Темний фон */
+    border-bottom: 1px solid #333; /* Тонка рамка знизу */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    padding: 6px 0;
+}
+
+.navbar-brand {
+    font-weight: 900;
+    color: #fff !important; /* Білий текст */
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+    .navbar-brand span {
+        color: var(--gym-orange);
+    }
+
+
+/* Nav Links */
+.gym-nav-link {
+    color: #ccc !important; /* Світло-сірий текст */
+    font-weight: 600;
+    padding: 8px 15px !important;
+    transition: color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+    .gym-nav-link:hover {
+        color: var(--gym-orange) !important;
+        text-shadow: 0 0 10px rgba(255, 159, 28, 0.4);
+    }
+
+    /* Активний стан (коли ми на цій сторінці) */
+    .gym-nav-link.active {
+        color: var(--gym-orange) !important;
+        font-weight: 800;
+        position: relative;
+    }
+
+        /* Маленька крапка під активним пунктом */
+        .gym-nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: var(--gym-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--gym-orange);
+        }
+
+/* User Dropdown Trigger */
+.gym-user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 16px;
+    border-radius: 30px;
+    transition: background 0.2s;
+    color: #fff !important; /* Білий текст */
+    font-weight: 700;
+    text-decoration: none;
+    background-color: rgba(255,255,255,0.05); /* Легкий фон */
+    border: 1px solid #333;
+}
+
+    .gym-user-trigger:hover,
+    .gym-user-trigger[aria-expanded="true"] {
+        background-color: #333;
+        color: var(--gym-orange) !important;
+        border-color: var(--gym-orange);
+    }
+
+/* Dropdown Menu (Залишаємо білим всередині для читабельності, або можна зробити темним) */
+.gym-dropdown-menu {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    padding: 10px 0;
+    min-width: 220px;
+    margin-top: 11px !important;
+    background-color: #fff; /* Фон випадаючого меню */
+    transform-origin: top right;
+    animation: ntFadeIn 0.2s ease-out;
+}
+
+    /* Стрілочка зверху меню (опціонально, для краси) */
+    .gym-dropdown-menu::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: 20px;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        transform: rotate(45deg);
+        border-top: 1px solid #e0e0e0;
+        border-left: 1px solid #e0e0e0;
+    }
+
+.gym-dropdown-item {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+}
+
+    .gym-dropdown-item:hover {
+        background-color: #fff8f0;
+        color: var(--gym-orange);
+        padding-left: 25px; /* Ефект зсуву */
+    }
+
+    .gym-dropdown-item.text-danger:hover {
+        background-color: #fff5f5;
+        color: #e74c3c;
+    }
+
+.dropdown-divider {
+    border-top: 1px solid #f0f0f0;
+    margin: 8px 0;
+}
+
+.gym-dropdown-item i {
+    width: 20px;
+    text-align: center;
+    color: #999;
+    transition: color 0.2s;
+}
+
+.gym-dropdown-item:hover i {
+    color: inherit;
+}
+
+/* ==========================================================================
    ALERTIFY CUSTOM THEME (Gymify Style)
    ========================================================================== */
 
@@ -630,6 +782,238 @@ a {
     .auth-link:hover {
         text-decoration: underline;
     }
+
+/* ==========================================================================
+   NOTIFICATIONS STYLES (Header Bell)
+   ========================================================================== */
+
+/* Wrapper */
+.nt-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-left: 20px; /* Відступ від меню */
+}
+
+/* Bell Button */
+.nt-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: #EEE;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, transform 0.2s;
+}
+
+    .nt-btn:hover {
+        color: var(--gym-orange);
+    }
+
+.nt-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Badge (Red Dot) */
+.nt-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: orangered; 
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    height: 18px;
+    min-width: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+    .nt-badge.hidden {
+        display: none;
+    }
+
+/* Dropdown Menu */
+.nt-dropdown {
+    display: none;
+    position: absolute;
+    right: -7px;
+    top: 121%; /* Space below button */
+    width: 340px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    z-index: 2000;
+    overflow: visible;
+    transform-origin: top right;
+    animation: ntFadeIn 0.2s ease-out;
+}
+    .nt-dropdown::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: 20px;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        transform: rotate(45deg);
+        border-top: 1px solid #e0e0e0;
+        border-left: 1px solid #e0e0e0;
+    }
+
+    .nt-dropdown.active {
+        display: block;
+    }
+
+/* Header */
+.nt-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fdfdfd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nt-title {
+    font-weight: 800;
+    color: #333;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nt-action {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gym-orange);
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    background: none;
+}
+
+    .nt-action:hover {
+        text-decoration: underline;
+        color: #e67e22;
+    }
+
+/* List */
+.nt-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    scrollbar-width: thin;
+}
+
+/* Item */
+.nt-item {
+    display: block;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f9f9f9;
+    text-decoration: none;
+    color: #555;
+    position: relative;
+    /* Плавна зміна кольору */
+    transition: background-color 0.2s ease;
+}
+
+    .nt-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Unread State (Непрочитані) */
+    .nt-item.unread {
+        background-color: #fff;
+    }
+
+        .nt-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--gym-orange);
+            z-index: 1;
+        }
+
+        .nt-item.unread .nt-msg {
+            font-weight: 700;
+            color: #222;
+        }
+
+    /* Read State (Прочитані) */
+    .nt-item.read-state {
+        opacity: 0.6;
+        background-color: #fafafa;
+        cursor: default;
+    }
+
+        .nt-item.read-state::before {
+            display: none;
+        }
+
+        .nt-item.read-state .nt-msg {
+            text-decoration: line-through; /* Саме закреслення */
+            color: #999; /* Можна зробити текст трохи сірішим */
+        }
+
+    /* === ЕФЕКТ ПРИ НАВЕДЕННІ (HOVER) === */
+    /* Розміщуємо в самому низу і додаємо !important, щоб точно перекрити все */
+    .nt-item:hover {
+        background-color: #fafafa !important; /* Теплий помаранчевий відтінок */
+        opacity: 1; /* Робимо прочитані повністю видимими при наведенні */
+    }
+
+.nt-msg {
+    font-size: 0.9rem;
+    display: block;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+
+.nt-date {
+    font-size: 0.75rem;
+    color: #999;
+    display: block;
+}
+
+.nt-empty {
+    padding: 40px;
+    text-align: center;
+    color: #ccc;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+@keyframes ntFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
 
 /* ==========================================================================
    LEADERBOARD STYLES
@@ -2738,7 +3122,7 @@ textarea.gym-input {
     }
 
 /* ==========================================================================
-   2. PROFILE STYLES
+    PROFILE STYLES
    ========================================================================== */
 .userProfileFullPage {
     width: 100%;
@@ -3053,7 +3437,7 @@ textarea.gym-input {
 }
 
 /* ==========================================================================
-   3. INVENTORY STYLES (Тільки для сторінки Інвентарю)
+    INVENTORY STYLES (Тільки для сторінки Інвентарю)
    ========================================================================== */
 .inventory-page-wrapper {
     width: 100%;
@@ -3164,7 +3548,7 @@ textarea.gym-input {
 }
 
 /* ==========================================================================
-   4. OPEN CASE STYLES (Тільки для сторінки відкриття кейсу)
+     OPEN CASE STYLES (Тільки для сторінки відкриття кейсу)
    ========================================================================== */
 .case-opening-page {
     text-align: center;
@@ -3293,7 +3677,7 @@ textarea.gym-input {
 }
 
 /* ==========================================================================
-   5. ACHIEVEMENTS STYLES
+     ACHIEVEMENTS STYLES
    ========================================================================== */
 .achievements-page-wrapper {
     width: 100%;

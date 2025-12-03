@@ -1,145 +1,13 @@
 ﻿@using Gymify.Application.ViewModels.NotificationBell
 @model NotificationBellViewModel
 
-<style>
-    /* Обгортка для позиціонування */
-    .nt-wrapper {
-        position: relative;
-        display: inline-block;
-        margin-left: 15px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    /* Кнопка-дзвіночок */
-    .nt-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 8px;
-        color: #555;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: color 0.2s;
-    }
-    .nt-btn:hover { color: #3498db; }
-    
-    .nt-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-    /* Бейдж (Лічильник) */
-    .nt-badge {
-        position: absolute;
-        top: 0; right: 0;
-        background-color: #e74c3c;
-        color: white;
-        font-size: 11px;
-        font-weight: 700;
-        height: 18px;
-        min-width: 18px;
-        border-radius: 9px; /* Круглий */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 4px;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .nt-badge.hidden { display: none; }
-
-    /* Випадаюче меню */
-    .nt-dropdown {
-        display: none;
-        position: absolute;
-        right: 0;
-        top: 120%;
-        width: 320px;
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        z-index: 10000;
-        overflow: hidden;
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-    
-    .nt-dropdown.active {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    /* Хедер меню */
-    .nt-header {
-        padding: 12px 16px;
-        border-bottom: 1px solid #f0f0f0;
-        background-color: #fcfcfc;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .nt-title { font-weight: 600; color: #333; font-size: 0.95rem; }
-    
-    .nt-action {
-        font-size: 0.8rem; color: #3498db; cursor: pointer; text-decoration: none; border: none; background: none;
-    }
-    .nt-action:hover { text-decoration: underline; }
-
-    /* Список */
-    .nt-list {
-        max-height: 400px;
-        overflow-y: auto;
-        margin: 0; padding: 0;
-        list-style: none;
-    }
-
-    /* Елемент списку */
-    .nt-item {
-        display: block;
-        padding: 12px 16px;
-        border-bottom: 1px solid #f9f9f9;
-        text-decoration: none;
-        color: #333;
-        transition: background 0.2s;
-        position: relative;
-    }
-    .nt-item:hover { background-color: #f7f9fc; }
-    .nt-item:last-child { border-bottom: none; }
-
-    /* Стиль НЕПРОЧИТАНОГО (жирний, синій акцент) */
-    .nt-item.unread {
-        background-color: #fff; 
-    }
-    .nt-item.unread::before {
-        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background-color: #3498db;
-    }
-    .nt-item.unread .nt-msg { font-weight: 600; color: #2c3e50; }
-
-    /* Стиль ПРОЧИТАНОГО (блідий) - це те, що побачить юзер після кліку */
-    .nt-item.read-state {
-        opacity: 0.5;
-        background-color: #f9f9f9;
-        cursor: default;
-    }
-    .nt-item.read-state::before { display: none; } /* Прибираємо синю смужку */
-    .nt-item.read-state .nt-msg { font-weight: 400; text-decoration: line-through; }
-
-    .nt-msg { font-size: 0.9rem; display: block; line-height: 1.4; margin-bottom: 4px; }
-    .nt-date { font-size: 0.75rem; color: #999; display: block; }
-
-    .nt-empty { padding: 30px; text-align: center; color: #aaa; font-size: 0.9rem; }
-</style>
-
-
 <div class="nt-wrapper" id="ntWrapper">
-    
+
     <button class="nt-btn" id="ntBtn" onclick="toggleNtMenu()">
         <div class="nt-icon">
             <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </div>
-        
+
         <div id="ntBadge" class="nt-badge @(Model.UnreadCount > 0 ? "" : "hidden")">
             @Model.UnreadCount
         </div>
@@ -157,9 +25,9 @@
                 @foreach (var n in Model.Notifications)
                 {
                     <a href="javascript:void(0)" 
-                       class="nt-item unread" 
-                       onclick="readAndRedirect(this, '@n.Id', '@n.Link')">
-                        
+                        class="nt-item unread" 
+                        onclick="readAndRedirect(this, '@n.Id', '@n.Link')">
+
                         <span class="nt-msg">@n.Content</span>
                         <span class="nt-date">@n.CreatedAt.ToString("g")</span>
                     </a>
@@ -167,12 +35,11 @@
             }
             else
             {
-                <div class="nt-empty">No new notifications</div>
+                    <div class="nt-empty">No new notifications</div>
             }
         </div>
     </div>
 </div>
-
 
 <script>
     function toggleNtMenu() {
@@ -218,7 +85,7 @@
         const badge = document.getElementById('ntBadge');
         let count = parseInt(badge.innerText) || 0;
         count += change;
-        
+
         if (count <= 0) {
             count = 0;
             badge.classList.add('hidden');
@@ -228,13 +95,14 @@
         }
     }
 
+    // Функція викликається з SignalR (якщо він підключений в Layout)
     window.receiveNotificationUI = function(data) {
         const list = document.getElementById("ntList");
         const empty = list.querySelector('.nt-empty');
 
-        let isUkr = @Model.UkranianVer.ToString().ToLower();
-
-        let message = isUkr == true ? data.messageUk : data.messageEn ;
+        // Перевірка мови з C# моделі
+        let isUkr = "@Model.UkranianVer".toLowerCase() === "true";
+        let message = isUkr ? data.messageUk : data.messageEn;
 
         if (empty) empty.remove();
 
@@ -244,7 +112,7 @@
                onclick="readAndRedirect(this, '${data.id}', '${data.link}')">
 
                 <span class="nt-msg">${message}</span>
-                <span class="nt-time">Just now</span>
+                <span class="nt-date">Just now</span>
             </a>
         `;
 
@@ -252,8 +120,9 @@
 
         updateBadge(1);
 
+        // Анімація дзвіночка
         const btn = document.getElementById('ntBtn');
-        btn.style.transform = "scale(1.1)";
-        setTimeout(() => btn.style.transform = "scale(1)", 200);
+        btn.style.transform = "scale(1.2) rotate(15deg)";
+        setTimeout(() => btn.style.transform = "scale(1) rotate(0)", 300);
     };
 </script>
