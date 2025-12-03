@@ -5,6 +5,8 @@
 @model List<UserExerciseDto>
 
 @{
+    // Використовуємо DTO, яке повертає сервіс, а не те, яке йде на вхід (для initialJson)
+    // Якщо Model залишається List<UserExerciseDto>, то:
     var workoutId = ViewData["WorkoutId"] ?? ViewBag.WorkoutId;
     var hideButtons = ViewData["HideSaveButtons"] as bool? ?? false;
     var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -44,6 +46,7 @@
         </div>
     </div>
 
+    @* Змінюємо DTO в action на AddUserExerciseDto, але зберігаємо назву exercises для коректного Model Binding *@
     <form id="mgrForm" method="post" action="@Url.Action("AddExercisesBatch", "Workout")">
         <input type="hidden" name="workoutId" value="@workoutId" />
 
@@ -55,6 +58,7 @@
             @for (int i = 0; i < Model.Count; i++)
             {
                 <div class="ae-item-card">
+                    @* Змінюємо ім'я поля DurationMinutes *@
                     <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
                     <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
                     
@@ -114,6 +118,7 @@
             <div><label class="ae-label-mini">@Localizer["Label_Sets"]</label><input type="number" class="ae-input-std inp-sets"></div>
             <div><label class="ae-label-mini">@Localizer["Label_Reps"]</label><input type="number" class="ae-input-std inp-reps"></div>
             <div><label class="ae-label-mini">@Localizer["Label_Kg"]</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
+            @* Змінюємо ім'я поля на DurationMinutes *@
             <div><label class="ae-label-mini">@Localizer["Label_Min"]</label><input type="number" class="ae-input-std inp-duration"></div>
         </div>
     </div>
@@ -126,7 +131,9 @@
             msgSaved: '@Localizer["Msg_Saved"]',
             msgError: '@Localizer["Msg_Error"]',
             btnSaving: '@Localizer["Btn_Saving"]',
-            btnSaveChanges: '@Localizer["Btn_SaveChanges"]'
+            btnSaveChanges: '@Localizer["Btn_SaveChanges"]',
+            msgExerciseNameRequired: '@Localizer["Msg_ExerciseNameRequired"]', // Для мінімальної клієнтської валідації
+            msgValidationFailedTitle: '@Localizer["Msg_ValidationFailedTitle"]' // Для заголовка помилок alertify
         };
 
         const initialData = @Html.Raw(initialJson);
@@ -144,6 +151,8 @@
             inName.value = "";
             document.getElementById("mgrSets").value = 3;
             document.getElementById("mgrReps").value = 12;
+            document.getElementById("mgrWeight").value = 0;
+            document.getElementById("mgrDuration").value = 0;
             reindex();
             checkEmpty();
         }
@@ -152,13 +161,17 @@
             const clone = template.content.cloneNode(true);
             const card = clone.querySelector(".ae-item-card"); 
 
+            // Оновлюємо, щоб використовувати durationMinutes для нових DTO
+            // 'duration' – це TimeSpan з Model, 'durationMinutes' – це введення з форми
+            const durationMinutes = data.durationMinutes !== undefined ? data.durationMinutes : (data.duration ? data.duration.totalMinutes : 0);
+
             card.querySelector(".card-title-text").textContent = data.name;
             card.querySelector(".inp-id").value = data.id;
             card.querySelector(".inp-name").value = data.name;
             card.querySelector(".inp-sets").value = data.sets;
             card.querySelector(".inp-reps").value = data.reps;
             card.querySelector(".inp-weight").value = data.weight || 0;
-            card.querySelector(".inp-duration").value = data.durationMinutes !== undefined ? data.durationMinutes : (data.duration || 0);
+            card.querySelector(".inp-duration").value = durationMinutes; // Використовуємо DurationMinutes
 
             card.querySelector(".ae-btn-remove").addEventListener("click", removeCard);
             container.appendChild(card);
@@ -187,6 +200,7 @@
                 setName(card, ".inp-sets", `exercises[${index}].Sets`);
                 setName(card, ".inp-reps", `exercises[${index}].Reps`);
                 setName(card, ".inp-weight", `exercises[${index}].Weight`);
+                // Оновлюємо ім'я поля для Model Binding (DurationMinutes)
                 setName(card, ".inp-duration", `exercises[${index}].DurationMinutes`);
             });
         }
@@ -232,20 +246,29 @@
         // UUID
         function generateUUID() {
             if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+            // Запасний варіант для старих браузерів
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ (typeof crypto !== 'undefined' ? crypto.getRandomValues(new Uint8Array(1))[0] : 0) & 15 >> c / 4).toString(16));
         }
 
         if(btnAdd) {
             btnAdd.addEventListener("click", () => {
                 const name = inName.value.trim();
-                if (!name) return;
+                
+                // --- МІНІМАЛЬНА КЛІЄНТСЬКА ВАЛІДАЦІЯ ---
+                if (!name) { 
+                    alert(JS_RESOURCES.msgExerciseNameRequired); 
+                    inName.focus();
+                    return;
+                }
+                
                 const data = {
                     id: generateUUID(),
                     name: name,
                     sets: document.getElementById("mgrSets").value,
                     reps: document.getElementById("mgrReps").value,
                     weight: document.getElementById("mgrWeight").value,
-                    duration: document.getElementById("mgrDuration").value
+                    // Змінюємо назву, щоб відповідати серверному DTO
+                    durationMinutes: document.getElementById("mgrDuration").value
                 };
                 createCardDOM(data);
                 inName.value = "";
@@ -271,9 +294,18 @@
                 if (statusMsg) statusMsg.style.display = "none";
                 reindex();
                 const formData = new FormData(form);
+                
                 fetch(form.action, { method: 'POST', body: formData })
-                .then(res => { if (res.ok) return res.json(); throw new Error("Server Error"); })
+                .then(res => { 
+                    if (res.ok) return res.json(); 
+                    
+                    // Обробка помилок валідації з сервера
+                    return res.json().then(data => {
+                        throw { serverData: data, status: res.status };
+                    });
+                })
                 .then(data => {
+                    // УСПІШНЕ ЗБЕРЕЖЕННЯ
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
                         statusMsg.style.color = "#28a745";
@@ -282,8 +314,56 @@
                     }
                     document.dispatchEvent(new CustomEvent('exercises-saved'));
                 })
-                .catch(err => {
-                    console.error(err);
+                .catch(error => {
+                    console.error("Save Error:", error);
+                    
+                    let displayMessage = JS_RESOURCES.msgError || "An unexpected error occurred.";
+                    
+                    // Якщо помилка містить деталі валідації з сервера
+                    if (error.serverData && error.serverData.errors) {
+                        const errors = error.serverData.errors;
+                        let errorDetails = "";
+                        let indexMap = {};
+
+                        // 1. Створюємо мапу індексів та назв для зручності
+                        container.querySelectorAll(".ae-item-card").forEach((card, index) => {
+                            const name = card.querySelector(".inp-name").value;
+                            indexMap[`exercises[${index}].`] = `**${name}**: `;
+                        });
+
+                        // 2. Об'єднуємо всі помилки
+                        for (const key in errors) {
+                            if (errors.hasOwnProperty(key) && errors[key].length > 0) {
+                                
+                                let exerciseName = "";
+                                // Намагаємося знайти назву вправи за індексом у ключі
+                                for (const prefix in indexMap) {
+                                    if (key.startsWith(prefix)) {
+                                        exerciseName = indexMap[prefix];
+                                        break;
+                                    }
+                                }
+
+                                const errorList = errors[key].join(", ");
+                                errorDetails += `${exerciseName}${errorList}<br>`;
+                            }
+                        }
+                        
+                        if (errorDetails) {
+                            displayMessage = `<strong>${JS_RESOURCES.msgValidationFailedTitle}</strong>:<br>${errorDetails}`;
+                        } else if (error.serverData && error.serverData.message) {
+                            displayMessage = error.serverData.message;
+                        }
+                    }
+                    
+                    // Відображення за допомогою alertify
+                    if(typeof alertify !== 'undefined') {
+                        alertify.error(displayMessage, 0); // 0 означає нескінченний таймаут
+                    } else {
+                        // Запасний варіант
+                        alert(displayMessage.replace(/<[^>]*>?/gm, ''));
+                    }
+
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
                         statusMsg.style.color = "#dc3545";

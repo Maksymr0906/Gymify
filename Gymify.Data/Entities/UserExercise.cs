@@ -9,7 +9,7 @@ public class UserExercise : BaseEntity
     public ExerciseType Type { get; set; }
     public int? Sets { get; set; } = 0;
     public int? Reps { get; set; } = 0;
-    public int? Weight { get; set; } = 0;
+    public double? Weight { get; set; } = 0;
     public TimeSpan? Duration { get; set; }
     public int EarnedXP { get; set; } = 0;
     public Guid WorkoutId { get; set; }

@@ -12,13 +12,15 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
     private readonly INotificationService _notificationService = notificationService;
     private const int DefaultPendingExerciseXP = 10;
 
-    public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<UserExerciseDto> dtos, Guid userId, bool ukranianVer)
+    public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<AddUserExerciseDto> dtos, Guid userId, bool ukranianVer)
     {
+        // 1. Отримуємо поточні вправи для тренування
         var currentExercises = await _unitOfWork.UserExerciseRepository
             .GetAllByWorkoutIdAsync(workoutId);
 
-        var incomingIds = dtos.Select(d => d.Id).ToList();
+        var incomingIds = dtos.Select(d => d.Id).ToHashSet();
 
+        // 2. Визначаємо та видаляємо вправи, які були видалені на клієнті
         var toDelete = currentExercises
             .Where(e => !incomingIds.Contains(e.Id))
             .ToList();
@@ -28,26 +30,33 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
             await _unitOfWork.UserExerciseRepository.DeleteRangeAsync(toDelete);
         }
 
+        // 3. Обробляємо вхідні DTO (оновлення або створення)
         foreach (var dto in dtos)
         {
             var existingEntity = currentExercises.FirstOrDefault(e => e.Id == dto.Id);
+            // Конвертуємо DurationMinutes (int) у TimeSpan
+            var durationTimespan = TimeSpan.FromMinutes(dto.Duration ?? 0);
+
+            // Модель для розрахунку XP (потрібна для обох гілок)
+            var calcModel = new AddUserExerciseDto
+            {
+                Sets = dto.Sets,
+                Reps = dto.Reps ?? 0,
+                Weight = dto.Weight ?? 0.0, // Використовуємо double
+                Duration = dto.Duration ?? 0
+            };
 
             if (existingEntity != null)
             {
+                // ОНОВЛЕННЯ ІСНУЮЧОЇ ВПРАВИ
                 existingEntity.Sets = dto.Sets;
-                existingEntity.Reps = dto.Reps;
-                existingEntity.Weight = dto.Weight;
-                existingEntity.Duration = dto.Duration ?? TimeSpan.Zero;
+                existingEntity.Reps = dto.Reps ?? 0;
+                existingEntity.Weight = dto.Weight ?? 0.0;
+                existingEntity.Duration = durationTimespan;
 
+                // Якщо є зв'язок з базовою вправою, оновлюємо XP
                 if (existingEntity.Exercise != null)
                 {
-                    var calcModel = new AddUserExerciseToWorkoutRequestDto
-                    {
-                        Sets = dto.Sets,
-                        Reps = dto.Reps,
-                        Weight = dto.Weight,
-                        Duration = (int)(existingEntity.Duration?.TotalMinutes ?? 0)
-                    };
                     existingEntity.EarnedXP = CalculateXp(calcModel, existingEntity.Exercise);
                 }
 
@@ -55,10 +64,14 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
             }
             else
             {
+                // СТВОРЕННЯ НОВОЇ ВПРАВИ
+
+                // 3.1. Шукаємо або створюємо базову вправу (Exercise)
                 var baseExercise = await _unitOfWork.ExerciseRepository.GetByNameAsync(dto.Name, ukranianVer);
 
                 if (baseExercise == null)
                 {
+                    // Вправи не існує у базі - створюємо нову (Pending) та надсилаємо на модерацію
                     baseExercise = new Exercise
                     {
                         Id = Guid.NewGuid(),
@@ -66,29 +79,23 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                         DescriptionEn = string.Empty,
                         NameUk = ukranianVer ? dto.Name : string.Empty,
                         DescriptionUk = string.Empty,
-                        Type = (ExerciseType)dto.Type,
-                        BaseXP = 10,
+                        Type = (ExerciseType)dto.ExerciseType,
+                        BaseXP = DefaultPendingExerciseXP, // 10
                         DifficultyMultiplier = 1.0,
                         IsApproved = false
                     };
                     await _unitOfWork.ExerciseRepository.CreateAsync(baseExercise);
 
+                    // Надсилаємо нотифікацію користувачеві
                     await _notificationService.SendNotificationAsync(
                         userId,
-                        $"Exercise '{dto.Name}' was sended for a moderation.",
+                        $"Exercise '{dto.Name}' was sent for a moderation.",
                         $"Вправа '{dto.Name}' була відправлена на модерацію.",
-                        "#" 
+                        "#"
                     );
                 }
 
-                var calcModel = new AddUserExerciseToWorkoutRequestDto
-                {
-                    Sets = dto.Sets,
-                    Reps = dto.Reps,
-                    Weight = dto.Weight,
-                    Duration = dto.Duration.HasValue ? (int)dto.Duration.Value.TotalMinutes : 0
-                };
-
+                // 3.2. Створюємо нову сутність UserExercise
                 var newEntity = new UserExercise
                 {
                     Id = dto.Id,
@@ -98,9 +105,9 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                     NameUk = baseExercise.NameUk,
                     Type = baseExercise.Type,
                     Sets = dto.Sets,
-                    Reps = dto.Reps,
-                    Weight = dto.Weight,
-                    Duration = dto.Duration ?? TimeSpan.Zero,
+                    Reps = dto.Reps ?? 0,
+                    Weight = dto.Weight ?? 0.0,
+                    Duration = durationTimespan,
                     EarnedXP = CalculateXp(calcModel, baseExercise)
                 };
 
@@ -108,6 +115,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
             }
         }
 
+        // 4. Зберігаємо всі зміни
         await _unitOfWork.SaveAsync();
     }
 
@@ -136,11 +144,11 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
     }
 
     // переписати
-    public static int CalculateXp(AddUserExerciseToWorkoutRequestDto exerciseModel, Exercise userExercise)
+    public static int CalculateXp(AddUserExerciseDto exerciseModel, Exercise userExercise)
     {
         int sets = exerciseModel.Sets ?? 0;
         int reps = exerciseModel.Reps ?? 0;
-        int weight = exerciseModel.Weight ?? 0;
+        double weight = exerciseModel.Weight ?? 0;
         double minutes = exerciseModel.Duration ?? 0;
 
         double factor = 1.0;

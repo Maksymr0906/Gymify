@@ -79,12 +79,25 @@ namespace Gymify.Web.Controllers
             return View(new List<UserExerciseDto>());
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> AddExercisesBatch(Guid workoutId, [FromForm] List<UserExerciseDto> exercises)
+        public async Task<IActionResult> AddExercisesBatch(Guid workoutId, [FromForm] List<AddUserExerciseDto> exercises)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Any())
+                                       .ToDictionary(
+                                           kvp => kvp.Key,
+                                           kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                                       );
+
+                return BadRequest(new { success = false, message = "Validation Error", errors = errors });
+            }
+
             try
             {
                 var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+
                 await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId, IsUkrainian);
 
                 return Ok(new { success = true, message = "Exercise saved!" });

@@ -142,11 +142,26 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Resources\SharedResource.en.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SharedResource.en.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\SharedResource.uk.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SharedResource.uk.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources\SharedResource.en.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SharedResource.en.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\SharedResource.uk.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SharedResource.uk.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="SharedResource.uk-UA.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

@@ -147,14 +147,54 @@
   <data name="Label_Sets" xml:space="preserve">
     <value>Sets</value>
   </data>
+  <data name="Msg_DurationPositive" xml:space="preserve">
+    <value>Duration in minutes must be a non-negative number.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
+  </data>
   <data name="Msg_Error" xml:space="preserve">
     <value>Error!</value>
+  </data>
+  <data name="Msg_ExerciseNameRequired" xml:space="preserve">
+    <value>Please enter an exercise name.</value>
+    <comment>Клієнтська (JS) та Серверна (DTO) валідація.</comment>
+  </data>
+  <data name="Msg_NameLength" xml:space="preserve">
+    <value>Exercise name cannot be less than 3 and more than 100 characters.</value>
+    <comment>Серверна валідація DTO (Length).</comment>
   </data>
   <data name="Msg_NoExercises" xml:space="preserve">
     <value>No exercises added yet.</value>
   </data>
+  <data name="Msg_NoExercisesToSave" xml:space="preserve">
+    <value>No exercises to save.</value>
+    <comment>Валідація в контролері, якщо список вправ порожній.</comment>
+  </data>
+  <data name="Msg_RepsOrWeightOrDurationRequiredForAtLeastOne" xml:space="preserve">
+    <value>Each exercise must have at least one positive value (repetitions, weight, or duration).</value>
+    <comment>Валідація на рівні бізнес-логіки в контролері.</comment>
+  </data>
+  <data name="Msg_RepsPositive" xml:space="preserve">
+    <value>Repetitions must be a non-negative number.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
+  </data>
   <data name="Msg_Saved" xml:space="preserve">
     <value>Saved!</value>
+  </data>
+  <data name="Msg_SetsMustBePositive" xml:space="preserve">
+    <value>The number of Sets must be between 1 and 100.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
+  </data>
+  <data name="Msg_SetsRequired" xml:space="preserve">
+    <value>The number of Sets is required.</value>
+    <comment>Серверна валідація DTO.</comment>
+  </data>
+  <data name="Msg_ValidationFailedTitle" xml:space="preserve">
+    <value>Failed to save exercises due to errors:</value>
+    <comment>Заголовок для повідомлення про помилку валідації в alertify.</comment>
+  </data>
+  <data name="Msg_WeightPositive" xml:space="preserve">
+    <value>Weight must be a non-negative number.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
   </data>
   <data name="Placeholder_Search" xml:space="preserve">
     <value>Search</value>
