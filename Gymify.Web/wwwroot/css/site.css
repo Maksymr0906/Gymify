@@ -426,27 +426,29 @@ a {
             box-shadow: 0 0 8px var(--gym-orange);
         }
 
-/* User Dropdown Trigger */
+/* User Dropdown Trigger (Minimalist) */
 .gym-user-trigger {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px; /* Трохи зменшимо відступ між іконкою і текстом */
     cursor: pointer;
-    padding: 6px 16px;
-    border-radius: 30px;
-    transition: background 0.2s;
-    color: #fff !important; /* Білий текст */
-    font-weight: 700;
+    padding: 8px 15px; /* Стандартні відступи як у інших лінків */
+    border-radius: 30px; /* Залишаємо скруглення для ховер ефекту */
+    transition: color 0.2s, background-color 0.2s;
+    color: #ccc !important; /* Сірий колір, як у інших пунктів меню */
+    font-weight: 600;
     text-decoration: none;
-    background-color: rgba(255,255,255,0.05); /* Легкий фон */
-    border: 1px solid #333;
+    background-color: transparent; /* Прозорий фон */
+    border: 1px solid transparent; /* Прозора рамка (щоб не стрибало при ховері) */
 }
 
+    /* Ефект при наведенні або коли меню відкрите */
     .gym-user-trigger:hover,
     .gym-user-trigger[aria-expanded="true"] {
-        background-color: #333;
+        border-color: #333;
+        background-color: rgba(255, 255, 255, 0.05); /* Дуже легкий фон при наведенні (опціонально) */
         color: var(--gym-orange) !important;
-        border-color: var(--gym-orange);
+        /* border-color: var(--gym-orange); <--- Видаляємо рамку при ховері */
     }
 
 /* Dropdown Menu (Залишаємо білим всередині для читабельності, або можна зробити темним) */
@@ -456,7 +458,7 @@ a {
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     padding: 10px 0;
     min-width: 220px;
-    margin-top: 11px !important;
+    margin-top: 9px !important;
     background-color: #fff; /* Фон випадаючого меню */
     transform-origin: top right;
     animation: ntFadeIn 0.2s ease-out;
@@ -812,6 +814,11 @@ a {
         color: var(--gym-orange);
     }
 
+    /* Коли меню відкрите, дзвіночок залишається помаранчевим */
+    .nt-btn.active {
+        color: var(--gym-orange);
+    }
+
 .nt-icon svg {
     width: 24px;
     height: 24px;
@@ -887,6 +894,9 @@ a {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    /* === ДОДАЙ ЦІ ДВА РЯДКИ === */
+    border-top-left-radius: 12px; /* Має співпадати з радіусом .nt-dropdown */
+    border-top-right-radius: 12px; /* Має співпадати з радіусом .nt-dropdown */
 }
 
 .nt-title {

@@ -44,13 +44,27 @@
 <script>
     function toggleNtMenu() {
         const menu = document.getElementById('ntMenu');
+        const btn = document.getElementById('ntBtn');
+
+        // Перемикаємо клас active на меню і на кнопці
         menu.classList.toggle('active');
+        btn.classList.toggle('active');
     }
 
+    // Закриття при кліку зовні
     window.addEventListener('click', function(e) {
         const wrapper = document.getElementById('ntWrapper');
+
+        // Якщо клік був НЕ по нашому блоку
         if (!wrapper.contains(e.target)) {
-            document.getElementById('ntMenu').classList.remove('active');
+            const menu = document.getElementById('ntMenu');
+            const btn = document.getElementById('ntBtn');
+
+            // Якщо меню було відкрите, закриваємо і знімаємо підсвітку
+            if (menu.classList.contains('active')) {
+                menu.classList.remove('active');
+                btn.classList.remove('active');
+            }
         }
     });
 
@@ -95,12 +109,10 @@
         }
     }
 
-    // Функція викликається з SignalR (якщо він підключений в Layout)
     window.receiveNotificationUI = function(data) {
         const list = document.getElementById("ntList");
         const empty = list.querySelector('.nt-empty');
 
-        // Перевірка мови з C# моделі
         let isUkr = "@Model.UkranianVer".toLowerCase() === "true";
         let message = isUkr ? data.messageUk : data.messageEn;
 
