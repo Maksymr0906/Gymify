@@ -1,6 +1,5 @@
-﻿namespace Gymify.Web.Resources.Shared
+﻿namespace Gymify.ValidationLocalization;
+
+public class SharedResource
 {
-    public class SharedResource
-    {
-    }
 }

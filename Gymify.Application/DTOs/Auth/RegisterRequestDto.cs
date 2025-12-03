@@ -8,7 +8,7 @@ namespace Gymify.Application.DTOs.Auth
 
         [Required(ErrorMessage = "Required")]
         [EmailAddress(ErrorMessage = "EmailInvalid")]
-        [Display(Name = "Email")] // Display Name теж можна перекласти, якщо додати ключ "Email" в ресурси
+        [Display(Name = "Email")] 
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Required")]
