@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Gymify.Data.Entities
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
     var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
@@ -23,23 +25,25 @@
 
                 <li class="nav-item">
                     <a class="nav-link gym-nav-link @(currentController == "Main" && currentAction == "Index" ? "active" : "")" 
-                       asp-controller="Main" asp-action="Index">Home</a>
+                       asp-controller="Main" asp-action="Index">
+                       @Localizer["Nav_Home"]
+                    </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link gym-nav-link @(currentController == "Main" && currentAction == "FAQ" ? "active" : "")" 
-                       asp-controller="Main" asp-action="FAQ">FAQ</a>
+                       asp-controller="Main" asp-action="FAQ">
+                       @Localizer["Nav_FAQ"]
+                    </a>
                 </li>
 
             </ul>
 
             <div class="d-flex align-items-center gap-3">
-
                 @if (User.Identity.IsAuthenticated)
                 {
                     @await Component.InvokeAsync("NotificationBell")
                 }
-
                 <partial name="_LoginPartial" />
             </div>
 

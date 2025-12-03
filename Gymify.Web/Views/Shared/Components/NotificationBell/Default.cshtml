@@ -1,4 +1,7 @@
 ﻿@using Gymify.Application.ViewModels.NotificationBell
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
 @model NotificationBellViewModel
 
 <div class="nt-wrapper" id="ntWrapper">
@@ -15,8 +18,8 @@
 
     <div class="nt-dropdown" id="ntMenu">
         <div class="nt-header">
-            <span class="nt-title">Notifications</span>
-            <button class="nt-action" onclick="markAllAsRead()">Clear All</button>
+            <span class="nt-title">@Localizer["Header_Notifications"]</span>
+            <button class="nt-action" onclick="markAllAsRead()">@Localizer["Btn_ClearAll"]</button>
         </div>
 
         <div class="nt-list" id="ntList">
@@ -35,18 +38,23 @@
             }
             else
             {
-                    <div class="nt-empty">No new notifications</div>
+                <div class="nt-empty">@Localizer["Msg_NoNotifications"]</div>
             }
         </div>
     </div>
 </div>
 
 <script>
+    // --- LOCALIZATION CONFIG ---
+    const NT_CONFIG = {
+        justNow: '@Localizer["Label_JustNow"]',
+        // Отримуємо код мови ("uk" або "en") для вибору правильного поля з SignalR об'єкта
+        langCode: '@CultureInfo.CurrentCulture.TwoLetterISOLanguageName' 
+    };
+
     function toggleNtMenu() {
         const menu = document.getElementById('ntMenu');
         const btn = document.getElementById('ntBtn');
-
-        // Перемикаємо клас active на меню і на кнопці
         menu.classList.toggle('active');
         btn.classList.toggle('active');
     }
@@ -54,13 +62,9 @@
     // Закриття при кліку зовні
     window.addEventListener('click', function(e) {
         const wrapper = document.getElementById('ntWrapper');
-
-        // Якщо клік був НЕ по нашому блоку
         if (!wrapper.contains(e.target)) {
             const menu = document.getElementById('ntMenu');
             const btn = document.getElementById('ntBtn');
-
-            // Якщо меню було відкрите, закриваємо і знімаємо підсвітку
             if (menu.classList.contains('active')) {
                 menu.classList.remove('active');
                 btn.classList.remove('active');
@@ -70,12 +74,9 @@
 
     function readAndRedirect(el, id, url) {
         fetch(`/Notification/Read?id=${id}`, { method: "POST" });
-
         el.classList.remove('unread');
         el.classList.add('read-state');
-
         updateBadge(-1);
-
         if (url && url !== '#') {
              window.location.href = url;
         }
@@ -83,13 +84,11 @@
 
     function markAllAsRead() {
         fetch(`/Notification/ReadAll`, { method: "POST" });
-
         const items = document.querySelectorAll('.nt-item.unread');
         items.forEach(item => {
             item.classList.remove('unread');
             item.classList.add('read-state');
         });
-
         const badge = document.getElementById('ntBadge');
         badge.innerText = "0";
         badge.classList.add('hidden');
@@ -99,7 +98,6 @@
         const badge = document.getElementById('ntBadge');
         let count = parseInt(badge.innerText) || 0;
         count += change;
-
         if (count <= 0) {
             count = 0;
             badge.classList.add('hidden');
@@ -109,12 +107,16 @@
         }
     }
 
+    // Функція, що викликається з Layout при отриманні SignalR повідомлення
     window.receiveNotificationUI = function(data) {
         const list = document.getElementById("ntList");
         const empty = list.querySelector('.nt-empty');
 
-        let isUkr = "@Model.UkranianVer".toLowerCase() === "true";
-        let message = isUkr ? data.messageUk : data.messageEn;
+        // Визначаємо текст повідомлення на основі поточної культури
+        let message = (NT_CONFIG.langCode === 'uk') ? data.messageUk : data.messageEn;
+        
+        // Фолбек: якщо потрібної мови немає, беремо будь-яку доступну
+        if (!message) message = data.messageEn || data.messageUk;
 
         if (empty) empty.remove();
 
@@ -124,12 +126,11 @@
                onclick="readAndRedirect(this, '${data.id}', '${data.link}')">
 
                 <span class="nt-msg">${message}</span>
-                <span class="nt-date">Just now</span>
+                <span class="nt-date">${NT_CONFIG.justNow}</span>
             </a>
         `;
 
         list.insertAdjacentHTML('afterbegin', html);
-
         updateBadge(1);
 
         // Анімація дзвіночка
