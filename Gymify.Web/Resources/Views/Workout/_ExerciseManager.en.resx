@@ -158,7 +158,7 @@
     <value>Please enter an exercise name.</value>
     <comment>Клієнтська (JS) та Серверна (DTO) валідація.</comment>
   </data>
-  <data name="Msg_NameLength" xml:space="preserve">
+  <data name="Msg_NameTooLong" xml:space="preserve">
     <value>Exercise name cannot be less than 3 and more than 100 characters.</value>
     <comment>Серверна валідація DTO (Length).</comment>
   </data>
