@@ -9,6 +9,9 @@ public class Comment : BaseEntity
     public Guid AuthorId { get; set; }
     public Guid TargetId { get; set; }
     public CommentTargetType TargetType { get; set; }
+    public bool IsApproved { get; set; } = false;
+    public bool IsRejected { get; set; } = false;
+    public string? RejectionReason { get; set; }
     [ForeignKey("AuthorId")]
     public UserProfile? Author { get; set; }
 }

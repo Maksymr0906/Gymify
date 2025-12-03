@@ -9,8 +9,10 @@ public class ExerciseDto
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int BaseXP { get; set;} = 0;
+    public double DifficultyMultiplier { get; set; }
     public ExerciseType Type { get; set; }
     public bool IsApproved { get; set; }
+    public bool IsRejected { get; set; }
     public string VideoURL { get; set; } = string.Empty;
     public string? VideoEmbedUrl => YouTubeHelper.GetEmbedUrl(VideoURL);
     public string ThumbnailUrl => YouTubeHelper.GetThumbnailUrl(VideoURL);

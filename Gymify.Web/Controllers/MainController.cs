@@ -21,15 +21,20 @@ namespace Gymify.Web.Controllers
         {
             if (_signInManager.IsSignedIn(User))
             {
-                var user = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Home", "Admin");
+                }
+                else if (User.IsInRole("User"))
+                {
+                    var user = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
 
-                var viewModel = await _userProfileService.ReceiveUserLevelWorkouts(user);
+                    var viewModel = await _userProfileService.ReceiveUserLevelWorkouts(user);
 
-                return View("Home", viewModel);
-            }
-            else if (User.IsInRole("Admin"))
-            {
-                return RedirectToAction("Home", "Admin");
+                    return View("Home", viewModel);
+                }
+
+                return View("Start");
             }
             else
             {

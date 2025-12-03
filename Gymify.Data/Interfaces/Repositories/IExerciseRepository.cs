@@ -13,4 +13,5 @@ public interface IExerciseRepository : IRepository<Exercise>
         bool pendingOnly,
         int page,
         int pageSize);
+    Task<IEnumerable<Exercise>> GetUnapprovedAsync();
 }

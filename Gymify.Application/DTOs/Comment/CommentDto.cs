@@ -13,4 +13,5 @@ public class CommentDto
     public CommentTargetType TargetType { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool CanDelete { get; set; } 
+    public bool IsApproved { get; set; } 
 }
