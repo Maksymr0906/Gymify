@@ -2,6 +2,7 @@
 using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace Gymify.Web.Controllers;
 
@@ -9,6 +10,7 @@ namespace Gymify.Web.Controllers;
 public class CaseController : Controller
 {
     private readonly ICaseService _caseService;
+    private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
     public CaseController(ICaseService caseService)
     {
@@ -21,11 +23,9 @@ public class CaseController : Controller
     public async Task<IActionResult> Details(Guid caseId)
     {
 
-        bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId, IsUkrainian);
 
-        var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId, ukranianVer);
-
-        return View(caseInfoDto); // модель для Razor
+        return View(caseInfoDto); 
     }
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
@@ -34,11 +34,9 @@ public class CaseController : Controller
     {
         var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
 
-        bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         var userId = Guid.Parse(user.Value);
 
-        var result = await _caseService.OpenCaseAsync(userId, caseId, ukranianVer);
+        var result = await _caseService.OpenCaseAsync(userId, caseId, IsUkrainian);
         return Json(result);
     }
 

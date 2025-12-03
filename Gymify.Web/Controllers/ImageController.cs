@@ -4,6 +4,7 @@ using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace Gymify.Web.Controllers
 {
@@ -13,6 +14,7 @@ namespace Gymify.Web.Controllers
         private readonly IImageService _imageService;
         private readonly IItemService _itemService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
         public ImageController(IImageService imageService, IWebHostEnvironment webHostEnvironment, IItemService itemService)
         {
@@ -88,8 +90,6 @@ namespace Gymify.Web.Controllers
 
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
 
-            bool ukranianVer = true;/////////////////////////
-
             var httpRequest = HttpContext.Request;
             var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file.FileName);
             var fileExtension = Path.GetExtension(file.FileName);
@@ -114,7 +114,7 @@ namespace Gymify.Web.Controllers
                 await ConvertFileToByteArrayAsync(file)
             );
 
-            var createdImage = await _itemService.CreateCustomAvatarAsync(userId, imageUploadModel, ukranianVer);
+            var createdImage = await _itemService.CreateCustomAvatarAsync(userId, imageUploadModel, IsUkrainian);
 
             return Json(new { success = true, url = createdImage.ImageURL , id = createdImage.Id});
         }

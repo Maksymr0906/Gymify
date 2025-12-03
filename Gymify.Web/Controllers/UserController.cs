@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Gymify.Web.Controllers
@@ -20,6 +21,8 @@ namespace Gymify.Web.Controllers
         private readonly IItemService _itemService;
         private readonly ICaseService _caseService;
         private readonly IAchievementService _achievementService;
+
+        private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
         public UserController(
             IUserProfileService userProfileService,
@@ -39,8 +42,7 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Profile(Guid userId)
         {
             var loggedUserId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            var model = await _userProfileService.GetUserProfileModel(loggedUserId, userId, ukranianVer);
+            var model = await _userProfileService.GetUserProfileModel(loggedUserId, userId, IsUkrainian);
             model.Editable = loggedUserId == userId ? true : false; 
 
             return View("Profile", model);
@@ -50,8 +52,6 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> GetInventory([FromQuery] string type)
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-
-            bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (string.IsNullOrWhiteSpace(type))
                 return BadRequest("Missing type");
@@ -64,7 +64,7 @@ namespace Gymify.Web.Controllers
                 "title" => ItemType.Title,
                 _ => throw new ArgumentException("Unknown item type: " + type),
             };
-            var items = await _itemService.GetUserItemsWithTypeAsync(userId, itemType, true, ukranianVer);
+            var items = await _itemService.GetUserItemsWithTypeAsync(userId, itemType, true, IsUkrainian);
 
             var result = items.Select(i => new
             {
@@ -107,10 +107,9 @@ namespace Gymify.Web.Controllers
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
 
-            bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            var items = await _itemService.GetAllUserItemsAsync(userId, true, ukranianVer);
-            var cases = await _caseService.GetAllUserCasesAsync(userId, ukranianVer);
+            var items = await _itemService.GetAllUserItemsAsync(userId, true, IsUkrainian);
+            var cases = await _caseService.GetAllUserCasesAsync(userId, IsUkrainian);
 
             var userItemsViewModel = new UserItemsViewModel()
             {
@@ -124,9 +123,7 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public IActionResult GoToCasePage(Guid caseId)
         {
-            bool ukranianVer = true; ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            var caseEntity = _caseService.GetCaseDetailsAsync(caseId, ukranianVer);
+            var caseEntity = _caseService.GetCaseDetailsAsync(caseId, IsUkrainian);
             if (caseEntity == null)
                 return NotFound();
 
@@ -137,8 +134,7 @@ namespace Gymify.Web.Controllers
         public async Task<IActionResult> Achievements()
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
-            bool ukranianVer = true;///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            var achievements = await _achievementService.GetUserAchievementsAsync(userId, ukranianVer);
+            var achievements = await _achievementService.GetUserAchievementsAsync(userId, IsUkrainian);
             return View("Achievements", achievements);
         }
 

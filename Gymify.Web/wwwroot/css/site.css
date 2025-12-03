@@ -520,6 +520,30 @@ a {
     color: inherit;
 }
 
+/* Language Switcher Specifics */
+.gym-lang-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+/* Активна мова у випадаючому списку */
+.gym-dropdown-item.active-lang {
+    background-color: #fff8f0; /* Світло-помаранчевий фон */
+    color: var(--gym-orange); /* Помаранчевий текст */
+    font-weight: 800;
+    pointer-events: none; /* Не можна клікнути на вже обрану мову */
+}
+
+/* Прапорець та текст */
+.gym-dropdown-item span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+}
+
 /* ==========================================================================
    ALERTIFY CUSTOM THEME (Gymify Style)
    ========================================================================== */

@@ -6,6 +6,7 @@ using Gymify.Application.Services.Interfaces;
 using Gymify.Application.Services.Implementation;
 using Gymify.Data.Enums;
 using Gymify.Application.ViewModels.ExerciseLibrary;
+using Microsoft.AspNetCore.Localization;
 
 namespace Gymify.Web.Controllers
 {
@@ -32,6 +33,7 @@ namespace Gymify.Web.Controllers
                 return View("Start");
             }
         }
+
 
         [HttpGet("faq")]
         public IActionResult FAQ()
@@ -84,6 +86,20 @@ namespace Gymify.Web.Controllers
             };
 
             return PartialView("_ExerciseGrid", model);
+        }
+
+        [HttpPost]
+        public IActionResult SetLanguage(string culture, string returnUrl)
+        {
+            // Встановлюємо кукі з вибраною культурою
+            Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) } // Запам'ятати на рік
+            );
+
+            // Повертаємо користувача на ту сторінку, де він був
+            return LocalRedirect(returnUrl);
         }
     }
 }

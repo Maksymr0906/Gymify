@@ -39,7 +39,13 @@
 
             </ul>
 
+
             <div class="d-flex align-items-center gap-3">
+
+                <ul class="navbar-nav">
+                    <partial name="_LanguageSwitcher" />
+                </ul>
+
                 @if (User.Identity.IsAuthenticated)
                 {
                     @await Component.InvokeAsync("NotificationBell")
