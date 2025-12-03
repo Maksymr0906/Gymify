@@ -9,8 +9,8 @@
 <div class="auth-page-wrapper">
     <div class="auth-card">
         <div class="auth-header">
-            <h1 class="auth-title">Create Account</h1>
-            <p class="auth-subtitle">Join us and start your journey</p>
+            <h1 class="auth-title">@Localizer["CreateAccount"]</h1>
+            <p class="auth-subtitle">@Localizer["JoinUs"]</p>
         </div>
 
         <form asp-action="Register" method="post">
@@ -44,8 +44,8 @@
         </form>
 
         <div class="auth-footer">
-            Already have an account? 
-            <a asp-action="Login" class="auth-link">Sign in</a>
+            @Localizer["HaveAnAccount"]
+            <a asp-action="Login" class="auth-link">@Localizer["SignIn"]</a>
         </div>
     </div>
 </div>
