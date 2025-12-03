@@ -117,10 +117,49 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Label_Workouts" xml:space="preserve">
-    <value>Workouts</value>
+  <data name="Alt_UserAvatar" xml:space="preserve">
+    <value>User Avatar</value>
   </data>
-  <data name="Label_XP" xml:space="preserve">
-    <value>XP</value>
+  <data name="Btn_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Btn_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Btn_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Btn_PostComment" xml:space="preserve">
+    <value>Post Comment</value>
+  </data>
+  <data name="Btn_Posting" xml:space="preserve">
+    <value>Posting...</value>
+  </data>
+  <data name="Btn_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Label_JustNow" xml:space="preserve">
+    <value>Just now</value>
+  </data>
+  <data name="Msg_ConfirmDelete" xml:space="preserve">
+    <value>Delete comment?</value>
+  </data>
+  <data name="Msg_EmptyComment" xml:space="preserve">
+    <value>Comment cannot be empty</value>
+  </data>
+  <data name="Msg_ErrorDelete" xml:space="preserve">
+    <value>Failed to delete</value>
+  </data>
+  <data name="Msg_ErrorPost" xml:space="preserve">
+    <value>Error posting comment</value>
+  </data>
+  <data name="Msg_ErrorUpdate" xml:space="preserve">
+    <value>Failed to update comment</value>
+  </data>
+  <data name="Msg_NoComments" xml:space="preserve">
+    <value>Be the first to comment!</value>
+  </data>
+  <data name="Placeholder_WriteComment" xml:space="preserve">
+    <value>Write a comment...</value>
   </data>
 </root>

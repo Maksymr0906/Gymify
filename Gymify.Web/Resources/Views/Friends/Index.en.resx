@@ -117,10 +117,112 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Label_Workouts" xml:space="preserve">
-    <value>Workouts</value>
+  <data name="Alt_Avatar" xml:space="preserve">
+    <value>Avatar</value>
   </data>
-  <data name="Label_XP" xml:space="preserve">
-    <value>XP</value>
+  <data name="Btn_Accept" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="Btn_AddFriend" xml:space="preserve">
+    <value>Add Friend</value>
+  </data>
+  <data name="Btn_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Btn_Decline" xml:space="preserve">
+    <value>Decline</value>
+  </data>
+  <data name="Btn_Message" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="Btn_Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Btn_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Btn_RequestSent" xml:space="preserve">
+    <value>Request Sent</value>
+  </data>
+  <data name="Btn_Sent" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Btn_ViewRequest" xml:space="preserve">
+    <value>View Request</value>
+  </data>
+  <data name="Header_Community" xml:space="preserve">
+    <value>Community</value>
+  </data>
+  <data name="Header_IncomingRequests" xml:space="preserve">
+    <value>Incoming Requests</value>
+  </data>
+  <data name="Header_SearchResults" xml:space="preserve">
+    <value>Search Results</value>
+  </data>
+  <data name="Header_SentRequests" xml:space="preserve">
+    <value>Sent Requests</value>
+  </data>
+  <data name="Label_JustNow" xml:space="preserve">
+    <value>Just now</value>
+  </data>
+  <data name="Label_Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="Label_Sent" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Label_Waiting" xml:space="preserve">
+    <value>Waiting...</value>
+  </data>
+  <data name="Msg_CannotAdd" xml:space="preserve">
+    <value>Cannot add</value>
+  </data>
+  <data name="Msg_ConfirmCancelRequest" xml:space="preserve">
+    <value>Cancel request?</value>
+  </data>
+  <data name="Msg_ConfirmRemove" xml:space="preserve">
+    <value>Are you sure you want to remove {0} from friends?</value>
+  </data>
+  <data name="Msg_ErrorCancel" xml:space="preserve">
+    <value>Failed to cancel</value>
+  </data>
+  <data name="Msg_ErrorSearch" xml:space="preserve">
+    <value>Error searching.</value>
+  </data>
+  <data name="Msg_NetworkError" xml:space="preserve">
+    <value>Network Error</value>
+  </data>
+  <data name="Msg_NoFriendsYet" xml:space="preserve">
+    <value>You have no friends yet.</value>
+  </data>
+  <data name="Msg_NoIncomingRequests" xml:space="preserve">
+    <value>No incoming requests.</value>
+  </data>
+  <data name="Msg_NoSentRequests" xml:space="preserve">
+    <value>No sent requests.</value>
+  </data>
+  <data name="Msg_NoUsersFound" xml:space="preserve">
+    <value>No users found.</value>
+  </data>
+  <data name="Msg_Searching" xml:space="preserve">
+    <value>Searching...</value>
+  </data>
+  <data name="Msg_UseSearch" xml:space="preserve">
+    <value>Use the search bar to find people!</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>My Friends</value>
+  </data>
+  <data name="Placeholder_SearchInput" xml:space="preserve">
+    <value>Find new gym partners...</value>
+  </data>
+  <data name="Tab_MyFriends" xml:space="preserve">
+    <value>My Friends</value>
+  </data>
+  <data name="Tab_Requests" xml:space="preserve">
+    <value>Requests</value>
+  </data>
+  <data name="Tab_SearchResults" xml:space="preserve">
+    <value>Search Results</value>
   </data>
 </root>

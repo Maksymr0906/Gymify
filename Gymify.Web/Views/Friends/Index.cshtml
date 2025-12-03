@@ -1,42 +1,45 @@
 ﻿@using Gymify.Application.ViewModels.Friends
 @using Gymify.Data.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model FriendsViewModel
 
 @{
-    ViewData["Title"] = "My Friends";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="dashboard-wrapper">
     
     <div style="text-align: center; margin-bottom: 30px;">
-        <h1 class="wd-title">Community</h1>
+        <h1 class="wd-title">@Localizer["Header_Community"]</h1>
     </div>
 
     <div class="friends-header">
         <div class="friends-tabs">
             <button class="friends-tab-btn active" onclick="switchTab('friends')" id="btn-friends">
-                My Friends <span style="font-weight:normal; font-size:0.9em; opacity:0.7;">(@Model.Friends.Count)</span>
+                @Localizer["Tab_MyFriends"] <span style="font-weight:normal; font-size:0.9em; opacity:0.7;">(@Model.Friends.Count)</span>
             </button>
             <button class="friends-tab-btn" onclick="switchTab('requests')" id="btn-requests">
-                Requests
+                @Localizer["Tab_Requests"]
                 @if(Model.IncomingRequests.Any()) { <span class="ae-badge-xp" style="margin-left:5px; font-size:0.7em; padding: 2px 6px;">@Model.IncomingRequests.Count</span> }
             </button>
-            <button class="friends-tab-btn hidden" id="btn-search" onclick="switchTab('search')">Search Results</button>
+            <button class="friends-tab-btn hidden" id="btn-search" onclick="switchTab('search')">@Localizer["Tab_SearchResults"]</button>
         </div>
 
         <div class="friends-search-wrapper">
             <i class="fa-solid fa-magnifying-glass friends-search-icon"></i>
-            <input type="text" id="userSearchInput" class="friends-search-input" placeholder="Find new gym partners..." autocomplete="off">
+            <input type="text" id="userSearchInput" class="friends-search-input" placeholder="@Localizer["Placeholder_SearchInput"]" autocomplete="off">
         </div>
     </div>
 
+    @* --- TAB: FRIENDS --- *@
     <div id="tab-friends" class="ae-tab-content fade-in">
         @if (!Model.Friends.Any())
         {
             <div class="friends-empty">
                 <i class="fa-solid fa-user-group"></i>
-                <p>You have no friends yet.</p>
-                <p style="font-size:0.9rem;">Use the search bar to find people!</p>
+                <p>@Localizer["Msg_NoFriendsYet"]</p>
+                <p style="font-size:0.9rem;">@Localizer["Msg_UseSearch"]</p>
             </div>
         }
         else
@@ -47,26 +50,26 @@
                     <div class="ae-card-item" style="align-items: center; text-align: center; padding: 30px 20px; display: flex; flex-direction: column; height: 100%;">
                         
                         <a href="@Url.Action("Profile", "User", new { userId = f.ProfileId })" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center;">
-                            <img src="@f.AvatarUrl" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; transition: transform 0.2s;">
+                            <img src="@f.AvatarUrl" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; transition: transform 0.2s;" alt="@Localizer["Alt_Avatar"]">
                             <div class="ae-card-header-title" style="border:none; margin:0 0 5px 0; font-size: 1.2rem;">@f.UserName</div>
                         </a>
                         
-                        <div class="ae-text-muted" style="margin-bottom: 25px;">Level @f.Level</div>
+                        <div class="ae-text-muted" style="margin-bottom: 25px;">@Localizer["Label_Level"] @f.Level</div>
                         
                         <div style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: auto;">
                             <a asp-controller="Chat" asp-action="Start" asp-route-userId="@f.ProfileId" 
                                class="gym-btn gym-btn-primary w-100" style="padding: 10px;">
-                               <i class="fa-solid fa-comment-dots" style="margin-right: 8px;"></i> Message
+                               <i class="fa-solid fa-comment-dots" style="margin-right: 8px;"></i> @Localizer["Btn_Message"]
                             </a>
 
                             <a asp-controller="User" asp-action="Profile" asp-route-userId="@f.ProfileId" class="gym-btn gym-btn-secondary w-100" style="padding: 10px;">
-                                <i class="fa-solid fa-user" style="margin-right: 8px;"></i> Profile
+                                <i class="fa-solid fa-user" style="margin-right: 8px;"></i> @Localizer["Btn_Profile"]
                             </a>
 
                             <form asp-action="RemoveFriend" asp-route-friendId="@f.ProfileId" method="post" style="margin: 0;"
-                                  onsubmit="return confirm('Are you sure you want to remove @f.UserName from friends?');">
+                                  onsubmit="return confirm('@Localizer["Msg_ConfirmRemove", f.UserName]');">
                                 <button type="submit" class="gym-btn gym-btn-danger w-100" style="padding: 10px;">
-                                    <i class="fa-solid fa-user-xmark" style="margin-right: 8px;"></i> Remove
+                                    <i class="fa-solid fa-user-xmark" style="margin-right: 8px;"></i> @Localizer["Btn_Remove"]
                                 </button>
                             </form>
                         </div>
@@ -76,11 +79,12 @@
         }
     </div>
 
+    @* --- TAB: REQUESTS --- *@
     <div id="tab-requests" class="ae-tab-content hidden fade-in">
-        <div class="friends-section-title">Incoming Requests <span style="font-weight:normal;">(@Model.IncomingRequests.Count)</span></div>
+        <div class="friends-section-title">@Localizer["Header_IncomingRequests"] <span style="font-weight:normal;">(@Model.IncomingRequests.Count)</span></div>
         @if (!Model.IncomingRequests.Any())
         {
-            <div class="ae-text-muted ae-mb-20" style="font-style:italic; padding-left:10px;">No incoming requests.</div>
+            <div class="ae-text-muted ae-mb-20" style="font-style:italic; padding-left:10px;">@Localizer["Msg_NoIncomingRequests"]</div>
         }
         else
         {
@@ -89,18 +93,18 @@
                 {
                     <div class="request-card">
                         <a href="@Url.Action("Profile", "User", new { userId = r.ProfileId })" class="request-link-wrapper">
-                            <img src="@r.AvatarUrl" class="request-avatar">
+                            <img src="@r.AvatarUrl" class="request-avatar" alt="@Localizer["Alt_Avatar"]">
                             <div>
                                 <div class="request-username">@r.UserName</div>
-                                <div class="request-meta">Sent @r.SentAt?.ToString("g")</div>
+                                <div class="request-meta">@Localizer["Label_Sent"] @r.SentAt?.ToString("g")</div>
                             </div>
                         </a>
                         <div style="display: flex; gap: 10px;">
                             <form asp-action="Accept" asp-route-senderId="@r.ProfileId" style="margin:0;">
-                                <button class="gym-btn gym-btn-primary" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-check" style="margin-right: 5px;"></i> Accept</button>
+                                <button class="gym-btn gym-btn-primary" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-check" style="margin-right: 5px;"></i> @Localizer["Btn_Accept"]</button>
                             </form>
                             <form asp-action="Decline" asp-route-senderId="@r.ProfileId" style="margin:0;">
-                                <button class="gym-btn gym-btn-secondary" style="padding: 6px 15px; font-size: 13px;">Decline</button>
+                                <button class="gym-btn gym-btn-secondary" style="padding: 6px 15px; font-size: 13px;">@Localizer["Btn_Decline"]</button>
                             </form>
                         </div>
                     </div>
@@ -110,38 +114,59 @@
 
         <div class="ae-separator"></div>
 
-        <div class="friends-section-title">Sent Requests <span style="font-weight:normal;" id="sentCount">(@Model.OutgoingRequests.Count)</span></div>
+        <div class="friends-section-title">@Localizer["Header_SentRequests"] <span style="font-weight:normal;" id="sentCount">(@Model.OutgoingRequests.Count)</span></div>
         <div id="outgoingList">
             @if (!Model.OutgoingRequests.Any())
             {
-                <div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">No sent requests.</div>
+                <div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">@Localizer["Msg_NoSentRequests"]</div>
             }
             @foreach (var r in Model.OutgoingRequests)
             {
                 <div class="request-card slide-in" id="req-@r.ProfileId">
                     <a href="@Url.Action("Profile", "User", new { userId = r.ProfileId })" class="request-link-wrapper">
-                        <img src="@r.AvatarUrl" class="request-avatar">
+                        <img src="@r.AvatarUrl" class="request-avatar" alt="@Localizer["Alt_Avatar"]">
                         <div>
                             <div class="request-username">@r.UserName</div>
-                            <div class="request-meta">Waiting...</div>
+                            <div class="request-meta">@Localizer["Label_Waiting"]</div>
                         </div>
                     </a>
                     <form onsubmit="cancelRequest(event, '@r.ProfileId')" style="margin:0;">
-                        <button class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> Cancel</button>
+                        <button class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> @Localizer["Btn_Cancel"]</button>
                     </form>
                 </div>
             }
         </div>
     </div>
 
+    @* --- TAB: SEARCH --- *@
     <div id="tab-search" class="ae-tab-content hidden fade-in">
-        <h4 class="friends-section-title">Search Results</h4>
+        <h4 class="friends-section-title">@Localizer["Header_SearchResults"]</h4>
         <div id="searchResults" class="ae-cards-grid"></div>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            labelSearching: '@Localizer["Msg_Searching"]',
+            msgNoUsersFound: '@Localizer["Msg_NoUsersFound"]',
+            msgErrorSearch: '@Localizer["Msg_ErrorSearch"]',
+            msgErrorCancel: '@Localizer["Msg_ErrorCancel"]',
+            msgCannotAdd: '@Localizer["Msg_CannotAdd"]',
+            msgNetworkError: '@Localizer["Msg_NetworkError"]',
+            btnMessage: '@Localizer["Btn_Message"]',
+            btnRequestSent: '@Localizer["Btn_RequestSent"]',
+            btnViewRequest: '@Localizer["Btn_ViewRequest"]',
+            btnAddFriend: '@Localizer["Btn_AddFriend"]',
+            btnSent: '@Localizer["Btn_Sent"]',
+            confirmCancel: '@Localizer["Msg_ConfirmCancelRequest"]',
+            labelJustNow: '@Localizer["Label_JustNow"]',
+            btnCancel: '@Localizer["Btn_Cancel"]',
+            msgNoSentRequests: '@Localizer["Msg_NoSentRequests"]',
+            labelLevel: '@Localizer["Label_Level"]'
+        };
+
         function switchTab(tabName) {
             document.querySelectorAll('.ae-tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById('tab-' + tabName).classList.remove('hidden');
@@ -178,7 +203,7 @@
             if(searchTabBtn) searchTabBtn.classList.remove('hidden');
             switchTab('search');
 
-            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999; padding: 20px;">Searching...</div>';
+            container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999; padding: 20px;">${JS_RESOURCES.labelSearching}</div>`;
 
             try {
                 const res = await fetch(`/Friends/Search?query=${encodeURIComponent(query)}`);
@@ -187,26 +212,25 @@
                 container.innerHTML = '';
 
                 if (users.length === 0) {
-                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999; padding: 20px;">No users found.</div>';
+                    container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999; padding: 20px;">${JS_RESOURCES.msgNoUsersFound}</div>`;
                     return;
                 }
 
                 users.forEach(u => {
                     let actionBtn = '';
                     if (u.status === 1) {
-                         actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="gym-btn gym-btn-primary w-100" style="padding:8px;">Message</a>`;
+                         actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="gym-btn gym-btn-primary w-100" style="padding:8px;">${JS_RESOURCES.btnMessage}</a>`;
                     } else if (u.status === 2) {
-                         actionBtn = `<button class="gym-btn gym-btn-secondary w-100" disabled style="opacity:0.6; cursor:default; padding:8px;">Request Sent</button>`;
+                         actionBtn = `<button class="gym-btn gym-btn-secondary w-100" disabled style="opacity:0.6; cursor:default; padding:8px;">${JS_RESOURCES.btnRequestSent}</button>`;
                     } else if (u.status === 3) {
-                         actionBtn = `<button class="gym-btn gym-btn-primary w-100" onclick="switchTab('requests')" style="padding:8px;">View Request</button>`;
+                         actionBtn = `<button class="gym-btn gym-btn-primary w-100" onclick="switchTab('requests')" style="padding:8px;">${JS_RESOURCES.btnViewRequest}</button>`;
                     } else { 
                          actionBtn = `<button class="gym-btn gym-btn-primary w-100" style="padding:8px;"
                             onclick="sendRequest(this, '${u.profileId}', '${escapeHtml(u.userName)}', '${u.avatarUrl}')">
-                            <i class="fa-solid fa-user-plus"></i> Add Friend
+                            <i class="fa-solid fa-user-plus"></i> ${JS_RESOURCES.btnAddFriend}
                          </button>`;
                     }
 
-                    // Лінк на профіль
                     const profileLink = `/User/Profile?userId=${u.profileId}`;
 
                     const html = `
@@ -215,7 +239,7 @@
                                 <img src="${u.avatarUrl}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; transition: transform 0.2s;">
                                 <div class="ae-card-header-title" style="border:none; margin:0 0 5px 0;">${escapeHtml(u.userName)}</div>
                             </a>
-                            <div class="ae-text-muted mb-20" style="font-size: 0.85rem;">Level ${u.level}</div>
+                                <div class="ae-text-muted mb-20" style="font-size: 0.85rem; margin-bottom: 10px">${JS_RESOURCES.labelLevel} ${u.level}</div>
                             ${actionBtn}
                         </div>
                     `;
@@ -223,7 +247,7 @@
                 });
 
             } catch (e) {
-                container.innerHTML = '<div style="color:red; text-align:center; padding: 20px;">Error searching.</div>';
+                container.innerHTML = `<div style="color:red; text-align:center; padding: 20px;">${JS_RESOURCES.msgErrorSearch}</div>`;
             }
         }, 500);
 
@@ -239,17 +263,17 @@
                     btn.className = "gym-btn gym-btn-secondary w-100";
                     btn.style.padding = "8px";
                     btn.disabled = true;
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Sent';
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i> ${JS_RESOURCES.btnSent}`;
                     btn.style.opacity = "0.7";
                     addToOutgoingList(id, userName, avatarUrl);
                 } else {
                     const errText = await res.text();
-                    alert("Cannot add: " + errText);
+                    alert(`${JS_RESOURCES.msgCannotAdd}: ${errText}`);
                     btn.disabled = false;
                     btn.innerHTML = originalHTML;
                 }
             } catch(e) {
-                alert("Network Error");
+                alert(JS_RESOURCES.msgNetworkError);
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
             }
@@ -274,11 +298,11 @@
                         <img src="${avatarUrl}" class="request-avatar">
                         <div>
                             <div class="request-username">${escapeHtml(userName)}</div>
-                            <div class="request-meta">Just now</div>
+                            <div class="request-meta">${JS_RESOURCES.labelJustNow}</div>
                         </div>
                     </a>
                     <form onsubmit="cancelRequest(event, '${id}')" style="margin:0;">
-                        <button class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> Cancel</button>
+                        <button class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> ${JS_RESOURCES.btnCancel}</button>
                     </form>
                 </div>
             `;
@@ -287,7 +311,7 @@
 
         async function cancelRequest(e, id) {
             e.preventDefault();
-            if(!confirm("Cancel request?")) return;
+            if(!confirm(JS_RESOURCES.confirmCancel)) return;
             try {
                 const res = await fetch(`/Friends/Cancel?receiverId=${id}`, { method: "POST" });
                 if (res.ok) {
@@ -307,11 +331,11 @@
                         if (list.querySelectorAll('.request-card').length === 0) {
                             const emptyMsg = document.getElementById('noSentMsg');
                             if (emptyMsg) emptyMsg.style.display = 'block';
-                            else list.innerHTML = '<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">No sent requests.</div>';
+                            else list.innerHTML = `<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">${JS_RESOURCES.msgNoSentRequests}</div>`;
                         }
                     }, 350);
                 } else {
-                    alert("Failed to cancel");
+                    alert(JS_RESOURCES.msgErrorCancel);
                 }
             } catch(err) { console.error(err); }
         }

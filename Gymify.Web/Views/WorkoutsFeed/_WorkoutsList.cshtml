@@ -9,51 +9,49 @@
 
 @foreach (var day in Model)
 {
-        <div class="day-entry"
-             data-day-id="@day.Date.ToString("yyyy-MM-dd")"
-    @if (onlyMy)
-    {
-        <text>data-day-xp="@day.TotalXpForDay"</text>
-    }>
+    <div class="day-entry"
+         data-day-id="@day.Date.ToString("yyyy-MM-dd")"
+         @if (onlyMy) { <text>data-day-xp="@day.TotalXpForDay"</text> }>
 
         <div class="day-header">
+            @* Формат дати залежить від CultureInfo потоку, але рядок формату залишаємо кастомним *@
             <span>@day.Date.ToString("dd MMMM yyyy")</span>
             <span>
-            @Localizer["Workouts"]: @day.WorkoutCount
-            @if (onlyMy)
-            {
-                <text> | @Localizer["XP"]: @day.TotalXpForDay</text>
-            }
+                @Localizer["Label_Workouts"]: @day.WorkoutCount
+                @if (onlyMy)
+                {
+                    <text> | @Localizer["Label_XP"]: @day.TotalXpForDay</text>
+                }
             </span>
         </div>
 
         <div class="workout-list">
-        @foreach (var workout in day.Workouts)
-        {
-                    <a class="workout-card-row"
-                        asp-controller="Workout"
-                        asp-action="Details"
-                        asp-route-workoutId="@workout.Id"
-                        data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
+            @foreach (var workout in day.Workouts)
+            {
+                <a class="workout-card-row"
+                   asp-controller="Workout"
+                   asp-action="Details"
+                   asp-route-workoutId="@workout.Id"
+                   data-workout-xp="@(onlyMy ? workout.TotalXP : null)">
 
-                        <div class="card-left-info">
-                            <span class="workout-name">@workout.Name</span>
-                    @if (onlyMy)
-                    {
-                                    <span class="workout-xp">XP: @workout.TotalXP</span>
-                    }
-                        </div>
+                    <div class="card-left-info">
+                        <span class="workout-name">@workout.Name</span>
+                        @if (onlyMy)
+                        {
+                            <span class="workout-xp">@Localizer["Label_XP"]: @workout.TotalXP</span>
+                        }
+                    </div>
 
-                        <div class="card-right-meta">
-                            <span class="workout-meta-date">
-                        @workout.CreatedAt.ToString("HH:mm")
-                            </span>
-                            <span class="workout-meta-author">
-                        @workout.AuthorName
-                            </span>
-                        </div>
-                    </a>
-        }
+                    <div class="card-right-meta">
+                        <span class="workout-meta-date">
+                            @workout.CreatedAt.ToString("HH:mm")
+                        </span>
+                        <span class="workout-meta-author">
+                            @workout.AuthorName
+                        </span>
+                    </div>
+                </a>
+            }
         </div>
     </div>
 }

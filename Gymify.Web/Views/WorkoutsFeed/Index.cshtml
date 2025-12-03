@@ -4,28 +4,29 @@
 @model List<WorkoutDayDto>
 
 @{
-    ViewData["Title"] = "WorkoutsFeed";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
-<div class="dashboard-wrapper"> <div class="feed-header">
-        <h2 class="feed-title">@Localizer["Workouts Feed"]</h2>
+<div class="dashboard-wrapper"> 
+    <div class="feed-header">
+        <h2 class="feed-title">@Localizer["Header_Feed"]</h2>
     </div>
 
     <div class="filters-bar" id="filters-container">
         <select id="filter-type" class="gym-select">
-            <option value="mine">@Localizer["Show my workouts"]</option>
-            <option value="all">@Localizer["Show all workouts"]</option>
+            <option value="mine">@Localizer["Filter_Mine"]</option>
+            <option value="all">@Localizer["Filter_All"]</option>
         </select>
 
         <input type="text"
                id="author-search"
                class="gym-search-input"
-               placeholder="@Localizer["Search by author"]"
+               placeholder="@Localizer["Placeholder_SearchAuthor"]"
                style="display: none;" />
 
         <select id="sort-type" class="gym-select">
-            <option value="desc">@Localizer["The newest first"]</option>
-            <option value="asc">@Localizer["The oldest first"]</option>
+            <option value="desc">@Localizer["Sort_Newest"]</option>
+            <option value="asc">@Localizer["Sort_Oldest"]</option>
         </select>
     </div>
 
@@ -34,7 +35,7 @@
     </div>
 
     <button id="load-more-btn" data-page="1" class="gym-btn gym-btn-secondary w-100" style="margin-top: 20px">
-        @Localizer["Load more"]
+        @Localizer["Btn_LoadMore"]
     </button>
 
 </div>
@@ -43,8 +44,11 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // === ЗМІННІ ЛОКАЛІЗАЦІЇ ДЛЯ JS ===
-            const localizedWorkoutsLabel = '@Localizer["Workouts"]';
-            const localizedXPLabel = '@Localizer["XP"]';
+            const JS_RESOURCES = {
+                labelWorkouts: '@Localizer["Label_Workouts"]',
+                labelXP: '@Localizer["Label_XP"]',
+                msgNoWorkouts: '@Localizer["Msg_NoWorkouts"]'
+            };
             // ==========================================================
 
             const feed = document.getElementById("workout-feed-container");
@@ -161,7 +165,8 @@
                     loadMoreBtn.dataset.page = 1;
 
                     if (html.trim().length === 0) {
-                        feed.innerHTML = '<p style="text-align:center; color:#777; padding:20px;">No workouts found.</p>';
+                        // Використовуємо локалізоване повідомлення
+                        feed.innerHTML = `<p style="text-align:center; color:#777; padding:20px;">${JS_RESOURCES.msgNoWorkouts}</p>`;
                         loadMoreBtn.style.display = "none";
                     } else {
                         loadMoreBtn.style.display = "block";
@@ -198,7 +203,10 @@
                     temp.innerHTML = html;
 
                     const newDayEntries = temp.querySelectorAll('.day-entry');
-                    const countRegex = new RegExp(localizedWorkoutsLabel + '\\s*:\\s*(\\d+)', 'i');
+                    
+                    // Regex використовує локалізований лейбл для пошуку в тексті (наприклад "Workouts: 5")
+                    // Важливо: переконайтесь, що Label_Workouts в .resx файлі не містить спецсимволів regex
+                    const countRegex = new RegExp(JS_RESOURCES.labelWorkouts + '\\s*:\\s*(\\d+)', 'i');
 
                     newDayEntries.forEach(newDay => {
                         const dayId = newDay.dataset.dayId;
@@ -239,9 +247,10 @@
                                 }
 
                                 if (existingHeaderSpan) {
-                                    let newHtml = `${localizedWorkoutsLabel}: ${totalWorkoutCount}`;
+                                    // Формуємо новий рядок використовуючи JS ресурси
+                                    let newHtml = `${JS_RESOURCES.labelWorkouts}: ${totalWorkoutCount}`;
                                     if (onlyMy) {
-                                        newHtml += ` | ${localizedXPLabel}: ${totalXP}`;
+                                        newHtml += ` | ${JS_RESOURCES.labelXP}: ${totalXP}`;
                                     }
                                     existingHeaderSpan.innerHTML = newHtml;
                                 }
@@ -290,9 +299,6 @@
                     if (workoutList.style.display === "none") {
                         slideDown(workoutList, 300);
                     } else {
-                        // Default state is usually visible, so we check if it is not explicitly none
-                        // However, inline style might be empty initially.
-                        // Better logic: check computed style
                         if (window.getComputedStyle(workoutList).display !== "none") {
                              slideUp(workoutList, 300);
                         } else {

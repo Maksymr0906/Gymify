@@ -1,22 +1,24 @@
 ﻿@using Gymify.Application.ViewModels.Comment
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model CommentsSectionViewModel
 
 <div class="co-container">
 
     <div class="co-form-wrapper">
         <a href="@Url.Action("Profile", "User", new { userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString()) })">
-            <img src="@Model.CurrentUserAvatarUrl" class="co-avatar" alt="User">
+            <img src="@Model.CurrentUserAvatarUrl" class="co-avatar" alt="@Localizer["Alt_UserAvatar"]">
         </a>
         <div class="co-input-block">
             <form id="coCommentForm">
                 <input type="hidden" name="targetId" value="@Model.TargetId" />
                 <input type="hidden" name="targetType" value="@Model.TargetType" />
 
-                <textarea name="content" id="coContentInput" class="co-textarea" placeholder="Write a comment..."></textarea>
+                <textarea name="content" id="coContentInput" class="co-textarea" placeholder="@Localizer["Placeholder_WriteComment"]"></textarea>
 
                 <div style="text-align: right; margin-top: 10px;">
                     <button type="submit" id="coBtnPost" class="gym-btn gym-btn-primary" style="padding: 8px 20px; font-size: 14px;" disabled>
-                        Post Comment
+                        @Localizer["Btn_PostComment"]
                     </button>
                 </div>
             </form>
@@ -28,51 +30,72 @@
         {
             @foreach (var comment in Model.CommentDtos)
             {
-                        <div class="co-item" id="comment-el-@comment.Id">
-                            <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })">
-                                <img src="@comment.AuthorAvatarUrl" class="co-avatar" alt="Avatar">
-                            </a>
+                <div class="co-item" id="comment-el-@comment.Id">
+                    <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })">
+                        <img src="@comment.AuthorAvatarUrl" class="co-avatar" alt="@Localizer["Alt_UserAvatar"]">
+                    </a>
 
-                            <div class="co-content">
-                                <div class="co-header">
-                                    <div>
-                                        <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })" class="co-author-link">
+                    <div class="co-content">
+                        <div class="co-header">
+                            <div>
+                                <a href="@Url.Action("Profile", "User", new { userId = comment.AuthorId })" class="co-author-link">
                                     @comment.AuthorName
-                                        </a>
-                                        <span class="co-date">&bull; @comment.CreatedAt.ToString("g")</span>
-                                    </div>
+                                </a>
+                                <span class="co-date">&bull; @comment.CreatedAt.ToString("g")</span>
+                            </div>
 
                             @if (comment.CanDelete)
                             {
-                                            <div class="co-actions">
-                                                <button class="co-action-btn" onclick="editCommentStart('@comment.Id')">Edit</button>
-                                                <button class="co-action-btn delete" onclick="deleteCommentNode(this, '@comment.Id')">Delete</button>
-                                            </div>
+                                <div class="co-actions">
+                                    <button class="co-action-btn" onclick="editCommentStart('@comment.Id')">@Localizer["Btn_Edit"]</button>
+                                    <button class="co-action-btn delete" onclick="deleteCommentNode(this, '@comment.Id')">@Localizer["Btn_Delete"]</button>
+                                </div>
                             }
-                                </div>
+                        </div>
 
-                                <div class="co-text" id="text-@comment.Id">@comment.Content</div>
+                        <div class="co-text" id="text-@comment.Id">@comment.Content</div>
 
-                                <div class="co-edit-area hidden" id="edit-area-@comment.Id">
-                                    <textarea class="co-edit-textarea" id="input-@comment.Id">@comment.Content</textarea>
-                                    <div class="co-edit-controls">
-                                        <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('@comment.Id')">Cancel</button>
-                                        <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('@comment.Id')">Save</button>
-                                    </div>
-                                </div>
+                        <div class="co-edit-area hidden" id="edit-area-@comment.Id">
+                            <textarea class="co-edit-textarea" id="input-@comment.Id">@comment.Content</textarea>
+                            <div class="co-edit-controls">
+                                <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('@comment.Id')">
+                                    @Localizer["Btn_Cancel"]
+                                </button>
+                                <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('@comment.Id')">
+                                    @Localizer["Btn_Save"]
+                                </button>
                             </div>
                         </div>
+                    </div>
+                </div>
             }
         }
         else
         {
-                <div id="coNoComments" class="co-empty-msg">Be the first to comment!</div>
+            <div id="coNoComments" class="co-empty-msg">@Localizer["Msg_NoComments"]</div>
         }
     </div>
 </div>
 
 <script>
     (function() {
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            btnPost: '@Localizer["Btn_PostComment"]',
+            btnPosting: '@Localizer["Btn_Posting"]',
+            btnEdit: '@Localizer["Btn_Edit"]',
+            btnDelete: '@Localizer["Btn_Delete"]',
+            btnCancel: '@Localizer["Btn_Cancel"]',
+            btnSave: '@Localizer["Btn_Save"]',
+            labelJustNow: '@Localizer["Label_JustNow"]',
+            msgErrorPost: '@Localizer["Msg_ErrorPost"]',
+            msgEmptyComment: '@Localizer["Msg_EmptyComment"]',
+            msgErrorUpdate: '@Localizer["Msg_ErrorUpdate"]',
+            msgConfirmDelete: '@Localizer["Msg_ConfirmDelete"]',
+            msgErrorDelete: '@Localizer["Msg_ErrorDelete"]',
+            altAvatar: '@Localizer["Alt_UserAvatar"]'
+        };
+
         const form = document.getElementById('coCommentForm');
         const input = document.getElementById('coContentInput');
         const btn = document.getElementById('coBtnPost');
@@ -90,10 +113,11 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
-                const originalText = btn.innerText;
+                // Зберігаємо оригінальний текст кнопки (можна брати з ресурсів, щоб було надійно)
+                const originalText = JS_RESOURCES.btnPost; 
 
                 btn.disabled = true; 
-                btn.innerText = "Posting...";
+                btn.innerText = JS_RESOURCES.btnPosting;
 
                 try {
                     const res = await fetch('/Comment/AddComment', { method: 'POST', body: formData });
@@ -101,14 +125,13 @@
                         const newComment = await res.json();
                         appendCommentDOM(newComment);
                         input.value = "";
-                        btn.disabled = true; // Disable after post until input changes
+                        btn.disabled = true; 
                     } else {
-                        if(typeof alertify !== 'undefined') alertify.error("Error posting comment");
+                        if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorPost);
                     }
                 } catch (err) { console.error(err); } 
                 finally { 
                     btn.innerText = originalText; 
-                    // btn stays disabled if input is empty
                 }
             });
         }
@@ -119,26 +142,27 @@
             const domId = 'comment-el-' + (c.id || Date.now());
             const profileUrl = `/User/Profile?userId=${c.authorId}`; 
 
+            // Генеруємо HTML використовуючи локалізовані ресурси
             const html = `
                 <div class="co-item" id="${domId}">
-                    <a href="${profileUrl}"><img src="${c.authorAvatarUrl || '/images/default-avatar.png'}" class="co-avatar" alt="User"></a>
+                    <a href="${profileUrl}"><img src="${c.authorAvatarUrl || '/images/default-avatar.png'}" class="co-avatar" alt="${JS_RESOURCES.altAvatar}"></a>
                     <div class="co-content">
                         <div class="co-header">
                             <div>
                                 <a href="${profileUrl}" class="co-author-link">${escapeHtml(c.authorName)}</a>
-                                <span class="co-date">&bull; Just now</span>
+                                <span class="co-date">&bull; ${JS_RESOURCES.labelJustNow}</span>
                             </div>
                             <div class="co-actions">
-                                <button class="co-action-btn" onclick="editCommentStart('${c.id}')">Edit</button>
-                                <button class="co-action-btn delete" onclick="deleteCommentNode(this, '${c.id}')">Delete</button>
+                                <button class="co-action-btn" onclick="editCommentStart('${c.id}')">${JS_RESOURCES.btnEdit}</button>
+                                <button class="co-action-btn delete" onclick="deleteCommentNode(this, '${c.id}')">${JS_RESOURCES.btnDelete}</button>
                             </div>
                         </div>
                         <div class="co-text" id="text-${c.id}">${escapeHtml(c.content)}</div>
                         <div class="co-edit-area hidden" id="edit-area-${c.id}">
                             <textarea class="co-edit-textarea" id="input-${c.id}">${escapeHtml(c.content)}</textarea>
                             <div class="co-edit-controls">
-                                <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('${c.id}')">Cancel</button>
-                                <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('${c.id}')">Save</button>
+                                <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('${c.id}')">${JS_RESOURCES.btnCancel}</button>
+                                <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('${c.id}')">${JS_RESOURCES.btnSave}</button>
                             </div>
                         </div>
                     </div>
@@ -170,7 +194,6 @@
             if(textView && editView) {
                 textView.classList.remove('hidden');
                 editView.classList.add('hidden');
-                // Restore text
                 if(inputEl) inputEl.value = textView.innerText;
             }
         };
@@ -179,7 +202,7 @@
             const inputEl = document.getElementById(`input-${id}`);
             const newContent = inputEl.value.trim();
             if (!newContent) { 
-                if(typeof alertify !== 'undefined') alertify.error("Comment cannot be empty"); 
+                if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgEmptyComment); 
                 return; 
             }
 
@@ -193,14 +216,14 @@
                     document.getElementById(`text-${id}`).innerText = newContent;
                     editCommentCancel(id);
                 } else {
-                    if(typeof alertify !== 'undefined') alertify.error("Failed to update comment");
+                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorUpdate);
                 }
             } catch (e) { console.error(e); }
         };
 
         // --- DELETE LOGIC ---
         window.deleteCommentNode = async function(btn, id) {
-            if(!confirm("Delete comment?")) return;
+            if(!confirm(JS_RESOURCES.msgConfirmDelete)) return;
             const item = btn.closest('.co-item');
             try {
                 const res = await fetch(`/Comment/DeleteComment?commentId=${id}`, { method: 'POST' });
@@ -208,7 +231,7 @@
                     item.remove();
                     if (list.children.length === 0 && emptyMsg) emptyMsg.style.display = 'block';
                 } else {
-                    if(typeof alertify !== 'undefined') alertify.error("Failed to delete");
+                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorDelete);
                 }
             } catch(e) { console.error(e); }
         };

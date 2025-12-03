@@ -1,17 +1,22 @@
 ﻿@using Gymify.Application.DTOs.Chat
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
 @model List<ChatDto>
 
 @{
-    ViewData["Title"] = "Messages";
+    ViewData["Title"] = Localizer["PageTitle"];
     var currentUserId = User.FindFirst("UserProfileId")?.Value;
     var openChatId = Context.Request.Query["openChatId"].ToString();
+    // Get current culture for JS date formatting (e.g., "en-US", "uk-UA")
+    var currentCulture = CultureInfo.CurrentCulture.Name;
 }
 
 <div class="ch-wrapper">
     <div class="ch-container">
         <div class="ch-sidebar">
             <div class="ch-sidebar-header">
-                <input type="text" class="ch-input-search" placeholder="Search chats..." />
+                <input type="text" class="ch-input-search" placeholder="@Localizer["Placeholder_Search"]" />
             </div>
 
             <div class="ch-list" id="chatList">
@@ -23,12 +28,12 @@
                              id="chat-item-@chat.ChatId"
                              onclick="openChat('@chat.ChatId', '@chat.ChatName', '@chat.ChatAvatarUrl', '@chat.TargetUserId', this)">
 
-                            <img src="@chat.ChatAvatarUrl" class="ch-avatar" alt="Avatar" loading="lazy" />
+                            <img src="@chat.ChatAvatarUrl" class="ch-avatar" alt="@Localizer["Alt_Avatar"]" loading="lazy" />
 
                             <div class="ch-info">
                                 <div class="ch-name">@chat.ChatName</div>
                                 <div class="ch-preview" id="preview-@chat.ChatId">
-                                    @(string.IsNullOrEmpty(chat.LastMessageContent) ? "No messages yet" : chat.LastMessageContent)
+                                    @(string.IsNullOrEmpty(chat.LastMessageContent) ? Localizer["Msg_NoMessagesYet"] : chat.LastMessageContent)
                                 </div>
                             </div>
 
@@ -43,7 +48,7 @@
                 }
                 else
                 {
-                    <div style="padding:20px; text-align:center; color:#999;">No chats yet.</div>
+                    <div style="padding:20px; text-align:center; color:#999;">@Localizer["Msg_NoChatsYet"]</div>
                 }
             </div>
         </div>
@@ -52,7 +57,7 @@
             
             <div id="chatPlaceholder" class="ch-empty">
                 <i class="fa-regular fa-comments" style="font-size:4rem; margin-bottom:20px; opacity:0.2;"></i>
-                <p>Select a chat to start messaging</p>
+                <p>@Localizer["Msg_SelectChat"]</p>
             </div>
 
             <div id="chatHeader" class="ch-header hidden">
@@ -60,10 +65,10 @@
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
                 <a href="#" id="headerLink" class="ch-header-link">
-                    <img id="headerAvatar" src="" class="ch-avatar" style="width:40px; height:40px;">
+                    <img id="headerAvatar" src="" class="ch-avatar" style="width:40px; height:40px;" alt="@Localizer["Alt_Avatar"]">
                     <div>
                         <div id="headerName" class="ch-header-name">User</div>
-                        </div>
+                    </div>
                 </a>
             </div>
 
@@ -74,7 +79,7 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
-                <input type="text" id="msgInput" class="ch-input" placeholder="Type a message..." autocomplete="off" />
+                <input type="text" id="msgInput" class="ch-input" placeholder="@Localizer["Placeholder_TypeMessage"]" autocomplete="off" />
                 
                 <button class="ch-btn-send" id="sendBtn" onclick="sendMessage()">
                     <i class="fa-solid fa-arrow-up"></i>
@@ -86,9 +91,19 @@
 
 @section scripts {
     <script>
-        // ... (Твій JS код без змін, він хороший) ...
-        // Хіба що в appendMessage перевір, щоб класи відповідали CSS (ch-msg.me)
-        
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            loading: '@Localizer["Msg_Loading"]',
+            noMessages: '@Localizer["Msg_NoMessages"]',
+            errorLoading: '@Localizer["Msg_ErrorLoading"]',
+            reconnecting: '@Localizer["Msg_Reconnecting"]',
+            errorSending: '@Localizer["Msg_ErrorSending"]',
+            errorEditing: '@Localizer["Msg_ErrorEditing"]',
+            confirmDelete: '@Localizer["Msg_ConfirmDelete"]',
+            errorDeleting: '@Localizer["Msg_ErrorDeleting"]',
+            currentCulture: '@currentCulture' 
+        };
+
         let currentChatId = null;
         const currentUserId = "@currentUserId";
         let editingMessageId = null;
@@ -96,7 +111,7 @@
         const chatMain = document.getElementById('chatMainArea');
         const msgInput = document.getElementById('msgInput');
         const messagesArea = document.getElementById('messagesArea');
-        const searchInput = document.querySelector('.ch-input-search'); // Update selector
+        const searchInput = document.querySelector('.ch-input-search'); 
         const sendBtn = document.getElementById('sendBtn');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
 
@@ -175,7 +190,8 @@
                 headerLink.style.pointerEvents = "none";
             }
 
-            messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:#ccc;">Loading...</div>';
+            // Localized Loading
+            messagesArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ccc;">${JS_RESOURCES.loading}</div>`;
 
             if (chatConnection.state === "Connected") {
                 try {
@@ -194,13 +210,15 @@
                 const msgs = await res.json();
                 messagesArea.innerHTML = '';
                 
-                if(msgs.length === 0) messagesArea.innerHTML = '<div style="text-align:center; padding:40px; color:#eee;">No messages yet.</div>';
+                if(msgs.length === 0) {
+                    messagesArea.innerHTML = `<div style="text-align:center; padding:40px; color:#eee;">${JS_RESOURCES.noMessages}</div>`;
+                }
                 else msgs.forEach(m => appendMessage(m));
                 
                 scrollToBottom();
                 if(window.innerWidth > 768) msgInput.focus();
             } catch (e) {
-                messagesArea.innerHTML = '<div style="text-align:center; color:red;">Error loading messages.</div>';
+                messagesArea.innerHTML = `<div style="text-align:center; color:red;">${JS_RESOURCES.errorLoading}</div>`;
             }
         }
 
@@ -208,13 +226,13 @@
             if (editingMessageId) { await submitEdit(); return; }
             const text = msgInput.value.trim();
             if (!text || !currentChatId) return;
-            if (chatConnection.state !== "Connected") { alert("Reconnecting..."); return; }
+            if (chatConnection.state !== "Connected") { alert(JS_RESOURCES.reconnecting); return; }
 
             try {
                 await chatConnection.invoke("SendMessage", currentChatId, text);
                 msgInput.value = '';
                 msgInput.focus();
-            } catch (e) { alert("Error sending"); }
+            } catch (e) { alert(JS_RESOURCES.errorSending); }
         }
 
         function updateSidebarPreview(chatId, text, dateStr, isNew) {
@@ -225,7 +243,8 @@
             if (dateStr) {
                 const chatItem = document.getElementById(`chat-item-${chatId}`);
                 const dateObj = new Date(dateStr);
-                const timeFormatted = dateObj.toLocaleString('uk-UA', { 
+                // Use dynamic culture from server
+                const timeFormatted = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
                     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
                 }).replace(',', '');
                 let timeDiv = chatItem.querySelector('.ch-time');
@@ -241,7 +260,8 @@
         function appendMessage(msg) {
             const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());
             const dateObj = new Date(msg.createdAt);
-            const time = dateObj.toLocaleString('uk-UA', { 
+            // Use dynamic culture from server
+            const time = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
                 day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
             }).replace(',', '');
 
@@ -304,13 +324,13 @@
              const text = msgInput.value.trim();
              if (!text || !editingMessageId) { cancelEditMode(); return; }
              try { await chatConnection.invoke("EditMessage", editingMessageId, text); cancelEditMode(); } 
-             catch (e) { alert("Error editing"); }
+             catch (e) { alert(JS_RESOURCES.errorEditing); }
         }
 
         async function deleteMessageNode(msgId) {
-             if(!confirm("Delete message?")) return;
+             if(!confirm(JS_RESOURCES.confirmDelete)) return;
              try { await chatConnection.invoke("DeleteMessage", msgId, currentChatId); } 
-             catch(e) { alert("Error deleting"); }
+             catch(e) { alert(JS_RESOURCES.errorDeleting); }
         }
 
         function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }

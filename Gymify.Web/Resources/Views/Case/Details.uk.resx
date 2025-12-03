@@ -117,19 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Details_Title" xml:space="preserve">
-    <value>Деталі кейсу</value>
+  <data name="Alt_Reward" xml:space="preserve">
+    <value>Нагорода</value>
   </data>
-  <data name="OkButton" xml:space="preserve">
-    <value>Добре</value>
+  <data name="Btn_Ok" xml:space="preserve">
+    <value>OK</value>
   </data>
-  <data name="OpenAgainButton" xml:space="preserve">
-    <value>Відкрити знову</value>
+  <data name="Btn_OpenAgain" xml:space="preserve">
+    <value>Відкрити ще раз</value>
   </data>
-  <data name="OpenCaseButton" xml:space="preserve">
+  <data name="Btn_OpenCase" xml:space="preserve">
     <value>Відкрити кейс</value>
   </data>
-  <data name="RewardTitle" xml:space="preserve">
-    <value>Ваш виграш</value>
+  <data name="Btn_Opening" xml:space="preserve">
+    <value>Відкриваємо...</value>
+  </data>
+  <data name="Header_Reward" xml:space="preserve">
+    <value>Ви отримали!</value>
+  </data>
+  <data name="Msg_ErrorGeneric" xml:space="preserve">
+    <value>Помилка при відкритті кейсу.</value>
+  </data>
+  <data name="Msg_ServerError" xml:space="preserve">
+    <value>Помилка сервера</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Відкриття кейсу</value>
+  </data>
+  <data name="Placeholder_ItemName" xml:space="preserve">
+    <value>Назва предмету</value>
+  </data>
+  <data name="Placeholder_Rarity" xml:space="preserve">
+    <value>Звичайний</value>
   </data>
 </root>

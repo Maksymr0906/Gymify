@@ -3,7 +3,7 @@
 @model Gymify.Application.DTOs.Case.CaseInfoDto
 
 @{
-    ViewData["Title"] = Localizer["Details_Title"];
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="case-opening-page">
@@ -17,14 +17,15 @@
     <div class="roulette-wrapper">
         <div class="roulette-container">
             <div id="roulette-strip">
-                </div>
+                @* Стрічка заповнюється через JS *@
+            </div>
         </div>
         <div class="roulette-marker"></div>
     </div>
 
     <div class="controls-area">
         <button id="triggerOpenCaseBtn" class="gym-btn gym-btn-primary scale-btn" data-case-id="@Model.Id">
-            @Localizer["OpenCaseButton"]
+            @Localizer["Btn_OpenCase"]
         </button>
     </div>
 </div>
@@ -32,116 +33,135 @@
 <div id="resultModal" class="gym-modal-overlay hidden" aria-hidden="true">
     <div class="gym-modal-content">
         <div class="gym-modal-header">
-            <h2 class="gym-modal-title">@Localizer["RewardTitle"]</h2>
+            <h2 class="gym-modal-title">@Localizer["Header_Reward"]</h2>
         </div>
 
         <div class="gym-modal-body">
             <div class="gym-modal-image-wrapper">
-                <img id="dropImage" src="" alt="Reward" />
+                <img id="dropImage" src="" alt="@Localizer["Alt_Reward"]" />
             </div>
-            <h3 id="dropName" class="gym-drop-name">Item Name</h3>
-            <span id="dropRarity" class="rarity-badge">Common</span>
+            <h3 id="dropName" class="gym-drop-name">@Localizer["Placeholder_ItemName"]</h3>
+            <span id="dropRarity" class="rarity-badge">@Localizer["Placeholder_Rarity"]</span>
         </div>
 
         <div class="gym-modal-footer">
             <button id="resetRouletteBtn" class="gym-btn gym-btn-primary">
-                @Localizer["OpenAgainButton"]
+                @Localizer["Btn_OpenAgain"]
             </button>
             <a id="closeResultModal" href="~/Inventory/" class="gym-btn gym-btn-secondary">
-                @Localizer["OkButton"]
+                @Localizer["Btn_Ok"]
             </a>
         </div>
     </div>
 </div>
 
 @section Scripts {
-        <script>
-            const openButton = document.getElementById("triggerOpenCaseBtn");
-            const strip = document.getElementById("roulette-strip");
-            const resultModal = document.getElementById("resultModal");
-            const resetBtn = document.getElementById("resetRouletteBtn");
+    <script>
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            btnOpenCase: '@Localizer["Btn_OpenCase"]',
+            btnOpening: '@Localizer["Btn_Opening"]',
+            msgServerError: '@Localizer["Msg_ServerError"]',
+            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]'
+        };
 
-            // === OPEN CASE LOGIC ===
-            openButton.addEventListener("click", async (e) => {
-                e.preventDefault();
+        const openButton = document.getElementById("triggerOpenCaseBtn");
+        const strip = document.getElementById("roulette-strip");
+        const resultModal = document.getElementById("resultModal");
+        const resetBtn = document.getElementById("resetRouletteBtn");
 
-                openButton.disabled = true;
-                openButton.style.opacity = "0.7";
-                openButton.innerText = "Opening...";
+        // === OPEN CASE LOGIC ===
+        openButton.addEventListener("click", async (e) => {
+            e.preventDefault();
 
-                const caseId = e.target.dataset.caseId;
+            openButton.disabled = true;
+            openButton.style.opacity = "0.7";
+            openButton.innerText = JS_RESOURCES.btnOpening;
 
-                try {
-                    const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
-                        method: "POST",
-                        headers: { "X-Requested-With": "XMLHttpRequest" }
-                    });
+            const caseId = e.target.dataset.caseId;
 
-                    if (!response.ok) throw new Error("Server error");
+            try {
+                const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
+                    method: "POST",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
 
-                    const data = await response.json();
+                if (!response.ok) throw new Error(JS_RESOURCES.msgServerError);
 
-                    // Setup Strip
-                    strip.innerHTML = '';
-                    strip.style.transition = 'none';
-                    strip.style.transform = 'translateX(0px)';
+                const data = await response.json();
 
-                    data.rouletteStrip.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = `roulette-item rarity-border-${item.rarity}`;
-                        div.innerHTML = `<img src="${item.imageURL}" alt="${item.name}" /><p>${item.name}</p>`;
-                        strip.appendChild(div);
-                    });
-
-                    // Animation Calc
-                    const itemWidth = 120; 
-                    const itemMargin = 12; 
-                    const totalItemWidth = itemWidth + itemMargin;
-                    const containerWidth = 800; 
-                    const winningIndex = 78; 
-
-                    const winnerCenter = (winningIndex * totalItemWidth) + (totalItemWidth / 2);
-                    const targetOffset = winnerCenter - (containerWidth / 2);
-                    const randomJitter = Math.floor(Math.random() * 30) - 15;
-                    const finalOffset = targetOffset + randomJitter;
-
-                    // Start
-                    setTimeout(() => {
-                        strip.style.transition = 'transform 4s cubic-bezier(0.15, 1, 0.3, 1)'; 
-                        strip.style.transform = `translateX(-${finalOffset}px)`;
-                    }, 50);
-
-                    // Result
-                    setTimeout(() => {
-                        document.getElementById("dropImage").src = data.imageURL;
-                        document.getElementById("dropName").textContent = data.name;
-
-                        const rBadge = document.getElementById("dropRarity");
-                        rBadge.textContent = data.rarityName;
-                        rBadge.className = 'rarity-badge'; 
-                        rBadge.classList.add(`rarity-${data.rarityName.toLowerCase()}`);
-
-                        resultModal.classList.remove("hidden");
-                    }, 4200);
-
-                } catch (err) {
-                    console.error(err);
-                    alertify.error("Error opening case.");
-                    openButton.disabled = false;
-                    openButton.innerText = "Open Case";
-                }
-            });
-
-            // === RESET LOGIC ===
-            resetBtn.addEventListener('click', () => {
-                resultModal.classList.add("hidden");
-                openButton.disabled = false;
-                openButton.style.opacity = "1";
-                openButton.innerText = "Open Case";
+                // Setup Strip
+                strip.innerHTML = '';
                 strip.style.transition = 'none';
                 strip.style.transform = 'translateX(0px)';
-                strip.innerHTML = ''; 
-            });
-        </script>
-}
 
+                data.rouletteStrip.forEach(item => {
+                    const div = document.createElement('div');
+                    // Важливо: переконайтеся, що item.rarity приходить з сервера у форматі, 
+                    // придатному для CSS класу (наприклад, англійською "common", "rare"), 
+                    // навіть якщо інтерфейс українською.
+                    div.className = `roulette-item rarity-border-${item.rarity}`;
+                    div.innerHTML = `<img src="${item.imageURL}" alt="${item.name}" /><p>${item.name}</p>`;
+                    strip.appendChild(div);
+                });
+
+                // Animation Calc
+                const itemWidth = 120; 
+                const itemMargin = 12; 
+                const totalItemWidth = itemWidth + itemMargin;
+                const containerWidth = 800; 
+                const winningIndex = 78; 
+
+                const winnerCenter = (winningIndex * totalItemWidth) + (totalItemWidth / 2);
+                const targetOffset = winnerCenter - (containerWidth / 2);
+                const randomJitter = Math.floor(Math.random() * 30) - 15;
+                const finalOffset = targetOffset + randomJitter;
+
+                // Start
+                setTimeout(() => {
+                    strip.style.transition = 'transform 4s cubic-bezier(0.15, 1, 0.3, 1)'; 
+                    strip.style.transform = `translateX(-${finalOffset}px)`;
+                }, 50);
+
+                // Result
+                setTimeout(() => {
+                    document.getElementById("dropImage").src = data.imageURL;
+                    document.getElementById("dropName").textContent = data.name;
+
+                    const rBadge = document.getElementById("dropRarity");
+                    
+                    // Тут data.rarityName - це те, що бачить користувач (може бути локалізовано)
+                    rBadge.textContent = data.rarityName;
+                    
+                    rBadge.className = 'rarity-badge'; 
+                    // Тут важливо використовувати технічну назву рідкості для CSS, 
+                    // якщо data.rarityName буде українською ("Звичайний"), стиль може зламатися.
+                    // Рекомендується, щоб сервер повертав окремо rarityCode (для CSS) і rarityName (для тексту).
+                    // Поки залишаємо як було, припускаючи, що rarityName підходить для CSS або сервер повертає англійську.
+                    rBadge.classList.add(`rarity-${data.rarityName.toLowerCase()}`);
+
+                    resultModal.classList.remove("hidden");
+                }, 4200);
+
+            } catch (err) {
+                console.error(err);
+                if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorGeneric);
+                else alert(JS_RESOURCES.msgErrorGeneric);
+
+                openButton.disabled = false;
+                openButton.innerText = JS_RESOURCES.btnOpenCase;
+            }
+        });
+
+        // === RESET LOGIC ===
+        resetBtn.addEventListener('click', () => {
+            resultModal.classList.add("hidden");
+            openButton.disabled = false;
+            openButton.style.opacity = "1";
+            openButton.innerText = JS_RESOURCES.btnOpenCase;
+            strip.style.transition = 'none';
+            strip.style.transform = 'translateX(0px)';
+            strip.innerHTML = ''; 
+        });
+    </script>
+}
