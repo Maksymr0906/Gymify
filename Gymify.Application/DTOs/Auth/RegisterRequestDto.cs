@@ -22,6 +22,7 @@ namespace Gymify.Application.DTOs.Auth
         [Display(Name = "Password")]
         public string Password { get; set; }
 
+        [Required(ErrorMessage = "Required")]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "PasswordMismatch")]
         [Display(Name = "ConfirmPassword")]
