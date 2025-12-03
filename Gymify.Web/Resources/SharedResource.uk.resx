@@ -118,18 +118,25 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="EmailInvalid" xml:space="preserve">
-    <value>Please enter a valid email address.</value>
+    <value>Введіть коректну електронну пошту.</value>
+  </data>
+  <data name="NameLength" xml:space="preserve">
+    <value>Ім'я має бути від {2} до {1} символів.</value>
+    <comment>{1} – Макс. довжина, {2} – Мін. довжина</comment>
   </data>
   <data name="PasswordLength" xml:space="preserve">
-    <value>The {0} must be at least {1} characters long.</value>
+    <value>Пароль повинен мати мінімум {1} символів.</value>
+    <comment>{1} – Мінімальна довжина</comment>
   </data>
   <data name="PasswordMismatch" xml:space="preserve">
-    <value>The password and confirmation password do not match.</value>
+    <value>Паролі не співпадають.</value>
   </data>
   <data name="Required" xml:space="preserve">
-    <value>The {0} field is required.</value>
+    <value>Поле {0} є обов'язковим.</value>
+    <comment>{0} – Ім'я поля (з [Display(Name)])</comment>
   </data>
   <data name="UserNameLength" xml:space="preserve">
-    <value>The username must have length from {2} to {1} symbols.</value>
+    <value>Нікнейм має бути від {2} до {1} символів.</value>
+    <comment>{1} – Макс. довжина, {2} – Мін. довжина</comment>
   </data>
 </root>

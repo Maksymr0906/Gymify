@@ -120,16 +120,23 @@
   <data name="EmailInvalid" xml:space="preserve">
     <value>Please enter a valid email address.</value>
   </data>
+  <data name="NameLength" xml:space="preserve">
+    <value>The name must have length from {2} to {1} characters.</value>
+    <comment>{1} – Max Length, {2} – Min Length</comment>
+  </data>
   <data name="PasswordLength" xml:space="preserve">
-    <value>The {0} must be at least {1} characters long.</value>
+    <value>The {0} must be at least {1} characters.</value>
+    <comment>{0} – Field Name, {1} – Min Length</comment>
   </data>
   <data name="PasswordMismatch" xml:space="preserve">
     <value>The password and confirmation password do not match.</value>
   </data>
   <data name="Required" xml:space="preserve">
     <value>The {0} field is required.</value>
+    <comment>{0} – Field Name (from [Display(Name)])</comment>
   </data>
   <data name="UserNameLength" xml:space="preserve">
-    <value>The username must have length from {2} to {1} symbols.</value>
+    <value>The username must have length from {2} to {1} characters.</value>
+    <comment>{1} – Max Length, {2} – Min Length</comment>
   </data>
 </root>

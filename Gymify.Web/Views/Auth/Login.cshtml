@@ -16,13 +16,13 @@
         <form asp-action="Login" method="post">
             <div class="form-group">
                 <label asp-for="Email" class="auth-label">@Localizer["Email"]</label>
-                <input asp-for="Email" class="gym-input" placeholder="name@example.com" required />
+                <input asp-for="Email" class="gym-input" placeholder="name@example.com" />
                 <span asp-validation-for="Email" class="text-danger" style="font-size:12px;"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Password" class="auth-label">@Localizer["Password"]</label>
-                <input asp-for="Password" class="gym-input" placeholder="••••••" required type="password" />
+                <input asp-for="Password" class="gym-input" placeholder="••••••" type="password" />
                 <span asp-validation-for="Password" class="text-danger" style="font-size:12px;"></span>
             </div>
 

@@ -35,6 +35,13 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GenerateWorkout(CreateWorkoutRequestDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                NotifyModelStateErrors();
+
+                return View("Create", dto);
+            }
+
             var userProfileId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
             var workout = await _workoutService.CreateWorkoutAsync(dto, userProfileId);
 
