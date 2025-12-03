@@ -10,12 +10,11 @@ using System.Security.Claims;
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class WorkoutController : Controller
+    public class WorkoutController : BaseController
     {
         private readonly IWorkoutService _workoutService;
         private readonly IExerciseService _exerciseService;
         private readonly IUserExersiceService _userExerciseService;
-        private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
         public WorkoutController(
             IWorkoutService workoutService,

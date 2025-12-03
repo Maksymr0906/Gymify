@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Localization;
 
 namespace Gymify.Web.Controllers
 {
-    public class MainController(SignInManager<ApplicationUser> signInManager, IUserProfileService userProfileService, ILeaderboardService leaderboardService, IExerciseService exerciseService) : Controller
+    public class MainController(SignInManager<ApplicationUser> signInManager, IUserProfileService userProfileService, ILeaderboardService leaderboardService, IExerciseService exerciseService) : BaseController
     {
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private readonly IUserProfileService _userProfileService = userProfileService;
@@ -53,8 +53,7 @@ namespace Gymify.Web.Controllers
         [HttpGet("exerciselibrary")]
         public async Task<IActionResult> Exercises(string search, ExerciseType? type, bool pendingOnly = false, int page = 1)
         {
-            bool ukranianVer = true;/////////////////////////////////////////////////////////////////////////////////////////////////////
-            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20, ukranianVer);
+            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20, IsUkrainian);
 
             var model = new ExerciseLibraryViewModel
             {
@@ -72,8 +71,7 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> FilterExercises(string search, ExerciseType? type, bool pendingOnly, int page = 1)
         {
-            bool ukranianVer = true;/////////////////////////////////////////////////////////////////////////////////////////////////////
-            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20, ukranianVer);
+            var result = await _exerciseService.GetFilteredExercisesAsync(search, type, pendingOnly, page, 20, IsUkrainian);
 
             var model = new ExerciseLibraryViewModel
             {

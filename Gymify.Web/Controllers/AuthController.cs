@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gymify.Web.Controllers;
 
-public class AuthController : Controller
+public class AuthController : BaseController
 {
     private readonly IAuthService _authService;
 
@@ -33,6 +33,8 @@ public class AuthController : Controller
         foreach (var error in result.Errors)
             ModelState.AddModelError("", error.Description);
 
+        NotifyModelStateErrors();
+
         return View(dto);
     }
 
@@ -53,7 +55,10 @@ public class AuthController : Controller
         if (result.Succeeded)
             return RedirectToAction("Index", "Main");
 
-        ModelState.AddModelError("", "Invalid login attempt.");
+        ModelState.AddModelError("", IsUkrainian ? "Пароль або пошта неправильні" : "Password or email are wrong");
+
+        NotifyModelStateErrors();
+
         return View(dto);
     }
 

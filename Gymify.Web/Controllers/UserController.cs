@@ -14,15 +14,13 @@ namespace Gymify.Web.Controllers
 {
     [Route("")]
     [Authorize]
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly IUserProfileService _userProfileService;
         private readonly IUserEquipmentService _userEquipmentService;
         private readonly IItemService _itemService;
         private readonly ICaseService _caseService;
         private readonly IAchievementService _achievementService;
-
-        private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
         public UserController(
             IUserProfileService userProfileService,

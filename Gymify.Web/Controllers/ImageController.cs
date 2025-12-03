@@ -9,12 +9,11 @@ using System.Globalization;
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class ImageController : Controller
+    public class ImageController : BaseController
     {
         private readonly IImageService _imageService;
         private readonly IItemService _itemService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
         public ImageController(IImageService imageService, IWebHostEnvironment webHostEnvironment, IItemService itemService)
         {

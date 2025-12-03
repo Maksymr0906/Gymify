@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class CommentController : Controller
+    public class CommentController : BaseController
     {
         private readonly ICommentService _commentService; // Твій сервіс
 

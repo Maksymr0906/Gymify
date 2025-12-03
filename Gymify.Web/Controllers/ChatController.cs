@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class ChatController : Controller
+    public class ChatController : BaseController
     {
         private readonly IChatService _chatService;
 

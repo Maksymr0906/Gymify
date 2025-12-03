@@ -7,10 +7,9 @@ using System.Globalization;
 namespace Gymify.Web.Controllers;
 
 [Authorize]
-public class CaseController : Controller
+public class CaseController : BaseController
 {
     private readonly ICaseService _caseService;
-    private bool IsUkrainian => CultureInfo.CurrentCulture.Name == "uk-UA" || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "uk";
 
     public CaseController(ICaseService caseService)
     {

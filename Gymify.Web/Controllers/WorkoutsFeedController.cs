@@ -9,7 +9,7 @@ namespace Gymify.Web.Controllers
 {
 
     [Authorize]
-    public class WorkoutsFeedController : Controller
+    public class WorkoutsFeedController : BaseController
     {
         public IWorkoutService _workoutService;
 

@@ -4,6 +4,7 @@ using Gymify.Data.Entities;
 using Gymify.Persistence;
 using Gymify.Persistence.SeedData;
 using Gymify.Web.Hubs;
+using Gymify.Web.Resources.Shared;
 using Gymify.Web.Seed;
 using Gymify.Web.Services;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,7 @@ services.AddScoped<INotifierService, SignalRNotifierService>();
 
 services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 {
+    options.User.RequireUniqueEmail = true;
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
@@ -55,7 +57,8 @@ services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     options.Password.RequiredLength = 6;
 })
 .AddEntityFrameworkStores<GymifyDbContext>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddErrorDescriber<LocalizedIdentityErrorDescriber>();
 
 services.ConfigureApplicationCookie(options =>
 {
@@ -67,8 +70,12 @@ services.ConfigureApplicationCookie(options =>
 });
 
 services.AddControllersWithViews()
-    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix) // Øóêàº ôàéëè .uk.resx
-    .AddDataAnnotationsLocalization();
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (type, factory) =>
+            factory.Create(typeof(SharedResource));
+    });
 
 var app = builder.Build();
 

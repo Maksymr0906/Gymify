@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class NotificationController : Controller
+    public class NotificationController : BaseController
     {
         private readonly INotificationService _notificationService;
 

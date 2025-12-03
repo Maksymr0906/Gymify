@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class FriendsController : Controller
+    public class FriendsController : BaseController
     {
         private readonly IFriendsService _friendsService;
 

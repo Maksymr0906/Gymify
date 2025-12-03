@@ -1,0 +1,41 @@
+﻿@using Newtonsoft.Json
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'top-right');
+            alertify.success('@TempData["Success"]');
+        });
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'top-right');
+            alertify.error('@TempData["Error"]');
+        });
+    </script>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'top-right');
+            alertify.warning('@TempData["Warning"]');
+        });
+    </script>
+}
+
+@if (TempData["Message"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'top-right');
+            alertify.message('@TempData["Message"]');
+        });
+    </script>
+}
