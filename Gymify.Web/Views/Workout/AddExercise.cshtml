@@ -16,7 +16,6 @@
         <p class="ae-lead-text">@Localizer["Header_Subtitle"]</p>
     </div>
 
-    @* Переконайтеся, що Partial теж готовий до локалізації, якщо він має власні тексти *@
     <partial name="_ExerciseManager" 
              model="Model" 
              view-data='@new ViewDataDictionary(ViewData) { ["HideSaveButtons"] = true }' />
@@ -52,13 +51,12 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const btnFinish = document.getElementById("btnFinish");
-            const form = document.getElementById("mgrForm"); // Ensure _ExerciseManager contains a form with this ID
+            const form = document.getElementById("mgrForm"); 
 
             if(btnFinish && form) {
                 btnFinish.addEventListener("click", function() {
                     const originalText = btnFinish.innerHTML;
                     btnFinish.disabled = true;
-                    // Використовуємо локалізований текст
                     btnFinish.innerHTML = JS_RESOURCES.btnSaving; 
 
                     const formData = new FormData(form);

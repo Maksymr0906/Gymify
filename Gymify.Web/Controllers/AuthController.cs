@@ -48,7 +48,11 @@ public class AuthController : BaseController
     public async Task<IActionResult> Login(LoginRequestDto dto)
     {
         if (!ModelState.IsValid)
-            return View(dto);
+        {
+            NotifyModelStateErrors();
+
+            return View(dto); 
+        }
 
         var result = await _authService.LoginAsync(dto);
 
