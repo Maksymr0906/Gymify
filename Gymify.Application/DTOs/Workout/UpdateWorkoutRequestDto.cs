@@ -11,12 +11,10 @@ namespace Gymify.Application.DTOs.Workout
         [Display(Name = "Name")]
         public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
         [StringLength(300, ErrorMessage = "NameLength")]
         [Display(Name = "Description")]
         public string Description { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Required")]
         [StringLength(300, ErrorMessage = "NameLength")]
         [Display(Name = "Conclusion")]
         public string Conclusion { get; set; } = string.Empty;

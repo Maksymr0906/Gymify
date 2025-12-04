@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Authorize(Roles = "Admin")]
-public class AdminController : Controller
+public class AdminController : BaseController
 {
     private readonly IAdminService _adminService;
 
@@ -27,14 +27,14 @@ public class AdminController : Controller
     [HttpGet("/admin/exercises")]
     public async Task<IActionResult> ExercisePanel()
     {
-        var notApproved = await _adminService.GetUnapprovedExercisesAsync();
+        var notApproved = await _adminService.GetUnapprovedExercisesAsync(IsUkrainian);
         return View(notApproved);
     }
 
     [HttpPost("/admin/exercises/approve")]
     public async Task<IActionResult> ApproveExercise(UpdateExerciseRequestDto updated)
     {
-        await _adminService.ApproveExerciseAsync(updated);
+        await _adminService.ApproveExerciseAsync(updated, IsUkrainian);
         return RedirectToAction("ExercisePanel");
     }
 

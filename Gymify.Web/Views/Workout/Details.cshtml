@@ -17,6 +17,7 @@
             <div style="flex: 1; margin-right: 20px;">
                 <h1 id="viewName" class="ae-page-title" style="text-align: left; margin-bottom: 5px;">@Model.Name</h1>
                 <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="@Localizer["Placeholder_WorkoutName"]" style="font-size: 1.5rem; font-weight: 700;" />
+                <div id="err-Name" class="ae-error-text ae-hidden" style="color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
 
                 <div class="ae-text-muted ae-mt-20">
                     @Localizer["Label_CreatedBy"] <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
@@ -65,6 +66,7 @@
         <div class="ae-mt-20">
             <div id="viewDescription" class="ae-lead-text" style="text-align: left; white-space: pre-wrap; margin-bottom: 20px;">@Model.Description</div>
             <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="@Localizer["Placeholder_Description"]">@Model.Description</textarea>
+            <div id="err-Description" class="ae-error-text ae-hidden" style="color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
         </div>
 
         <div class="ae-mt-20">
@@ -76,6 +78,7 @@
             <div id="inputConclusionWrapper" class="ae-hidden">
                 <label class="ae-label-mini">@Localizer["Label_Conclusion"]</label>
                 <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="@Localizer["Placeholder_Conclusion"]">@Model.Conclusion</textarea>
+                <div id="err-Conclusion" class="ae-error-text ae-hidden" style="color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
             </div>
         </div>
     </div>
@@ -140,18 +143,35 @@
             const btnEdit = document.getElementById("btnEditInfo");
             const btnCancel = document.getElementById("btnCancelInfo");
 
+            // Оновлений об'єкт елементів, додано 'err'
             const els = {
-                name: { view: document.getElementById("viewName"), input: document.getElementById("inputName") },
-                desc: { view: document.getElementById("viewDescription"), input: document.getElementById("inputDescription") },
-                conc: { viewWrapper: document.getElementById("viewConclusionWrapper"), inputWrapper: document.getElementById("inputConclusionWrapper"), input: document.getElementById("inputConclusion") },
-                priv: { view: document.getElementById("viewPrivacy"), inputWrapper: document.getElementById("inputPrivacyWrapper"), input: document.getElementById("inputPrivacy") }
+                name: { 
+                    view: document.getElementById("viewName"), 
+                    input: document.getElementById("inputName"), 
+                    err: document.getElementById("err-Name") 
+                },
+                desc: { 
+                    view: document.getElementById("viewDescription"), 
+                    input: document.getElementById("inputDescription"),
+                    err: document.getElementById("err-Description")
+                },
+                conc: { 
+                    viewWrapper: document.getElementById("viewConclusionWrapper"), 
+                    inputWrapper: document.getElementById("inputConclusionWrapper"), 
+                    input: document.getElementById("inputConclusion"),
+                    err: document.getElementById("err-Conclusion")
+                },
+                priv: { 
+                    view: document.getElementById("viewPrivacy"), 
+                    inputWrapper: document.getElementById("inputPrivacyWrapper"), 
+                    input: document.getElementById("inputPrivacy") 
+                }
             };
 
             let originalValues = {};
 
             if (btnEdit) {
                 btnEdit.addEventListener("click", async () => {
-                    // Перевіряємо текст кнопки через JS_RESOURCES, або просто за станом класу
                     if (btnEdit.innerText.includes(JS_RESOURCES.btnEditInfo)) {
                         enterEditMode();
                     } else {
@@ -163,6 +183,7 @@
             if (btnCancel) {
                 btnCancel.addEventListener("click", () => {
                     restoreValues();
+                    clearErrors(); // При скасуванні очищаємо помилки
                     exitEditMode();
                 });
             }
@@ -224,11 +245,36 @@
                 els.priv.input.checked = originalValues.priv;
             }
 
+            // --- VALIDATION HELPER FUNCTIONS ---
+            function clearErrors() {
+                [els.name.err, els.desc.err, els.conc.err].forEach(el => {
+                    if (el) {
+                        el.innerText = "";
+                        el.classList.add("ae-hidden");
+                    }
+                });
+            }
+
+            function showError(fieldKey, message) {
+                let targetEl = null;
+                // Зв'язок ключів з бекенду (DTO) з елементами UI
+                if (fieldKey === "Name") targetEl = els.name.err;
+                else if (fieldKey === "Description") targetEl = els.desc.err;
+                else if (fieldKey === "Conclusion") targetEl = els.conc.err;
+
+                if (targetEl) {
+                    targetEl.innerText = message;
+                    targetEl.classList.remove("ae-hidden");
+                }
+            }
+            // -----------------------------------
+
             async function saveChanges() {
+                clearErrors(); // Очистити старі помилки перед запитом
+
                 const nameVal = els.name.input.value.trim();
                 if (!nameVal) { 
-                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNameRequired);
-                    else alert(JS_RESOURCES.msgNameRequired);
+                    showError("Name", JS_RESOURCES.msgNameRequired);
                     return; 
                 }
 
@@ -249,24 +295,41 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-                    if (res.ok) {
+                    
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
                         window.location.reload();
                     } else {
-                        if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgUpdateFailed);
+                        // Якщо помилка (400 Bad Request або інше)
                         btnEdit.disabled = false;
                         btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
+
+                        if (data.errors) {
+                            // Проходимо по помилках валідації
+                            Object.keys(data.errors).forEach(key => {
+                                const errorMessages = data.errors[key];
+                                const msg = Array.isArray(errorMessages) ? errorMessages.join(". ") : errorMessages;
+                                showError(key, msg);
+                            });
+                        } else {
+                            // Загальна помилка
+                            if(typeof alertify !== 'undefined') alertify.error(data.message || JS_RESOURCES.msgUpdateFailed);
+                            else alert(data.message || JS_RESOURCES.msgUpdateFailed);
+                        }
                     }
                 } catch (e) {
                     console.error(e);
                     btnEdit.disabled = false;
                     btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
+                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgUpdateFailed);
                 }
             }
 
             const btnToggle = document.getElementById("btnToggleEdit");
             const viewContainer = document.getElementById("viewModeContainer");
             const editContainer = document.getElementById("editModeContainer");
-            const btnCancelInternal = document.getElementById("mgrBtnCancel"); // Кнопка Cancel всередині ExerciseManager
+            const btnCancelInternal = document.getElementById("mgrBtnCancel");
             const workoutId = "@Model.WorkoutId"; 
 
             if (btnToggle) {

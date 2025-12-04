@@ -14,15 +14,25 @@ public class AdminService : IAdminService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task ApproveExerciseAsync(UpdateExerciseRequestDto updatedExercise)
+    public async Task ApproveExerciseAsync(UpdateExerciseRequestDto updatedExercise, bool ukranianVer)
     {
         var exercise = await _unitOfWork.ExerciseRepository.GetByIdAsync(updatedExercise.Id);
 
         if (exercise == null)
             throw new Exception("Exercise not found.");
 
-        exercise.Name = updatedExercise.Name;
-        exercise.Description = updatedExercise.Description;
+
+        if (ukranianVer)
+        {
+            exercise.NameUk = updatedExercise.Name;
+            exercise.DescriptionUk = updatedExercise.Description;
+        }
+        else
+        {
+            exercise.NameEn = updatedExercise.Name;
+            exercise.DescriptionEn = updatedExercise.Description;
+        }
+        
         exercise.BaseXP = updatedExercise.BaseXP;
         exercise.DifficultyMultiplier = updatedExercise.DifficultyMultiplier;
         exercise.Type = updatedExercise.Type;
@@ -34,15 +44,15 @@ public class AdminService : IAdminService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<List<ExerciseDto>> GetUnapprovedExercisesAsync()
+    public async Task<List<ExerciseDto>> GetUnapprovedExercisesAsync(bool ukranianVer)
     {
         var exercises = await _unitOfWork.ExerciseRepository.GetUnapprovedAsync();
 
         var dtos = exercises.Select(e => new ExerciseDto
         {
             Id = e.Id,
-            Name = e.Name,
-            Description = e.Description,
+            Name = ukranianVer ? e.NameUk : e.NameEn,
+            Description = ukranianVer ? e.DescriptionUk : e.DescriptionEn,
             BaseXP = e.BaseXP,
             DifficultyMultiplier = e.DifficultyMultiplier,
             Type = e.Type,

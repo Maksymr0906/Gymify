@@ -15,6 +15,8 @@
                 <input type="hidden" name="targetType" value="@Model.TargetType" />
 
                 <textarea name="content" id="coContentInput" class="co-textarea" placeholder="@Localizer["Placeholder_WriteComment"]"></textarea>
+                
+                <div id="coAddError" class="hidden" style="color: #dc3545; font-size: 0.85rem; margin-top: 5px; font-weight: 500;"></div>
 
                 <div style="text-align: right; margin-top: 10px;">
                     <button type="submit" id="coBtnPost" class="gym-btn gym-btn-primary" style="padding: 8px 20px; font-size: 14px;" disabled>
@@ -57,6 +59,9 @@
 
                         <div class="co-edit-area hidden" id="edit-area-@comment.Id">
                             <textarea class="co-edit-textarea" id="input-@comment.Id">@comment.Content</textarea>
+                            
+                            <div id="edit-error-@comment.Id" class="hidden" style="color: #dc3545; font-size: 0.8rem; margin-bottom: 5px;"></div>
+
                             <div class="co-edit-controls">
                                 <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('@comment.Id')">
                                     @Localizer["Btn_Cancel"]
@@ -101,10 +106,17 @@
         const btn = document.getElementById('coBtnPost');
         const list = document.getElementById('coCommentsList');
         const emptyMsg = document.getElementById('coNoComments');
+        const addErrorEl = document.getElementById('coAddError');
 
         if(input && btn) {
             input.addEventListener('input', () => { 
-                btn.disabled = input.value.trim().length === 0; 
+                const val = input.value.trim();
+                btn.disabled = val.length === 0; 
+                // Приховуємо помилку, якщо користувач почав щось писати
+                if (val.length > 0 && addErrorEl) {
+                    addErrorEl.classList.add('hidden');
+                    addErrorEl.innerText = "";
+                }
             });
         }
 
@@ -113,23 +125,46 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
-                // Зберігаємо оригінальний текст кнопки (можна брати з ресурсів, щоб було надійно)
                 const originalText = JS_RESOURCES.btnPost; 
+
+                // Скидаємо помилки перед запитом
+                if(addErrorEl) {
+                    addErrorEl.classList.add('hidden');
+                    addErrorEl.innerText = "";
+                }
 
                 btn.disabled = true; 
                 btn.innerText = JS_RESOURCES.btnPosting;
 
                 try {
                     const res = await fetch('/Comment/AddComment', { method: 'POST', body: formData });
+                    
+                    // Спочатку читаємо JSON відповідь
+                    const data = await res.json();
+
                     if (res.ok) {
-                        const newComment = await res.json();
-                        appendCommentDOM(newComment);
+                        // Успішне створення
+                        appendCommentDOM(data);
                         input.value = "";
                         btn.disabled = true; 
                     } else {
-                        if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorPost);
+                        // Помилка (400 Bad Request)
+                        if (data.errors && data.errors.Content) {
+                            // Показуємо помилку конкретно для поля Content
+                            if(addErrorEl) {
+                                const msg = Array.isArray(data.errors.Content) ? data.errors.Content[0] : data.errors.Content;
+                                addErrorEl.innerText = msg;
+                                addErrorEl.classList.remove('hidden');
+                            }
+                        } else {
+                            // Інша помилка
+                            if(typeof alertify !== 'undefined') alertify.error(data.message || JS_RESOURCES.msgErrorPost);
+                        }
                     }
-                } catch (err) { console.error(err); } 
+                } catch (err) { 
+                    console.error(err); 
+                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorPost);
+                } 
                 finally { 
                     btn.innerText = originalText; 
                 }
@@ -142,7 +177,6 @@
             const domId = 'comment-el-' + (c.id || Date.now());
             const profileUrl = `/User/Profile?userId=${c.authorId}`; 
 
-            // Генеруємо HTML використовуючи локалізовані ресурси
             const html = `
                 <div class="co-item" id="${domId}">
                     <a href="${profileUrl}"><img src="${c.authorAvatarUrl || '/images/default-avatar.png'}" class="co-avatar" alt="${JS_RESOURCES.altAvatar}"></a>
@@ -158,8 +192,12 @@
                             </div>
                         </div>
                         <div class="co-text" id="text-${c.id}">${escapeHtml(c.content)}</div>
+                        
                         <div class="co-edit-area hidden" id="edit-area-${c.id}">
                             <textarea class="co-edit-textarea" id="input-${c.id}">${escapeHtml(c.content)}</textarea>
+                            
+                            <div id="edit-error-${c.id}" class="hidden" style="color: #dc3545; font-size: 0.8rem; margin-bottom: 5px;"></div>
+
                             <div class="co-edit-controls">
                                 <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('${c.id}')">${JS_RESOURCES.btnCancel}</button>
                                 <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('${c.id}')">${JS_RESOURCES.btnSave}</button>
@@ -180,9 +218,16 @@
         window.editCommentStart = function(id) {
             const textView = document.getElementById(`text-${id}`);
             const editView = document.getElementById(`edit-area-${id}`);
+            const errView = document.getElementById(`edit-error-${id}`);
+
             if(textView && editView) {
                 textView.classList.add('hidden');
                 editView.classList.remove('hidden');
+                // Скидаємо помилку при відкритті
+                if(errView) {
+                    errView.innerText = "";
+                    errView.classList.add('hidden');
+                }
             }
         };
 
@@ -200,23 +245,46 @@
 
         window.editCommentSave = async function(id) {
             const inputEl = document.getElementById(`input-${id}`);
+            const errEl = document.getElementById(`edit-error-${id}`);
             const newContent = inputEl.value.trim();
+
+            // Скидаємо стару помилку
+            if(errEl) {
+                errEl.innerText = "";
+                errEl.classList.add('hidden');
+            }
+
             if (!newContent) { 
-                if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgEmptyComment); 
+                if(errEl) {
+                    errEl.innerText = JS_RESOURCES.msgEmptyComment;
+                    errEl.classList.remove('hidden');
+                }
                 return; 
             }
 
             const formData = new FormData();
             formData.append('commentId', id);
-            formData.append('newContent', newContent);
+            formData.append('newContent', newContent); // Важливо: має збігатися з EditCommentRequest.NewContent
 
             try {
                 const res = await fetch('/Comment/EditComment', { method: 'POST', body: formData });
-                if (res.ok) {
+                const data = await res.json();
+
+                if (res.ok && data.success) {
                     document.getElementById(`text-${id}`).innerText = newContent;
                     editCommentCancel(id);
                 } else {
-                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorUpdate);
+                    // Валідація редагування (400 Bad Request)
+                    if (data.errors && data.errors.NewContent) {
+                         // Показуємо помилку конкретно під полем редагування
+                         if(errEl) {
+                             const msg = Array.isArray(data.errors.NewContent) ? data.errors.NewContent[0] : data.errors.NewContent;
+                             errEl.innerText = msg;
+                             errEl.classList.remove('hidden');
+                         }
+                    } else {
+                        if(typeof alertify !== 'undefined') alertify.error(data.message || JS_RESOURCES.msgErrorUpdate);
+                    }
                 }
             } catch (e) { console.error(e); }
         };

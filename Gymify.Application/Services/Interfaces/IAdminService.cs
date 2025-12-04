@@ -5,8 +5,8 @@ namespace Gymify.Application.Services.Interfaces;
 
 public interface IAdminService
 {
-    Task<List<ExerciseDto>> GetUnapprovedExercisesAsync();
-    Task ApproveExerciseAsync(UpdateExerciseRequestDto updatedExercise);
+    Task<List<ExerciseDto>> GetUnapprovedExercisesAsync(bool ukranianVer);
+    Task ApproveExerciseAsync(UpdateExerciseRequestDto updatedExercise, bool ukranianVer);
     Task RejectExerciseAsync(Guid id, string reason);
     Task<List<CommentAdminDto>> GetUnapprovedCommentsAsync();
     Task ApproveCommentAsync(Guid id);

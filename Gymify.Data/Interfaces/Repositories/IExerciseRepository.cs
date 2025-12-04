@@ -12,7 +12,7 @@ public interface IExerciseRepository : IRepository<Exercise>
         ExerciseType? type,
         bool pendingOnly,
         int page,
-        int pageSize
+        int pageSize,
         bool ukranianVer);
     Task<IEnumerable<Exercise>> GetUnapprovedAsync();
 }

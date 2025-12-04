@@ -170,6 +170,17 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateWorkoutInfo([FromBody] UpdateWorkoutRequestDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Any())
+                                       .ToDictionary(
+                                           kvp => kvp.Key,
+                                           kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                                       );
+
+                return BadRequest(new { success = false, message = "Validation Error", errors = errors });
+            }
+
             try
             {
                 var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
