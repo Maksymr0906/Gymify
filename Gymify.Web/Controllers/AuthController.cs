@@ -33,8 +33,6 @@ public class AuthController : BaseController
         foreach (var error in result.Errors)
             ModelState.AddModelError("", error.Description);
 
-        NotifyModelStateErrors();
-
         return View(dto);
     }
 
@@ -49,8 +47,6 @@ public class AuthController : BaseController
     {
         if (!ModelState.IsValid)
         {
-            NotifyModelStateErrors();
-
             return View(dto); 
         }
 

@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CommentMaxLength" xml:space="preserve">
-    <value>Коментарій не може перевищувати {1} символів.</value>
+    <value>Довжина коментаря не може перевищувати {1} символів.</value>
   </data>
   <data name="EmailInvalid" xml:space="preserve">
     <value>Введіть коректну електронну пошту.</value>

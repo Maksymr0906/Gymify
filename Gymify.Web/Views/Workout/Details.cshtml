@@ -143,7 +143,6 @@
             const btnEdit = document.getElementById("btnEditInfo");
             const btnCancel = document.getElementById("btnCancelInfo");
 
-            // Оновлений об'єкт елементів, додано 'err'
             const els = {
                 name: { 
                     view: document.getElementById("viewName"), 
@@ -183,8 +182,44 @@
             if (btnCancel) {
                 btnCancel.addEventListener("click", () => {
                     restoreValues();
-                    clearErrors(); // При скасуванні очищаємо помилки
+                    clearErrors(); 
                     exitEditMode();
+                });
+            }
+
+            // 1. Функція для ГЛОБАЛЬНИХ помилок (Alertify)
+            function showGlobalError(msg) {
+                if(typeof alertify !== 'undefined') {
+                    alertify.error(msg, 5);
+                } else {
+                    alert(msg); 
+                }
+            }
+
+            // 2. Функція для ВАЛІДАЦІЇ ПОЛІВ (Текст під input)
+            function showFieldError(fieldKey, message) {
+                let targetEl = null;
+                
+                // Мапінг ключів DTO на елементи HTML
+                if (fieldKey === "Name") targetEl = els.name.err;
+                else if (fieldKey === "Description") targetEl = els.desc.err;
+                else if (fieldKey === "Conclusion") targetEl = els.conc.err;
+
+                if (targetEl) {
+                    targetEl.innerText = message;
+                    targetEl.classList.remove("ae-hidden");
+                } else {
+                    // Якщо помилка прийшла, але поля для неї немає (наприклад, якась загальна помилка)
+                    showGlobalError(message);
+                }
+            }
+
+            function clearErrors() {
+                [els.name.err, els.desc.err, els.conc.err].forEach(el => {
+                    if (el) {
+                        el.innerText = "";
+                        el.classList.add("ae-hidden");
+                    }
                 });
             }
 
@@ -245,36 +280,12 @@
                 els.priv.input.checked = originalValues.priv;
             }
 
-            // --- VALIDATION HELPER FUNCTIONS ---
-            function clearErrors() {
-                [els.name.err, els.desc.err, els.conc.err].forEach(el => {
-                    if (el) {
-                        el.innerText = "";
-                        el.classList.add("ae-hidden");
-                    }
-                });
-            }
-
-            function showError(fieldKey, message) {
-                let targetEl = null;
-                // Зв'язок ключів з бекенду (DTO) з елементами UI
-                if (fieldKey === "Name") targetEl = els.name.err;
-                else if (fieldKey === "Description") targetEl = els.desc.err;
-                else if (fieldKey === "Conclusion") targetEl = els.conc.err;
-
-                if (targetEl) {
-                    targetEl.innerText = message;
-                    targetEl.classList.remove("ae-hidden");
-                }
-            }
-            // -----------------------------------
-
             async function saveChanges() {
-                clearErrors(); // Очистити старі помилки перед запитом
+                clearErrors(); 
 
                 const nameVal = els.name.input.value.trim();
                 if (!nameVal) { 
-                    showError("Name", JS_RESOURCES.msgNameRequired);
+                    showFieldError("Name", JS_RESOURCES.msgNameRequired); // Викликаємо showFieldError
                     return; 
                 }
 
@@ -301,31 +312,31 @@
                     if (res.ok && data.success) {
                         window.location.reload();
                     } else {
-                        // Якщо помилка (400 Bad Request або інше)
                         btnEdit.disabled = false;
                         btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
 
                         if (data.errors) {
-                            // Проходимо по помилках валідації
+                            // ТУТ МИ ВИКИДУЄМО ПОМИЛКИ
                             Object.keys(data.errors).forEach(key => {
                                 const errorMessages = data.errors[key];
                                 const msg = Array.isArray(errorMessages) ? errorMessages.join(". ") : errorMessages;
-                                showError(key, msg);
+                                
+                                // Викликаємо правильну функцію
+                                showFieldError(key, msg); 
                             });
                         } else {
-                            // Загальна помилка
-                            if(typeof alertify !== 'undefined') alertify.error(data.message || JS_RESOURCES.msgUpdateFailed);
-                            else alert(data.message || JS_RESOURCES.msgUpdateFailed);
+                            showGlobalError(data.message || JS_RESOURCES.msgUpdateFailed);
                         }
                     }
                 } catch (e) {
                     console.error(e);
                     btnEdit.disabled = false;
                     btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
-                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgUpdateFailed);
+                    showGlobalError(JS_RESOURCES.msgUpdateFailed);
                 }
             }
 
+            // ... (код для Exercises partial залишається без змін)
             const btnToggle = document.getElementById("btnToggleEdit");
             const viewContainer = document.getElementById("viewModeContainer");
             const editContainer = document.getElementById("editModeContainer");
@@ -359,4 +370,5 @@
             });
         });
     </script>
+}
 }
