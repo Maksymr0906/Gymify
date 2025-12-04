@@ -135,6 +135,9 @@
   <data name="Msg_ErrorSaving" xml:space="preserve">
     <value>Помилка збереження.</value>
   </data>
+  <data name="Msg_ValidationFailedTitle" xml:space="preserve">
+    <value>Помилка перевірки даних</value>
+  </data>
   <data name="PageTitle" xml:space="preserve">
     <value>Додати вправи</value>
   </data>
