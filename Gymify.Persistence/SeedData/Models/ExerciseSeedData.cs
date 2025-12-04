@@ -13,4 +13,6 @@ public record class ExerciseSeedData
     public required int BaseXP { get; init; }
     public required double DifficultyMultiplier { get; init; }
     public required bool IsApproved { get; init; }
+    public required bool IsRejected { get; set; }
+    public string? RejectReason { get; set; }
 }

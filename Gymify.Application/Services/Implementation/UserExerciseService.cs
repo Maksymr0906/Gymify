@@ -82,7 +82,8 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                         Type = (ExerciseType)dto.ExerciseType,
                         BaseXP = DefaultPendingExerciseXP, // 10
                         DifficultyMultiplier = 1.0,
-                        IsApproved = false
+                        IsApproved = false,
+                        IsRejected = false
                     };
                     await _unitOfWork.ExerciseRepository.CreateAsync(baseExercise);
 

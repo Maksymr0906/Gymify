@@ -19,4 +19,13 @@ public class CommentRepository(GymifyDbContext context)
             .OrderByDescending(c => c.CreatedAt)     // Сортуємо: нові зверху
             .ToListAsync();
     }
+
+    public async Task<ICollection<Comment>> GetUnapprovedAsync()
+    {
+        return await Entities
+            .Where(c => c.IsApproved == false && c.IsRejected == false)
+            .Include(c => c.Author)
+            .ThenInclude(a => a.ApplicationUser)
+            .ToListAsync();
+    }
 }

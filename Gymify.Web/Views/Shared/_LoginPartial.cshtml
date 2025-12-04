@@ -16,24 +16,30 @@
                     <i class="fa-solid fa-shield-halved"></i> @Localizer["Menu_Admin"]
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end gym-dropdown-menu" aria-labelledby="adminDropdown">
+
                     <li>
-                        <a class="dropdown-item gym-dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Admin" asp-action="Home">
                             <i class="fa-solid fa-gauge"></i> @Localizer["Menu_Dashboard"]
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item gym-dropdown-item" asp-controller="Exercises" asp-action="Manage">
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Admin" asp-action="ExercisePanel">
                             <i class="fa-solid fa-dumbbell"></i> @Localizer["Menu_ManageExercises"]
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item gym-dropdown-item" asp-controller="Users" asp-action="Manage">
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Admin" asp-action="UserPanel">
                             <i class="fa-solid fa-users-gear"></i> @Localizer["Menu_ManageUsers"]
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item gym-dropdown-item" asp-controller="Comments" asp-action="Manage">
+                        <a class="dropdown-item gym-dropdown-item" asp-controller="Admin" asp-action="CommentPanel">
                             <i class="fa-solid fa-comments"></i> @Localizer["Menu_ManageComments"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" asp-controller="Admin" asp-action="WorkoutPanel">
+                            Workouts & Templates
                         </a>
                     </li>
                     <li><hr class="dropdown-divider" /></li>

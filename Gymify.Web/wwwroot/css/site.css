@@ -3952,3 +3952,45 @@ textarea.gym-input {
         width: 100%;
     }
 }
+
+/* ADMIN HOME PAGE */
+
+.admin-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    margin-top: 1rem;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: #222;
+    border: 1px solid #ddd;
+    transition: .2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .admin-card:hover {
+        transform: translateY(-3px);
+        border-color: #b38bff;
+        box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+
+.admin-card-icon {
+    font-size: 38px;
+}
+
+.admin-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.admin-card-desc {
+    font-size: .9rem;
+    color: #777;
+}

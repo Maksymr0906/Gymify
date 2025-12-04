@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="ae-page-container">
+
+    <h1 class="ae-page-title mb-4">👑 Admin Dashboard</h1>
+    <p class="text-muted mb-4">
+        Welcome to the admin panel!
+        Here you manage content, moderation and users of the system.
+    </p>
+
+    <div class="admin-grid">
+
+        <a asp-action="ExercisePanel" class="admin-card">
+            <div class="admin-card-icon">🏋</div>
+            <div class="admin-card-title">Exercise Moderation</div>
+            <div class="admin-card-desc">Review and approve new exercises</div>
+        </a>
+
+        <a asp-action="CommentPanel" class="admin-card">
+            <div class="admin-card-icon">💬</div>
+            <div class="admin-card-title">Comment Moderation</div>
+            <div class="admin-card-desc">Filter comments and fight spam</div>
+        </a>
+
+        <a asp-action="UserPanel" class="admin-card">
+            <div class="admin-card-icon">🧑‍🤝‍🧑</div>
+            <div class="admin-card-title">Users</div>
+            <div class="admin-card-desc">Bans, warnings and role control</div>
+        </a>
+
+        <a asp-action="WorkoutPanel" class="admin-card">
+            <div class="admin-card-icon">🔥</div>
+            <div class="admin-card-title">Workout Overview</div>
+            <div class="admin-card-desc">Explore training statistics</div>
+        </a>
+
+    </div>
+
+</div>

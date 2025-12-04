@@ -13,4 +13,6 @@ public class Exercise : BaseEntity
     public int BaseXP { get; set; } = 0;
     public double DifficultyMultiplier { get; set; } = 0;
     public bool IsApproved { get; set; } = false;
+    public bool IsRejected { get; set; } = false;
+    public string? RejectReason { get; set; }
 }

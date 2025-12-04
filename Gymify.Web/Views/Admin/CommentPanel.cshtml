@@ -1,0 +1,40 @@
+﻿@model List<Gymify.Application.DTOs.Comment.CommentAdminDto>
+
+@{
+    ViewData["Title"] = "Comment Moderation Panel";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-3">Comment Moderation</h1>
+
+    @if (Model.Count == 0)
+    {
+        <p>✔ No comments</p>
+    }
+
+    <div class="d-flex flex-column gap-4">
+        @foreach (var c in Model)
+        {
+            <div class="border p-3 rounded shadow-sm">
+                <p><b>@c.AuthorName</b> → @c.TargetType (#@c.TargetId)</p>
+
+                <form method="post" asp-action="Update" class="mb-2">
+                    <input type="hidden" name="id" value="@c.Id" />
+                    <textarea name="content" class="form-control mb-2">@c.Content</textarea>
+                    <button class="btn btn-secondary">💾 Save Edit</button>
+                </form>
+
+                <form method="post" asp-action="Approve" class="d-inline">
+                    <input type="hidden" name="id" value="@c.Id" />
+                    <button class="btn btn-success">Approve</button>
+                </form>
+
+                <form method="post" asp-action="Reject" class="d-inline">
+                    <input type="hidden" name="id" value="@c.Id" />
+                    <input name="reason" placeholder="Reason…" class="form-control d-inline w-50" />
+                    <button class="btn btn-danger">Reject</button>
+                </form>
+            </div>
+        }
+    </div>
+</div>

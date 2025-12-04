@@ -65,6 +65,7 @@ public class ExerciseService(IUnitOfWork unitOfWork) : IExerciseService
             Type = e.Type,
             VideoURL = e.VideoURL, // Важливо для YouTube хелпера
             IsApproved = e.IsApproved,
+            IsRejected = e.IsRejected,
             BaseXP = e.BaseXP
         }).ToList();
 

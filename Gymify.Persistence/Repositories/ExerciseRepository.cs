@@ -65,4 +65,9 @@ public class ExerciseRepository(GymifyDbContext context)
 
         return (items, totalCount);
     }
+
+    public async Task<IEnumerable<Exercise>> GetUnapprovedAsync()
+    {
+        return await Entities.Where(e => e.IsApproved == false && e.IsRejected == false).ToListAsync();
+    }
 }
