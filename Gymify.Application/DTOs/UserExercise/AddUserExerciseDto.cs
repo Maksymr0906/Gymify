@@ -11,7 +11,8 @@ public class AddUserExerciseDto
     public Guid WorkoutId { get; set; }
 
     [Required(ErrorMessage = "Msg_ExerciseNameRequired")]
-    [Length(3, 100, ErrorMessage = "Msg_NameLength")]
+    [MinLength(3, ErrorMessage = "Msg_NameMinLength")]   // Новий ключ
+    [MaxLength(100, ErrorMessage = "Msg_NameMaxLength")] // Новий ключ
     public string Name { get; set; }
 
     [Range(0, 100, ErrorMessage = "Msg_SetsMustBePositive")]
@@ -23,8 +24,8 @@ public class AddUserExerciseDto
     [Range(0.0, 500.0, ErrorMessage = "Msg_WeightPositive")]
     public double? Weight { get; set; } = 0.0;
 
-    [Range(0, 360, ErrorMessage = "Msg_DurationPositive")]
-    public double? Duration { get; set; } = 0;
+    [Range(0.0, 360, ErrorMessage = "Msg_DurationPositive")]
+    public double? Duration { get; set; } = 0.0;
 
     public int ExerciseType { get; set; } = 1;
 

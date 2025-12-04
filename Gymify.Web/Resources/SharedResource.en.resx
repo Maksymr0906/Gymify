@@ -128,9 +128,14 @@
     <value>Please enter an exercise name.</value>
     <comment>Клієнтська (JS) та Серверна (DTO) валідація.</comment>
   </data>
-  <data name="Msg_NameLength" xml:space="preserve">
-    <value>Exercise name cannot be less than 3 and more than 100 characters.</value>
-    <comment>Серверна валідація DTO (Length).</comment>
+  <data name="Msg_NameMaxLength" xml:space="preserve">
+    <value>The name can't exceed {1} symbols.</value>
+  </data>
+  <data name="Msg_NameMinLength" xml:space="preserve">
+    <value>The name should have atleast {1} symbols.</value>
+  </data>
+  <data name="Msg_NameTooShort" xml:space="preserve">
+    <value>Name must be at least 3 characters.</value>
   </data>
   <data name="Msg_NoExercisesToSave" xml:space="preserve">
     <value>No exercises to save.</value>

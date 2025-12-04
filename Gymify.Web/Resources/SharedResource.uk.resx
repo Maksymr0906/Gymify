@@ -128,9 +128,14 @@
     <value>Будь ласка, введіть назву вправи.</value>
     <comment>Клієнтська (JS) та Серверна (DTO) валідація.</comment>
   </data>
-  <data name="Msg_NameLength" xml:space="preserve">
-    <value>Назва вправи не може бути коротшою за 3 та довшою за 100 символів.</value>
-    <comment>Серверна валідація DTO (Length).</comment>
+  <data name="Msg_NameMaxLength" xml:space="preserve">
+    <value>Назва не може перевищувати {1} символів.</value>
+  </data>
+  <data name="Msg_NameMinLength" xml:space="preserve">
+    <value>Назва повинна містити щонайменше {1} символів.</value>
+  </data>
+  <data name="Msg_NameTooShort" xml:space="preserve">
+    <value>Назва має містити щонайменше 3 символи.</value>
   </data>
   <data name="Msg_NoExercisesToSave" xml:space="preserve">
     <value>Немає вправ для збереження.</value>

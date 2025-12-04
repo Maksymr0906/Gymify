@@ -5,8 +5,6 @@
 @model List<UserExerciseDto>
 
 @{
-    // Використовуємо DTO, яке повертає сервіс, а не те, яке йде на вхід (для initialJson)
-    // Якщо Model залишається List<UserExerciseDto>, то:
     var workoutId = ViewData["WorkoutId"] ?? ViewBag.WorkoutId;
     var hideButtons = ViewData["HideSaveButtons"] as bool? ?? false;
     var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -18,7 +16,11 @@
     <div class="ae-add-panel">
         <div style="flex-grow: 1; min-width: 250px; position: relative;">
             <label class="ae-label-mini">@Localizer["Label_ExerciseName"]</label>
-            <input type="text" id="mgrName" class="ae-input-std" placeholder="@Localizer["Placeholder_Search"]..." autocomplete="off">
+            @* Додано maxlength="30", щоб браузер сам обмежував введення *@
+            <input type="text" id="mgrName" class="ae-input-std" 
+                   placeholder="@Localizer["Placeholder_Search"]..." 
+                   autocomplete="off" 
+                   maxlength="30"> 
             <ul id="mgrSuggestions" class="ae-suggestions" style="display:none;"></ul>
         </div>
         
@@ -46,7 +48,6 @@
         </div>
     </div>
 
-    @* Змінюємо DTO в action на AddUserExerciseDto, але зберігаємо назву exercises для коректного Model Binding *@
     <form id="mgrForm" method="post" action="@Url.Action("AddExercisesBatch", "Workout")">
         <input type="hidden" name="workoutId" value="@workoutId" />
 
@@ -58,7 +59,6 @@
             @for (int i = 0; i < Model.Count; i++)
             {
                 <div class="ae-item-card">
-                    @* Змінюємо ім'я поля DurationMinutes *@
                     <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
                     <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
                     
@@ -70,22 +70,10 @@
                     </div>
                     
                     <div class="ae-item-grid">
-                        <div>
-                            <label class="ae-label-mini">@Localizer["Label_Sets"]</label>
-                            <input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" />
-                        </div>
-                        <div>
-                            <label class="ae-label-mini">@Localizer["Label_Reps"]</label>
-                            <input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" />
-                        </div>
-                        <div>
-                            <label class="ae-label-mini">@Localizer["Label_Kg"]</label>
-                            <input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" />
-                        </div>
-                        <div>
-                            <label class="ae-label-mini">@Localizer["Label_Min"]</label>
-                            <input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" />
-                        </div>
+                        <div><label class="ae-label-mini">@Localizer["Label_Sets"]</label><input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" /></div>
+                        <div><label class="ae-label-mini">@Localizer["Label_Reps"]</label><input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" /></div>
+                        <div><label class="ae-label-mini">@Localizer["Label_Kg"]</label><input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" /></div>
+                        <div><label class="ae-label-mini">@Localizer["Label_Min"]</label><input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" step="0.5" /></div>
                     </div>
                 </div>
             }
@@ -118,7 +106,6 @@
             <div><label class="ae-label-mini">@Localizer["Label_Sets"]</label><input type="number" class="ae-input-std inp-sets"></div>
             <div><label class="ae-label-mini">@Localizer["Label_Reps"]</label><input type="number" class="ae-input-std inp-reps"></div>
             <div><label class="ae-label-mini">@Localizer["Label_Kg"]</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
-            @* Змінюємо ім'я поля на DurationMinutes *@
             <div><label class="ae-label-mini">@Localizer["Label_Min"]</label><input type="number" class="ae-input-std inp-duration"></div>
         </div>
     </div>
@@ -132,8 +119,9 @@
             msgError: '@Localizer["Msg_Error"]',
             btnSaving: '@Localizer["Btn_Saving"]',
             btnSaveChanges: '@Localizer["Btn_SaveChanges"]',
-            msgExerciseNameRequired: '@Localizer["Msg_ExerciseNameRequired"]', // Для мінімальної клієнтської валідації
-            msgValidationFailedTitle: '@Localizer["Msg_ValidationFailedTitle"]' // Для заголовка помилок alertify
+            msgExerciseNameRequired: '@Localizer["Msg_ExerciseNameRequired"]', 
+            msgNameTooShort: '@Localizer["Msg_NameTooShort"]', // НОВИЙ КЛЮЧ
+            msgValidationFailedTitle: '@Localizer["Msg_ValidationFailedTitle"]'
         };
 
         const initialData = @Html.Raw(initialJson);
@@ -161,9 +149,9 @@
             const clone = template.content.cloneNode(true);
             const card = clone.querySelector(".ae-item-card"); 
 
-            // Оновлюємо, щоб використовувати durationMinutes для нових DTO
-            // 'duration' – це TimeSpan з Model, 'durationMinutes' – це введення з форми
-            const durationMinutes = data.durationMinutes !== undefined ? data.durationMinutes : (data.duration ? data.duration.totalMinutes : 0);
+            const durationVal = data.durationMinutes !== undefined 
+                                ? data.durationMinutes 
+                                : (typeof data.duration === 'number' ? data.duration : 0);
 
             card.querySelector(".card-title-text").textContent = data.name;
             card.querySelector(".inp-id").value = data.id;
@@ -171,7 +159,7 @@
             card.querySelector(".inp-sets").value = data.sets;
             card.querySelector(".inp-reps").value = data.reps;
             card.querySelector(".inp-weight").value = data.weight || 0;
-            card.querySelector(".inp-duration").value = durationMinutes; // Використовуємо DurationMinutes
+            card.querySelector(".inp-duration").value = durationVal;
 
             card.querySelector(".ae-btn-remove").addEventListener("click", removeCard);
             container.appendChild(card);
@@ -200,8 +188,7 @@
                 setName(card, ".inp-sets", `exercises[${index}].Sets`);
                 setName(card, ".inp-reps", `exercises[${index}].Reps`);
                 setName(card, ".inp-weight", `exercises[${index}].Weight`);
-                // Оновлюємо ім'я поля для Model Binding (DurationMinutes)
-                setName(card, ".inp-duration", `exercises[${index}].DurationMinutes`);
+                setName(card, ".inp-duration", `exercises[${index}].Duration`);
             });
         }
 
@@ -246,7 +233,6 @@
         // UUID
         function generateUUID() {
             if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-            // Запасний варіант для старих браузерів
             return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ (typeof crypto !== 'undefined' ? crypto.getRandomValues(new Uint8Array(1))[0] : 0) & 15 >> c / 4).toString(16));
         }
 
@@ -254,35 +240,45 @@
             btnAdd.addEventListener("click", () => {
                 const name = inName.value.trim();
                 
-                // --- МІНІМАЛЬНА КЛІЄНТСЬКА ВАЛІДАЦІЯ ---
+                // --- ВАЛІДАЦІЯ ---
+                
+                // 1. Перевірка на пустоту
                 if (!name) { 
-                    if(typeof alertify !== 'undefined') {
-                        alertify.error(JS_RESOURCES.msgExerciseNameRequired, 10);
-                        inName.focus();
-                        return; // 0 означає нескінченний таймаут
-                    } else {
-                        alert(JS_RESOURCES.msgExerciseNameRequired); 
-                        inName.focus();
-                        return;
-                    }
+                    showError(JS_RESOURCES.msgExerciseNameRequired);
+                    inName.focus();
+                    return;
                 }
 
-                
-                
+                // 2. Перевірка на довжину (мін 3 символи)
+                // Максимум 30 обмежується HTML атрибутом maxlength="30"
+                if (name.length < 3) {
+                    showError(JS_RESOURCES.msgNameTooShort);
+                    inName.focus();
+                    return;
+                }
+
+                // Всередині btnAdd.addEventListener
                 const data = {
                     id: generateUUID(),
                     name: name,
                     sets: document.getElementById("mgrSets").value,
                     reps: document.getElementById("mgrReps").value,
                     weight: document.getElementById("mgrWeight").value,
-                    // Змінюємо назву, щоб відповідати серверному DTO
-                    durationMinutes: document.getElementById("mgrDuration").value
+                    durationMinutes: parseFloat(document.getElementById("mgrDuration").value) || 0
                 };
                 createCardDOM(data);
                 inName.value = "";
                 reindex();
                 checkEmpty();
             });
+        }
+
+        function showError(msg) {
+            if(typeof alertify !== 'undefined') {
+                alertify.error(msg, 5);
+            } else {
+                alert(msg); 
+            }
         }
 
         // Cancel / Save logic (Buttons)
@@ -307,13 +303,11 @@
                 .then(res => { 
                     if (res.ok) return res.json(); 
                     
-                    // Обробка помилок валідації з сервера
                     return res.json().then(data => {
                         throw { serverData: data, status: res.status };
                     });
                 })
                 .then(data => {
-                    // УСПІШНЕ ЗБЕРЕЖЕННЯ
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
                         statusMsg.style.color = "#28a745";
@@ -327,31 +321,25 @@
                     
                     let displayMessage = JS_RESOURCES.msgError || "An unexpected error occurred.";
                     
-                    // Якщо помилка містить деталі валідації з сервера
                     if (error.serverData && error.serverData.errors) {
                         const errors = error.serverData.errors;
                         let errorDetails = "";
                         let indexMap = {};
 
-                        // 1. Створюємо мапу індексів та назв для зручності
                         container.querySelectorAll(".ae-item-card").forEach((card, index) => {
                             const name = card.querySelector(".inp-name").value;
                             indexMap[`exercises[${index}].`] = `**${name}**: `;
                         });
 
-                        // 2. Об'єднуємо всі помилки
                         for (const key in errors) {
                             if (errors.hasOwnProperty(key) && errors[key].length > 0) {
-                                
                                 let exerciseName = "";
-                                // Намагаємося знайти назву вправи за індексом у ключі
                                 for (const prefix in indexMap) {
                                     if (key.startsWith(prefix)) {
                                         exerciseName = indexMap[prefix];
                                         break;
                                     }
                                 }
-
                                 const errorList = errors[key].join(", ");
                                 errorDetails += `${exerciseName}${errorList}<br>`;
                             }
@@ -364,11 +352,9 @@
                         }
                     }
                     
-                    // Відображення за допомогою alertify
                     if(typeof alertify !== 'undefined') {
-                        alertify.error(displayMessage, 0); // 0 означає нескінченний таймаут
+                        alertify.error(displayMessage, 0);
                     } else {
-                        // Запасний варіант
                         alert(displayMessage.replace(/<[^>]*>?/gm, ''));
                     }
 

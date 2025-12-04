@@ -27,6 +27,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     {
         new CultureInfo("en-US"),
         new CultureInfo("uk-UA")
+        {
+            NumberFormat = { NumberDecimalSeparator = ".", CurrencyDecimalSeparator = "." }
+        },
     };
 
     options.DefaultRequestCulture = new RequestCulture("en-US");
