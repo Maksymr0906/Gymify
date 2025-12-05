@@ -138,6 +138,9 @@
   <data name="Msg_Loading" xml:space="preserve">
     <value>Завантаження...</value>
   </data>
+  <data name="Msg_MessageTooLong" xml:space="preserve">
+    <value>Повідомлення не може перевищувати 1000 символів</value>
+  </data>
   <data name="Msg_NoChatsYet" xml:space="preserve">
     <value>Чатів ще немає.</value>
   </data>

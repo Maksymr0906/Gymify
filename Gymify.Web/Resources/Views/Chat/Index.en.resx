@@ -138,6 +138,9 @@
   <data name="Msg_Loading" xml:space="preserve">
     <value>Loading...</value>
   </data>
+  <data name="Msg_MessageTooLong" xml:space="preserve">
+    <value>Message can't exceed 1000 symbols</value>
+  </data>
   <data name="Msg_NoChatsYet" xml:space="preserve">
     <value>No chats yet.</value>
   </data>
