@@ -216,4 +216,10 @@
   <data name="Type_Title" xml:space="preserve">
     <value>титул</value>
   </data>
+  <data name="UserNameLength" xml:space="preserve">
+    <value>Нікнейм має бути від 3 до 20 символів.</value>
+  </data>
+  <data name="UsernameTaken" xml:space="preserve">
+    <value>Цей нікнейм вже зайнятий</value>
+  </data>
 </root>

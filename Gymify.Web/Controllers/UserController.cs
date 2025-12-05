@@ -1,4 +1,5 @@
-﻿using Gymify.Application.DTOs.UserEquipment;
+﻿using Gymify.Application.DTOs.User;
+using Gymify.Application.DTOs.UserEquipment;
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.UserItems;
@@ -75,12 +76,23 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpPost("updateUserName")]
-        public async Task<IActionResult> UpdateName([FromForm] string updatedUserName)
+        public async Task<IActionResult> UpdateName([FromForm] UpdateUserNameRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                var errorMessage = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .FirstOrDefault();
+
+                return BadRequest(errorMessage);
+            }
+
             try
             {
                 var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-                await _userProfileService.UpdateUserNameAsync(userId, updatedUserName);
+
+                await _userProfileService.UpdateUserNameAsync(userId, request.UpdatedUserName);
 
                 return Ok();
             }

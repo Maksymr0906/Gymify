@@ -187,4 +187,7 @@
     <value>The username must have length from {2} to {1} characters.</value>
     <comment>{1} – Max Length, {2} – Min Length</comment>
   </data>
+  <data name="UsernameLettersNumbersUnderscores" xml:space="preserve">
+    <value>The username can only have letters, numbers and underscores in it.</value>
+  </data>
 </root>

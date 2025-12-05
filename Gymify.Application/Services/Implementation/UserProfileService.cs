@@ -199,42 +199,28 @@ public class UserProfileService
 
     public async Task UpdateUserNameAsync(Guid userProfileId, string userName)
     {
-        var userProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userProfileId);
+        userName = userName.Trim();
 
-        if (userProfile == null)
-        {
-            throw new Exception("User not found");
-        }
+        var userProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userProfileId);
+        if (userProfile == null) throw new Exception("User not found");
 
         var user = await _userManager.FindByIdAsync(userProfile.ApplicationUserId.ToString());
+        if (user == null) throw new Exception("User not found");
 
-        if (user == null)
-        {
-            throw new Exception("User not found");
-        }
+        if (user.UserName == userName) return;
 
-        // 2. Перевірка: чи не намагаємось ми встановити те саме ім'я
-        if (user.UserName == userName)
-        {
-            return;
-        }
-
-        // 3. Перевірка: чи не зайняте ім'я (UserManager зробить це сам, але можна і вручну)
+        // "Is Taken" check still happens here (Business Logic)
         var existingUser = await _userManager.FindByNameAsync(userName);
         if (existingUser != null)
         {
             throw new Exception($"Username '{userName}' is already taken.");
         }
 
-        // 4. НАЙГОЛОВНІШЕ: Використовуємо метод SetUserNameAsync
-        // Цей метод оновить UserName ТА NormalizedUserName
         var result = await _userManager.SetUserNameAsync(user, userName);
-
         if (!result.Succeeded)
         {
-            // Збираємо помилки (наприклад, "Ім'я містить недопустимі символи")
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new Exception($"Failed to update username: {errors}");
+            throw new Exception($"Failed: {errors}");
         }
     }
 

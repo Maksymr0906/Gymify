@@ -21,16 +21,16 @@
             <div class="userProfileInfoBlock">
                 @if (Model.Editable == true)
                 {
-                        <button class="gym-btn gym-btn-primary" id="editToggleBtn" style="min-width: 140px;">
-                            @Localizer["Btn_Edit"]
-                        </button>
+                    <button class="gym-btn gym-btn-primary" id="editToggleBtn" style="min-width: 140px;">
+                        @Localizer["Btn_Edit"]
+                    </button>
                 }
                 <div>
                     <span id="levelView" class="userProfileLevelBadge">@Localizer["Label_Level"] @Model.Level</span>
                 </div>
                 <div>
                     <span id="nameView" class="userProfileNameView">@Model.UserName</span>
-                    <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" />
+                    <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" maxlength="20" />
                 </div>
                 <div>
                     <span id="titleView" class="userProfileTitleView" data-edit-type="title">@Model.Title</span>
@@ -45,21 +45,20 @@
                 {
                     foreach (var a in Model.Achievements)
                     {
-                        @* Тут назви досягнень приходять з БД. Якщо вони не локалізовані в БД, вони будуть англійською *@
-                                <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
-                                    <div class="achievementContent">
-                                        <img src="@a.IconUrl" class="achievementIcon" />
-                                        <div class="achievementText">
-                                            <span class="achievementName">@a.Name</span>
-                                            <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
-                                        </div>
-                                    </div>
-                                </li>
+                        <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
+                            <div class="achievementContent">
+                                <img src="@a.IconUrl" class="achievementIcon" />
+                                <div class="achievementText">
+                                    <span class="achievementName">@a.Name</span>
+                                    <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
+                                </div>
+                            </div>
+                        </li>
                     }
                 }
                 else
                 {
-                        <p style="color:#666;">@Localizer["Msg_NoAchievements"]</p>
+                    <p style="color:#666;">@Localizer["Msg_NoAchievements"]</p>
                 }
             </ul>
         </div>
@@ -71,18 +70,18 @@
                 {
                     foreach (var workout in Model.Workouts)
                     {
-                                <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
-                                   class="userProfileTrainLink"
-                                   title="@workout.CreatedAt.ToString("g")">
+                        <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
+                           class="userProfileTrainLink"
+                           title="@workout.CreatedAt.ToString("g")">
 
-                                    <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
-                                    <small style="font-size:12px; color:#888; margin-top:5px;">@workout.CreatedAt.ToString("g")</small>
-                                </a>
+                            <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
+                            <small style="font-size:12px; color:#888; margin-top:5px;">@workout.CreatedAt.ToString("g")</small>
+                        </a>
                     }
                 }
                 else
                 {
-                        <p style="color:#666;">@Localizer["Msg_NoTrainings"]</p>
+                    <p style="color:#666;">@Localizer["Msg_NoTrainings"]</p>
                 }
             </ul>
         </div>
@@ -92,12 +91,12 @@
                 <h3 class="ae-section-title ae-mb-20">@Localizer["Section_Comments"]</h3>
                 @{
                     var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
-            {
-                TargetId = Model.UserProfileId,
-                TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile,
-                CommentDtos = Model.Comments?.CommentDtos ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
-                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
-            };
+                    {
+                        TargetId = Model.UserProfileId,
+                        TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile,
+                        CommentDtos = Model.Comments?.CommentDtos ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                        CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
+                    };
                 }
                 <partial name="_CommentsSection" model="commentsVm" />
             </div>
@@ -130,8 +129,7 @@
 
 <script>
     (() => {
-        // --- LOCALIZATION BRIDGE ---
-        // Передаємо переклади з C# в JS об'єкт
+        // --- 1. LOCALIZATION BRIDGE ---
         const JS_RESOURCES = {
             btnEdit: '@Localizer["Btn_Edit"]',
             btnSaveChanges: '@Localizer["Btn_SaveChanges"]',
@@ -158,10 +156,13 @@
             msgErrorLoading: '@Localizer["Msg_ErrorLoading"]',
             msgUploadFailed: '@Localizer["Msg_UploadFailed"]',
             msgErrorUpload: '@Localizer["Msg_ErrorUpload"]',
-            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]'
+            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]',
+
+            // Validation & Errors
+            msgUsernameTaken: '@Localizer["UsernameTaken"]',   // "Username is already taken"
+            msgUsernameLength: '@Localizer["UserNameLength"]'  // "Name must be between 3 and 20 chars"
         };
 
-        // Helper to translate internal type names to localized names
         function getLocalizedTypeName(type) {
             if (type === 'avatar') return JS_RESOURCES.typeAvatar;
             if (type === 'frame') return JS_RESOURCES.typeFrame;
@@ -172,13 +173,13 @@
 
         let isEditMode = false;
 
-        // ID вибраних предметів
+        // IDs of currently selected items
         let selectedAvatarId = null;
         let selectedFrameId = null;
         let selectedBackgroundId = null;
         let selectedTitleId = null;
 
-        // Змінні пікера
+        // Picker State
         let pickerCurrentMode = null;
         let pickerSelectedItemId = null;
         let pickerSelectedItemUrl = null;
@@ -187,7 +188,7 @@
         let tempAvatarSelection = { id: null, url: null, name: null };
         let tempFrameSelection = { id: null, url: null, name: null };
 
-        // Оригінали
+        // Original values (snapshot)
         const original = {
             name: document.getElementById('nameView').innerText.trim(),
             titleText: document.getElementById('titleView').innerText.trim(),
@@ -196,6 +197,7 @@
             backgroundUrl: document.getElementById('profileRoot').style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
         };
 
+        // --- 2. EDIT MODE TOGGLING ---
         function enterEditMode() {
             if (isEditMode) return;
             isEditMode = true;
@@ -213,9 +215,7 @@
             document.getElementById('avatarBlock').style.cursor = "pointer";
 
             const btn = document.getElementById('editToggleBtn');
-            if (btn) { 
-                btn.innerText = JS_RESOURCES.btnSaveChanges; 
-            }
+            if (btn) btn.innerText = JS_RESOURCES.btnSaveChanges;
         }
 
         function exitEditMode() {
@@ -231,7 +231,7 @@
             document.getElementById('avatarBlock').title = "";
 
             const btn = document.getElementById('editToggleBtn');
-            if (btn) { btn.innerText = JS_RESOURCES.btnEdit; }
+            if (btn) btn.innerText = JS_RESOURCES.btnEdit;
 
             document.getElementById('itemPickerOverlay').style.display = 'none';
         }
@@ -240,13 +240,12 @@
             e.stopPropagation();
         }
 
-        // Блокуємо спливання
         document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
         document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
         document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
         document.querySelector('.userProfileComments').addEventListener('click', stopPropagationHandler);
 
-        // === ОБРОБНИК КЛІКІВ ===
+        // --- 3. CLICK HANDLERS (PICKER) ---
         document.querySelectorAll('[data-edit-type]').forEach(el => {
             el.addEventListener('click', (ev) => {
                 if (!isEditMode) return;
@@ -267,7 +266,7 @@
             openPickerSimple('background');
         });
 
-        // === ФУНКЦІЇ ВІДКРИТТЯ ПІКЕРА ===
+        // --- 4. PICKER FUNCTIONS ---
         function openPickerSimple(type) {
             const tabsDiv = document.getElementById('pickerTabs');
             tabsDiv.innerHTML = '';
@@ -308,7 +307,6 @@
             loadItemsIntoPicker('avatar');
         }
 
-        // === ЗАВАНТАЖЕННЯ ДАНИХ (Fetch) ===
         async function loadItemsIntoPicker(type) {
             if (pickerCurrentMode === 'avatar') {
                 tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
@@ -320,17 +318,13 @@
             pickerSelectedItemId = null;
 
             const uploadContainer = document.getElementById('uploadContainer');
-            if (type === 'avatar') {
-                uploadContainer.style.display = 'flex';
-            } else {
-                uploadContainer.style.display = 'none';
-            }
+            if (type === 'avatar') uploadContainer.style.display = 'flex';
+            else uploadContainer.style.display = 'none';
 
             const list = document.getElementById('itemPickerList');
             const overlay = document.getElementById('itemPickerOverlay');
             const titleLabel = document.getElementById('itemPickerTitle');
 
-            // Локалізований заголовок
             titleLabel.innerText = JS_RESOURCES.pickerChoose + ' ' + getLocalizedTypeName(type);
             
             list.innerHTML = `<div style="padding:20px;">${JS_RESOURCES.msgLoading}</div>`;
@@ -361,14 +355,13 @@
             }
         }
 
-        // === СТВОРЕННЯ ЕЛЕМЕНТА ПІКЕРА ===
         function createPickerElement(item, activeId) {
             const list = document.getElementById('itemPickerList');
             let el;
 
             if (pickerCurrentMode === 'title') {
                 el = document.createElement('div');
-                el.className = 'titleItem'; 
+                el.className = 'titleItem';
                 el.style.display = 'inline-flex';
                 el.style.alignItems = 'center';
                 el.style.justifyContent = 'center';
@@ -381,11 +374,10 @@
                 el.style.color = '#fff';
                 el.style.cursor = 'pointer';
                 el.style.fontWeight = 'bold';
-
                 el.innerText = item.name;
             } else {
                 el = document.createElement('img');
-                el.className = 'pickerItem'; 
+                el.className = 'pickerItem';
                 el.src = item.url;
             }
 
@@ -394,7 +386,6 @@
             if (item.id === activeId) {
                 el.classList.add('selected');
                 if(pickerCurrentMode === 'title') el.style.borderColor = '#ff9f1c';
-
                 pickerSelectedItemId = item.id;
                 pickerSelectedItemUrl = item.url;
                 pickerSelectedItemName = item.name;
@@ -405,10 +396,8 @@
                     x.classList.remove('selected');
                     if(pickerCurrentMode === 'title') x.style.borderColor = '#333';
                 });
-
                 el.classList.add('selected');
                 if(pickerCurrentMode === 'title') el.style.borderColor = '#ff9f1c';
-
                 pickerSelectedItemId = item.id;
                 pickerSelectedItemUrl = item.url;
                 pickerSelectedItemName = item.name;
@@ -418,7 +407,7 @@
             return el;
         }
 
-        // === UPLOAD LOGIC ===
+        // --- 5. UPLOAD ---
         const fileInput = document.getElementById('pickerFileUploadInput');
         const uploadBtn = document.getElementById('pickerUploadBtn');
 
@@ -454,7 +443,6 @@
                         const el = createPickerElement(newItem, null);
                         el.click();
                         el.scrollIntoView({ behavior: 'smooth' });
-
                     } else {
                         alertify.error(JS_RESOURCES.msgUploadFailed);
                     }
@@ -468,24 +456,17 @@
             });
         }
 
-        // === APPLY & CANCEL ===
+        // --- 6. APPLY & CANCEL ---
         function resetPickerModalState() {
             const overlay = document.getElementById('itemPickerOverlay');
-
-            // 1. Додаємо клас, який запускає анімацію вниз
             overlay.classList.add('closing');
-
-            // 2. Чекаємо, поки анімація пройде (300мс, як в CSS), і тільки тоді ховаємо
             setTimeout(() => {
                 overlay.style.display = 'none';
-                overlay.classList.remove('closing'); // Чистимо клас для наступного відкриття
-
-                // Скидаємо змінні
+                overlay.classList.remove('closing');
                 tempAvatarSelection = { id: null, url: null, name: null };
                 tempFrameSelection = { id: null, url: null, name: null };
                 pickerSelectedItemId = null;
-
-            }, 280); // Ставимо трохи менше 300, щоб не блимнуло в кінці
+            }, 280);
         }
 
         document.getElementById('itemPickerApply').addEventListener('click', () => {
@@ -506,9 +487,7 @@
             resetPickerModalState();
         });
 
-        document.getElementById('itemPickerCancel').addEventListener('click', () => {
-            resetPickerModalState();
-        });
+        document.getElementById('itemPickerCancel').addEventListener('click', () => resetPickerModalState());
 
         function applyPickedItem(type, id, url, name) {
             if (type === 'avatar') {
@@ -526,25 +505,49 @@
             }
         }
 
-        // === SAVE CHANGES TO SERVER ===
+        // --- 7. MAIN SAVE LOGIC ---
         const editBtn = document.getElementById('editToggleBtn');
         if (editBtn) {
             editBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 if (!isEditMode) { enterEditMode(); return; }
 
+                const currentName = document.getElementById('nameInput').value.trim();
+
+                // >>> CLIENT SIDE VALIDATION <<<
+                const MIN_LENGTH = 3;
+                const MAX_LENGTH = 20;
+
+                if (currentName.length < MIN_LENGTH || currentName.length > MAX_LENGTH) {
+                    alertify.error(JS_RESOURCES.msgUsernameLength);
+                    return; // Stop execution
+                }
+
                 editBtn.disabled = true;
                 editBtn.innerText = JS_RESOURCES.btnSaving;
 
-                const currentName = document.getElementById('nameInput').value.trim();
-
                 try {
+                    // 1. UPDATE USERNAME
                     if (currentName !== original.name) {
                         const nameData = new FormData();
-                        nameData.append('updatedUserName', currentName);
-                        await fetch('/updateUserName', { method: 'POST', body: nameData });
+                        // DTO Property Name: 'UpdatedUserName'
+                        nameData.append('UpdatedUserName', currentName); 
+                        
+                        const nameResponse = await fetch('/updateUserName', { method: 'POST', body: nameData });
+                        
+                        if (!nameResponse.ok) {
+                            const rawError = await nameResponse.text();
+
+                            // Check for specific error (Username Taken)
+                            if (rawError.toLowerCase().includes("taken") || rawError.toLowerCase().includes("already")) {
+                                throw new Error(JS_RESOURCES.msgUsernameTaken);
+                            }
+                            
+                            throw new Error(rawError || JS_RESOURCES.msgErrorGeneric);
+                        }
                     }
 
+                    // 2. UPDATE EQUIPMENT
                     const equipmentPayload = {
                         titleId: selectedTitleId,
                         avatarId: selectedAvatarId,
@@ -559,11 +562,13 @@
                     });
 
                     if (!equipRes.ok) throw new Error(await equipRes.text());
+                    
                     location.reload();
 
                 } catch (err) {
                     console.error(err);
-                    alertify.error(JS_RESOURCES.msgErrorGeneric + ' ' + err.message);
+                    alertify.error(err.message);
+                    
                     editBtn.disabled = false;
                     editBtn.innerText = JS_RESOURCES.btnSaveChanges;
                 }

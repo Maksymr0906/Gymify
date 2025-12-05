@@ -187,4 +187,7 @@
     <value>Нікнейм має бути від {2} до {1} символів.</value>
     <comment>{1} – Макс. довжина, {2} – Мін. довжина</comment>
   </data>
+  <data name="UsernameLettersNumbersUnderscores" xml:space="preserve">
+    <value>Нікнейм може мати лише літери, цифри, та підкреслення</value>
+  </data>
 </root>

@@ -216,4 +216,10 @@
   <data name="Type_Title" xml:space="preserve">
     <value>title</value>
   </data>
+  <data name="UserNameLength" xml:space="preserve">
+    <value>The username must have length from 3 to 20 characters.</value>
+  </data>
+  <data name="UsernameTaken" xml:space="preserve">
+    <value>This username is already taken</value>
+  </data>
 </root>
