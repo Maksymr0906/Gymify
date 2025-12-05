@@ -3095,7 +3095,7 @@ textarea.gym-input {
     cursor: default;
 }
 
-    .userProfileFullPage[data-edit-type="background"] {
+    .userProfileFullPage.edit-active[data-edit-type="background"] {
         cursor: pointer;
     }
 
@@ -3106,6 +3106,11 @@ textarea.gym-input {
     display: flex;
     flex-direction: column;
     gap: 40px;
+    /* ADD THIS: Forces the cursor back to normal when inside the content area */
+    cursor: default;
+    /* ADD THIS: Ensures the content sits 'above' the background for clicking purposes */
+    position: relative;
+    z-index: 2;
 }
 
 /* Header (Dark Block) */
@@ -3129,7 +3134,7 @@ textarea.gym-input {
     flex-shrink: 0;
 }
 
-    .userProfileAvatarBlock[data-edit-type] {
+    .userProfileFullPage.edit-active .userProfileAvatarBlock[data-edit-type] {
         cursor: pointer;
     }
 
@@ -3192,7 +3197,7 @@ textarea.gym-input {
     font-weight: 500;
 }
 
-    .userProfileTitleView[data-edit-type="title"] {
+    .userProfileFullPage.edit-active .userProfileTitleView[data-edit-type="title"] {
         cursor: pointer;
     }
 

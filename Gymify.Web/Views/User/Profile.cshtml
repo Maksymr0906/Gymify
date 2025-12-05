@@ -10,7 +10,7 @@
      style="background-image: url('@Model.UserEquipmentDto.BackgroundUrl');"
      data-edit-type="background">
 
-    <div class="userProfileContentWrapper">
+    <div class="userProfileContentWrapper" title="">
 
         <div class="userProfileCustoms">
             <div class="userProfileAvatarBlock" id="avatarBlock" data-edit-type="avatar-setup">
@@ -197,22 +197,18 @@
             backgroundUrl: document.getElementById('profileRoot').style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
         };
 
-        // --- 2. EDIT MODE TOGGLING ---
         function enterEditMode() {
             if (isEditMode) return;
             isEditMode = true;
+    
             document.getElementById('nameView').style.display = 'none';
             document.getElementById('nameInput').style.display = 'block';
+    
+            document.getElementById('profileRoot').classList.add('edit-active');
 
-            document.getElementById('titleView').style.cursor = 'pointer';
             document.getElementById('titleView').title = JS_RESOURCES.tooltipTitle;
-            document.getElementById('titleView').style.borderBottom = "1px dashed #777";
-
-            document.getElementById('profileRoot').style.cursor = 'pointer';
             document.getElementById('profileRoot').title = JS_RESOURCES.tooltipBackground;
-
             document.getElementById('avatarBlock').title = JS_RESOURCES.tooltipAvatar;
-            document.getElementById('avatarBlock').style.cursor = "pointer";
 
             const btn = document.getElementById('editToggleBtn');
             if (btn) btn.innerText = JS_RESOURCES.btnSaveChanges;
@@ -220,14 +216,14 @@
 
         function exitEditMode() {
             isEditMode = false;
+    
             document.getElementById('nameView').style.display = 'block';
             document.getElementById('nameInput').style.display = 'none';
 
-            document.getElementById('titleView').style.cursor = 'default';
-            document.getElementById('titleView').style.borderBottom = "none";
+            document.getElementById('profileRoot').classList.remove('edit-active');
 
-            document.getElementById('profileRoot').style.cursor = 'default';
-            document.getElementById('avatarBlock').style.cursor = "default";
+            document.getElementById('titleView').title = "";
+            document.getElementById('profileRoot').title = "";
             document.getElementById('avatarBlock').title = "";
 
             const btn = document.getElementById('editToggleBtn');
