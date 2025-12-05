@@ -78,7 +78,7 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
-                <input type="text" id="msgInput" class="ch-input" placeholder="@Localizer["Placeholder_TypeMessage"]" autocomplete="off" />
+                <textarea id="msgInput" class="ch-input" rows="1" placeholder="@Localizer["Placeholder_TypeMessage"]"></textarea>
                 
                 <button class="ch-btn-send" id="sendBtn" onclick="sendMessage()">
                     <i class="fa-solid fa-arrow-up"></i>
@@ -90,24 +90,32 @@
 
 @section scripts {
     <script>
+        // --- RESOURCES & CONFIG ---
         const JS_RESOURCES = {
             loading: '@Localizer["Msg_Loading"]',
-            noMessages: '@Localizer["Msg_NoMessages"]',
+            noMessages: '@Localizer["Msg_NoMessages"]',         // "No messages here" (Main Area)
+            noMessagesYet: '@Localizer["Msg_NoMessagesYet"]',   // "No messages yet" (Sidebar)
+            
             errorLoading: '@Localizer["Msg_ErrorLoading"]',
             reconnecting: '@Localizer["Msg_Reconnecting"]',
             errorSending: '@Localizer["Msg_ErrorSending"]',
             errorEditing: '@Localizer["Msg_ErrorEditing"]',
             confirmDelete: '@Localizer["Msg_ConfirmDelete"]',
             errorDeleting: '@Localizer["Msg_ErrorDeleting"]',
+            
+            // Validation
             msgTooLong: "@Localizer["Msg_MessageTooLong"]", 
-            msgEmpty: "@Localizer["Msg_MessageEmpty"]",      
+            msgEmpty: "@Localizer["Msg_MessageEmpty"]",       
+            
             currentCulture: '@currentCulture' 
         };
 
+        const MAX_MSG_LENGTH = 1000;
         let currentChatId = null;
         const currentUserId = "@currentUserId";
         let editingMessageId = null;
 
+        // --- ELEMENTS ---
         const chatMain = document.getElementById('chatMainArea');
         const msgInput = document.getElementById('msgInput');
         const messagesArea = document.getElementById('messagesArea');
@@ -115,8 +123,27 @@
         const sendBtn = document.getElementById('sendBtn');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-        const MAX_MSG_LENGTH = 1000;
+        // --- 1. AUTO-RESIZE LOGIC ---
+        msgInput.addEventListener('input', function() {
+            this.style.height = 'auto'; 
 
+            this.style.height = (this.scrollHeight) + 'px'; 
+
+            if(this.value === '') {
+                this.style.height = '48px';
+            }
+        });
+
+        // Handle Enter (Send) vs Shift+Enter (New Line)
+        msgInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); 
+                sendMessage();
+            }
+            if (e.key === 'Escape' && editingMessageId) cancelEditMode(); 
+        });
+
+        // --- SIGNALR SETUP ---
         const chatConnection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
             .withAutomaticReconnect()
@@ -133,7 +160,8 @@
         chatConnection.on("MessageEdited", function (msg) {
             if (currentChatId && currentChatId.toLowerCase() === msg.chatId.toLowerCase()) {
                 const contentDiv = document.getElementById(`content-${msg.id}`);
-                if (contentDiv) contentDiv.innerText = msg.content;
+                // Use innerHTML to preserve line breaks if edited
+                if (contentDiv) contentDiv.innerHTML = escapeHtml(msg.content).replace(/\n/g, '<br>');
             }
             updateSidebarPreview(msg.chatId, msg.content, null, false);
         });
@@ -161,6 +189,8 @@
             } catch (err) { setTimeout(startSignalR, 5000); }
         }
         startSignalR();
+
+        // --- CORE FUNCTIONS ---
 
         async function openChat(chatId, name, avatarUrl, targetUserId, el) {
             cancelEditMode();
@@ -227,26 +257,23 @@
 
             const text = msgInput.value.trim();
 
-            // --- VALIDATION START ---
-            if (!text) {
-                 // Optional: Alert or just return (users often prefer it just does nothing if empty)
-                 return; 
-            }
+            // --- VALIDATION ---
+            if (!text) return; 
             if (text.length > MAX_MSG_LENGTH) {
                 alertify.error(JS_RESOURCES.msgTooLong);
                 return;
             }
-            // --- VALIDATION END ---
 
             if (!currentChatId) return;
             if (chatConnection.state !== "Connected") { alert(JS_RESOURCES.reconnecting); return; }
 
             try {
-                // NOTE: We are now sending an Object (DTO) instead of plain arguments
+                // Sending DTO object { chatId, content }
                 const request = { chatId: currentChatId, content: text };
                 await chatConnection.invoke("SendMessage", request);
 
                 msgInput.value = '';
+                msgInput.style.height = '48px'; // Reset height
                 msgInput.focus();
             } catch (e) { 
                 console.error(e);
@@ -254,10 +281,13 @@
             }
         }
 
+        // --- 3. PREVIEW & LOCALIZATION LOGIC ---
         function updateSidebarPreview(chatId, text, dateStr, isNew) {
             const preview = document.getElementById(`preview-${chatId}`);
             if (!preview) return;
-            preview.innerText = text;
+            
+            // If text is null (message deleted) or empty, show Localized "No messages yet"
+            preview.innerText = text ? text : JS_RESOURCES.noMessagesYet;
             
             if (dateStr) {
                 const chatItem = document.getElementById(`chat-item-${chatId}`);
@@ -275,23 +305,35 @@
             }
         }
 
+        // --- 2. APPEND MESSAGE (With "No Msg" clear check) ---
         function appendMessage(msg) {
+            // Check if current content contains the "No messages" or "Loading" text and clear it
+            if (messagesArea.innerHTML.includes(JS_RESOURCES.noMessages) || messagesArea.innerHTML.includes(JS_RESOURCES.loading)) {
+                 // Double check via text content to be safe
+                 if(messagesArea.innerText.includes(JS_RESOURCES.noMessages) || messagesArea.innerText.includes(JS_RESOURCES.loading)) {
+                     messagesArea.innerHTML = '';
+                 }
+            }
+
             const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());
             const dateObj = new Date(msg.createdAt);
             const time = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
                 day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
             }).replace(',', '');
 
-            const avatarUrl = msg.senderAvatarUrl || '/images/default-avatar.png';
+            const avatarUrl = msg.senderAvatarUrl || '/Images/DefaultAvatar.png';
             const profileUrl = `/Profile?userId=${msg.senderId}`;
             const userName = escapeHtml(msg.senderName);
-            const safeContent = escapeHtml(msg.content).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            
+            // IMPORTANT: Convert newlines to <br> for display
+            const safeContent = escapeHtml(msg.content).replace(/\n/g, '<br>');
+            const rawContentSafe = escapeHtml(msg.content).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
 
             let actionsHtml = '';
             if (isMe) {
                 actionsHtml = `
                     <div class="ch-msg-actions">
-                        <button class="ch-action-btn" onclick="enableEditMode('${msg.id}', '${safeContent}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="ch-action-btn" onclick="enableEditMode('${msg.id}', '${rawContentSafe}')"><i class="fa-solid fa-pen"></i></button>
                         <button class="ch-action-btn del" onclick="deleteMessageNode('${msg.id}')"><i class="fa-solid fa-trash"></i></button>
                     </div>`;
             }
@@ -302,7 +344,7 @@
                     <div class="ch-msg-row me" id="row-${msg.id}">
                         ${actionsHtml}
                         <div class="ch-msg me">
-                            <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
+                            <div id="content-${msg.id}">${safeContent}</div>
                             <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
                         </div>
                         <a href="${profileUrl}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
@@ -312,7 +354,7 @@
                     <div class="ch-msg-row them" id="row-${msg.id}">
                         <a href="${profileUrl}" title="${userName}"><img src="${avatarUrl}" class="ch-msg-avatar"></a>
                         <div class="ch-msg them">
-                            <div id="content-${msg.id}">${escapeHtml(msg.content)}</div>
+                            <div id="content-${msg.id}">${safeContent}</div>
                             <div class="ch-msg-time" id="meta-${msg.id}">${time}</div>
                         </div>
                     </div>`;
@@ -322,9 +364,16 @@
 
         function enableEditMode(msgId, content) {
             const contentDiv = document.getElementById(`content-${msgId}`);
+            // If editing, get innerText to strip <br> back to newlines
             const currentText = contentDiv ? contentDiv.innerText : content;
+            
             editingMessageId = msgId;
             msgInput.value = currentText;
+            
+            // Trigger auto-resize logic immediately for the loaded text
+            msgInput.style.height = 'auto';
+            msgInput.style.height = (msgInput.scrollHeight) + 'px';
+            
             msgInput.focus();
             if(cancelEditBtn) cancelEditBtn.style.display = 'block';
             if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -333,6 +382,7 @@
         function cancelEditMode() {
             editingMessageId = null;
             msgInput.value = '';
+            msgInput.style.height = '48px'; // Reset
             if(cancelEditBtn) cancelEditBtn.style.display = 'none';
             if(sendBtn) sendBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
         }
@@ -340,24 +390,21 @@
         async function submitEdit() {
             const text = msgInput.value.trim();
 
-            // --- VALIDATION START ---
             if (!text) { 
                 alertify.error(JS_RESOURCES.msgEmpty);
                 return; 
             }
             if (text.length > MAX_MSG_LENGTH) {
-            alertify.error(JS_RESOURCES.msgTooLong);
-            return;
+               alertify.error(JS_RESOURCES.msgTooLong);
+               return;
             }
-            // --- VALIDATION END ---
 
             if (!editingMessageId) { cancelEditMode(); return; }
 
             try { 
-                // Sending DTO object
+                // Sending DTO
                 const request = { messageId: editingMessageId, content: text };
                 await chatConnection.invoke("EditMessage", request); 
-
                 cancelEditMode(); 
             } 
             catch (e) { 
@@ -374,10 +421,11 @@
 
         function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
         function closeChatMobile() { document.getElementById('chatMainArea').classList.remove('active'); msgInput.blur(); }
-        function escapeHtml(text) { if (!text) return ""; return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-
-        msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-        msgInput.addEventListener('keydown', (e) => { if (e.key === 'Escape' && editingMessageId) cancelEditMode(); });
+        
+        function escapeHtml(text) { 
+            if (!text) return ""; 
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); 
+        }
         
         searchInput.addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
