@@ -8,7 +8,6 @@
     ViewData["Title"] = Localizer["PageTitle"];
     var currentUserId = User.FindFirst("UserProfileId")?.Value;
     var openChatId = Context.Request.Query["openChatId"].ToString();
-    // Get current culture for JS date formatting (e.g., "en-US", "uk-UA")
     var currentCulture = CultureInfo.CurrentCulture.Name;
 }
 
@@ -91,7 +90,6 @@
 
 @section scripts {
     <script>
-        // --- LOCALIZATION BRIDGE ---
         const JS_RESOURCES = {
             loading: '@Localizer["Msg_Loading"]',
             noMessages: '@Localizer["Msg_NoMessages"]',
@@ -101,6 +99,8 @@
             errorEditing: '@Localizer["Msg_ErrorEditing"]',
             confirmDelete: '@Localizer["Msg_ConfirmDelete"]',
             errorDeleting: '@Localizer["Msg_ErrorDeleting"]',
+            msgTooLong: '@Localizer["Msg_MessageTooLong"]', 
+            msgEmpty: '@Localizer["Msg_MessageEmpty"]'      
             currentCulture: '@currentCulture' 
         };
 
@@ -115,7 +115,8 @@
         const sendBtn = document.getElementById('sendBtn');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-        // ... (SignalR Init) ...
+        const MAX_MSG_LENGTH = 1000;
+
         const chatConnection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
             .withAutomaticReconnect()
@@ -190,7 +191,6 @@
                 headerLink.style.pointerEvents = "none";
             }
 
-            // Localized Loading
             messagesArea.innerHTML = `<div style="text-align:center; padding:20px; color:#ccc;">${JS_RESOURCES.loading}</div>`;
 
             if (chatConnection.state === "Connected") {
@@ -224,15 +224,34 @@
 
         async function sendMessage() {
             if (editingMessageId) { await submitEdit(); return; }
+
             const text = msgInput.value.trim();
-            if (!text || !currentChatId) return;
+
+            // --- VALIDATION START ---
+            if (!text) {
+                 // Optional: Alert or just return (users often prefer it just does nothing if empty)
+                 return; 
+            }
+            if (text.length > MAX_MSG_LENGTH) {
+                alertify.error(JS_RESOURCES.msgTooLong);
+                return;
+            }
+            // --- VALIDATION END ---
+
+            if (!currentChatId) return;
             if (chatConnection.state !== "Connected") { alert(JS_RESOURCES.reconnecting); return; }
 
             try {
-                await chatConnection.invoke("SendMessage", currentChatId, text);
+                // NOTE: We are now sending an Object (DTO) instead of plain arguments
+                const request = { chatId: currentChatId, content: text };
+                await chatConnection.invoke("SendMessage", request);
+
                 msgInput.value = '';
                 msgInput.focus();
-            } catch (e) { alert(JS_RESOURCES.errorSending); }
+            } catch (e) { 
+                console.error(e);
+                alertify.error(JS_RESOURCES.errorSending); 
+            }
         }
 
         function updateSidebarPreview(chatId, text, dateStr, isNew) {
@@ -243,7 +262,6 @@
             if (dateStr) {
                 const chatItem = document.getElementById(`chat-item-${chatId}`);
                 const dateObj = new Date(dateStr);
-                // Use dynamic culture from server
                 const timeFormatted = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
                     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
                 }).replace(',', '');
@@ -260,7 +278,6 @@
         function appendMessage(msg) {
             const isMe = (msg.senderId.toLowerCase() === currentUserId.toLowerCase());
             const dateObj = new Date(msg.createdAt);
-            // Use dynamic culture from server
             const time = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
                 day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
             }).replace(',', '');
@@ -321,10 +338,32 @@
         }
         
         async function submitEdit() {
-             const text = msgInput.value.trim();
-             if (!text || !editingMessageId) { cancelEditMode(); return; }
-             try { await chatConnection.invoke("EditMessage", editingMessageId, text); cancelEditMode(); } 
-             catch (e) { alert(JS_RESOURCES.errorEditing); }
+            const text = msgInput.value.trim();
+
+            // --- VALIDATION START ---
+            if (!text) { 
+                alertify.error(JS_RESOURCES.msgEmpty);
+                return; 
+            }
+            if (text.length > MAX_MSG_LENGTH) {
+            alertify.error(JS_RESOURCES.msgTooLong);
+            return;
+            }
+            // --- VALIDATION END ---
+
+            if (!editingMessageId) { cancelEditMode(); return; }
+
+            try { 
+                // Sending DTO object
+                const request = { messageId: editingMessageId, content: text };
+                await chatConnection.invoke("EditMessage", request); 
+
+                cancelEditMode(); 
+            } 
+            catch (e) { 
+                console.error(e);
+                alertify.error(JS_RESOURCES.errorEditing); 
+            }
         }
 
         async function deleteMessageNode(msgId) {

@@ -1,7 +1,9 @@
 ﻿using Gymify.Application.DTOs.Chat;
+using Gymify.Application.DTOs.Comment;
 using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gymify.Web.Hubs
 {
@@ -28,31 +30,53 @@ namespace Gymify.Web.Hubs
         }
 
         // ВІДПРАВКА ПОВІДОМЛЕННЯ
-        public async Task SendMessage(string chatIdStr, string content)
+        public async Task SendMessage(CreateMessageRequestDto request)
         {
-            var userId = Guid.Parse(Context.UserIdentifier); // Працює завдяки CustomUserIdProvider
-            var chatId = Guid.Parse(chatIdStr);
+            // MANUAL VALIDATION
+            if (!TryValidate(request, out var errorMessage))
+            {
+                // This throws an error back to the specific client's "catch" block in JS
+                throw new HubException(errorMessage);
+            }
 
-            // 1. Зберігаємо в БД
-            var messageDto = await _chatService.SaveMessageAsync(chatId, userId, content);
+            var senderId = Guid.Parse(Context.User.FindFirst("UserProfileId").Value);
 
-            // 2. Відправляємо всім у кімнаті (включаючи себе)
-            // Клієнт сам розбереться, це "моє" повідомлення чи "чуже" по SenderId
-            await Clients.Group(chatIdStr).SendAsync("ReceiveMessage", messageDto);
+            // Pass DTO or mapped values to service
+            var messageDto = await _chatService.SaveMessageAsync(request.ChatId, senderId, request.Content);
 
-            // 3. (Опціонально) Сповістити інших учасників, щоб оновили список чатів (Sidebar), 
-            // навіть якщо вони не в цьому чаті зараз. Це складніше, поки пропустимо.
+            await Clients.Group(request.ChatId.ToString()).SendAsync("ReceiveMessage", messageDto);
         }
 
-        public async Task EditMessage(string messageIdStr, string newContent)
+        public async Task EditMessage(EditMessageRequestDto request)
         {
-            var userId = Guid.Parse(Context.UserIdentifier);
-            var messageId = Guid.Parse(messageIdStr);
+            if (!TryValidate(request, out var errorMessage))
+            {
+                throw new HubException(errorMessage);
+            }
 
-            var updatedMsg = await _chatService.EditMessageAsync(messageId, userId, newContent);
+            var senderId = Guid.Parse(Context.User.FindFirst("UserProfileId").Value);
 
-            // Сповіщаємо групу (чат), що повідомлення змінилось
-            await Clients.Group(updatedMsg.ChatId.ToString()).SendAsync("MessageEdited", updatedMsg);
+            var messageDto = await _chatService.EditMessageAsync(request.MessageId, senderId, request.Content);
+
+            await Clients.Group(messageDto.ChatId.ToString()).SendAsync("MessageEdited", messageDto);
+        }
+
+        private bool TryValidate(object obj, out string error)
+        {
+            var context = new ValidationContext(obj);
+            var results = new List<ValidationResult>();
+
+            bool isValid = Validator.TryValidateObject(obj, context, results, true);
+
+            if (!isValid)
+            {
+                // Return the first error message (e.g., "Message must be between 1 and 1000...")
+                error = results.FirstOrDefault()?.ErrorMessage ?? "Validation error";
+                return false;
+            }
+
+            error = null;
+            return true;
         }
 
         public async Task DeleteMessage(string messageIdStr, string chatIdStr)

@@ -79,6 +79,11 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
     public async Task<MessageDto> SaveMessageAsync(Guid chatId, Guid senderId, string content)
     {
+        if (string.IsNullOrWhiteSpace(content) || content.Length > 1000)
+        {
+            throw new ArgumentException("Invalid message content.");
+        }
+
         var member = await _unitOfWork.UserChatRepository.GetByChatAndUserAsync(chatId, senderId);
         if (member == null) throw new UnauthorizedAccessException("User is not a member of this chat");
 
@@ -141,6 +146,11 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
     public async Task<MessageDto> EditMessageAsync(Guid messageId, Guid userId, string newContent)
     {
+        if (string.IsNullOrWhiteSpace(newContent) || newContent.Length > 1000)
+        {
+            throw new ArgumentException("Invalid message content.");
+        }
+
         var msg = await _unitOfWork.MessageRepository.GetByIdAsync(messageId);
         if (msg == null) throw new Exception("Message not found");
         if (msg.SenderId != userId) throw new UnauthorizedAccessException("Not your message");
