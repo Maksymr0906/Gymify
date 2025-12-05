@@ -541,6 +541,11 @@
                             
                             throw new Error(rawError || JS_RESOURCES.msgErrorGeneric);
                         }
+
+                        const navNameEl = document.getElementById('navbarUserName');
+                        if (navNameEl) {
+                            navNameEl.innerText = currentName;
+                        }
                     }
 
                     // 2. UPDATE EQUIPMENT

@@ -3,8 +3,10 @@ using Gymify.Application.DTOs.UserEquipment;
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.UserItems;
+using Gymify.Data.Entities;
 using Gymify.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -15,27 +17,22 @@ namespace Gymify.Web.Controllers
 {
     [Route("")]
     [Authorize]
-    public class UserController : BaseController
+    public class UserController(
+        IUserProfileService userProfileService,
+        IItemService itemService,
+        ICaseService caseService,
+        IAchievementService achievementService,
+        IUserEquipmentService userEquipmentService,
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager) : BaseController
     {
-        private readonly IUserProfileService _userProfileService;
-        private readonly IUserEquipmentService _userEquipmentService;
-        private readonly IItemService _itemService;
-        private readonly ICaseService _caseService;
-        private readonly IAchievementService _achievementService;
-
-        public UserController(
-            IUserProfileService userProfileService,
-            IItemService itemService,
-            ICaseService caseService,
-            IAchievementService achievementService,
-            IUserEquipmentService userEquipmentService)
-        {
-            _userProfileService = userProfileService;
-            _itemService = itemService;
-            _caseService = caseService;
-            _achievementService = achievementService;
-            _userEquipmentService = userEquipmentService;
-        }
+        private readonly IUserProfileService _userProfileService = userProfileService;
+        private readonly IUserEquipmentService _userEquipmentService = userEquipmentService;
+        private readonly IItemService _itemService = itemService;
+        private readonly ICaseService _caseService = caseService;
+        private readonly IAchievementService _achievementService = achievementService;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
 
         [HttpGet("profile")]  // URL: /profile
         public async Task<IActionResult> Profile(Guid userId)
@@ -93,6 +90,12 @@ namespace Gymify.Web.Controllers
                 var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
 
                 await _userProfileService.UpdateUserNameAsync(userId, request.UpdatedUserName);
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    await _signInManager.RefreshSignInAsync(user);
+                }
 
                 return Ok();
             }
