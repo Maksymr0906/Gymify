@@ -15,7 +15,7 @@
                 <input type="hidden" name="targetType" value="@Model.TargetType" />
 
                 <textarea name="content" id="coContentInput" class="co-textarea" placeholder="@Localizer["Placeholder_WriteComment"]"></textarea>
-                
+
                 <div id="coAddError" class="hidden" style="color: #dc3545; font-size: 0.85rem; margin-top: 5px; font-weight: 500;"></div>
 
                 <div style="text-align: right; margin-top: 10px;">
@@ -59,7 +59,7 @@
 
                         <div class="co-edit-area hidden" id="edit-area-@comment.Id">
                             <textarea class="co-edit-textarea" id="input-@comment.Id">@comment.Content</textarea>
-                            
+
                             <div id="edit-error-@comment.Id" class="hidden" style="color: #dc3545; font-size: 0.8rem; margin-bottom: 5px;"></div>
 
                             <div class="co-edit-controls">
@@ -98,7 +98,8 @@
             msgErrorUpdate: '@Localizer["Msg_ErrorUpdate"]',
             msgConfirmDelete: '@Localizer["Msg_ConfirmDelete"]',
             msgErrorDelete: '@Localizer["Msg_ErrorDelete"]',
-            altAvatar: '@Localizer["Alt_UserAvatar"]'
+            altAvatar: '@Localizer["Alt_UserAvatar"]',
+            msgCommentDeleted: '@Localizer["Msg_CommentDeleted"]' // "Comment deleted"
         };
 
         const form = document.getElementById('coCommentForm');
@@ -109,10 +110,9 @@
         const addErrorEl = document.getElementById('coAddError');
 
         if(input && btn) {
-            input.addEventListener('input', () => { 
+            input.addEventListener('input', () => {
                 const val = input.value.trim();
-                btn.disabled = val.length === 0; 
-                // Приховуємо помилку, якщо користувач почав щось писати
+                btn.disabled = val.length === 0;
                 if (val.length > 0 && addErrorEl) {
                     addErrorEl.classList.add('hidden');
                     addErrorEl.innerText = "";
@@ -125,48 +125,41 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
-                const originalText = JS_RESOURCES.btnPost; 
+                const originalText = JS_RESOURCES.btnPost;
 
-                // Скидаємо помилки перед запитом
                 if(addErrorEl) {
                     addErrorEl.classList.add('hidden');
                     addErrorEl.innerText = "";
                 }
 
-                btn.disabled = true; 
+                btn.disabled = true;
                 btn.innerText = JS_RESOURCES.btnPosting;
 
                 try {
                     const res = await fetch('/Comment/AddComment', { method: 'POST', body: formData });
-                    
-                    // Спочатку читаємо JSON відповідь
                     const data = await res.json();
 
                     if (res.ok) {
-                        // Успішне створення
                         appendCommentDOM(data);
                         input.value = "";
-                        btn.disabled = true; 
+                        btn.disabled = true;
                     } else {
-                        // Помилка (400 Bad Request)
                         if (data.errors && data.errors.Content) {
-                            // Показуємо помилку конкретно для поля Content
                             if(addErrorEl) {
                                 const msg = Array.isArray(data.errors.Content) ? data.errors.Content[0] : data.errors.Content;
                                 addErrorEl.innerText = msg;
                                 addErrorEl.classList.remove('hidden');
                             }
                         } else {
-                            // Інша помилка
                             if(typeof alertify !== 'undefined') alertify.error(data.message || JS_RESOURCES.msgErrorPost);
                         }
                     }
-                } catch (err) { 
-                    console.error(err); 
+                } catch (err) {
+                    console.error(err);
                     if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorPost);
-                } 
-                finally { 
-                    btn.innerText = originalText; 
+                }
+                finally {
+                    btn.innerText = originalText;
                 }
             });
         }
@@ -175,7 +168,7 @@
             if(emptyMsg) emptyMsg.style.display = 'none';
 
             const domId = 'comment-el-' + (c.id || Date.now());
-            const profileUrl = `/User/Profile?userId=${c.authorId}`; 
+            const profileUrl = `/User/Profile?userId=${c.authorId}`;
 
             const html = `
                 <div class="co-item" id="${domId}">
@@ -192,12 +185,10 @@
                             </div>
                         </div>
                         <div class="co-text" id="text-${c.id}">${escapeHtml(c.content)}</div>
-                        
+
                         <div class="co-edit-area hidden" id="edit-area-${c.id}">
                             <textarea class="co-edit-textarea" id="input-${c.id}">${escapeHtml(c.content)}</textarea>
-                            
                             <div id="edit-error-${c.id}" class="hidden" style="color: #dc3545; font-size: 0.8rem; margin-bottom: 5px;"></div>
-
                             <div class="co-edit-controls">
                                 <button class="gym-btn gym-btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentCancel('${c.id}')">${JS_RESOURCES.btnCancel}</button>
                                 <button class="gym-btn gym-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editCommentSave('${c.id}')">${JS_RESOURCES.btnSave}</button>
@@ -223,7 +214,6 @@
             if(textView && editView) {
                 textView.classList.add('hidden');
                 editView.classList.remove('hidden');
-                // Скидаємо помилку при відкритті
                 if(errView) {
                     errView.innerText = "";
                     errView.classList.add('hidden');
@@ -248,23 +238,22 @@
             const errEl = document.getElementById(`edit-error-${id}`);
             const newContent = inputEl.value.trim();
 
-            // Скидаємо стару помилку
             if(errEl) {
                 errEl.innerText = "";
                 errEl.classList.add('hidden');
             }
 
-            if (!newContent) { 
+            if (!newContent) {
                 if(errEl) {
                     errEl.innerText = JS_RESOURCES.msgEmptyComment;
                     errEl.classList.remove('hidden');
                 }
-                return; 
+                return;
             }
 
             const formData = new FormData();
             formData.append('commentId', id);
-            formData.append('newContent', newContent); // Важливо: має збігатися з EditCommentRequest.NewContent
+            formData.append('newContent', newContent);
 
             try {
                 const res = await fetch('/Comment/EditComment', { method: 'POST', body: formData });
@@ -274,9 +263,7 @@
                     document.getElementById(`text-${id}`).innerText = newContent;
                     editCommentCancel(id);
                 } else {
-                    // Валідація редагування (400 Bad Request)
                     if (data.errors && data.errors.NewContent) {
-                         // Показуємо помилку конкретно під полем редагування
                          if(errEl) {
                              const msg = Array.isArray(data.errors.NewContent) ? data.errors.NewContent[0] : data.errors.NewContent;
                              errEl.innerText = msg;
@@ -289,19 +276,52 @@
             } catch (e) { console.error(e); }
         };
 
-        // --- DELETE LOGIC ---
-        window.deleteCommentNode = async function(btn, id) {
-            if(!confirm(JS_RESOURCES.msgConfirmDelete)) return;
-            const item = btn.closest('.co-item');
-            try {
-                const res = await fetch(`/Comment/DeleteComment?commentId=${id}`, { method: 'POST' });
-                if(res.ok) {
-                    item.remove();
-                    if (list.children.length === 0 && emptyMsg) emptyMsg.style.display = 'block';
-                } else {
-                    if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorDelete);
+        // --- DELETE LOGIC (UPDATED WITH ALERTIFY) ---
+        window.deleteCommentNode = function(btn, id) {
+            alertify.confirm(
+                'Gymify',
+                JS_RESOURCES.msgConfirmDelete,
+                async function() {
+                    // === OK Pressed ===
+                    const originalText = btn.innerText;
+                    btn.disabled = true;
+                    btn.innerText = "...";
+
+                    const item = document.getElementById('comment-el-' + id) || btn.closest('.co-item');
+
+                    try {
+                        const res = await fetch(`/Comment/DeleteComment?commentId=${id}`, { method: 'POST' });
+                        if(res.ok) {
+                            // Анімація видалення
+                            item.style.transition = "all 0.3s";
+                            item.style.opacity = "0";
+                            item.style.transform = "scale(0.95)";
+
+                            setTimeout(() => {
+                                item.remove();
+                                // Перевіряємо, чи список не став порожнім
+                                if (list.querySelectorAll('.co-item').length === 0 && emptyMsg) {
+                                    emptyMsg.style.display = 'block';
+                                }
+                            }, 300);
+
+                        } else {
+                            if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorDelete);
+                            // Повертаємо кнопку, якщо помилка
+                            btn.disabled = false;
+                            btn.innerText = originalText;
+                        }
+                    } catch(e) {
+                        console.error(e);
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorDelete);
+                    }
+                },
+                function() {
+                    // Cancel Pressed
                 }
-            } catch(e) { console.error(e); }
+            ).set('labels', {ok:'Yes', cancel:'No'});
         };
     })();
 </script>

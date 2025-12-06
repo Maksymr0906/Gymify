@@ -52,13 +52,14 @@
                         @Localizer["Btn_EditInfo"]
                     </button>
                     
-                    <form method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId"
-                          onsubmit="return confirm('@Localizer["Msg_DeleteConfirm"]');"
-                          style="margin: 0;"> 
-                        <button type="submit" class="gym-btn gym-btn-danger">
+                    @* --- ЗМІНИ ТУТ (ВИДАЛЕННЯ) --- *@
+                    <form id="formDeleteWorkout" method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId" style="margin: 0;"> 
+                        @* Змінено type на "button" і додано id="btnDeleteWorkout" *@
+                        <button type="button" id="btnDeleteWorkout" class="gym-btn gym-btn-danger">
                             <i class="bi bi-trash" style="margin-right: 5px;"></i> @Localizer["Btn_Delete"]
                         </button>
                     </form>
+                    @* ----------------------------- *@
                 </div>
             }
         </div>
@@ -136,12 +137,33 @@
             btnSaveInfo: '@Localizer["Btn_SaveInfo"]',
             btnSaving: '@Localizer["Btn_Saving"]',
             msgNameRequired: "@Localizer["Msg_NameRequired"]",
-            msgUpdateFailed: '@Localizer["Msg_UpdateFailed"]'
+            msgUpdateFailed: '@Localizer["Msg_UpdateFailed"]',
+            // Додано повідомлення для видалення
+            msgDeleteConfirm: '@Localizer["Msg_DeleteConfirm"]' 
         };
 
         document.addEventListener("DOMContentLoaded", () => {
             const btnEdit = document.getElementById("btnEditInfo");
             const btnCancel = document.getElementById("btnCancelInfo");
+            
+            // --- ЛОГІКА ВИДАЛЕННЯ ВОРКАУТУ ---
+            const btnDeleteWorkout = document.getElementById("btnDeleteWorkout");
+            if (btnDeleteWorkout) {
+                btnDeleteWorkout.addEventListener("click", function() {
+                    alertify.confirm(
+                        'Gymify', 
+                        JS_RESOURCES.msgDeleteConfirm, 
+                        function() { 
+                            // Якщо натиснули ОК - відправляємо форму
+                            document.getElementById("formDeleteWorkout").submit();
+                        },
+                        function() { 
+                            // Якщо натиснули Cancel - нічого не робимо
+                        }
+                    ).set('labels', {ok:'Yes', cancel:'No'});
+                });
+            }
+            // ----------------------------------
 
             const els = {
                 name: { 
@@ -370,5 +392,4 @@
             });
         });
     </script>
-}
 }

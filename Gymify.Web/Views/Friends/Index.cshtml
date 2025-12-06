@@ -14,10 +14,13 @@
         <h1 class="wd-title">@Localizer["Header_Community"]</h1>
     </div>
 
+    @* --- ЗАГОЛОВОК І ТАБИ --- *@
     <div class="friends-header">
         <div class="friends-tabs">
             <button class="friends-tab-btn active" onclick="switchTab('friends')" id="btn-friends">
-                @Localizer["Tab_MyFriends"] <span style="font-weight:normal; font-size:0.9em; opacity:0.7;">(@Model.Friends.Count)</span>
+                @Localizer["Tab_MyFriends"] 
+                @* ID для оновлення лічильника *@
+                <span id="friendsCount" style="font-weight:normal; font-size:0.9em; opacity:0.7;">(@Model.Friends.Count)</span>
             </button>
             <button class="friends-tab-btn" onclick="switchTab('requests')" id="btn-requests">
                 @Localizer["Tab_Requests"]
@@ -32,8 +35,10 @@
         </div>
     </div>
 
-    @* --- TAB: FRIENDS --- *@
+    @* --- ТАБ: МОЇ ДРУЗІ --- *@
     <div id="tab-friends" class="ae-tab-content fade-in">
+        
+        @* Порожній стан (при завантаженні) *@
         @if (!Model.Friends.Any())
         {
             <div class="friends-empty">
@@ -44,10 +49,17 @@
         }
         else
         {
-            <div class="ae-cards-grid">
+            @* Прихований порожній стан (для JS, якщо видалимо всіх) *@
+            <div id="friendsEmptyState" class="friends-empty" style="display: none;">
+                <i class="fa-solid fa-user-group"></i>
+                <p>@Localizer["Msg_NoFriendsYet"]</p>
+                <p style="font-size:0.9rem;">@Localizer["Msg_UseSearch"]</p>
+            </div>
+
+            <div id="friendsGrid" class="ae-cards-grid">
                 @foreach (var f in Model.Friends)
                 {
-                    <div class="ae-card-item" style="align-items: center; text-align: center; padding: 30px 20px; display: flex; flex-direction: column; height: 100%;">
+                    <div id="friend-card-@f.ProfileId" class="ae-card-item" style="align-items: center; text-align: center; padding: 30px 20px; display: flex; flex-direction: column; height: 100%; transition: all 0.3s ease;">
                         
                         <a href="@Url.Action("Profile", "User", new { userId = f.ProfileId })" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center;">
                             <img src="@f.AvatarUrl" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; transition: transform 0.2s;" alt="@Localizer["Alt_Avatar"]">
@@ -66,12 +78,11 @@
                                 <i class="fa-solid fa-user" style="margin-right: 8px;"></i> @Localizer["Btn_Profile"]
                             </a>
 
-                            <form asp-action="RemoveFriend" asp-route-friendId="@f.ProfileId" method="post" style="margin: 0;"
-                                  onsubmit="return confirm('@Localizer["Msg_ConfirmRemove", f.UserName]');">
-                                <button type="submit" class="gym-btn gym-btn-danger w-100" style="padding: 10px;">
-                                    <i class="fa-solid fa-user-xmark" style="margin-right: 8px;"></i> @Localizer["Btn_Remove"]
-                                </button>
-                            </form>
+                            @* Кнопка видалення (AJAX) *@
+                            <button type="button" class="gym-btn gym-btn-danger w-100" style="padding: 10px;"
+                                    onclick="removeFriend(this, '@f.ProfileId', '@f.UserName')">
+                                <i class="fa-solid fa-user-xmark" style="margin-right: 8px;"></i> @Localizer["Btn_Remove"]
+                            </button>
                         </div>
                     </div>
                 }
@@ -79,8 +90,10 @@
         }
     </div>
 
-    @* --- TAB: REQUESTS --- *@
+    @* --- ТАБ: ЗАЯВКИ --- *@
     <div id="tab-requests" class="ae-tab-content hidden fade-in">
+        
+        @* Вхідні заявки *@
         <div class="friends-section-title">@Localizer["Header_IncomingRequests"] <span style="font-weight:normal;">(@Model.IncomingRequests.Count)</span></div>
         @if (!Model.IncomingRequests.Any())
         {
@@ -114,6 +127,7 @@
 
         <div class="ae-separator"></div>
 
+        @* Вихідні заявки *@
         <div class="friends-section-title">@Localizer["Header_SentRequests"] <span style="font-weight:normal;" id="sentCount">(@Model.OutgoingRequests.Count)</span></div>
         <div id="outgoingList">
             @if (!Model.OutgoingRequests.Any())
@@ -130,15 +144,18 @@
                             <div class="request-meta">@Localizer["Label_Waiting"]</div>
                         </div>
                     </a>
-                    <form onsubmit="cancelRequest(event, '@r.ProfileId')" style="margin:0;">
-                        <button class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> @Localizer["Btn_Cancel"]</button>
-                    </form>
+                    
+                    @* Кнопка скасування (AJAX) *@
+                    <button type="button" class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"
+                            onclick="cancelRequest(this, '@r.ProfileId')">
+                        <i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> @Localizer["Btn_Cancel"]
+                    </button>
                 </div>
             }
         </div>
     </div>
 
-    @* --- TAB: SEARCH --- *@
+    @* --- ТАБ: ПОШУК --- *@
     <div id="tab-search" class="ae-tab-content hidden fade-in">
         <h4 class="friends-section-title">@Localizer["Header_SearchResults"]</h4>
         <div id="searchResults" class="ae-cards-grid"></div>
@@ -147,7 +164,7 @@
 
 @section Scripts {
     <script>
-        // --- LOCALIZATION BRIDGE ---
+        // --- РЕСУРСИ ЛОКАЛІЗАЦІЇ ---
         const JS_RESOURCES = {
             labelSearching: '@Localizer["Msg_Searching"]',
             msgNoUsersFound: '@Localizer["Msg_NoUsersFound"]',
@@ -164,7 +181,13 @@
             labelJustNow: '@Localizer["Label_JustNow"]',
             btnCancel: '@Localizer["Btn_Cancel"]',
             msgNoSentRequests: '@Localizer["Msg_NoSentRequests"]',
-            labelLevel: '@Localizer["Label_Level"]'
+            labelLevel: '@Localizer["Label_Level"]',
+            
+            // Нові ресурси
+            msgSuccess: "@Localizer["Msg_Success"]",
+            msgConfirmRemove: '@Localizer["Msg_ConfirmRemove", "USER_NAME_PLACEHOLDER"]', 
+            msgFriendRemoved: '@Localizer["Msg_FriendRemoved"]', 
+            msgError: '@Localizer["Msg_Error"]'
         };
 
         function switchTab(tabName) {
@@ -180,6 +203,168 @@
             }
         }
 
+        // --- ВИДАЛЕННЯ ДРУГА (Robust AJAX) ---
+        async function removeFriend(btn, friendId, userName) {
+            const confirmText = JS_RESOURCES.msgConfirmRemove
+                .replace("USER_NAME_PLACEHOLDER", userName)
+                .replace("&quot;", '"');
+
+            alertify.confirm(
+                'Gymify', 
+                confirmText, 
+                async function() { 
+                    // Зберігаємо початковий стан
+                    const originalContent = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                    try {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        const headers = {};
+                        if (token) headers['RequestVerificationToken'] = token;
+
+                        const res = await fetch(`/Friends/RemoveFriend?friendId=${friendId}`, { 
+                            method: 'POST',
+                            headers: headers
+                        });
+
+                        if (res.ok) {
+                            const card = document.getElementById(`friend-card-${friendId}`);
+                            if (card) {
+                                card.style.transition = 'all 0.3s';
+                                card.style.opacity = '0';
+                                card.style.transform = 'scale(0.9)';
+                                setTimeout(() => {
+                                    card.remove(); 
+                                    updateFriendsCount(); 
+                                }, 300);
+                            }
+                        } else {
+                            const errText = await res.text();
+                            console.error("Server Error:", errText);
+                            if (typeof alertify !== 'undefined') alertify.error("Server Error: " + errText);
+                        }
+                    } catch (error) {
+                        console.error("Network Error:", error);
+                        if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNetworkError);
+                    } finally {
+                        // Завжди повертаємо кнопку до життя
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                },
+                function() { /* Cancel */ }
+            ).set('labels', {ok:'Yes', cancel:'No'});
+        }
+
+        // --- СКАСУВАННЯ ЗАЯВКИ (Robust AJAX) ---
+        async function cancelRequest(btn, id) {
+            alertify.confirm(
+                'Gymify', 
+                JS_RESOURCES.confirmCancel,
+                async function() {
+                    const originalContent = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                    try {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        const headers = {};
+                        if (token) headers['RequestVerificationToken'] = token;
+
+                        const res = await fetch(`/Friends/Cancel?receiverId=${id}`, { 
+                            method: "POST",
+                            headers: headers
+                        });
+
+                        if (res.ok) {
+                            const row = document.getElementById(`req-${id}`);
+                            if (row) {
+                                row.style.transition = 'all 0.3s';
+                                row.style.opacity = '0';
+                                row.style.transform = 'scale(0.95)';
+                                setTimeout(() => {
+                                    row.remove();
+                                    const list = document.getElementById('outgoingList');
+                                    if (list && list.querySelectorAll('.request-card').length === 0) {
+                                        const emptyMsg = document.getElementById('noSentMsg');
+                                        if (emptyMsg) emptyMsg.style.display = 'block';
+                                        else list.innerHTML = `<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">${JS_RESOURCES.msgNoSentRequests}</div>`;
+                                    }
+                                }, 300);
+                            }
+
+                            const countSpan = document.getElementById('sentCount');
+                            if (countSpan) {
+                                let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
+                                count = Math.max(0, count - 1);
+                                countSpan.innerText = `(${count})`;
+                            }
+
+                        } else {
+                            const errText = await res.text();
+                            if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorCancel);
+                        }
+                    } catch(err) { 
+                        console.error(err);
+                        if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNetworkError);
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                },
+                function() { /* Cancel */ }
+            ).set('labels', {ok:'Yes', cancel:'No'});
+        }
+
+        function updateFriendsCount() {
+            const countSpan = document.getElementById('friendsCount');
+            const grid = document.getElementById('friendsGrid');
+            if (countSpan) {
+                let count = parseInt(countSpan.textContent.replace(/\D/g, '')) || 0;
+                count = Math.max(0, count - 1);
+                countSpan.textContent = `(${count})`;
+                if (count === 0) {
+                    const emptyState = document.getElementById('friendsEmptyState');
+                    if (emptyState) emptyState.style.display = 'block';
+                    if (grid) grid.style.display = 'none';
+                }
+            }
+        }
+
+        // --- ДОДАВАННЯ НОВОГО ЗАПИТУ (Для відображення) ---
+        function addToOutgoingList(id, userName, avatarUrl) {
+            const countSpan = document.getElementById('sentCount');
+            if (countSpan) {
+                let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
+                countSpan.innerText = `(${count + 1})`;
+            }
+            const list = document.getElementById('outgoingList');
+            if (!list) return;
+            const emptyMsg = document.getElementById('noSentMsg');
+            if(emptyMsg) emptyMsg.style.display = 'none';
+
+            const profileUrl = `/User/Profile?userId=${id}`;
+
+            const html = `
+                <div class="request-card slide-in" id="req-${id}">
+                    <a href="${profileUrl}" class="request-link-wrapper">
+                        <img src="${avatarUrl}" class="request-avatar">
+                        <div>
+                            <div class="request-username">${escapeHtml(userName)}</div>
+                            <div class="request-meta">${JS_RESOURCES.labelJustNow}</div>
+                        </div>
+                    </a>
+                    <button type="button" class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"
+                            onclick="cancelRequest(this, '${id}')">
+                        <i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> ${JS_RESOURCES.btnCancel}
+                    </button>
+                </div>
+            `;
+            list.insertAdjacentHTML('afterbegin', html);
+        }
+
+        // --- ПОШУК (Стандартний) ---
         function debounce(func, wait) {
             let timeout;
             return function(...args) {
@@ -210,7 +395,6 @@
                 const users = await res.json();
 
                 container.innerHTML = '';
-
                 if (users.length === 0) {
                     container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999; padding: 20px;">${JS_RESOURCES.msgNoUsersFound}</div>`;
                     return;
@@ -219,13 +403,13 @@
                 users.forEach(u => {
                     let actionBtn = '';
                     if (u.status === 1) {
-                         actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="gym-btn gym-btn-primary w-100" style="padding:8px;">${JS_RESOURCES.btnMessage}</a>`;
+                          actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="gym-btn gym-btn-primary w-100" style="padding:8px;">${JS_RESOURCES.btnMessage}</a>`;
                     } else if (u.status === 2) {
-                         actionBtn = `<button class="gym-btn gym-btn-secondary w-100" disabled style="opacity:0.6; cursor:default; padding:8px;">${JS_RESOURCES.btnRequestSent}</button>`;
+                          actionBtn = `<button class="gym-btn gym-btn-secondary w-100" disabled style="opacity:0.6; cursor:default; padding:8px;">${JS_RESOURCES.btnRequestSent}</button>`;
                     } else if (u.status === 3) {
-                         actionBtn = `<button class="gym-btn gym-btn-primary w-100" onclick="switchTab('requests')" style="padding:8px;">${JS_RESOURCES.btnViewRequest}</button>`;
+                          actionBtn = `<button class="gym-btn gym-btn-primary w-100" onclick="switchTab('requests')" style="padding:8px;">${JS_RESOURCES.btnViewRequest}</button>`;
                     } else { 
-                         actionBtn = `<button class="gym-btn gym-btn-primary w-100" style="padding:8px;"
+                          actionBtn = `<button class="gym-btn gym-btn-primary w-100" style="padding:8px;"
                             onclick="sendRequest(this, '${u.profileId}', '${escapeHtml(u.userName)}', '${u.avatarUrl}')">
                             <i class="fa-solid fa-user-plus"></i> ${JS_RESOURCES.btnAddFriend}
                          </button>`;
@@ -245,13 +429,14 @@
                     `;
                     container.insertAdjacentHTML('beforeend', html);
                 });
-
             } catch (e) {
                 container.innerHTML = `<div style="color:red; text-align:center; padding: 20px;">${JS_RESOURCES.msgErrorSearch}</div>`;
             }
         }, 500);
 
-        searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
+        }
 
         async function sendRequest(btn, id, userName, avatarUrl) {
             const originalHTML = btn.innerHTML;
@@ -268,76 +453,15 @@
                     addToOutgoingList(id, userName, avatarUrl);
                 } else {
                     const errText = await res.text();
-                    alert(`${JS_RESOURCES.msgCannotAdd}: ${errText}`);
+                    if (typeof alertify !== 'undefined') alertify.error(`${JS_RESOURCES.msgCannotAdd}: ${errText}`);
                     btn.disabled = false;
                     btn.innerHTML = originalHTML;
                 }
             } catch(e) {
-                alert(JS_RESOURCES.msgNetworkError);
+                if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNetworkError);
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
             }
-        }
-
-        function addToOutgoingList(id, userName, avatarUrl) {
-            const countSpan = document.getElementById('sentCount');
-            if (countSpan) {
-                let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
-                countSpan.innerText = `(${count + 1})`;
-            }
-            const list = document.getElementById('outgoingList');
-            if (!list) return;
-            const emptyMsg = document.getElementById('noSentMsg');
-            if(emptyMsg) emptyMsg.style.display = 'none';
-
-            const profileUrl = `/User/Profile?userId=${id}`;
-
-            const html = `
-                <div class="request-card slide-in" id="req-${id}">
-                    <a href="${profileUrl}" class="request-link-wrapper">
-                        <img src="${avatarUrl}" class="request-avatar">
-                        <div>
-                            <div class="request-username">${escapeHtml(userName)}</div>
-                            <div class="request-meta">${JS_RESOURCES.labelJustNow}</div>
-                        </div>
-                    </a>
-                    <form onsubmit="cancelRequest(event, '${id}')" style="margin:0;">
-                        <button class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> ${JS_RESOURCES.btnCancel}</button>
-                    </form>
-                </div>
-            `;
-            list.insertAdjacentHTML('afterbegin', html);
-        }
-
-        async function cancelRequest(e, id) {
-            e.preventDefault();
-            if(!confirm(JS_RESOURCES.confirmCancel)) return;
-            try {
-                const res = await fetch(`/Friends/Cancel?receiverId=${id}`, { method: "POST" });
-                if (res.ok) {
-                    const row = document.getElementById(`req-${id}`);
-                    if (row) {
-                        row.style.opacity = '0';
-                        setTimeout(() => row.remove(), 300);
-                    }
-                    const countSpan = document.getElementById('sentCount');
-                    if (countSpan) {
-                        let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
-                        count = count > 0 ? count - 1 : 0;
-                        countSpan.innerText = `(${count})`;
-                    }
-                    const list = document.getElementById('outgoingList');
-                    setTimeout(() => {
-                        if (list.querySelectorAll('.request-card').length === 0) {
-                            const emptyMsg = document.getElementById('noSentMsg');
-                            if (emptyMsg) emptyMsg.style.display = 'block';
-                            else list.innerHTML = `<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">${JS_RESOURCES.msgNoSentRequests}</div>`;
-                        }
-                    }, 350);
-                } else {
-                    alert(JS_RESOURCES.msgErrorCancel);
-                }
-            } catch(err) { console.error(err); }
         }
 
         function escapeHtml(text) {

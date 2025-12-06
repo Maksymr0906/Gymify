@@ -189,6 +189,9 @@
   <data name="Msg_ErrorSearch" xml:space="preserve">
     <value>Помилка пошуку.</value>
   </data>
+  <data name="Msg_FriendRemoved" xml:space="preserve">
+    <value>Друг видалений успішно</value>
+  </data>
   <data name="Msg_NetworkError" xml:space="preserve">
     <value>Помилка мережі</value>
   </data>
@@ -206,6 +209,9 @@
   </data>
   <data name="Msg_Searching" xml:space="preserve">
     <value>Пошук...</value>
+  </data>
+  <data name="Msg_Success" xml:space="preserve">
+    <value>Успішно</value>
   </data>
   <data name="Msg_UseSearch" xml:space="preserve">
     <value>Використовуйте пошук, щоб знайти людей!</value>

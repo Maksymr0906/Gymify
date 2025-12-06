@@ -105,7 +105,7 @@
             
             // Validation
             msgTooLong: "@Localizer["Msg_MessageTooLong"]", 
-            msgEmpty: "@Localizer["Msg_MessageEmpty"]",       
+            msgEmpty: "@Localizer["Msg_MessageEmpty"]",        
             
             currentCulture: '@currentCulture' 
         };
@@ -169,8 +169,16 @@
         chatConnection.on("MessageDeleted", function (msgId) {
             const row = document.getElementById(`row-${msgId}`);
             if (row) {
-                row.style.opacity = "0";
-                setTimeout(() => row.remove(), 300);
+                // Додаємо клас анімації
+                row.classList.add('msg-deleted');
+
+                // Чекаємо завершення анімації (400мс як у CSS), потім видаляємо з DOM
+                setTimeout(() => {
+                    // Перевіряємо, чи елемент ще існує (щоб уникнути помилок)
+                    if (row && row.parentNode) {
+                        row.remove();
+                    }
+                }, 400); // Час має співпадати з transition у CSS
             }
         });
 
@@ -413,10 +421,24 @@
             }
         }
 
-        async function deleteMessageNode(msgId) {
-             if(!confirm(JS_RESOURCES.confirmDelete)) return;
-             try { await chatConnection.invoke("DeleteMessage", msgId, currentChatId); } 
-             catch(e) { alert(JS_RESOURCES.errorDeleting); }
+        // --- DELETE MESSAGE (FIXED WITH ALERTIFY) ---
+        function deleteMessageNode(msgId) {
+            alertify.confirm(
+                'Gymify', 
+                JS_RESOURCES.confirmDelete, 
+                async function() { 
+                    try { 
+                        // SignalR call
+                        await chatConnection.invoke("DeleteMessage", msgId, currentChatId); 
+                        // No need for explicit success message; the MessageDeleted event handles the UI update
+                    } 
+                    catch(e) { 
+                        console.error(e);
+                        if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.errorDeleting);
+                    }
+                },
+                function() { }
+            ).set('labels', {ok:'Yes', cancel:'No'});
         }
 
         function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }

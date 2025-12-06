@@ -189,6 +189,9 @@
   <data name="Msg_ErrorSearch" xml:space="preserve">
     <value>Error searching.</value>
   </data>
+  <data name="Msg_FriendRemoved" xml:space="preserve">
+    <value>Friend removed successfully</value>
+  </data>
   <data name="Msg_NetworkError" xml:space="preserve">
     <value>Network Error</value>
   </data>
@@ -206,6 +209,9 @@
   </data>
   <data name="Msg_Searching" xml:space="preserve">
     <value>Searching...</value>
+  </data>
+  <data name="Msg_Success" xml:space="preserve">
+    <value>Successful</value>
   </data>
   <data name="Msg_UseSearch" xml:space="preserve">
     <value>Use the search bar to find people!</value>

@@ -214,4 +214,28 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
             SentAt = i.CreatedAt
         }).ToList();
     }
+
+
+    public async Task RemoveFriendAsync(Guid currentUserId, Guid friendId)
+    {
+        var friendship = await _unitOfWork.FriendshipRepository.GetByUsersAsync(currentUserId, friendId);
+
+        if (friendship == null)
+            throw new KeyNotFoundException("Friendship not found.");
+
+        var chatId = friendship.ChatId;
+
+        await _unitOfWork.FriendshipRepository.DeleteAsync(friendship);
+
+        if (chatId != Guid.Empty)
+        {
+            var chat = await _unitOfWork.ChatRepository.GetByIdAsync(chatId);
+            if (chat != null)
+            {
+                await _unitOfWork.ChatRepository.DeleteByIdAsync(chat.Id);
+            }
+        }
+
+        await _unitOfWork.SaveAsync();
+    }
 }

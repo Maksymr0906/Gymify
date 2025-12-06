@@ -59,6 +59,5 @@ namespace Gymify.Web.Controllers
             catch (UnauthorizedAccessException) { return Forbid(); }
         }
 
-
     }
 }

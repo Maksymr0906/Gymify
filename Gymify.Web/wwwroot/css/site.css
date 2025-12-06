@@ -1788,6 +1788,11 @@ body {
     margin-bottom: 15px;
     max-width: 80%;
     animation: msgPop 0.2s ease-out;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    max-height: 500px; /* Достатньо велике число, більше за реальну висоту повідомлення */
+    opacity: 1;
+    overflow: hidden; /* Щоб текст не вилазив, коли висота зменшується */
+    transform-origin: center; /* Зменшення відбуватиметься до центру */
 }
 
     .ch-msg-row.me {
@@ -1801,6 +1806,17 @@ body {
         justify-content: flex-start;
         text-align: left;
     }
+
+.msg-deleted {
+    opacity: 0 !important; /* 1. Зникає */
+    max-height: 0 !important; /* 2. Висота схлопується в 0 */
+
+    margin-top: 0 !important; /* 3. Прибираємо відступи */
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    transform: scale(0.9) translateX(-20px); /* 4. Трохи зменшується і відлітає вліво */
+}
 
 .ch-msg-avatar {
     width: 36px;
