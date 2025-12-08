@@ -1,4 +1,5 @@
-﻿using Gymify.Data.Enums;
+﻿using Gymify.Data.Entities;
+using Gymify.Data.Enums;
 using Gymify.Persistence.SeedData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

@@ -1,6 +1,6 @@
-﻿using Gymify.Data.Entities;
-using Gymify.Data.Enums;
+﻿using Gymify.Data.Enums;
 
+namespace Gymify.Data.Entities;
 public class Case : BaseEntity
 {
     public string NameEn { get; set; } = string.Empty;
