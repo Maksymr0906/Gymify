@@ -99,7 +99,7 @@
             msgConfirmDelete: '@Localizer["Msg_ConfirmDelete"]',
             msgErrorDelete: '@Localizer["Msg_ErrorDelete"]',
             altAvatar: '@Localizer["Alt_UserAvatar"]',
-            msgCommentDeleted: '@Localizer["Msg_CommentDeleted"]' // "Comment deleted"
+            msgCommentDeleted: '@Localizer["Msg_CommentDeleted"]' 
         };
 
         const form = document.getElementById('coCommentForm');
@@ -307,7 +307,6 @@
 
                         } else {
                             if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorDelete);
-                            // Повертаємо кнопку, якщо помилка
                             btn.disabled = false;
                             btn.innerText = originalText;
                         }
@@ -319,7 +318,6 @@
                     }
                 },
                 function() {
-                    // Cancel Pressed
                 }
             ).set('labels', {ok:'Yes', cancel:'No'});
         };

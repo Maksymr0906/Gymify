@@ -2,7 +2,7 @@
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Enums;
-using Gymify.Application.ViewModels; // Де лежить ViewModel
+using Gymify.Application.ViewModels; 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +11,7 @@ namespace Gymify.Web.Controllers
     [Authorize]
     public class CommentController : BaseController
     {
-        private readonly ICommentService _commentService; // Твій сервіс
+        private readonly ICommentService _commentService; 
 
         public CommentController(ICommentService commentService)
         {
@@ -24,7 +24,6 @@ namespace Gymify.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Формуємо словник помилок, як у попередньому прикладі
                 var errors = ModelState.Where(x => x.Value.Errors.Any())
                                        .ToDictionary(
                                             kvp => kvp.Key,

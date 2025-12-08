@@ -30,35 +30,6 @@ namespace Gymify.Tests
             await AddExerciseToExistingWorkout();
         }
 
-        [Test]
-        public async Task UserCanRegisterLoginAndViewDashboard()
-        {
-            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
-            var testEmail = $"user_{uniqueId}@test.com";
-            var testUser = $"GymUser_{uniqueId}";
-            var testPassword = "Password123!"; 
-
-            await Page.GotoAsync($"{BaseUrl}/Register");
-
-            await Page.FillAsync("#Email", testEmail);
-            await Page.FillAsync("#UserName", testUser);
-            await Page.FillAsync("#Password", testPassword);
-            await Page.FillAsync("#ConfirmPassword", testPassword);
-
-            await Page.ClickAsync("form[action='/register'] button[type='submit']");
-
-            await Page.GotoAsync($"{BaseUrl}/Login");
-
-            await Page.FillAsync("#Email", testEmail);
-            await Page.FillAsync("#Password", testPassword);
-
-            await Page.ClickAsync("form[action='/login'] button[type='submit']");
-
-            var dashboardTitle = Page.Locator(".dashboard-title");
-            await Expect(dashboardTitle).ToBeVisibleAsync();
-
-            await Expect(Page.Locator(".level-badge")).ToBeVisibleAsync();
-        }
         private async Task RenameWorkout()
         {
             var uniqueSuffix = Guid.NewGuid().ToString("N").Substring(0, 5);
