@@ -12,15 +12,12 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-    // ОНОВЛЕНИЙ ПОШУК
     public async Task<List<FriendDto>> SearchPotentialFriendsAsync(string query, Guid currentUserId)
     {
         if (string.IsNullOrWhiteSpace(query)) return new List<FriendDto>();
 
-        // 1. Шукаємо всіх схожих
         var users = await _unitOfWork.UserProfileRepository.SearchUsersAsync(query, currentUserId);
 
-        // 2. Фільтруємо Адмінів (через UserManager це найнадійніше)
         var nonAdminUsers = new List<UserProfile>();
         foreach (var u in users)
         {
@@ -31,21 +28,18 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
             }
         }
 
-        // 3. Визначаємо статуси для кожного знайденого
         var results = new List<FriendDto>();
 
         foreach (var user in nonAdminUsers)
         {
             var status = UserRelationshipStatus.None;
 
-            // А. Чи друзі?
             if (await _unitOfWork.FriendshipRepository.AreFriendsAsync(currentUserId, user.Id))
             {
                 status = UserRelationshipStatus.Friend;
             }
             else
             {
-                // Б. Чи є активна заявка?
                 var invite = await _unitOfWork.FriendInviteRepository.GetInviteAnyDirectionAsync(currentUserId, user.Id);
                 if (invite != null)
                 {
@@ -59,30 +53,28 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
             {
                 ProfileId = user.Id,
                 UserName = user.ApplicationUser?.UserName ?? "Unknown",
-                AvatarUrl = user.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+                AvatarUrl = user.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
                 Level = user.Level,
-                Status = status // <--- Передаємо статус на фронт
+                Status = status 
             });
         }
 
         return results;
     }
 
-    // ОТРИМАННЯ ВИХІДНИХ
     public async Task<List<FriendDto>> GetOutgoingInvitesAsync(Guid userId)
     {
         var invites = await _unitOfWork.FriendInviteRepository.GetOutgoingInvitesAsync(userId);
         return invites.Select(i => new FriendDto
         {
-            ProfileId = i.ReceiverProfileId, // ID того, кому відправили
+            ProfileId = i.ReceiverProfileId, 
             UserName = i.ReceiverProfile.ApplicationUser?.UserName ?? "Unknown",
-            AvatarUrl = i.ReceiverProfile.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+            AvatarUrl = i.ReceiverProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             SentAt = i.CreatedAt,
             Status = UserRelationshipStatus.RequestSent
         }).ToList();
     }
 
-    // СКАСУВАННЯ ЗАЯВКИ (те саме, що Decline, але семантично для Cancel)
     public async Task CancelFriendRequestAsync(Guid receiverId, Guid currentUserId)
     {
         // Шукаємо заявку, де Я = Sender, Він = Receiver
@@ -192,7 +184,7 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
             {
                 ProfileId = friendProfile.Id,
                 UserName = friendProfile.ApplicationUser?.UserName ?? "Unknown",
-                AvatarUrl = friendProfile.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+                AvatarUrl = friendProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
                 ChatId = f.ChatId,
                 Level = friendProfile.Level
             });
@@ -210,7 +202,7 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
         {
             ProfileId = i.SenderProfileId,
             UserName = i.SenderProfile.ApplicationUser?.UserName ?? "Unknown",
-            AvatarUrl = i.SenderProfile.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+            AvatarUrl = i.SenderProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             SentAt = i.CreatedAt
         }).ToList();
     }

@@ -31,16 +31,24 @@
                 <label asp-for="RememberMe" class="form-check-label">
                     @Localizer["RememberMe"]
                 </label>
+
             </div>
 
             <button type="submit" class="gym-btn gym-btn-primary w-100 scale-btn">
                 @Localizer["LoginButton"]
             </button>
+
         </form>
 
-        <div class="auth-footer">
-            @Localizer["DontHaveAccount"]
-            <a asp-action="Register" class="auth-link">@Localizer["SignUp"]</a>
+        <div class="auth-footer-column" style="margin: 10px">
+            <div>
+                @Localizer["ForgotPassword"]
+                <a asp-controller="Auth" asp-action="ForgotPassword" class="auth-link">@Localizer["ChangePassword"]</a>
+            </div>
+            <div>
+                @Localizer["DontHaveAccount"]
+                <a asp-action="Register" class="auth-link">@Localizer["SignUp"]</a>
+            </div>
         </div>
     </div>
 </div>

@@ -29,7 +29,7 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
                 if (otherMember != null)
                 {
                     chatName = otherMember.UserProfile.ApplicationUser?.UserName ?? "Unknown";
-                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png";
+                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
 
                     targetUserId = otherMember.UserProfileId;
                 }
@@ -68,7 +68,7 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
             ChatId = m.ChatId,
             SenderId = m.SenderId,
             SenderName = m.Sender.ApplicationUser?.UserName ?? "Unknown",
-            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
+            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Content = m.Content,
             CreatedAt = m.CreatedAt,
             IsMe = m.SenderId == currentUserId 
@@ -105,7 +105,7 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
         var senderProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(senderId);
 
-        var avatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png";
+        var avatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
         var senderName = senderProfile?.ApplicationUser?.UserName ?? "Unknown";
 
         return new MessageDto
@@ -185,7 +185,6 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
         {
             await _unitOfWork.SaveAsync();
 
-            // Шукаємо нове останнє
             var newLastMsg = await _unitOfWork.MessageRepository.FindLastMessageAsync(chatId);
 
             chat.LastMessageId = newLastMsg?.Id;
@@ -203,9 +202,8 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
         }
         else
         {
-            // Це було не останнє повідомлення, просто зберігаємо видалення
             await _unitOfWork.SaveAsync();
-            return null; // UI оновлювати не треба (в плані прев'ю)
+            return null; 
         }
     }
 }

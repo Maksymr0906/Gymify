@@ -186,13 +186,13 @@ public class UserProfileService
             Workouts = userWorkouts,
             UserEquipmentDto = userEquipment,
             UpdateUserEquipmentDto = new(),
-            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Comments = new CommentsSectionViewModel
             {
                 TargetId = userProfileId,
                 TargetType = Data.Enums.CommentTargetType.UserProfile,
                 CommentDtos = await _commentService.GetCommentDtos(currentUserProfileId, userProfileId, Data.Enums.CommentTargetType.UserProfile),
-                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
+                CurrentUserAvatarUrl = avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             }
         };
     }
@@ -209,7 +209,6 @@ public class UserProfileService
 
         if (user.UserName == userName) return;
 
-        // "Is Taken" check still happens here (Business Logic)
         var existingUser = await _userManager.FindByNameAsync(userName);
         if (existingUser != null)
         {

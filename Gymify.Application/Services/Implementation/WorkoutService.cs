@@ -192,18 +192,16 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
     {
         var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(workoutId);
 
-        // 1. Якщо воркауту немає - кидаємо помилку "Не знайдено"
         if (workout == null)
             throw new KeyNotFoundException($"Workout with ID {workoutId} not found.");
 
-        // 2. Якщо приватний і не власник - кидаємо помилку "Доступ заборонено"
         if (workout.IsPrivate && workout.UserProfileId != currentProfileUserId)
         {
             throw new UnauthorizedAccessException("Access to this private workout is denied.");
         }
 
         var currentUser = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(currentProfileUserId);
-        if (currentUser == null) throw new Exception("Current user profile not found"); // Бажано теж перевірити
+        if (currentUser == null) throw new Exception("Current user profile not found");
 
         var avatar = await _unitOfWork.ItemRepository.GetByIdAsync(currentUser.Equipment.AvatarId);
 
@@ -231,7 +229,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             Description = workout.Description,
             Conclusion = workout.Conclusion,
             AuthorName = workoutAuthor.ApplicationUser?.UserName ?? "Unknown",
-            CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png", 
+            CurrentUserAvatarUrl = avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png", 
             AuthorId = workout.UserProfileId,
             CreatedAt = workout.CreatedAt,
             TotalXP = workout.TotalXP,
@@ -243,7 +241,7 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
                 TargetId = workout.Id,
                 TargetType = Data.Enums.CommentTargetType.Workout,
                 CommentDtos = await _commentService.GetCommentDtos(currentProfileUserId, workout.Id, Data.Enums.CommentTargetType.Workout),
-                CurrentUserAvatarUrl = avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
+                CurrentUserAvatarUrl = avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             }
         };
     }
@@ -278,17 +276,14 @@ public class WorkoutService(IUnitOfWork unitOfWork, IUserProfileService userProf
             await _unitOfWork.CommentRepository.DeleteRangeAsync(comments);
         }
 
-        // 2. Видаляємо Вправи (UserExercises)
         var exercises = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
         if (exercises.Count != 0)
         {
             await _unitOfWork.UserExerciseRepository.DeleteRangeAsync(exercises);
         }
 
-        // 3. Видаляємо сам Воркаут
         await _unitOfWork.WorkoutRepository.DeleteByIdAsync(workoutId);
 
-        // Зберігаємо всі зміни однією транзакцією
         await _unitOfWork.SaveAsync();
     }
 }

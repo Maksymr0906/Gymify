@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gymify.Persistence", "Gymif
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gymify.Web", "Gymify.Web\Gymify.Web.csproj", "{AA7F6D43-BC50-4462-A06E-4E566897A190}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Tests", "Gymify.Tests\Gymify.Tests.csproj", "{155A3DEA-E679-4859-B95D-CA8630B8111C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gymify.Tests", "Gymify.Tests\Gymify.Tests.csproj", "{45CE7618-F2CD-469F-82AB-BD5A8CB6AFF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{AA7F6D43-BC50-4462-A06E-4E566897A190}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA7F6D43-BC50-4462-A06E-4E566897A190}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA7F6D43-BC50-4462-A06E-4E566897A190}.Release|Any CPU.Build.0 = Release|Any CPU
-		{155A3DEA-E679-4859-B95D-CA8630B8111C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{155A3DEA-E679-4859-B95D-CA8630B8111C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{155A3DEA-E679-4859-B95D-CA8630B8111C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{155A3DEA-E679-4859-B95D-CA8630B8111C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45CE7618-F2CD-469F-82AB-BD5A8CB6AFF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45CE7618-F2CD-469F-82AB-BD5A8CB6AFF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45CE7618-F2CD-469F-82AB-BD5A8CB6AFF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45CE7618-F2CD-469F-82AB-BD5A8CB6AFF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

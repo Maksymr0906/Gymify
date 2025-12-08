@@ -23,7 +23,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             CreatedAt = comment.CreatedAt,
             AuthorName = comment.Author?.ApplicationUser?.UserName ?? "Unknown User",
 
-            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
+            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
 
             CanDelete = comment.AuthorId == currentProfileUserId,
             TargetId = targetId,
@@ -40,7 +40,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
 
         if (currentUser == null) throw new Exception("User not found");
 
-        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png";
+        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
 
         var commentDto = new CommentDto
         {

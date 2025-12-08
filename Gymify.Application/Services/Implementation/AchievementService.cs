@@ -46,11 +46,12 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
             {
                 completedAchievements.Add(achievement);
                 userAchievement.IsCompleted = true;
-                /*await _notificationService.SendNotificationAsync(
+                await _notificationService.SendNotificationAsync(
                         userProfileId,
-                        $"You have completed '{achievement.Name}' achievement.",
-                        "/Achievements" // Клікати нікуди не треба, це просто інфо
-                    );*/
+                        $"You have completed '{achievement.NameEn}' achievement.",
+                        $"Ви виконали досягнення '{achievement.NameUk}'.",
+                        "/Achievements"
+                    );
                 await _caseService.GiveRewardByAchievement(user.Id, achievement.RewardItemId);
             }
             else if (!isCompleted)

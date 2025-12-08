@@ -716,10 +716,21 @@ body {
 }
 
 /* Footer links */
+
 .auth-footer {
     margin-top: 25px;
     font-size: 14px;
     color: #666;
+}
+
+.auth-footer-column {
+    margin-top: 25px;
+    font-size: 14px;
+    color: #666;
+    display: flex; /* Увімкнення Flexbox */
+    flex-direction: column; /* Розміщення вмісту у стовпець */
+    align-items: center; /* Вирівнювання елементів по центру горизонтально */
+    gap: 5px; /* Додавання невеликого відступу між елементами */
 }
 
 .auth-link {

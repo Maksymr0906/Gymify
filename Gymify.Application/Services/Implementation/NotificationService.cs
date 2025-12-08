@@ -16,19 +16,16 @@ public class NotificationService : INotificationService
 
     public async Task MarkAsReadAsync(Guid notificationId)
     {
-        // Просто видаляємо запис. Немає запису - немає сповіщення.
         await _unitOfWork.NotificationRepository.DeleteByIdAsync(notificationId);
         await _unitOfWork.SaveAsync();
     }
 
     public async Task MarkAllAsReadAsync(Guid userId)
     {
-        // Отримуємо всі сповіщення юзера
         var allNotifications = await _unitOfWork.NotificationRepository.GetAllUnreadByUserIdAsync(userId); // Або спеціальний метод GetAllByUserId
 
         if (allNotifications.Any())
         {
-            // Видаляємо їх масово
             await _unitOfWork.NotificationRepository.DeleteRangeAsync(allNotifications);
             await _unitOfWork.SaveAsync();
         }
@@ -36,7 +33,6 @@ public class NotificationService : INotificationService
 
     public async Task SendNotificationAsync(Guid targetUserId, string messageEn, string messageUk, string link)
     {
-        // 1. Збереження в БД...
         var notification = new Notification
         {
             UserProfileId = targetUserId, 
@@ -47,7 +43,6 @@ public class NotificationService : INotificationService
         await _unitOfWork.NotificationRepository.CreateAsync(notification);
         await _unitOfWork.SaveAsync();
 
-        // 2. Відправка (ми не знаємо, що там SignalR, нам байдуже)
         await _notifierService.PushAsync(targetUserId, "ReceiveNotification", new
         {
             messageEn,

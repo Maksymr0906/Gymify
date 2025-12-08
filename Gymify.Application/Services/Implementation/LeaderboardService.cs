@@ -25,7 +25,6 @@ public class LeaderboardService : ILeaderboardService
 
         var friendsIds = friendships.Select(f => f.UserProfileId1 == currentUserId ? f.UserProfileId2 : f.UserProfileId1).ToList();
 
-        // 1. Викликаємо репозиторій для отримання сторінки
         var (usersEntities, totalUsers) = await _unitOfWork.UserProfileRepository
             .GetLeaderboardPageAsync(page, pageSize);
 
@@ -41,33 +40,28 @@ public class LeaderboardService : ILeaderboardService
 
         usersEntities = nonAdminUsers;
 
-        // 2. Розрахунок сторінок
         var totalPages = (int)Math.Ceiling(totalUsers / (double)pageSize);
 
-        // (Опціонально) Валідація сторінки, якщо користувач ввів ?page=999
         if (page > totalPages && totalPages > 0) page = totalPages;
         if (page < 1) page = 1;
 
-        // 3. Маппінг в DTO
         var usersOnPage = usersEntities.Select(u => new LeaderboardItemDto
         {
             UserId = u.Id,
             UserName = u.ApplicationUser.UserName ?? "Unknown",
-            AvatarUrl = u.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
+            AvatarUrl = u.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Level = u.Level,
             TotalXP = u.CurrentXP,
             IsMe = u.Id == currentUserId,
             IsFriend = friendsIds.Contains(u.Id)
         }).ToList();
 
-        // 4. Проставляємо ранги
         int startRank = (page - 1) * pageSize + 1;
         for (int i = 0; i < usersOnPage.Count(); i++)
         {
             usersOnPage[i].Rank = startRank + i;
         }
 
-        // 5. Отримуємо інфо про поточного юзера
         var currentUserDto = await GetCurrentUserRankAsync(currentUserId);
 
         return new LeaderboardViewModel
@@ -81,12 +75,10 @@ public class LeaderboardService : ILeaderboardService
 
     private async Task<LeaderboardItemDto> GetCurrentUserRankAsync(Guid userId)
     {
-        // Використовуємо існуючий метод репозиторію, який тягне всі дані
         var myProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(userId);
 
         if (myProfile == null) return null;
 
-        // Викликаємо новий метод репозиторію для рангу
         var myRank = await _unitOfWork.UserProfileRepository.GetUserRankByXpAsync(myProfile.CurrentXP);
 
         return new LeaderboardItemDto
@@ -94,7 +86,7 @@ public class LeaderboardService : ILeaderboardService
             Rank = myRank,
             UserId = myProfile.Id,
             UserName = myProfile.ApplicationUser?.UserName ?? "Me",
-            AvatarUrl = myProfile.Equipment?.Avatar?.ImageURL ?? "/Images/DefaultAvatar.png",
+            AvatarUrl = myProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Level = myProfile.Level,
             TotalXP = myProfile.CurrentXP,
             IsMe = true

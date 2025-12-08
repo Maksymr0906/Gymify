@@ -67,11 +67,12 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
                 CaseId = randomCase.Id
             };
 
-            /*await _notificationService.SendNotificationAsync(
+            await _notificationService.SendNotificationAsync(
                         userProfileId,
-                        $"You received new case '{randomCase.Name}'.",
-                        "/Inventory" // Клікати нікуди не треба, це просто інфо
-                    );*/
+                        $"You received new case '{randomCase.NameEn}'.",
+                        $"Ви отримали новий кейс '{randomCase.NameUk}'.",
+                        "/Inventory" 
+                    );
 
             await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
         }
@@ -95,11 +96,12 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
             ItemId = rewardItemId
         };
 
-        /*await _notificationService.SendNotificationAsync(
+        await _notificationService.SendNotificationAsync(
                         userProfileId,
-                        $"You received new case '{rewardItem.Name}'.",
-                        "/Inventory" // Клікати нікуди не треба, це просто інфо
-                    );*/
+                        $"You received new item '{rewardItem.NameEn}'.",
+                        $"Ви отримали новий предмет '{rewardItem.NameUk}'.",
+                        "/Inventory" 
+                    );
 
         await _unitOfWork.UserItemRepository.CreateAsync(userItem);
         await _unitOfWork.SaveAsync();
@@ -143,13 +145,13 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
 			.ToList();
 
 		if (rewardsOfSameRarity.Count == 0)
-			rewardsOfSameRarity = detailedItems.ToList(); // Fallback, якщо нема предметів такої рідкості
+			rewardsOfSameRarity = detailedItems.ToList(); 
 
 		int selectedIndex = _random.Next(rewardsOfSameRarity.Count);
-		var selectedReward = rewardsOfSameRarity[selectedIndex]; // Це наш переможець!
+		var selectedReward = rewardsOfSameRarity[selectedIndex]; 
 
-		const int stripLength = 100; // Загальна довжина стрічки (як у прикладі)
-		const int winningIndex = 78;  // Позиція, де завжди буде переможець
+		const int stripLength = 100; 
+		const int winningIndex = 78;  
 
 		var rouletteItems = new List<Item>();
 
@@ -157,11 +159,10 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
 		{
 			if (i == winningIndex)
 			{
-				rouletteItems.Add(selectedReward); // Вставляємо переможця
+				rouletteItems.Add(selectedReward); 
 			}
 			else
 			{
-				// Вставляємо випадковий предмет з усіх можливих у цьому кейсі
 				rouletteItems.Add(detailedItems[_random.Next(detailedItems.Count)]);
 			}
 		}
@@ -190,10 +191,7 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
 
 		return new OpenCaseResultDto()
 		{
-			RouletteStrip = rouletteStripDto, // Повертаємо нову стрічку
-                                              // SelectedIndex видалено
-
-            // Інформація про переможця
+			RouletteStrip = rouletteStripDto,
             Name = ukranianVer ? selectedReward.NameUk : selectedReward.NameEn,
             Description = ukranianVer ? selectedReward.DescriptionUk : selectedReward.DescriptionEn,
             ImageURL = selectedReward.ImageURL,

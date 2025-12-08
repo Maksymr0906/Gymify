@@ -49,21 +49,18 @@ public class ExerciseService(IUnitOfWork unitOfWork) : IExerciseService
         int pageSize,
         bool ukranianVer)
     {
-        // 1. Отримуємо дані з БД
         var (entities, totalCount) = await _unitOfWork.ExerciseRepository
             .GetFilteredAsync(search, type, pendingOnly, page, pageSize, ukranianVer);
 
-        // 2. Розрахунок сторінок
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        // 3. Маппінг в DTO
+        
         var dtos = entities.Select(e => new ExerciseDto
         {
             Id = e.Id,
             Name = ukranianVer ? e.NameUk : e.NameEn,
             Description = ukranianVer ? e.DescriptionUk : e.DescriptionEn,
             Type = e.Type,
-            VideoURL = e.VideoURL, // Важливо для YouTube хелпера
+            VideoURL = e.VideoURL, 
             IsApproved = e.IsApproved,
             IsRejected = e.IsRejected,
             BaseXP = e.BaseXP
