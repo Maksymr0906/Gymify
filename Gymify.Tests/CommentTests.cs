@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gymify.Tests
 {
-    public class CommentChatTests : BaseTests
+    public class CommentTests : BaseTests
     {
         [Test]
         public async Task UserCanPostEditAndDeleteCommentFromFeed()

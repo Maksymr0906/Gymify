@@ -28,8 +28,9 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             CanDelete = comment.AuthorId == currentProfileUserId,
             TargetId = targetId,
             TargetType = targetType,
-            IsApproved = comment.IsApproved
-        }).Where(comment => comment.IsApproved == true).ToList();
+            IsApproved = comment.IsApproved,
+            IsRejected = comment.IsRejected
+        }).Where(comment => comment.IsRejected == false).ToList(); // Я вообще ХЗ як бути...
 
         return commentDtos;
     }

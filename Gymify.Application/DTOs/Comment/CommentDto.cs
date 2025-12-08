@@ -11,9 +11,9 @@ public class CommentDto
     public string AuthorName { get; set; }
     public string AuthorAvatarUrl { get; set; }
     public string Content { get; set; } = string.Empty;
-
     public CommentTargetType TargetType { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool CanDelete { get; set; } 
     public bool IsApproved { get; set; } 
+    public bool IsRejected { get; set; } 
 }
