@@ -301,7 +301,13 @@
 
         async function markAsReadOnServer(chatId) {
             try {
-                await fetch(`/Chat/MarkAsRead?chatId=${chatId}`, { method: 'POST' });
+                await fetch('/Chat/MarkAsRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Обов'язково вказуємо тип контенту
+                    },
+                    body: JSON.stringify(chatId) // Перетворюємо GUID в JSON-рядок "xxxxxxxx-xxxx..."
+                });
             } catch (e) {
                 console.error("Failed to mark as read", e);
             }
