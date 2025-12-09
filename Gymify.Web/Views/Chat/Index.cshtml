@@ -40,7 +40,7 @@
                                 @if (chat.LastMessageTime.HasValue)
                                 {
                                     <div class="ch-time">
-                                        @chat.LastMessageTime.Value.ToString("HH:mm")
+                                        @chat.LastMessageTime.Value.ToString("g", CultureInfo.CurrentCulture)
                                     </div>
                                 }
                                 
@@ -215,7 +215,6 @@
 
             // Show Chat Area
             chatMain.classList.add('active'); 
-            if(window.innerWidth <= 768) document.getElementById('backBtn').style.display = 'block';
             
             document.getElementById('chatPlaceholder').classList.add('hidden');
             document.getElementById('chatHeader').classList.remove('hidden');
@@ -322,7 +321,11 @@
                 const chatItem = document.getElementById(`chat-item-${chatId}`);
                 const dateObj = new Date(dateStr);
                 const timeFormatted = dateObj.toLocaleString(JS_RESOURCES.currentCulture, { 
-                    hour: '2-digit', minute: '2-digit' 
+                    year: 'numeric',   
+                    month: '2-digit',  
+                    day: '2-digit',   
+                    hour: '2-digit', 
+                    minute: '2-digit' 
                 });
                 let timeDiv = chatItem.querySelector('.ch-time');
                 if (timeDiv) timeDiv.innerText = timeFormatted;

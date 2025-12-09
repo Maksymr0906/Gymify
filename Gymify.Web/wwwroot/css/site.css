@@ -1878,9 +1878,11 @@ body {
     word-wrap: break-word; 
     overflow-wrap: break-word;
     word-break: break-word; 
-    white-space: pre-wrap; 
     height: auto;
 }
+    .ch-msg div[id^="content-"] {
+        white-space: pre-wrap;
+    }
 
     /* My Message Style */
     .ch-msg.me {

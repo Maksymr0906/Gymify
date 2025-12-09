@@ -75,10 +75,9 @@
                 </div>
             }
         }
-        else
-        {
-            <div id="coNoComments" class="co-empty-msg">@Localizer["Msg_NoComments"]</div>
-        }
+        <div id="coNoComments" class="co-empty-msg @(Model.CommentDtos != null && Model.CommentDtos.Any() ? "hidden" : "")">
+            @Localizer["Msg_NoComments"]
+        </div>
     </div>
 </div>
 
@@ -165,7 +164,7 @@
         }
 
         function appendCommentDOM(c) {
-            if(emptyMsg) emptyMsg.style.display = 'none';
+            if(emptyMsg) emptyMsg.classList.add('hidden');
 
             const domId = 'comment-el-' + (c.id || Date.now());
             const profileUrl = `/User/Profile?userId=${c.authorId}`;
@@ -282,7 +281,6 @@
                 'Gymify',
                 JS_RESOURCES.msgConfirmDelete,
                 async function() {
-                    // === OK Pressed ===
                     const originalText = btn.innerText;
                     btn.disabled = true;
                     btn.innerText = "...";
@@ -292,16 +290,21 @@
                     try {
                         const res = await fetch(`/Comment/DeleteComment?commentId=${id}`, { method: 'POST' });
                         if(res.ok) {
-                            // Анімація видалення
                             item.style.transition = "all 0.3s";
                             item.style.opacity = "0";
                             item.style.transform = "scale(0.95)";
 
                             setTimeout(() => {
                                 item.remove();
-                                // Перевіряємо, чи список не став порожнім
-                                if (list.querySelectorAll('.co-item').length === 0 && emptyMsg) {
-                                    emptyMsg.style.display = 'block';
+                                const remainingItems = list.querySelectorAll('.co-item');
+                                if (remainingItems.length === 0 && emptyMsg) {
+                                    emptyMsg.classList.remove('hidden'); // Повертаємо напис
+
+                                    emptyMsg.style.opacity = '0';
+                                    requestAnimationFrame(() => {
+                                        emptyMsg.style.transition = 'opacity 0.5s';
+                                        emptyMsg.style.opacity = '1';
+                                    });
                                 }
                             }, 300);
 
