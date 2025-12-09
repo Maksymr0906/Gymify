@@ -11,6 +11,17 @@
     </script>
 }
 
+@if (TempData["QuickError"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'bottom-right');
+            var msg = @Json.Serialize(TempData["QuickError"]);
+            alertify.error(msg, 5); 
+        });
+    </script>
+}
+
 @if (TempData["Error"] != null)
 {
     <script>

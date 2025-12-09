@@ -17,7 +17,6 @@
     <div class="roulette-wrapper">
         <div class="roulette-container">
             <div id="roulette-strip">
-                @* Стрічка заповнюється через JS *@
             </div>
         </div>
         <div class="roulette-marker"></div>
@@ -62,7 +61,8 @@
             btnOpenCase: '@Localizer["Btn_OpenCase"]',
             btnOpening: '@Localizer["Btn_Opening"]',
             msgServerError: '@Localizer["Msg_ServerError"]',
-            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]'
+            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]',
+            msgOutOfStock: '@Localizer["Msg_CaseOutOfStock"]' 
         };
 
         const openButton = document.getElementById("triggerOpenCaseBtn");
@@ -86,20 +86,21 @@
                     headers: { "X-Requested-With": "XMLHttpRequest" }
                 });
 
-                if (!response.ok) throw new Error(JS_RESOURCES.msgServerError);
-
                 const data = await response.json();
 
-                // Setup Strip
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                    return;
+                }
+
+                if (!response.ok) throw new Error(JS_RESOURCES.msgServerError);
+
                 strip.innerHTML = '';
                 strip.style.transition = 'none';
                 strip.style.transform = 'translateX(0px)';
 
                 data.rouletteStrip.forEach(item => {
                     const div = document.createElement('div');
-                    // Важливо: переконайтеся, що item.rarity приходить з сервера у форматі, 
-                    // придатному для CSS класу (наприклад, англійською "common", "rare"), 
-                    // навіть якщо інтерфейс українською.
                     div.className = `roulette-item rarity-border-${item.rarity}`;
                     div.innerHTML = `<img src="${item.imageURL}" alt="${item.name}" /><p>${item.name}</p>`;
                     strip.appendChild(div);
@@ -130,14 +131,9 @@
 
                     const rBadge = document.getElementById("dropRarity");
                     
-                    // Тут data.rarityName - це те, що бачить користувач (може бути локалізовано)
                     rBadge.textContent = data.rarityName;
                     
                     rBadge.className = 'rarity-badge'; 
-                    // Тут важливо використовувати технічну назву рідкості для CSS, 
-                    // якщо data.rarityName буде українською ("Звичайний"), стиль може зламатися.
-                    // Рекомендується, щоб сервер повертав окремо rarityCode (для CSS) і rarityName (для тексту).
-                    // Поки залишаємо як було, припускаючи, що rarityName підходить для CSS або сервер повертає англійську.
                     rBadge.classList.add(`rarity-${data.rarityName.toLowerCase()}`);
 
                     resultModal.classList.remove("hidden");

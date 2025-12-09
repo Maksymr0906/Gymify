@@ -135,6 +135,9 @@
   <data name="Header_Reward" xml:space="preserve">
     <value>You received!</value>
   </data>
+  <data name="Msg_CaseOutOfStock" xml:space="preserve">
+    <value>You don't have case of this type</value>
+  </data>
   <data name="Msg_ErrorGeneric" xml:space="preserve">
     <value>Error opening case.</value>
   </data>

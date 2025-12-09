@@ -16,8 +16,6 @@ public class CaseController : BaseController
         _caseService = caseService;
     }
 
-    // GET: показати сторінку кейсу тут тіпа ім'я його картінка
-
     [HttpGet]
     public async Task<IActionResult> Details(Guid caseId)
     {
@@ -31,16 +29,31 @@ public class CaseController : BaseController
         return View(caseInfoDto);
     }
 
-    // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера
     [HttpPost]
     public async Task<IActionResult> OpenCase(Guid caseId)
     {
-        var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
+        try
+        {
+            var user = User.FindFirst("UserProfileId") ?? throw new Exception("User not found");
+            var userId = Guid.Parse(user.Value);
+            var result = await _caseService.OpenCaseAsync(userId, caseId, IsUkrainian);
 
-        var userId = Guid.Parse(user.Value);
+            return Json(result);
+        }
+        catch (Exception ex) 
+        {
+            if (ex.Message.Contains("No userCase found"))
+            {
+                TempData["QuickError"] = IsUkrainian ? "Нажаль, кейси цього типу закінчилися." : "Unfortunately, you don't have cases of this type.";
 
-        var result = await _caseService.OpenCaseAsync(userId, caseId, IsUkrainian);
-        return Json(result);
+                return Json(new
+                {
+                    redirectUrl = Url.Action("Index", "Inventory")
+                });
+            }
+
+            return StatusCode(500, new { message = ex.Message });
+        }
     }
 
 }

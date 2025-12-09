@@ -135,6 +135,9 @@
   <data name="Header_Reward" xml:space="preserve">
     <value>Ви отримали!</value>
   </data>
+  <data name="Msg_CaseOutOfStock" xml:space="preserve">
+    <value>В вас більше немає кейсу цього типу</value>
+  </data>
   <data name="Msg_ErrorGeneric" xml:space="preserve">
     <value>Помилка при відкритті кейсу.</value>
   </data>
