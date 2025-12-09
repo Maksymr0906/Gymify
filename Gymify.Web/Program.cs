@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using Gymify.Web;
+using Gymify.Application.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,7 @@ services
 
 services.AddSignalR();
 services.AddSingleton<IUserIdProvider, CustomUserIdProviderService>();
+services.AddSingleton<ChatMembersTrackerService>();
 
 services.AddScoped<INotifierService, SignalRNotifierService>();
 

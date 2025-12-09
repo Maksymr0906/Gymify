@@ -1,4 +1,5 @@
-﻿using Gymify.Application.DTOs.Chat;
+﻿using AutoMapper.Execution;
+using Gymify.Application.DTOs.Chat;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Enums;
@@ -6,9 +7,10 @@ using Gymify.Data.Interfaces.Repositories;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class ChatService(IUnitOfWork unitOfWork) : IChatService
+public class ChatService(IUnitOfWork unitOfWork, ChatMembersTrackerService chatMembersTrackerService) : IChatService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ChatMembersTrackerService _chatMembersTrackerService = chatMembersTrackerService;
 
     public async Task<List<ChatDto>> GetUserChatsAsync(Guid userId)
     {
@@ -142,6 +144,34 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
         await _unitOfWork.SaveAsync();
 
         var senderProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(senderId);
+
+        // 2. Логіка сповіщень
+        var recipients = members.Where(m => m.UserProfileId != senderId).ToList();
+
+        foreach (var recipient in recipients)
+        {
+            // ПЕРЕВІРКА 1: Чи юзер ЗАРАЗ дивиться цей чат?
+            bool isWatchingNow = _chatMembersTrackerService.IsUserActiveInChat(recipient.UserProfileId, chatId);
+
+            // Якщо він дивиться чат -> МИ НЕ ШЛЕМО СПОВІЩЕННЯ В БД
+            if (isWatchingNow)
+            {
+                continue; // Пропускаємо цього юзера
+            }
+
+            // ПЕРЕВІРКА 2: Якщо не дивиться, перевіряємо чи це перше непрочитане (щоб не спамити)
+            var unreadCount = await _unitOfWork.MessageRepository.CountUnreadMessagesAsync(chatId, recipient.UserProfileId);
+
+            if (unreadCount == 1)
+            {
+                await _notificationService.SendNotificationAsync(
+                    recipient.UserProfileId,
+                    $"New message from {senderName}",
+                    $"Нове повідомлення від {senderName}",
+                    $"/Chat?openChatId={chatId}"
+                );
+            }
+        }
 
         return new MessageDto
         {
