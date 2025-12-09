@@ -145,6 +145,8 @@ public class ChatService(IUnitOfWork unitOfWork, ChatMembersTrackerService chatM
 
         var senderProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(senderId);
 
+        // <--- ОСЬ ЦЬОГО РЯДКА НЕ ВИСТАЧАЛО: Отримуємо всіх учасників чату з БД
+        var members = await _unitOfWork.UserChatRepository.(chatId);/////////////////////////////////////////////////////////////////////////////////////
         // 2. Логіка сповіщень
         var recipients = members.Where(m => m.UserProfileId != senderId).ToList();
 
