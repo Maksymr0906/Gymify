@@ -21,16 +21,15 @@ public class BaseController : Controller
 
     protected void NotifyModelStateErrors()
     {
-        // Знаходимо першу помилку в ModelState
-        var firstError = ModelState.Values
+        var errors = ModelState.Values
             .SelectMany(v => v.Errors)
-            .Select(e => e.ErrorMessage)
-            .FirstOrDefault();
+            .Select(e => e.ErrorMessage);
 
-        // Якщо помилка є — показуємо її через Alertify
-        if (!string.IsNullOrEmpty(firstError))
+        string stringErrors = string.Join("<br>", errors);
+
+        if (!string.IsNullOrEmpty(stringErrors))
         {
-            NotifyError(firstError);
+            NotifyError(stringErrors);
         }
     }
 }

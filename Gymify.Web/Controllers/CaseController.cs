@@ -17,14 +17,18 @@ public class CaseController : BaseController
     }
 
     // GET: показати сторінку кейсу тут тіпа ім'я його картінка
-    
+
     [HttpGet]
     public async Task<IActionResult> Details(Guid caseId)
     {
-
         var caseInfoDto = await _caseService.GetCaseDetailsAsync(caseId, IsUkrainian);
 
-        return View(caseInfoDto); 
+        if (caseInfoDto == null)
+        {
+            return NotFound();
+        }
+
+        return View(caseInfoDto);
     }
 
     // POST: відкриття кейсу, в параметр кидаємо з сесії гуйд юзера

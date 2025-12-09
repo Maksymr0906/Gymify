@@ -5,7 +5,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             alertify.set('notifier','position', 'bottom-right');
-            alertify.success('@TempData["Success"]');
+            var msg = @Json.Serialize(TempData["Success"]);
+            alertify.success(msg, 0);
         });
     </script>
 }
@@ -15,7 +16,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             alertify.set('notifier','position', 'bottom-right');
-            alertify.error('@TempData["Error"]');
+            var msg = @Json.Serialize(TempData["Error"]);
+            alertify.error(msg, 0); 
         });
     </script>
 }
@@ -25,7 +27,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             alertify.set('notifier','position', 'bottom-right');
-            alertify.warning('@TempData["Warning"]');
+            var msg = @Json.Serialize(TempData["Warning"]);
+            alertify.warning(msg, 0);
         });
     </script>
 }
@@ -35,7 +38,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             alertify.set('notifier','position', 'bottom-right');
-            alertify.message('@TempData["Message"]');
+            var msg = @Json.Serialize(TempData["Message"]);
+            alertify.message(msg, 0);
         });
     </script>
 }

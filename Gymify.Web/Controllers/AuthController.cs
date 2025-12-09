@@ -23,15 +23,20 @@ public class AuthController : BaseController
     public async Task<IActionResult> Register(RegisterRequestDto dto)
     {
         if (!ModelState.IsValid)
+        {
             return View(dto);
+        }
 
         var result = await _authService.RegisterAsync(dto);
 
         if (result.Succeeded)
             return RedirectToAction("Index", "Main");
 
+
         foreach (var error in result.Errors)
             ModelState.AddModelError("", error.Description);
+
+        NotifyModelStateErrors();
 
         return View(dto);
     }

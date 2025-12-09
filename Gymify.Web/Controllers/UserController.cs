@@ -134,12 +134,8 @@ namespace Gymify.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GoToCasePage(Guid caseId)
+        public IActionResult GoToCasePage(Guid caseId)
         {
-            var caseEntity = await _caseService.GetCaseDetailsAsync(caseId, IsUkrainian);
-            if (caseEntity == null)
-                return NotFound();
-
             return RedirectToAction("Details", "Case", new { caseId = caseId });
         }
 
