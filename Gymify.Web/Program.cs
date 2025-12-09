@@ -58,6 +58,10 @@ services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
+    options.SignIn.RequireConfirmedAccount = true; // Не пускати, поки не підтвердить пошту
+    options.SignIn.RequireConfirmedEmail = true;  
+
+    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
 })
 .AddEntityFrameworkStores<GymifyDbContext>()
 .AddDefaultTokenProviders()
