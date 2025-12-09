@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using System.Globalization;
 using Gymify.Web;
 using Gymify.Application.Services.Implementation;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +67,8 @@ services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 .AddEntityFrameworkStores<GymifyDbContext>()
 .AddDefaultTokenProviders()
 .AddErrorDescriber<LocalizedIdentityErrorDescriber>();
+
+services.AddTransient<IEmailSender, EmailSenderService>();
 
 services.ConfigureApplicationCookie(options =>
 {

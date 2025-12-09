@@ -14,9 +14,9 @@ public class AuthController : BaseController
 {
     private readonly IAuthService _authService;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly EmailSenderService _emailSenderService;
+    private readonly IEmailSender _emailSenderService;
 
-    public AuthController(IAuthService authService, UserManager<ApplicationUser> userManager, EmailSenderService emailSenderService)
+    public AuthController(IAuthService authService, UserManager<ApplicationUser> userManager, IEmailSender emailSenderService)
     {
         _authService = authService;
         _userManager = userManager;
@@ -50,8 +50,13 @@ public class AuthController : BaseController
                 new { userId = user.Id, token = encodedToken },
                 protocol: Request.Scheme);
 
-            await _emailSenderService.SendEmailAsync(dto.Email, "Підтвердження пошти Gymify",
-                $"Будь ласка, підтвердіть акаунт, натиснувши <a href='{callbackUrl}'>тут</a>.");
+            var subjectEn = "Email verification Gymify";
+            var subjectUk = "Підтвердження пошти Gymify";
+            var messageHtmlEn = $"Please, confirm your account, by pressing <a href='{callbackUrl}'>here</a>.";
+            var messageHtmlUk = $"Будь ласка, підтвердіть акаунт, натиснувши <a href='{callbackUrl}'>тут</a>.";
+
+            await _emailSenderService.SendEmailAsync(dto.Email, IsUkrainian ? subjectUk : subjectEn,
+                IsUkrainian ? messageHtmlUk : messageHtmlEn);
 
             TempData["QuickSuccess"] = IsUkrainian
                 ? "Реєстрація успішна! Перевірте пошту для підтвердження."
@@ -151,10 +156,15 @@ public class AuthController : BaseController
                 new { token = encodedToken, email = dto.Email },
             protocol: Request.Scheme);
 
-            await _emailSenderService.SendEmailAsync(dto.Email, "Скидання пароля Gymify",
-                $"Скиньте пароль за <a href='{callbackUrl}'>цим посиланням</a>.");
+            var subjectEn = "Password reset Gymify";
+            var subjectUk = "Скидання пароля Gymify";
+            var messageHtmlEn = $"Reset your password <a href='{callbackUrl}'>with this link</a>.";
+            var messageHtmlUk = $"Скиньте пароль за <a href='{callbackUrl}'>цим посиланням</a>.";
 
-            TempData["QuickError"] = IsUkrainian
+            await _emailSenderService.SendEmailAsync(dto.Email, IsUkrainian ? subjectUk : subjectEn,
+                IsUkrainian ? messageHtmlUk : messageHtmlEn);
+
+            TempData["QuickSuccess"] = IsUkrainian
                     ? "Перевірте пошту для скидання пароля."
                     : "Check your email to reset password.";
 
