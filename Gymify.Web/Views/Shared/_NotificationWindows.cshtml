@@ -1,16 +1,5 @@
 ﻿@using Newtonsoft.Json
 
-@if (TempData["QuickSuccess"] != null)
-{
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            alertify.set('notifier','position', 'bottom-right');
-            var msg = @Json.Serialize(TempData["QuickSuccess"]);
-            alertify.success(msg, 5); 
-        });
-    </script>
-}
-
 @if (TempData["Success"] != null)
 {
     <script>
