@@ -28,22 +28,20 @@ public class UserChatRepository(GymifyDbContext context) : IUserChatRepository
     public async Task<List<UserChat>> GetUserChatsAsync(Guid userId)
     {
         return await _context.UserChats
-            .Include(uc => uc.Chat) // Підтягуємо сам чат
+            .Include(uc => uc.Chat)
             .Where(uc => uc.UserProfileId == userId)
             .ToListAsync();
     }
     public async Task<List<UserChat>> GetUserChatsWithDetailsAsync(Guid userId)
     {
         return await _context.UserChats
-            // 👇 БУЛО: .AsNoTracking()
-            // 👇 СТАЛО:
             .AsNoTrackingWithIdentityResolution()
 
             .Where(uc => uc.UserProfileId == userId)
             .Include(uc => uc.Chat)
                 .ThenInclude(c => c.LastMessage)
             .Include(uc => uc.Chat)
-                .ThenInclude(c => c.Members) // Саме тут виникав цикл
+                .ThenInclude(c => c.Members) 
                     .ThenInclude(m => m.UserProfile)
                         .ThenInclude(p => p.ApplicationUser)
             .Include(uc => uc.Chat)

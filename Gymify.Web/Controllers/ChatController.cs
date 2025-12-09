@@ -30,7 +30,7 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Start(Guid userId)
         {
-            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+            var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
 
             var chatId = await _chatService.GetOrCreatePrivateChatAsync(currentUserId, userId);
 
@@ -41,23 +41,36 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyChats()
         {
-            var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
             var chats = await _chatService.GetUserChatsAsync(userId);
             return Ok(chats);
         }
 
-        // API: Отримати історію (JSON)
         [HttpGet]
         public async Task<IActionResult> GetHistory(Guid chatId)
         {
             try
             {
-                var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+                var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
                 var messages = await _chatService.GetChatHistoryAsync(chatId, userId);
                 return Ok(messages);
             }
             catch (UnauthorizedAccessException) { return Forbid(); }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> MarkAsRead([FromBody] Guid chatId)
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
+                await _chatService.MarkChatAsReadAsync(chatId, userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

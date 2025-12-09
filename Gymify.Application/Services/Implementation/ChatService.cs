@@ -17,26 +17,38 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
         foreach (var uc in userChats)
         {
-            Guid? targetUserId = null;
-
-            string chatName = "Unknown";
+            string chatName = "Group Chat";
             string chatImage = "/images/default.png";
+            Guid? targetUserId = null;
 
             if (uc.Chat.Type == ChatType.Private)
             {
                 var otherMember = uc.Chat.Members.FirstOrDefault(m => m.UserProfileId != userId);
-
                 if (otherMember != null)
                 {
                     chatName = otherMember.UserProfile.ApplicationUser?.UserName ?? "Unknown";
-                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
-
+                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "/images/default.png";
                     targetUserId = otherMember.UserProfileId;
                 }
             }
             else
             {
                 chatName = uc.Chat.Name ?? "Group Chat";
+            }
+
+            var allMessages = await _unitOfWork.MessageRepository.GetMessagesByChatIdAsync(uc.ChatId);
+
+            int unreadCount = 0;
+            foreach (var msg in allMessages)
+            {
+                if (msg.SenderId != userId)
+                {
+                    bool isRead = await _unitOfWork.MessageReadStatusRepository.IsReadAsync(msg.Id, userId);
+                    if (!isRead)
+                    {
+                        unreadCount++;
+                    }
+                }
             }
 
             result.Add(new ChatDto
@@ -48,17 +60,39 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
                 LastMessageTime = uc.Chat.LastMessage?.CreatedAt,
                 IsPrivate = uc.Chat.Type == ChatType.Private,
                 TargetUserId = targetUserId,
-                LastMessageId = uc.Chat.LastMessage?.Id
+                LastMessageId = uc.Chat.LastMessage?.Id,
+                UnreadCount = unreadCount 
             });
         }
 
-        return result;
+        return result.OrderByDescending(c => c.LastMessageTime).ToList();
+    }
+
+    public async Task MarkChatAsReadAsync(Guid chatId, Guid userId)
+    {
+        var allMessages = await _unitOfWork.MessageRepository.GetMessagesByChatIdAsync(chatId);
+
+        var receivedMessages = allMessages.Where(m => m.SenderId != userId);
+
+        foreach (var msg in receivedMessages)
+        {
+
+            await _unitOfWork.MessageReadStatusRepository.CreateAsync(new MessageReadStatus
+            {
+                MessageId = msg.Id,
+                UserProfileId = userId
+            });
+        }
+
+        await _unitOfWork.SaveAsync();
     }
 
     public async Task<List<MessageDto>> GetChatHistoryAsync(Guid chatId, Guid currentUserId)
     {
         var membership = await _unitOfWork.UserChatRepository.GetByChatAndUserAsync(chatId, currentUserId);
         if (membership == null) throw new UnauthorizedAccessException("You are not a member of this chat.");
+
+        await MarkChatAsReadAsync(chatId, currentUserId);
 
         var messages = await _unitOfWork.MessageRepository.GetMessagesByChatIdAsync(chatId);
 
@@ -68,24 +102,22 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
             ChatId = m.ChatId,
             SenderId = m.SenderId,
             SenderName = m.Sender.ApplicationUser?.UserName ?? "Unknown",
-            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
+            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
             Content = m.Content,
             CreatedAt = m.CreatedAt,
-            IsMe = m.SenderId == currentUserId 
+            IsMe = m.SenderId == currentUserId
         })
-        .OrderBy(m => m.CreatedAt) 
+        .OrderBy(m => m.CreatedAt)
         .ToList();
     }
 
     public async Task<MessageDto> SaveMessageAsync(Guid chatId, Guid senderId, string content)
     {
         if (string.IsNullOrWhiteSpace(content) || content.Length > 1000)
-        {
-            throw new ArgumentException("Invalid message content.");
-        }
+            throw new ArgumentException("Invalid content");
 
         var member = await _unitOfWork.UserChatRepository.GetByChatAndUserAsync(chatId, senderId);
-        if (member == null) throw new UnauthorizedAccessException("User is not a member of this chat");
+        if (member == null) throw new UnauthorizedAccessException("Not a member");
 
         var message = new Message
         {
@@ -101,20 +133,23 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
         chat.LastMessageId = message.Id;
         await _unitOfWork.ChatRepository.UpdateAsync(chat);
 
+        await _unitOfWork.MessageReadStatusRepository.CreateAsync(new MessageReadStatus
+        {
+            MessageId = message.Id,
+            UserProfileId = senderId
+        });
+
         await _unitOfWork.SaveAsync();
 
         var senderProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(senderId);
-
-        var avatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
-        var senderName = senderProfile?.ApplicationUser?.UserName ?? "Unknown";
 
         return new MessageDto
         {
             Id = message.Id,
             ChatId = chatId,
             SenderId = senderId,
-            SenderName = senderName,
-            SenderAvatarUrl = avatarUrl,
+            SenderName = senderProfile?.ApplicationUser?.UserName ?? "Unknown",
+            SenderAvatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
             Content = message.Content,
             CreatedAt = message.CreatedAt,
             IsMe = true
