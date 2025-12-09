@@ -1,18 +1,21 @@
-﻿@model List<Gymify.Application.DTOs.Exercise.AdminExerciseDto>
+﻿@using Microsoft.AspNetCore.Mvc.Localization
 @using Gymify.Data.Enums
+@model List<Gymify.Application.DTOs.Exercise.AdminExerciseDto>
+
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Exercise Moderation";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="ae-page-container">
-    <h2 class="ae-page-title mb-4">Pending Exercises</h2>
+    <h2 class="ae-page-title mb-4">@Localizer["Header_PendingExercises"]</h2>
 
     @if (!Model.Any())
     {
         <div class="friends-empty">
             <i class="fa-solid fa-dumbbell" style="color: #ccc;"></i>
-            <p>No exercises waiting for approval.</p>
+            <p>@Localizer["Msg_NoPendingExercises"]</p>
         </div>
     }
     else
@@ -33,27 +36,26 @@
                         </div>
 
                         <div class="row g-3">
-                            
                             <div class="col-md-6">
-                                <label class="ae-label-mini">Name (Ukrainian)</label>
-                                <input name="NameUk" value="@ex.NameUk" class="ae-input-std" placeholder="Назва українською..." />
+                                <label class="ae-label-mini">@Localizer["Label_NameUk"]</label>
+                                <input name="NameUk" value="@ex.NameUk" class="ae-input-std" placeholder="@Localizer["Placeholder_NameUk"]" />
                             </div>
                             <div class="col-md-6">
-                                <label class="ae-label-mini">Name (English)</label>
-                                <input name="NameEn" value="@ex.NameEn" class="ae-input-std" placeholder="English name..." />
+                                <label class="ae-label-mini">@Localizer["Label_NameEn"]</label>
+                                <input name="NameEn" value="@ex.NameEn" class="ae-input-std" placeholder="@Localizer["Placeholder_NameEn"]" />
                             </div>
 
                             <div class="col-12">
-                                <label class="ae-label-mini">Description (Ukrainian)</label>
-                                <textarea name="DescriptionUk" class="ae-input-std" rows="3" placeholder="Опис українською...">@ex.DescriptionUk</textarea>
+                                <label class="ae-label-mini">@Localizer["Label_DescriptionUk"]</label>
+                                <textarea name="DescriptionUk" class="ae-input-std" rows="3" placeholder="@Localizer["Placeholder_DescriptionUk"]">@ex.DescriptionUk</textarea>
                             </div>
                             <div class="col-12">
-                                <label class="ae-label-mini">Description (English)</label>
-                                <textarea name="DescriptionEn" class="ae-input-std" rows="3" placeholder="English description...">@ex.DescriptionEn</textarea>
+                                <label class="ae-label-mini">@Localizer["Label_DescriptionEn"]</label>
+                                <textarea name="DescriptionEn" class="ae-input-std" rows="3" placeholder="@Localizer["Placeholder_DescriptionEn"]">@ex.DescriptionEn</textarea>
                             </div>
 
                             <div class="col-md-3">
-                                <label class="ae-label-mini">Type</label>
+                                <label class="ae-label-mini">@Localizer["Label_Type"]</label>
                                 <select name="Type" class="ae-input-std">
                                     @foreach (var t in Enum.GetValues(typeof(ExerciseType)))
                                     {
@@ -62,37 +64,45 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label class="ae-label-mini">Base XP</label>
+                                <label class="ae-label-mini">@Localizer["Label_BaseXP"]</label>
                                 <input name="BaseXP" type="number" min="0" value="@ex.BaseXP" class="ae-input-std" />
                             </div>
                             <div class="col-md-2">
-                                <label class="ae-label-mini">Diff. Mult</label>
+                                <label class="ae-label-mini">@Localizer["Label_DiffMult"]</label>
                                 <input name="DifficultyMultiplier" type="number" step="0.1" min="0" value="@ex.DifficultyMultiplier" class="ae-input-std" />
                             </div>
                              <div class="col-md-5">
-                                <label class="ae-label-mini">Video URL</label>
+                                <label class="ae-label-mini">@Localizer["Label_VideoUrl"]</label>
                                 <input name="VideoURL" value="@ex.VideoURL" class="ae-input-std" placeholder="https://..." />
                             </div>
                         </div>
                     </form>
 
-                    <div class="d-flex justify-content-between align-items-end mt-4 pt-3 border-top gap-3">
+                    <div class="row mt-4 pt-3 border-top g-3">
                         
-                        <form method="post" action="/admin/exercises/reject" class="flex-grow-1" style="max-width: 500px;">
-                            <input type="hidden" name="id" value="@ex.Id" />
-                            <div class="input-group">
-                                <input type="text" name="reason" placeholder="Reason for rejection..." class="ae-input-std" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" required />
-                                <button type="submit" class="gym-btn gym-btn-danger" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    Reject
+                        <div class="col-md-6">
+                            <form method="post" action="/admin/exercises/reject" class="d-flex flex-column h-100" style="background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #eee;">
+                                <input type="hidden" name="id" value="@ex.Id" />
+                                
+                                <label class="ae-label-mini text-danger mb-2">@Localizer["Label_RejectionReason"]</label>
+                                <textarea name="reason" class="ae-input-std mb-2" rows="2" placeholder="@Localizer["Placeholder_RejectionReason"]" required style="resize: none;"></textarea>
+                                
+                                <button type="submit" class="gym-btn gym-btn-danger w-100 mt-auto">
+                                    @Localizer["Btn_Reject"]
                                 </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
 
-                        <button type="submit" form="approve-form-@ex.Id" class="gym-btn gym-btn-primary px-4">
-                            Approve & Save
-                        </button>
+                        <div class="col-md-6 d-flex flex-column justify-content-end">
+                            <div class="flex-grow-1"></div> 
+                            
+                            <button type="submit" form="approve-form-@ex.Id" class="gym-btn gym-btn-primary w-100 py-3">
+                                @Localizer["Btn_ApproveSave"]
+                            </button>
+                        </div>
 
                     </div>
+
                 </div>
             }
         </div>

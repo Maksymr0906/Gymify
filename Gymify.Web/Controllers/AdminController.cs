@@ -22,7 +22,7 @@ public class AdminController : BaseController
     [HttpGet("/admin/exercises")]
     public async Task<IActionResult> ExercisePanel()
     {
-        var notApproved = await _adminService.GetUnapprovedExercisesAsync(IsUkrainian);
+        var notApproved = await _adminService.GetUnapprovedExercisesAsync();
         return View(notApproved);
     }
 
