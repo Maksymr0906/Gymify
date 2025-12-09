@@ -166,7 +166,6 @@
                 const contentDiv = document.getElementById(`content-${msg.id}`);
                 if (contentDiv) contentDiv.innerHTML = escapeHtml(msg.content).replace(/\n/g, '<br>');
             }
-            updateSidebarPreview(msg.chatId, msg.content, null, false);
         });
 
         chatConnection.on("MessageDeleted", function (msgId) {
@@ -188,6 +187,9 @@
                 if (autoOpenId) {
                     const item = document.getElementById(`chat-item-${autoOpenId}`);
                     if (item) item.click();
+                }
+                else {
+                    await chatConnection.invoke("EnterChatSection");
                 }
             } catch (err) { setTimeout(startSignalR, 5000); }
         }
@@ -433,7 +435,7 @@
         }
 
         function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
-        function closeChatMobile() { document.getElementById('chatMainArea').classList.remove('active'); msgInput.blur(); }
+        function closeChatMobile() { document.getElementById('chatMainArea').classList.remove('active'); msgInput.blur(); chatConnection.invoke("EnterChatSection");}
         function escapeHtml(text) { 
             if (!text) return ""; 
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); 

@@ -50,4 +50,12 @@ public class UserChatRepository(GymifyDbContext context) : IUserChatRepository
             .OrderByDescending(uc => uc.Chat.LastMessage != null ? uc.Chat.LastMessage.CreatedAt : uc.JoinedAt)
             .ToListAsync();
     }
+
+    public async Task<List<UserChat>> GetChatMembersAsync(Guid chatId)
+    {
+        return await _context.UserChats
+            .Where(uc => uc.ChatId == chatId)
+            .Include(uc => uc.UserProfile) 
+            .ToListAsync();
+    }
 }

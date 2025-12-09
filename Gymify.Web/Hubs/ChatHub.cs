@@ -20,11 +20,19 @@ namespace Gymify.Web.Hubs
             _chatMembersTrackerService = chatMembersTrackerService;
         }
 
+        public Task EnterChatSection()
+        {
+            if (Guid.TryParse(Context.UserIdentifier, out Guid userId))
+            {
+                _chatMembersTrackerService.UserJoinedChat(userId, Guid.Empty);
+            }
+            return Task.CompletedTask;
+        }
+
         public async Task JoinChat(string chatId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
 
-            // === НОВЕ: Фіксуємо, що юзер дивиться цей чат ===
             if (Guid.TryParse(chatId, out Guid cId) &&
                 Guid.TryParse(Context.UserIdentifier, out Guid userId))
             {
@@ -36,19 +44,16 @@ namespace Gymify.Web.Hubs
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId);
 
-            // === НОВЕ: Юзер вийшов з чату ===
             if (Guid.TryParse(Context.UserIdentifier, out Guid userId))
             {
                 _chatMembersTrackerService.UserLeftChat(userId);
             }
         }
 
-        // === НОВЕ: Обробка закриття вкладки / розриву з'єднання ===
         public override Task OnDisconnectedAsync(Exception? exception)
         {
             if (Guid.TryParse(Context.UserIdentifier, out Guid userId))
             {
-                // Якщо юзер відключився, він точно не дивиться чат
                 _chatMembersTrackerService.UserLeftChat(userId);
             }
 
@@ -62,13 +67,15 @@ namespace Gymify.Web.Hubs
                 throw new HubException(errorMessage);
             }
 
-            // Використовуємо UserIdentifier, якщо IUserIdProvider налаштований повертати UserProfileId
-            // Або ваш старий метод: Context.User.FindFirst("UserProfileId").Value
             var senderId = Guid.Parse(Context.UserIdentifier ?? Context.User.FindFirst("UserProfileId").Value);
 
             var messageDto = await _chatService.SaveMessageAsync(request.ChatId, senderId, request.Content);
 
-            await Clients.Group(request.ChatId.ToString()).SendAsync("ReceiveMessage", messageDto);
+            var chatParticipants = await _chatService.GetChatParticipantIdsAsync(request.ChatId);
+
+            var usersToNotify = chatParticipants.Select(u => u.ToString()).ToList();
+
+            await Clients.Users(usersToNotify).SendAsync("ReceiveMessage", messageDto);
         }
 
         public async Task EditMessage(EditMessageRequestDto request)
@@ -89,15 +96,11 @@ namespace Gymify.Web.Hubs
         {
             var userId = Guid.Parse(Context.UserIdentifier ?? Context.User.FindFirst("UserProfileId").Value);
             var messageId = Guid.Parse(messageIdStr);
-            // chatIdStr не обов'язково використовувати тут, якщо ми беремо його з повідомлення в сервісі,
-            // але для відправки події групі він потрібен.
 
             var updatedChatInfo = await _chatService.DeleteMessageAsync(messageId, userId);
 
-            // Повідомляємо клієнтів, що повідомлення видалено
             await Clients.Group(chatIdStr).SendAsync("MessageDeleted", messageIdStr);
 
-            // Якщо змінилося останнє повідомлення (прев'ю чату), оновлюємо його
             if (updatedChatInfo != null)
             {
                 await Clients.Group(chatIdStr).SendAsync("ChatPreviewUpdated", new

@@ -4,13 +4,24 @@ using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class ChatService(IUnitOfWork unitOfWork, ChatMembersTrackerService chatMembersTrackerService) : IChatService
+public class ChatService(IUnitOfWork unitOfWork, INotificationService notificationService, ChatMembersTrackerService chatMembersTrackerService) : IChatService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly INotificationService _notificationService = notificationService;
     private readonly ChatMembersTrackerService _chatMembersTrackerService = chatMembersTrackerService;
+
+    public async Task<List<Guid>> GetChatParticipantIdsAsync(Guid chatId)
+    {
+        var chat = await _unitOfWork.UserChatRepository.GetChatMembersAsync(chatId);
+
+        if (chat == null) return new List<Guid>();
+
+        return chat.Select(u => u.UserProfileId).ToList();
+    }
 
     public async Task<List<ChatDto>> GetUserChatsAsync(Guid userId)
     {
@@ -145,31 +156,28 @@ public class ChatService(IUnitOfWork unitOfWork, ChatMembersTrackerService chatM
 
         var senderProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(senderId);
 
-        // <--- ОСЬ ЦЬОГО РЯДКА НЕ ВИСТАЧАЛО: Отримуємо всіх учасників чату з БД
-        var members = await _unitOfWork.UserChatRepository.(chatId);/////////////////////////////////////////////////////////////////////////////////////
-        // 2. Логіка сповіщень
+        var members = await _unitOfWork.UserChatRepository.GetChatMembersAsync(chatId);
         var recipients = members.Where(m => m.UserProfileId != senderId).ToList();
 
         foreach (var recipient in recipients)
         {
-            // ПЕРЕВІРКА 1: Чи юзер ЗАРАЗ дивиться цей чат?
             bool isWatchingNow = _chatMembersTrackerService.IsUserActiveInChat(recipient.UserProfileId, chatId);
 
-            // Якщо він дивиться чат -> МИ НЕ ШЛЕМО СПОВІЩЕННЯ В БД
-            if (isWatchingNow)
+            bool isBrowsingList = _chatMembersTrackerService.IsUserBrowsingChats(recipient.UserProfileId);
+
+            if (isWatchingNow || isBrowsingList)
             {
-                continue; // Пропускаємо цього юзера
+                continue; 
             }
 
-            // ПЕРЕВІРКА 2: Якщо не дивиться, перевіряємо чи це перше непрочитане (щоб не спамити)
             var unreadCount = await _unitOfWork.MessageRepository.CountUnreadMessagesAsync(chatId, recipient.UserProfileId);
 
             if (unreadCount == 1)
             {
                 await _notificationService.SendNotificationAsync(
                     recipient.UserProfileId,
-                    $"New message from {senderName}",
-                    $"Нове повідомлення від {senderName}",
+                    $"New message from {senderProfile?.ApplicationUser?.UserName ?? "Unknown"}",
+                    $"Нове повідомлення від {senderProfile?.ApplicationUser?.UserName ?? "Unknown"}",
                     $"/Chat?openChatId={chatId}"
                 );
             }

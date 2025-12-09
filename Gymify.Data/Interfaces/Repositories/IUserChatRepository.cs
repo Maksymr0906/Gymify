@@ -1,4 +1,5 @@
 ﻿using Gymify.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,4 +15,5 @@ public interface IUserChatRepository
     Task<UserChat?> GetByChatAndUserAsync(Guid chatId, Guid userId);
     Task<List<UserChat>> GetUserChatsAsync(Guid userId);
     Task<List<UserChat>> GetUserChatsWithDetailsAsync(Guid userId);
+    Task<List<UserChat>> GetChatMembersAsync(Guid chatId);
 }

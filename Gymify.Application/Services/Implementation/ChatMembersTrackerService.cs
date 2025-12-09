@@ -25,5 +25,10 @@ namespace Gymify.Application.Services.Implementation
         {
             return _onlineUsers.TryGetValue(userId, out var activeChatId) && activeChatId == chatId;
         }
+
+        public bool IsUserBrowsingChats(Guid userId)
+        {
+            return _onlineUsers.ContainsKey(userId);
+        }
     }
 }

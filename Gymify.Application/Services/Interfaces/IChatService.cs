@@ -9,6 +9,7 @@ namespace Gymify.Application.Services.Interfaces
 {
     public interface IChatService
     {
+        Task<List<Guid>> GetChatParticipantIdsAsync(Guid chatId);
         Task<List<ChatDto>> GetUserChatsAsync(Guid userId);
         Task MarkChatAsReadAsync(Guid chatId, Guid userId);
         Task<List<MessageDto>> GetChatHistoryAsync(Guid chatId, Guid currentUserId);
