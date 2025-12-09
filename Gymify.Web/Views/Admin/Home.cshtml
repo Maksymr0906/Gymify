@@ -1,41 +1,40 @@
-﻿@{
+﻿@model dynamic
+@{
     ViewData["Title"] = "Admin Dashboard";
 }
 
 <div class="ae-page-container">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <h1 class="ae-page-title m-0">👑 Admin Dashboard</h1>
+    </div>
 
-    <h1 class="ae-page-title mb-4">👑 Admin Dashboard</h1>
-    <p class="text-muted mb-4">
-        Welcome to the admin panel!
-        Here you manage content, moderation and users of the system.
+    <p class="ae-text-muted mb-4">
+        Welcome to the Gymify control center. Manage content, moderation, and system users from here.
     </p>
 
     <div class="admin-grid">
-
         <a asp-action="ExercisePanel" class="admin-card">
-            <div class="admin-card-icon">🏋</div>
+            <div class="admin-card-icon">🏋️</div>
             <div class="admin-card-title">Exercise Moderation</div>
-            <div class="admin-card-desc">Review and approve new exercises</div>
+            <div class="admin-card-desc">Review pending exercises, approve descriptions and XP values.</div>
         </a>
 
         <a asp-action="CommentPanel" class="admin-card">
             <div class="admin-card-icon">💬</div>
             <div class="admin-card-title">Comment Moderation</div>
-            <div class="admin-card-desc">Filter comments and fight spam</div>
+            <div class="admin-card-desc">Filter user comments, manage spam, and enforce community guidelines.</div>
         </a>
 
         <a asp-action="UserPanel" class="admin-card">
-            <div class="admin-card-icon">🧑‍🤝‍🧑</div>
-            <div class="admin-card-title">Users</div>
-            <div class="admin-card-desc">Bans, warnings and role control</div>
+            <div class="admin-card-icon">👥</div>
+            <div class="admin-card-title">User Management</div>
+            <div class="admin-card-desc">Manage roles, bans, and view user statistics.</div>
         </a>
 
         <a asp-action="WorkoutPanel" class="admin-card">
             <div class="admin-card-icon">🔥</div>
             <div class="admin-card-title">Workout Overview</div>
-            <div class="admin-card-desc">Explore training statistics</div>
+            <div class="admin-card-desc">Global workout statistics and recent activity logs.</div>
         </a>
-
     </div>
-
 </div>

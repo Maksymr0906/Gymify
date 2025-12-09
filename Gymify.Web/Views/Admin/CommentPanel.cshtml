@@ -1,40 +1,66 @@
 ﻿@model List<Gymify.Application.DTOs.Comment.CommentAdminDto>
 
 @{
-    ViewData["Title"] = "Comment Moderation Panel";
+    ViewData["Title"] = "Comment Moderation";
 }
 
-<div class="container mt-4">
-    <h1 class="mb-3">Comment Moderation</h1>
+<div class="ae-page-container">
+    <h1 class="ae-page-title mb-4">💬 Comment Moderation</h1>
 
     @if (Model.Count == 0)
     {
-        <p>✔ No comments</p>
+        <div class="friends-empty">
+            <i class="fa-regular fa-comment-dots"></i>
+            <p>No comments pending moderation.</p>
+        </div>
     }
+    else
+    {
+        <div class="co-list">
+            @foreach (var c in Model)
+            {
+                <div class="ae-card-item mb-3">
+                    <div class="ae-card-header-title d-flex justify-content-between align-items-center">
+                        <span>
+                            <span style="color: var(--gym-orange);">@c.AuthorName</span> 
+                            <span class="ae-text-muted" style="font-weight: 400; font-size: 0.9rem;">
+                                commented on @c.TargetType #@c.TargetId
+                            </span>
+                        </span>
+                        <span class="ae-badge ae-badge-private">Pending</span>
+                    </div>
 
-    <div class="d-flex flex-column gap-4">
-        @foreach (var c in Model)
-        {
-            <div class="border p-3 rounded shadow-sm">
-                <p><b>@c.AuthorName</b> → @c.TargetType (#@c.TargetId)</p>
+                    <form method="post" asp-action="Update" class="w-100 mt-2">
+                        <input type="hidden" name="id" value="@c.Id" />
+                        
+                        <div class="form-group mb-3">
+                            <label class="ae-label-mini">Content</label>
+                            <textarea name="content" class="ae-input-std ae-textarea-std">@c.Content</textarea>
+                        </div>
 
-                <form method="post" asp-action="Update" class="mb-2">
-                    <input type="hidden" name="id" value="@c.Id" />
-                    <textarea name="content" class="form-control mb-2">@c.Content</textarea>
-                    <button class="btn btn-secondary">💾 Save Edit</button>
-                </form>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="gym-btn gym-btn-secondary py-2 px-3" style="font-size: 0.85rem;">
+                                💾 Save Changes
+                            </button>
+                        </div>
+                    </form>
 
-                <form method="post" asp-action="Approve" class="d-inline">
-                    <input type="hidden" name="id" value="@c.Id" />
-                    <button class="btn btn-success">Approve</button>
-                </form>
+                    <div class="ae-separator" style="margin: 15px 0;"></div>
 
-                <form method="post" asp-action="Reject" class="d-inline">
-                    <input type="hidden" name="id" value="@c.Id" />
-                    <input name="reason" placeholder="Reason…" class="form-control d-inline w-50" />
-                    <button class="btn btn-danger">Reject</button>
-                </form>
-            </div>
-        }
-    </div>
+                    <div class="d-flex flex-wrap gap-3 align-items-end justify-content-between">
+                        <form method="post" asp-action="Reject" class="d-flex gap-2 flex-grow-1" style="max-width: 500px;">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <input name="reason" placeholder="Reason for rejection..." class="ae-input-std" required />
+                            <button class="gym-btn gym-btn-danger py-2 px-3">Reject</button>
+                        </form>
+
+                        <form method="post" asp-action="Approve">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <button class="gym-btn gym-btn-primary py-2 px-4">✓ Approve</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>

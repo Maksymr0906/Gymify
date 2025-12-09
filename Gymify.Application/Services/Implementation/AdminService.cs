@@ -14,25 +14,18 @@ public class AdminService : IAdminService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task ApproveExerciseAsync(UpdateExerciseRequestDto updatedExercise, bool ukranianVer)
+    public async Task ApproveExerciseAsync(UpdateExerciseRequestDto updatedExercise)
     {
         var exercise = await _unitOfWork.ExerciseRepository.GetByIdAsync(updatedExercise.Id);
 
         if (exercise == null)
             throw new Exception("Exercise not found.");
 
+        exercise.NameEn = updatedExercise.NameEn;
+        exercise.DescriptionEn = updatedExercise.DescriptionEn;
+        exercise.NameUk = updatedExercise.NameUk;
+        exercise.DescriptionUk = updatedExercise.DescriptionUk;
 
-        if (ukranianVer)
-        {
-            exercise.NameUk = updatedExercise.Name;
-            exercise.DescriptionUk = updatedExercise.Description;
-        }
-        else
-        {
-            exercise.NameEn = updatedExercise.Name;
-            exercise.DescriptionEn = updatedExercise.Description;
-        }
-        
         exercise.BaseXP = updatedExercise.BaseXP;
         exercise.DifficultyMultiplier = updatedExercise.DifficultyMultiplier;
         exercise.Type = updatedExercise.Type;
@@ -44,15 +37,17 @@ public class AdminService : IAdminService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<List<ExerciseDto>> GetUnapprovedExercisesAsync(bool ukranianVer)
+    public async Task<List<AdminExerciseDto>> GetUnapprovedExercisesAsync()
     {
         var exercises = await _unitOfWork.ExerciseRepository.GetUnapprovedAsync();
 
-        var dtos = exercises.Select(e => new ExerciseDto
+        var dtos = exercises.Select(e => new AdminExerciseDto
         {
             Id = e.Id,
-            Name = ukranianVer ? e.NameUk : e.NameEn,
-            Description = ukranianVer ? e.DescriptionUk : e.DescriptionEn,
+            NameEn = e.NameEn,
+            NameUk = e.NameUk,
+            DescriptionEn = e.DescriptionEn,
+            DescriptionUk = e.DescriptionUk,
             BaseXP = e.BaseXP,
             DifficultyMultiplier = e.DifficultyMultiplier,
             Type = e.Type,

@@ -19,11 +19,6 @@ public class AdminController : BaseController
     public IActionResult Home()
         => View("Home");
 
-
-
-    // =====================
-    //     EXERCISE PANEL
-    // =====================
     [HttpGet("/admin/exercises")]
     public async Task<IActionResult> ExercisePanel()
     {
@@ -34,7 +29,7 @@ public class AdminController : BaseController
     [HttpPost("/admin/exercises/approve")]
     public async Task<IActionResult> ApproveExercise(UpdateExerciseRequestDto updated)
     {
-        await _adminService.ApproveExerciseAsync(updated, IsUkrainian);
+        await _adminService.ApproveExerciseAsync(updated);
         return RedirectToAction("ExercisePanel");
     }
 
@@ -45,9 +40,6 @@ public class AdminController : BaseController
         return RedirectToAction("ExercisePanel");
     }
 
-    // =====================
-    //     COMMENT PANEL
-    // =====================
     [HttpGet("/admin/comments")]
     public async Task<IActionResult> CommentPanel()
     {
@@ -76,19 +68,10 @@ public class AdminController : BaseController
         return RedirectToAction("CommentPanel");
     }
 
-
-    // =====================
-    //       USER PANEL
-    // =====================
     [HttpGet("/admin/users")]
     public IActionResult UserPanel()
         => View("UserPanel");
 
-
-
-    // =====================
-    //     WORKOUT PANEL
-    // =====================
     [HttpGet("/admin/workouts")]
     public IActionResult WorkoutPanel()
         => View("WorkoutPanel");

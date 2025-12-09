@@ -4063,13 +4063,13 @@ textarea.gym-input {
 }
 
     .admin-card:hover {
+        border-color: var(--gym-orange) !important;
+        box-shadow: 0 6px 20px rgba(255, 159, 28, 0.15) !important;
         transform: translateY(-3px);
-        border-color: #b38bff;
-        box-shadow: 0 6px 14px rgba(0,0,0,0.08);
     }
 
 .admin-card-icon {
-    font-size: 38px;
+    color: var(--gym-orange);
 }
 
 .admin-card-title {
