@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager) : IFriendsService
+public class FriendsService(IUnitOfWork unitOfWork,INotificationService notificationService , UserManager<ApplicationUser> userManager) : IFriendsService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly INotificationService _notificationService = notificationService;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
     public async Task<List<FriendDto>> SearchPotentialFriendsAsync(string query, Guid currentUserId)
@@ -112,6 +113,13 @@ public class FriendsService(IUnitOfWork unitOfWork, UserManager<ApplicationUser>
             SenderProfileId = senderId,
             ReceiverProfileId = receiverId
         };
+
+        await _notificationService.SendNotificationAsync(
+            receiverId, 
+            "Вам прийшло нове запрошення в друзі.",
+            "You received new friend request.", 
+            "/Friends"
+            );
 
         await _unitOfWork.FriendInviteRepository.CreateAsync(invite);
         await _unitOfWork.SaveAsync();

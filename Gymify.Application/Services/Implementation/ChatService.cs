@@ -31,7 +31,7 @@ public class ChatService(IUnitOfWork unitOfWork, INotificationService notificati
         foreach (var uc in userChats)
         {
             string chatName = "Group Chat";
-            string chatImage = "/images/default.png";
+            string chatImage = "https://localhost:7102/Images/DefaultAvatar.png";
             Guid? targetUserId = null;
 
             if (uc.Chat.Type == ChatType.Private)
@@ -40,7 +40,7 @@ public class ChatService(IUnitOfWork unitOfWork, INotificationService notificati
                 if (otherMember != null)
                 {
                     chatName = otherMember.UserProfile.ApplicationUser?.UserName ?? "Unknown";
-                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "/images/default.png";
+                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
                     targetUserId = otherMember.UserProfileId;
                 }
             }
@@ -115,7 +115,7 @@ public class ChatService(IUnitOfWork unitOfWork, INotificationService notificati
             ChatId = m.ChatId,
             SenderId = m.SenderId,
             SenderName = m.Sender.ApplicationUser?.UserName ?? "Unknown",
-            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Content = m.Content,
             CreatedAt = m.CreatedAt,
             IsMe = m.SenderId == currentUserId
@@ -189,7 +189,7 @@ public class ChatService(IUnitOfWork unitOfWork, INotificationService notificati
             ChatId = chatId,
             SenderId = senderId,
             SenderName = senderProfile?.ApplicationUser?.UserName ?? "Unknown",
-            SenderAvatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "/images/default.png",
+            SenderAvatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Content = message.Content,
             CreatedAt = message.CreatedAt,
             IsMe = true
