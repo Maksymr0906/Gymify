@@ -16,4 +16,5 @@ public class CommentDto
     public bool CanDelete { get; set; } 
     public bool IsApproved { get; set; } 
     public bool IsRejected { get; set; } 
+
 }

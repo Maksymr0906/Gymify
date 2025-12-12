@@ -1,5 +1,79 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model List<Gymify.Application.DTOs.User.UserAdminDto>
+
 @{
+    ViewData["Title"] = "User Moderation Panel";
 }
+
+<div class="ae-page-container">
+
+    <h2 class="ae-page-title">User Moderation</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="ae-alert ae-alert-success text-center">✔ No users found</div>
+    }
+    else
+    {
+        <table class="ae-table ae-table-hover">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>XP</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td>@u.Username</td>
+                        <td>@u.Email</td>
+                        <td>@u.TotalXP</td>
+                        <td>
+                            <form method="post" action="/admin/users/role" class="d-flex gap-2">
+                                <input type="hidden" name="id" value="@u.Id" />
+                                <select name="role" class="ae-input-std">
+                                    <option value="User" selected="@(u.Role == "User")">User</option>
+                                    <option value="Admin" selected="@(u.Role == "Admin")">Admin</option>
+                                </select>
+                                <button class="ae-btn ae-btn-primary btn-sm">Save</button>
+                            </form>
+                        </td>
+
+                        <td>
+                            @if (u.IsBanned)
+                            {
+                                <span class="text-danger fw-bold">BANNED</span>
+                            }
+                            else
+                            {
+                                <span class="text-success fw-bold">Active</span>
+                            }
+                        </td>
+
+                        <td>@u.Registered.ToShortDateString()</td>
+
+                        <td class="ae-flex-row ae-gap-sm">
+                            <form method="post" action="/admin/users/ban">
+                                <input type="hidden" name="id" value="@u.Id" />
+                                <button class="ae-btn @(u.IsBanned ? "ae-btn-success" : "ae-btn-danger") btn-sm">
+                                    @(u.IsBanned ? "Unban" : "Ban")
+                                </button>
+                            </form>
+
+                            <form method="post" action="/admin/users/delete"
+                                  onsubmit="return confirm('Delete @u.Username?')">
+                                <input type="hidden" name="id" value="@u.Id" />
+                                <button class="ae-btn ae-btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
