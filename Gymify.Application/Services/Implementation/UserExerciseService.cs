@@ -84,7 +84,6 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
                     );
                 }
 
-                // 3.2. Створюємо нову сутність UserExercise
                 var newEntity = new UserExercise
                 {
                     Id = dto.Id,
@@ -131,7 +130,6 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
         return userExerciseDtos;
     }
 
-    // переписати
     public static int CalculateXp(AddUserExerciseDto exerciseModel, Exercise userExercise)
     {
         int sets = exerciseModel.Sets ?? 0;

@@ -178,8 +178,6 @@ namespace Gymify.Web.Controllers
                                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
                                        );
 
-                NotifyModelStateErrors();
-
                 return BadRequest(new { success = false, message = "Validation Error", errors = errors });
             }
 
