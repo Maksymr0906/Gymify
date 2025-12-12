@@ -1,79 +1,82 @@
 @model List<Gymify.Application.DTOs.User.UserAdminDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "User Moderation Panel";
+    ViewData["Title"] = Localizer["PageTitle_UserModeration"];
 }
 
 <div class="ae-page-container">
 
-    <h2 class="ae-page-title">User Moderation</h2>
+    <h1 class="ae-page-title mb-4">@Localizer["Header_UserModeration"]</h1>
 
     @if (!Model.Any())
     {
-        <div class="ae-alert ae-alert-success text-center">✔ No users found</div>
+        <div class="friends-empty text-center">
+            <i class="fa-regular fa-user" style="color: #ccc; font-size: 2rem;"></i>
+            <p>@Localizer["Msg_NoUsersFound"]</p>
+        </div>
     }
     else
     {
-        <table class="ae-table ae-table-hover">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>XP</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Registered</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var u in Model)
-                {
-                    <tr>
-                        <td>@u.Username</td>
-                        <td>@u.Email</td>
-                        <td>@u.TotalXP</td>
-                        <td>
-                            <form method="post" action="/admin/users/role" class="d-flex gap-2">
-                                <input type="hidden" name="id" value="@u.Id" />
-                                <select name="role" class="ae-input-std">
-                                    <option value="User" selected="@(u.Role == "User")">User</option>
-                                    <option value="Admin" selected="@(u.Role == "Admin")">Admin</option>
-                                </select>
-                                <button class="ae-btn ae-btn-primary btn-sm">Save</button>
-                            </form>
-                        </td>
+        <div class="co-list">
+            @foreach (var u in Model)
+            {
+                <div class="ae-card-item mb-3" style="border-left: 4px solid var(--gym-orange);">
+                    <div class="ae-card-header-title d-flex justify-content-between align-items-center">
+                        <div>
+                            <span style="color: #333; font-weight: 800;">@u.Username</span>
+                            <span class="ae-text-muted" style="font-weight: 400; font-size: 0.9rem;">
+                                @Localizer["Text_Email"] @u.Email
+                            </span>
+                        </div>
+                        <span class="ae-badge" style="background: #333; color: #fff;">
+                            @(u.IsBanned? Localizer["Badge_Banned"] : Localizer["Badge_Active"])
+                        </span>
+                    </div>
 
-                        <td>
-                            @if (u.IsBanned)
-                            {
-                                <span class="text-danger fw-bold">BANNED</span>
-                            }
-                            else
-                            {
-                                <span class="text-success fw-bold">Active</span>
-                            }
-                        </td>
+                    <div class="mt-2">
+                        <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                            <span style="font-weight: 500;">@Localizer["Label_TotalXP"]:</span>
+                            <span>@u.TotalXP</span>
+                        </div>
 
-                        <td>@u.Registered.ToShortDateString()</td>
+                        <form method="post" action="/admin/users/role" class="d-flex gap-2 align-items-center mb-2" style="max-width: 300px;">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <select name="role" class="ae-input-std">
+                                <option value="User" selected="@(u.Role == "User")">User</option>
+                                <option value="Admin" selected="@(u.Role == "Admin")">Admin</option>
+                            </select>
+                            <button class="gym-btn gym-btn-secondary py-2 px-3" style="font-size: 0.85rem;">
+                                @Localizer["Btn_SaveRole"]
+                            </button>
+                        </form>
 
-                        <td class="ae-flex-row ae-gap-sm">
-                            <form method="post" action="/admin/users/ban">
-                                <input type="hidden" name="id" value="@u.Id" />
-                                <button class="ae-btn @(u.IsBanned ? "ae-btn-success" : "ae-btn-danger") btn-sm">
-                                    @(u.IsBanned ? "Unban" : "Ban")
-                                </button>
-                            </form>
+                        <div class="mb-2">
+                            <span style="font-weight: 500;">@Localizer["Label_Registered"]:</span> @u.Registered.ToShortDateString()
+                        </div>
+                    </div>
 
-                            <form method="post" action="/admin/users/delete"
-                                  onsubmit="return confirm('Delete @u.Username?')">
-                                <input type="hidden" name="id" value="@u.Id" />
-                                <button class="ae-btn ae-btn-danger btn-sm">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                    <div class="ae-separator" style="margin: 15px 0;"></div>
+
+                    <div class="d-flex flex-wrap gap-3">
+                        <form method="post" action="/admin/users/ban">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="gym-btn @(u.IsBanned ? "gym-btn-success" : "gym-btn-danger") py-2 px-4">
+                                @(u.IsBanned? Localizer["Btn_Unban"] : Localizer["Btn_Ban"])
+                            </button>
+                        </form>
+
+                        <form method="post" action="/admin/users/delete" onsubmit="return confirm('@Localizer["Confirm_DeleteUser"] @u.Username?');">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="gym-btn gym-btn-danger py-2 px-4">
+                                @Localizer["Btn_Delete"]
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
     }
 </div>

@@ -68,11 +68,30 @@ public class AdminController : BaseController
         return RedirectToAction("CommentPanel");
     }
 
-    [HttpGet("/admin/users")]
-    public IActionResult UserPanel()
-        => View("UserPanel");
+    public async Task<IActionResult> UserPanel()
+    {
+        var users = await _adminService.GetAllUsersAsync();
+        return View("UserPanel", users);
+    }
 
-    [HttpGet("/admin/workouts")]
-    public IActionResult WorkoutPanel()
-        => View("WorkoutPanel");
+    [HttpPost("/admin/users/ban")]
+    public async Task<IActionResult> Ban(Guid id)
+    {
+        await _adminService.ToggleBanAsync(id);
+        return RedirectToAction(nameof(UserPanel));
+    }
+
+    [HttpPost("/admin/users/role")]
+    public async Task<IActionResult> ChangeRole(Guid id, string role)
+    {
+        await _adminService.ChangeRoleAsync(id, role);
+        return RedirectToAction(nameof(UserPanel));
+    }
+
+    [HttpPost("/admin/users/delete")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _adminService.DeleteUserAsync(id);
+        return RedirectToAction(nameof(UserPanel));
+    }
 }
