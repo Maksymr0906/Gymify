@@ -1,22 +1,16 @@
 ﻿using Gymify.Application.DTOs.Comment;
 using Gymify.Application.DTOs.Exercise;
-using Gymify.Application.DTOs.User;
 using Gymify.Application.Services.Interfaces;
-using Gymify.Data.Entities;
 using Gymify.Data.Interfaces.Repositories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
 
 public class AdminService : IAdminService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AdminService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
+    public AdminService(IUnitOfWork unitOfWork)
     {
-        _userManager = userManager;
         _unitOfWork = unitOfWork;
     }
 
@@ -27,8 +21,11 @@ public class AdminService : IAdminService
         if (exercise == null)
             throw new Exception("Exercise not found.");
 
-        exercise.Name = updatedExercise.Name;
-        exercise.Description = updatedExercise.Description;
+        exercise.NameEn = updatedExercise.NameEn;
+        exercise.DescriptionEn = updatedExercise.DescriptionEn;
+        exercise.NameUk = updatedExercise.NameUk;
+        exercise.DescriptionUk = updatedExercise.DescriptionUk;
+
         exercise.BaseXP = updatedExercise.BaseXP;
         exercise.DifficultyMultiplier = updatedExercise.DifficultyMultiplier;
         exercise.Type = updatedExercise.Type;
@@ -40,15 +37,17 @@ public class AdminService : IAdminService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<List<ExerciseDto>> GetUnapprovedExercisesAsync()
+    public async Task<List<AdminExerciseDto>> GetUnapprovedExercisesAsync()
     {
         var exercises = await _unitOfWork.ExerciseRepository.GetUnapprovedAsync();
 
-        var dtos = exercises.Select(e => new ExerciseDto
+        var dtos = exercises.Select(e => new AdminExerciseDto
         {
             Id = e.Id,
-            Name = e.Name,
-            Description = e.Description,
+            NameEn = e.NameEn,
+            NameUk = e.NameUk,
+            DescriptionEn = e.DescriptionEn,
+            DescriptionUk = e.DescriptionUk,
             BaseXP = e.BaseXP,
             DifficultyMultiplier = e.DifficultyMultiplier,
             Type = e.Type,
@@ -121,76 +120,6 @@ public class AdminService : IAdminService
         comment.Content = content;
 
         await _unitOfWork.CommentRepository.UpdateAsync(comment);
-        await _unitOfWork.SaveAsync();
-    }
-
-    public async Task<List<UserAdminDto>> GetAllUsersAsync()
-    {
-        var users = await _userManager.Users
-            .Include(u => u.UserProfile)
-            .ToListAsync();
-
-        var result = new List<UserAdminDto>();
-
-        foreach (var u in users)
-        {
-            var roles = await _userManager.GetRolesAsync(u);
-            result.Add(new UserAdminDto
-            {
-                Id = u.Id,
-                Username = u.UserName ?? "",
-                Email = u.Email ?? "",
-                Role = roles.FirstOrDefault() ?? "User",
-                IsBanned = u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.Now,
-                TotalXP = (int)(u.UserProfile?.CurrentXP ?? 0),
-                Registered = u.UserProfile?.CreatedAt ?? DateTime.Now
-            });
-        }
-
-        return result;
-    }
-
-    public async Task ToggleBanAsync(Guid id)
-    {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null) return;
-
-        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now)
-        {
-            // Unban
-            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
-        }
-        else
-        {
-            // Ban indefinitely
-            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
-        }
-    }
-
-    public async Task ChangeRoleAsync(Guid id, string role)
-    {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null) return;
-
-        var currentRoles = await _userManager.GetRolesAsync(user);
-
-        await _userManager.RemoveFromRolesAsync(user, currentRoles);
-
-        await _userManager.AddToRoleAsync(user, role);
-    }
-
-    public async Task DeleteUserAsync(Guid id)
-    {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null) return;
-
-        var profile = await _unitOfWork.UserProfileRepository.GetByIdAsync(user.UserProfileId);
-        if (profile != null)
-        {
-            await _unitOfWork.UserProfileRepository.DeleteByIdAsync(profile.Id);
-        }
-
-        await _userManager.DeleteAsync(user);
         await _unitOfWork.SaveAsync();
     }
 }

@@ -1,72 +1,77 @@
 ﻿@model Gymify.Application.ViewModels.UserProfile.UserProfileViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
-<div id="profileRoot" class="userProfileFullPage" 
+<div id="profileRoot" class="userProfileFullPage"
      style="background-image: url('@Model.UserEquipmentDto.BackgroundUrl');"
-     data-edit-type="background" title="Click empty space to change background">
+     data-edit-type="background">
 
-    <div class="userProfileContentWrapper">
+    <div class="userProfileContentWrapper" title="">
 
         <div class="userProfileCustoms">
             <div class="userProfileAvatarBlock" id="avatarBlock" data-edit-type="avatar-setup">
-                <img src="@Model.UserEquipmentDto.FrameUrl" class="frameImage" id="frameImage" alt="Frame" />
-                <img src="@Model.UserEquipmentDto.AvatarUrl" class="avatarImage" id="avatarImage" alt="Avatar" />
+                <img src="@Model.UserEquipmentDto.FrameUrl" class="frameImage" id="frameImage" alt="@Localizer["Alt_Frame"]" />
+                <img src="@Model.UserEquipmentDto.AvatarUrl" class="avatarImage" id="avatarImage" alt="@Localizer["Alt_Avatar"]" />
             </div>
 
             <div class="userProfileInfoBlock">
                 @if (Model.Editable == true)
                 {
-                    <button class="userProfileEditButton" id="editToggleBtn">Edit</button>
+                    <button class="gym-btn gym-btn-primary" id="editToggleBtn" style="min-width: 140px;">
+                        @Localizer["Btn_Edit"]
+                    </button>
                 }
-                 <div>
-                     <span id="levelView" class="userProfileLevelBadge">Level @Model.Level</span>
-                 </div>
-                 <div>
-                     <span id="nameView" class="userProfileNameView">@Model.UserName</span>
-                     <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" />
-                 </div>
-                 <div>
-                     <span id="titleView" class="userProfileTitleView" data-edit-type="title">@Model.Title</span>
-                 </div>
+                <div>
+                    <span id="levelView" class="userProfileLevelBadge">@Localizer["Label_Level"] @Model.Level</span>
+                </div>
+                <div>
+                    <span id="nameView" class="userProfileNameView">@Model.UserName</span>
+                    <input id="nameInput" class="userProfileNameInput" value="@Model.UserName" style="display:none;" maxlength="20" />
+                </div>
+                <div>
+                    <span id="titleView" class="userProfileTitleView" data-edit-type="title">@Model.Title</span>
+                </div>
             </div>
         </div>
 
         <div class="userProfileAchivmentBlock">
-            <h2 class="userProfileAchivmentTitle">Achievements</h2>
+            <h2 class="userProfileAchivmentTitle">@Localizer["Section_Achievements"]</h2>
             <ul class="userProfileAchivmentsList" id="achievementsList">
                 @if (Model.Achievements != null && Model.Achievements.Any())
                 {
                     foreach (var a in Model.Achievements)
                     {
-                                <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
-                                    <div class="achievementContent">
-                                        <img src="@a.IconUrl" class="achievementIcon" />
-                                        <div class="achievementText">
-                                            <span class="achievementName">@a.Name</span>
-                                            <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
-                                        </div>
-                                    </div>
-                                </li>
+                        <li class="userProfileAchivmentItem" title="@a.UnlockedAt?.ToString("g")">
+                            <div class="achievementContent">
+                                <img src="@a.IconUrl" class="achievementIcon" />
+                                <div class="achievementText">
+                                    <span class="achievementName">@a.Name</span>
+                                    <small class="achievementDate">@a.UnlockedAt?.ToString("g")</small>
+                                </div>
+                            </div>
+                        </li>
                     }
                 }
                 else
                 {
-                        <p style="color:#666;">You haven't unlocked any achievements yet.</p>
+                    <p style="color:#666;">@Localizer["Msg_NoAchievements"]</p>
                 }
             </ul>
         </div>
 
         <div class="userProfileLastTrains">
-            <h2 class="userProfileTrainsTitle">My last trainings</h2>
+            <h2 class="userProfileTrainsTitle">@Localizer["Section_LastTrainings"]</h2>
             <ul class="userProfileTrainsList">
                 @if (Model.Workouts != null && Model.Workouts.Any())
                 {
                     foreach (var workout in Model.Workouts)
                     {
-                        <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id" 
-                           class="userProfileTrainLink" 
+                        <a asp-controller="Workout" asp-action="Details" asp-route-workoutId="@workout.Id"
+                           class="userProfileTrainLink"
                            title="@workout.CreatedAt.ToString("g")">
 
                             <span style="font-weight:bold; font-size:16px; text-align:center;">@workout.Name</span>
@@ -76,26 +81,24 @@
                 }
                 else
                 {
-                        <p style="color:#666;">No workouts yet.</p>
+                    <p style="color:#666;">@Localizer["Msg_NoTrainings"]</p>
                 }
             </ul>
         </div>
 
         <div class="userProfileComments">
             <div class="ae-comments-section">
-                <h3 class="ae-section-title ae-mb-20">Comments</h3>
-
-                        @{
-                            var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
-                            {
-                                TargetId = Model.UserProfileId,
-                                TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile, 
-                                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
-                                CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl 
-                            };
-                        }
-
-                <partial  name="_CommentsSection" model="commentsVm" />
+                <h3 class="ae-section-title ae-mb-20">@Localizer["Section_Comments"]</h3>
+                @{
+                    var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
+                    {
+                        TargetId = Model.UserProfileId,
+                        TargetType = Gymify.Data.Enums.CommentTargetType.UserProfile,
+                        CommentDtos = Model.Comments?.CommentDtos ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                        CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
+                    };
+                }
+                <partial name="_CommentsSection" model="commentsVm" />
             </div>
         </div>
 
@@ -104,394 +107,475 @@
 
 <div id="itemPickerOverlay" aria-hidden="true" style="display:none;">
     <div id="itemPickerHeader">
-        <div id="itemPickerTitle">Choose item</div>
+        <div id="itemPickerTitle" style="font-size: 20px; font-weight: bold;">@Localizer["Picker_TitleDefault"]</div>
 
-        <div id="pickerTabs" style="display:flex; gap:10px; margin: 10px 0;"></div>
+        <div id="pickerTabs" style="display:flex; gap:10px;"></div>
 
-        <div>
-            <button id="itemPickerCancel" class="userProfileEditButton" style="background:#666; margin-right:8px;">Cancel</button>
-            <button id="itemPickerApply" class="userProfileEditButton" style="background:var(--ButtonColor,#2b8be6);">Apply</button>
+        <div style="display:flex; align-items:center; gap: 10px;">
+            <div id="uploadContainer" style="display:none; align-items:center; gap: 10px;">
+                <input type="file" id="pickerFileUploadInput" accept=".png,.jpg,.jpeg" style="display:none;" />
+                <button id="pickerUploadBtn" class="gym-btn gym-btn-secondary" style="padding: 8px 16px; font-size: 14px;">
+                    @Localizer["Btn_Upload"]
+                </button>
+            </div>
+
+            <button id="itemPickerCancel" class="gym-btn gym-btn-secondary" style="padding: 8px 16px; font-size: 14px;">@Localizer["Btn_Cancel"]</button>
+            <button id="itemPickerApply" class="gym-btn gym-btn-primary" style="padding: 8px 16px; font-size: 14px;">@Localizer["Btn_Apply"]</button>
         </div>
     </div>
+
     <div id="itemPickerList"></div>
 </div>
 
 <script>
-/* ====== Profile edit script (Final Consolidated Version) ====== */
-/* ====== Profile edit script (Tabs Version) ====== */
-(() => {
-    let isEditMode = false;
-
-    // ID вибраних предметів
-    let selectedAvatarId = null;
-    let selectedFrameId = null;
-    let selectedBackgroundId = null;
-    let selectedTitleId = null;
-
-    // Змінні пікера
-    let pickerCurrentMode = null; // 'avatar', 'frame', 'background', 'title'
-    let pickerSelectedItemId = null;
-    let pickerSelectedItemUrl = null;
-    let pickerSelectedItemName = null;
-
-    let tempAvatarSelection = { id: null, url: null, name: null }; 
-    let tempFrameSelection = { id: null, url: null, name: null };
-
-    // Оригінали
-    const original = {
-        name: document.getElementById('nameView').innerText.trim(),
-        titleText: document.getElementById('titleView').innerText.trim(),
-        avatarUrl: document.getElementById('avatarImage').src,
-        frameUrl: document.getElementById('frameImage').src,
-        backgroundUrl: document.getElementById('profileRoot').style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
-    };
-
-    function enterEditMode() {
-        if (isEditMode) return;
-        isEditMode = true;
-        document.getElementById('nameView').style.display = 'none';
-        document.getElementById('nameInput').style.display = 'block';
-
-        document.getElementById('titleView').style.cursor = 'pointer';
-        document.getElementById('titleView').title = "Change Title";
-
-        document.getElementById('profileRoot').style.cursor = 'pointer';
-        document.getElementById('profileRoot').title = "Change Background";
-
-        // Додаємо підказку для аватара
-        document.getElementById('avatarBlock').title = "Change Avatar or Frame";
-
-        const btn = document.getElementById('editToggleBtn');
-        if (btn) { btn.innerText = 'Save changes'; btn.style.background = '#ff9f1c'; }
-    }
-
-    function exitEditMode() {
-        isEditMode = false;
-        document.getElementById('nameView').style.display = 'block';
-        document.getElementById('nameInput').style.display = 'none';
-        document.getElementById('titleView').style.cursor = 'default';
-        document.getElementById('profileRoot').style.cursor = 'default';
-        document.getElementById('avatarBlock').title = "";
-
-        const btn = document.getElementById('editToggleBtn');
-        if (btn) { btn.innerText = 'Edit'; btn.style.background = ''; }
-    }
-
-    function stopPropagationHandler(e) {
-        // Зупиняє подальше спливання події до батьків (зокрема, до profileRoot)
-        e.stopPropagation();
-    }
-
-    // 1. Блокуємо спливання на Хедері (Avatar/Info)
-    document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
-
-    // 2. Блокуємо спливання на Картці Досягнень
-    document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
-
-    // 3. Блокуємо спливання на Картці Тренувань
-    document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
-
-    // 4. Блокуємо спливання на Коментах
-    document.querySelector('.userProfileComments').addEventListener('click', stopPropagationHandler);
-
-    // === ОБРОБНИК КЛІКІВ ===
-    document.querySelectorAll('[data-edit-type]').forEach(el => {
-        el.addEventListener('click', (ev) => {
-            if (!isEditMode) return;
-            ev.stopPropagation(); // Зупиняємо спливання
-
-            const type = el.getAttribute('data-edit-type');
-
-            if (type === 'avatar-setup') {
-                openPickerWithTabs();
-            } else {
-                openPickerSimple(type);
-            }
-        });
-    });
-
-    // Клік по фону (окремо)
-    document.getElementById('profileRoot').addEventListener('click', (ev) => {
-        if (!isEditMode) return;
-
-        // Обробляємо тільки якщо клік по самому background, не по внутрішніх елементах
-        if (ev.target !== ev.currentTarget) return;
-
-        openPickerSimple('background');
-    });
-
-
-    // === ФУНКЦІЇ ВІДКРИТТЯ ПІКЕРА ===
-
-    // 1. Просте відкриття (для Фону або Титулу)
-    function openPickerSimple(type) {
-        const tabsDiv = document.getElementById('pickerTabs');
-        tabsDiv.innerHTML = ''; // Очищаємо таби
-        loadItemsIntoPicker(type);
-    }
-
-    // 2. Відкриття з табами (для Аватара/Рамки)
-    function openPickerWithTabs() {
-        const tabsDiv = document.getElementById('pickerTabs');
-        tabsDiv.innerHTML = ''; // Очистка
-
-        // Створюємо кнопку "Avatars"
-        const btnAvatar = document.createElement('button');
-        btnAvatar.innerText = 'Avatars';
-        btnAvatar.className = 'pickerTabBtn active';
-
-        // Створюємо кнопку "Frames"
-        const btnFrame = document.createElement('button');
-        btnFrame.innerText = 'Frames';
-        btnFrame.className = 'pickerTabBtn';
-
-        // Логіка перемикання
-        btnAvatar.onclick = () => {
-            btnAvatar.classList.add('active');
-            btnFrame.classList.remove('active');
-            loadItemsIntoPicker('avatar');
-        };
-
-        btnFrame.onclick = () => {
-            btnFrame.classList.add('active');
-            btnAvatar.classList.remove('active');
-            loadItemsIntoPicker('frame');
-        };
-
-        tabsDiv.appendChild(btnAvatar);
-        tabsDiv.appendChild(btnFrame);
-
-        // За замовчуванням вантажимо аватари
-        loadItemsIntoPicker('avatar');
-    }
-
-    // === ЗАВАНТАЖЕННЯ ДАНИХ (Fetch) ===
-    async function loadItemsIntoPicker(type) {
-        // --- 1. ЗБЕРЕЖЕННЯ ПОПЕРЕДНЬОГО ВИБОРУ ---
-        // Якщо ми міняємо вкладку, зберігаємо поточний тимчасовий вибір
-        if (pickerCurrentMode === 'avatar') {
-            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
-        } else if (pickerCurrentMode === 'frame') {
-            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
-        }
-
-        pickerCurrentMode = type; // Встановлюємо новий режим
-        pickerSelectedItemId = null; // Скидаємо поточний вибір (буде відновлений нижче)
-
-        const list = document.getElementById('itemPickerList');
-        const overlay = document.getElementById('itemPickerOverlay');
-        const titleLabel = document.getElementById('itemPickerTitle');
-
-        titleLabel.innerText = 'Choose ' + type;
-        list.innerHTML = '<div style="padding:20px;">Loading...</div>';
-        overlay.style.display = 'block';
-
-        try {
-            const resp = await fetch(`/userEquipment?type=${encodeURIComponent(type)}`);
-            const items = await resp.json();
-
-            list.innerHTML = '';
-            if (!items || items.length === 0) {
-                list.innerHTML = '<div style="color:#ccc">No items found</div>';
-                return;
-            }
-
-            // --- 2. ВИЗНАЧЕННЯ АКТИВНОГО ВИБОРУ ДЛЯ ПОТОЧНОЇ ВКЛАДКИ ---
-            let activeSelection = { id: null };
-            if (type === 'avatar') {
-                activeSelection = tempAvatarSelection;
-            } else if (type === 'frame') {
-                activeSelection = tempFrameSelection;
-            }
-
-            items.forEach(it => {
-                // ... (створення елемента el, як раніше) ...
-                let el;
-                if (type === 'title') {
-                    el = document.createElement('div');
-                    el.className = 'titleItem';
-                    el.innerText = it.name;
-                } else {
-                    el = document.createElement('img');
-                    el.className = 'pickerItem';
-                    el.src = it.url;
-                }
-
-                el.title = it.name || '';
-
-                // --- 3. ВІДНОВЛЕННЯ ВИДІЛЕННЯ (якщо елемент був вибраний раніше) ---
-                if (it.id === activeSelection.id) {
-                    el.classList.add('selected');
-                    // Оновлюємо поточні змінні пікера відновленим вибором
-                    pickerSelectedItemId = it.id;
-                    pickerSelectedItemUrl = it.url;
-                    pickerSelectedItemName = it.name;
-                }
-
-                // Логіка кліку
-                el.addEventListener('click', () => {
-                    list.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
-                    el.classList.add('selected');
-                    pickerSelectedItemId = it.id;
-                    pickerSelectedItemUrl = it.url;
-                    pickerSelectedItemName = it.name;
-                });
-                list.appendChild(el);
-            });
-
-        } catch (err) {
-            console.error(err);
-            list.innerHTML = '<div style="color:#f88">Error loading items</div>';
-        }
-    }
-
-    // --- ФУНКЦІЯ ПОВНОГО СКИДАННЯ СТАНУ МОДАЛА ---
-    function resetPickerModalState() {
-        // Скидаємо кеш для табів
-        tempAvatarSelection = { id: null, url: null, name: null };
-        tempFrameSelection = { id: null, url: null, name: null };
-
-        // Скидаємо загальні змінні модала
-        pickerSelectedItemId = null;
-        pickerSelectedItemUrl = null;
-        pickerSelectedItemName = null;
-        pickerCurrentMode = null; 
-
-        // Ховаємо модальне вікно
-        document.getElementById('itemPickerOverlay').style.display = 'none';
-    }
-
-    // === APPLY ===
-    document.getElementById('itemPickerApply').addEventListener('click', () => {
-        // Ми не перевіряємо, чи вибрано хоча б щось, бо можливо, юзер міняв аватар і фрейм
-
-        // Зберігаємо останній зроблений вибір перед закриттям
-        if (pickerCurrentMode === 'avatar') {
-            tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
-        } else if (pickerCurrentMode === 'frame') {
-            tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
-        }
-
-        // --- 1. Застосовуємо Аватар ---
-        if (tempAvatarSelection.id) {
-             applyPickedItem('avatar', tempAvatarSelection.id, tempAvatarSelection.url, tempAvatarSelection.name);
-        }
-
-        // --- 2. Застосовуємо Фрейм ---
-        if (tempFrameSelection.id) {
-             applyPickedItem('frame', tempFrameSelection.id, tempFrameSelection.url, tempFrameSelection.name);
-        }
-
-        // --- 3. Застосовуємо Титул / Фон (якщо ми їх міняли) ---
-        // Якщо ми були в режимі Title/Background, applyPickedItem викликався одразу.
-        // Але для надійності, якщо юзер був у режимі Title/Background і натиснув apply:
-        if (pickerCurrentMode === 'title' || pickerCurrentMode === 'background') {
-             if (pickerSelectedItemId) {
-                 applyPickedItem(pickerCurrentMode, pickerSelectedItemId, pickerSelectedItemUrl, pickerSelectedItemName);
-             }
-        }
-        resetPickerModalState();
-    });
-
-    document.getElementById('itemPickerCancel').addEventListener('click', () => {
-        resetPickerModalState();
-    });
-
-    function applyPickedItem(type, id, url, name) {
-        if (type === 'avatar') {
-            document.getElementById('avatarImage').src = url;
-            selectedAvatarId = id;
-        } else if (type === 'frame') {
-            document.getElementById('frameImage').src = url;
-            selectedFrameId = id;
-        } else if (type === 'background') {
-            document.getElementById('profileRoot').style.backgroundImage = `url('${url}')`;
-            selectedBackgroundId = id;
-        } else if (type === 'title') {
-            document.getElementById('titleView').innerText = name;
-            selectedTitleId = id;
-        }
-    }
-
-    // === SAVE / CANCEL LOGIC ===
-    const editBtn = document.getElementById('editToggleBtn');
-    if (editBtn) {
-        editBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            if (!isEditMode) { enterEditMode(); return; }
-
-            // Блокуємо кнопку
-            editBtn.disabled = true;
-            editBtn.innerText = 'Saving...';
-
-            // Отримуємо поточні значення
-            const currentName = document.getElementById('nameInput').value.trim();
+    (() => {
+        // --- 1. LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            btnEdit: '@Localizer["Btn_Edit"]',
+            btnSaveChanges: '@Localizer["Btn_SaveChanges"]',
+            btnSaving: '@Localizer["Btn_Saving"]',
+            btnUpload: '@Localizer["Btn_Upload"]',
+            btnUploading: '@Localizer["Btn_Uploading"]',
             
+            tooltipTitle: '@Localizer["Tooltip_ChangeTitle"]',
+            tooltipBackground: '@Localizer["Tooltip_ChangeBackground"]',
+            tooltipAvatar: '@Localizer["Tooltip_ChangeAvatar"]',
+            
+            tabAvatars: '@Localizer["Tab_Avatars"]',
+            tabFrames: '@Localizer["Tab_Frames"]',
+            
+            pickerChoose: '@Localizer["Picker_ChoosePrefix"]', 
+            
+            typeAvatar: '@Localizer["Type_Avatar"]',
+            typeFrame: '@Localizer["Type_Frame"]',
+            typeBackground: '@Localizer["Type_Background"]',
+            typeTitle: '@Localizer["Type_Title"]',
+            
+            msgLoading: '@Localizer["Msg_Loading"]',
+            msgNoItems: '@Localizer["Msg_NoItems"]',
+            msgErrorLoading: '@Localizer["Msg_ErrorLoading"]',
+            msgUploadFailed: '@Localizer["Msg_UploadFailed"]',
+            msgErrorUpload: '@Localizer["Msg_ErrorUpload"]',
+            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]',
+
+            // Validation & Errors
+            msgUsernameTaken: '@Localizer["UsernameTaken"]',   // "Username is already taken"
+            msgUsernameLength: '@Localizer["UserNameLength"]'  // "Name must be between 3 and 20 chars"
+        };
+
+        function getLocalizedTypeName(type) {
+            if (type === 'avatar') return JS_RESOURCES.typeAvatar;
+            if (type === 'frame') return JS_RESOURCES.typeFrame;
+            if (type === 'background') return JS_RESOURCES.typeBackground;
+            if (type === 'title') return JS_RESOURCES.typeTitle;
+            return type;
+        }
+
+        let isEditMode = false;
+
+        // IDs of currently selected items
+        let selectedAvatarId = null;
+        let selectedFrameId = null;
+        let selectedBackgroundId = null;
+        let selectedTitleId = null;
+
+        // Picker State
+        let pickerCurrentMode = null;
+        let pickerSelectedItemId = null;
+        let pickerSelectedItemUrl = null;
+        let pickerSelectedItemName = null;
+
+        let tempAvatarSelection = { id: null, url: null, name: null };
+        let tempFrameSelection = { id: null, url: null, name: null };
+
+        // Original values (snapshot)
+        const original = {
+            name: document.getElementById('nameView').innerText.trim(),
+            titleText: document.getElementById('titleView').innerText.trim(),
+            avatarUrl: document.getElementById('avatarImage').src,
+            frameUrl: document.getElementById('frameImage').src,
+            backgroundUrl: document.getElementById('profileRoot').style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
+        };
+
+        function enterEditMode() {
+            if (isEditMode) return;
+            isEditMode = true;
+    
+            document.getElementById('nameView').style.display = 'none';
+            document.getElementById('nameInput').style.display = 'block';
+    
+            document.getElementById('profileRoot').classList.add('edit-active');
+
+            document.getElementById('titleView').title = JS_RESOURCES.tooltipTitle;
+            document.getElementById('profileRoot').title = JS_RESOURCES.tooltipBackground;
+            document.getElementById('avatarBlock').title = JS_RESOURCES.tooltipAvatar;
+
+            const btn = document.getElementById('editToggleBtn');
+            if (btn) btn.innerText = JS_RESOURCES.btnSaveChanges;
+        }
+
+        function exitEditMode() {
+            isEditMode = false;
+    
+            document.getElementById('nameView').style.display = 'block';
+            document.getElementById('nameInput').style.display = 'none';
+
+            document.getElementById('profileRoot').classList.remove('edit-active');
+
+            document.getElementById('titleView').title = "";
+            document.getElementById('profileRoot').title = "";
+            document.getElementById('avatarBlock').title = "";
+
+            const btn = document.getElementById('editToggleBtn');
+            if (btn) btn.innerText = JS_RESOURCES.btnEdit;
+
+            document.getElementById('itemPickerOverlay').style.display = 'none';
+        }
+
+        function stopPropagationHandler(e) {
+            e.stopPropagation();
+        }
+
+        document.querySelector('.userProfileCustoms').addEventListener('click', stopPropagationHandler);
+        document.querySelector('.userProfileAchivmentBlock').addEventListener('click', stopPropagationHandler);
+        document.querySelector('.userProfileLastTrains').addEventListener('click', stopPropagationHandler);
+        document.querySelector('.userProfileComments').addEventListener('click', stopPropagationHandler);
+
+        // --- 3. CLICK HANDLERS (PICKER) ---
+        document.querySelectorAll('[data-edit-type]').forEach(el => {
+            el.addEventListener('click', (ev) => {
+                if (!isEditMode) return;
+                ev.stopPropagation();
+                const type = el.getAttribute('data-edit-type');
+
+                if (type === 'avatar-setup') {
+                    openPickerWithTabs();
+                } else {
+                    openPickerSimple(type);
+                }
+            });
+        });
+
+        document.getElementById('profileRoot').addEventListener('click', (ev) => {
+            if (!isEditMode) return;
+            if (ev.target !== ev.currentTarget) return;
+            openPickerSimple('background');
+        });
+
+        // --- 4. PICKER FUNCTIONS ---
+        function openPickerSimple(type) {
+            const tabsDiv = document.getElementById('pickerTabs');
+            tabsDiv.innerHTML = '';
+            loadItemsIntoPicker(type);
+        }
+
+        function openPickerWithTabs() {
+            const tabsDiv = document.getElementById('pickerTabs');
+            tabsDiv.innerHTML = '';
+
+            const btnAvatar = document.createElement('button');
+            btnAvatar.innerText = JS_RESOURCES.tabAvatars;
+            btnAvatar.className = 'gym-btn gym-btn-primary';
+            btnAvatar.style.padding = '6px 12px';
+            btnAvatar.style.fontSize = '14px';
+
+            const btnFrame = document.createElement('button');
+            btnFrame.innerText = JS_RESOURCES.tabFrames;
+            btnFrame.className = 'gym-btn gym-btn-secondary';
+            btnFrame.style.padding = '6px 12px';
+            btnFrame.style.fontSize = '14px';
+
+            btnAvatar.onclick = () => {
+                btnAvatar.className = 'gym-btn gym-btn-primary';
+                btnFrame.className = 'gym-btn gym-btn-secondary';
+                loadItemsIntoPicker('avatar');
+            };
+
+            btnFrame.onclick = () => {
+                btnFrame.className = 'gym-btn gym-btn-primary';
+                btnAvatar.className = 'gym-btn gym-btn-secondary';
+                loadItemsIntoPicker('frame');
+            };
+
+            tabsDiv.appendChild(btnAvatar);
+            tabsDiv.appendChild(btnFrame);
+
+            loadItemsIntoPicker('avatar');
+        }
+
+        async function loadItemsIntoPicker(type) {
+            if (pickerCurrentMode === 'avatar') {
+                tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            } else if (pickerCurrentMode === 'frame') {
+                tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            }
+
+            pickerCurrentMode = type;
+            pickerSelectedItemId = null;
+
+            const uploadContainer = document.getElementById('uploadContainer');
+            if (type === 'avatar') uploadContainer.style.display = 'flex';
+            else uploadContainer.style.display = 'none';
+
+            const list = document.getElementById('itemPickerList');
+            const overlay = document.getElementById('itemPickerOverlay');
+            const titleLabel = document.getElementById('itemPickerTitle');
+
+            titleLabel.innerText = JS_RESOURCES.pickerChoose + ' ' + getLocalizedTypeName(type);
+            
+            list.innerHTML = `<div style="padding:20px;">${JS_RESOURCES.msgLoading}</div>`;
+            overlay.style.display = 'flex';
+
             try {
-                // ---------------------------------------------------------
-                // 1. ОНОВЛЕННЯ ІМЕНІ (Якщо воно змінилось)
-                // ---------------------------------------------------------
-                if (currentName !== original.name) {
-                    // Використовуємо FormData для передачі простого рядка
-                    const nameData = new FormData();
-                    nameData.append('updatedUserName', currentName);
+                const resp = await fetch(`/userEquipment?type=${encodeURIComponent(type)}`);
+                const items = await resp.json();
 
-                    // Замініть '/UserProfile/UpdateName' на правильний шлях до вашого контролера
-                    const nameRes = await fetch('/updateUserName', {
-                        method: 'POST',
-                        body: nameData
-                    });
-
-                    if (!nameRes.ok) throw new Error("Failed to update name");
+                list.innerHTML = '';
+                if (!items || items.length === 0) {
+                    list.innerHTML = `<div style="color:#ccc; padding: 20px;">${JS_RESOURCES.msgNoItems}</div>`;
                 }
 
-                // ---------------------------------------------------------
-                // 2. ОНОВЛЕННЯ ЕКІПІРУВАННЯ (Аватар, Рамка, Фон, Титул)
-                // ---------------------------------------------------------
-                // Перевіряємо, чи були зміни в візуалі, щоб не слати зайвий запит (опціонально)
-                // Але поки лишаємо як було, щоб зберегти логіку пікера
-                
-                const equipmentPayload = {
-                    // name: currentName, // Ім'я ми вже оновили окремо, тут можна не слати або слати як дубль
-                    titleId: selectedTitleId,
-                    avatarId: selectedAvatarId,
-                    frameId: selectedFrameId,
-                    backgroundId: selectedBackgroundId
-                };
+                let activeSelection = { id: null };
+                if (type === 'avatar') activeSelection = tempAvatarSelection;
+                else if (type === 'frame') activeSelection = tempFrameSelection;
 
-                const equipRes = await fetch('/updateProfile', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(equipmentPayload)
-                });
-
-                if (!equipRes.ok) throw new Error(await equipRes.text());
-
-                // Успіх - перезавантажуємо сторінку
-                location.reload();
+                if(items && items.length > 0) {
+                    items.forEach(it => {
+                        createPickerElement(it, activeSelection.id);
+                    });
+                }
 
             } catch (err) {
                 console.error(err);
-                alert('Error: ' + err.message);
-                editBtn.disabled = false;
-                editBtn.innerText = 'Save changes'; // Повертаємо текст кнопки
+                list.innerHTML = `<div style="color:#f88; padding: 20px;">${JS_RESOURCES.msgErrorLoading}</div>`;
             }
+        }
+
+        function createPickerElement(item, activeId) {
+            const list = document.getElementById('itemPickerList');
+            let el;
+
+            if (pickerCurrentMode === 'title') {
+                el = document.createElement('div');
+                el.className = 'titleItem';
+                el.style.display = 'inline-flex';
+                el.style.alignItems = 'center';
+                el.style.justifyContent = 'center';
+                el.style.minWidth = '120px';
+                el.style.height = '50px';
+                el.style.padding = '0 15px';
+                el.style.border = '2px solid #333';
+                el.style.borderRadius = '8px';
+                el.style.background = '#000';
+                el.style.color = '#fff';
+                el.style.cursor = 'pointer';
+                el.style.fontWeight = 'bold';
+                el.innerText = item.name;
+            } else {
+                el = document.createElement('img');
+                el.className = 'pickerItem';
+                el.src = item.url;
+            }
+
+            el.title = item.name || '';
+
+            if (item.id === activeId) {
+                el.classList.add('selected');
+                if(pickerCurrentMode === 'title') el.style.borderColor = '#ff9f1c';
+                pickerSelectedItemId = item.id;
+                pickerSelectedItemUrl = item.url;
+                pickerSelectedItemName = item.name;
+            }
+
+            el.addEventListener('click', () => {
+                list.querySelectorAll('.selected').forEach(x => {
+                    x.classList.remove('selected');
+                    if(pickerCurrentMode === 'title') x.style.borderColor = '#333';
+                });
+                el.classList.add('selected');
+                if(pickerCurrentMode === 'title') el.style.borderColor = '#ff9f1c';
+                pickerSelectedItemId = item.id;
+                pickerSelectedItemUrl = item.url;
+                pickerSelectedItemName = item.name;
+            });
+
+            list.appendChild(el);
+            return el;
+        }
+
+        // --- 5. UPLOAD ---
+        const fileInput = document.getElementById('pickerFileUploadInput');
+        const uploadBtn = document.getElementById('pickerUploadBtn');
+
+        if(uploadBtn && fileInput) {
+            uploadBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                uploadBtn.innerText = JS_RESOURCES.btnUploading;
+                uploadBtn.disabled = true;
+
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    const response = await fetch('/Image/UploadFromComponent', {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        const newItem = { id: result.id, url: result.url, name: "Custom Avatar" };
+
+                        const list = document.getElementById('itemPickerList');
+                        if (list.innerHTML.includes(JS_RESOURCES.msgNoItems)) list.innerHTML = '';
+
+                        const el = createPickerElement(newItem, null);
+                        el.click();
+                        el.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        alertify.error(JS_RESOURCES.msgUploadFailed);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alertify.error(JS_RESOURCES.msgErrorUpload);
+                } finally {
+                    uploadBtn.innerText = JS_RESOURCES.btnUpload;
+                    uploadBtn.disabled = false;
+                }
+            });
+        }
+
+        // --- 6. APPLY & CANCEL ---
+        function resetPickerModalState() {
+            const overlay = document.getElementById('itemPickerOverlay');
+            overlay.classList.add('closing');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.classList.remove('closing');
+                tempAvatarSelection = { id: null, url: null, name: null };
+                tempFrameSelection = { id: null, url: null, name: null };
+                pickerSelectedItemId = null;
+            }, 280);
+        }
+
+        document.getElementById('itemPickerApply').addEventListener('click', () => {
+            if (pickerCurrentMode === 'avatar') {
+                tempAvatarSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            } else if (pickerCurrentMode === 'frame') {
+                tempFrameSelection = { id: pickerSelectedItemId, url: pickerSelectedItemUrl, name: pickerSelectedItemName };
+            }
+
+            if (tempAvatarSelection.id) applyPickedItem('avatar', tempAvatarSelection.id, tempAvatarSelection.url, tempAvatarSelection.name);
+            if (tempFrameSelection.id) applyPickedItem('frame', tempFrameSelection.id, tempFrameSelection.url, tempFrameSelection.name);
+
+            if (pickerCurrentMode === 'title' || pickerCurrentMode === 'background') {
+                 if (pickerSelectedItemId) {
+                     applyPickedItem(pickerCurrentMode, pickerSelectedItemId, pickerSelectedItemUrl, pickerSelectedItemName);
+                 }
+            }
+            resetPickerModalState();
         });
 
-        editBtn.addEventListener('dblclick', (e) => {
-            e.stopPropagation();
-            if (!isEditMode) return;
-            // Restore logic
-            document.getElementById('nameInput').value = original.name;
-            document.getElementById('titleView').innerText = original.titleText;
-            document.getElementById('avatarImage').src = original.avatarUrl;
-            document.getElementById('frameImage').src = original.frameUrl;
-            document.getElementById('profileRoot').style.backgroundImage = `url('${original.backgroundUrl}')`;
-            selectedAvatarId = null; selectedFrameId = null; selectedBackgroundId = null; selectedTitleId = null;
-            exitEditMode();
-        });
-    }
+        document.getElementById('itemPickerCancel').addEventListener('click', () => resetPickerModalState());
 
-    exitEditMode();
-})();
+        function applyPickedItem(type, id, url, name) {
+            if (type === 'avatar') {
+                document.getElementById('avatarImage').src = url;
+                selectedAvatarId = id;
+            } else if (type === 'frame') {
+                document.getElementById('frameImage').src = url;
+                selectedFrameId = id;
+            } else if (type === 'background') {
+                document.getElementById('profileRoot').style.backgroundImage = `url('${url}')`;
+                selectedBackgroundId = id;
+            } else if (type === 'title') {
+                document.getElementById('titleView').innerText = name;
+                selectedTitleId = id;
+            }
+        }
+
+        // --- 7. MAIN SAVE LOGIC ---
+        const editBtn = document.getElementById('editToggleBtn');
+        if (editBtn) {
+            editBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!isEditMode) { enterEditMode(); return; }
+
+                const currentName = document.getElementById('nameInput').value.trim();
+
+                // >>> CLIENT SIDE VALIDATION <<<
+                const MIN_LENGTH = 3;
+                const MAX_LENGTH = 20;
+
+                if (currentName.length < MIN_LENGTH || currentName.length > MAX_LENGTH) {
+                    alertify.error(JS_RESOURCES.msgUsernameLength);
+                    return; // Stop execution
+                }
+
+                editBtn.disabled = true;
+                editBtn.innerText = JS_RESOURCES.btnSaving;
+
+                try {
+                    // 1. UPDATE USERNAME
+                    if (currentName !== original.name) {
+                        const nameData = new FormData();
+                        // DTO Property Name: 'UpdatedUserName'
+                        nameData.append('UpdatedUserName', currentName); 
+                        
+                        const nameResponse = await fetch('/updateUserName', { method: 'POST', body: nameData });
+                        
+                        if (!nameResponse.ok) {
+                            const rawError = await nameResponse.text();
+
+                            // Check for specific error (Username Taken)
+                            if (rawError.toLowerCase().includes("taken") || rawError.toLowerCase().includes("already")) {
+                                throw new Error(JS_RESOURCES.msgUsernameTaken);
+                            }
+                            
+                            throw new Error(rawError || JS_RESOURCES.msgErrorGeneric);
+                        }
+
+                        const navNameEl = document.getElementById('navbarUserName');
+                        if (navNameEl) {
+                            navNameEl.innerText = currentName;
+                        }
+                    }
+
+                    // 2. UPDATE EQUIPMENT
+                    const equipmentPayload = {
+                        titleId: selectedTitleId,
+                        avatarId: selectedAvatarId,
+                        frameId: selectedFrameId,
+                        backgroundId: selectedBackgroundId
+                    };
+
+                    const equipRes = await fetch('/updateProfile', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(equipmentPayload)
+                    });
+
+                    if (!equipRes.ok) throw new Error(await equipRes.text());
+                    
+                    location.reload();
+
+                } catch (err) {
+                    console.error(err);
+                    alertify.error(err.message);
+                    
+                    editBtn.disabled = false;
+                    editBtn.innerText = JS_RESOURCES.btnSaveChanges;
+                }
+            });
+        }
+
+        exitEditMode();
+    })();
 </script>

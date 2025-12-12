@@ -6,29 +6,53 @@
     ViewData["Title"] = "Login";
 }
 
-<form asp-action="Login" class="authForm" method="post">
+<div class="auth-page-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">@Localizer["WelcomeBack"]</h1>
+            <p class="auth-subtitle">@Localizer["PleaseEnterDetails"]</p>
+        </div>
 
-    <label asp-for="Email" class="authText">@Localizer["Email"]</label>
-    <input asp-for="Email" class="authInput" required />
-    <span asp-validation-for="Email" class="text-danger"></span>
+        <form asp-action="Login" method="post">
+            <div class="form-group">
+                <label asp-for="Email" class="auth-label">@Localizer["Email"]</label>
+                <input asp-for="Email" class="gym-input" placeholder="name@example.com" />
+                <span asp-validation-for="Email" class="text-danger" style="font-size:12px;"></span>
+            </div>
 
-    <label asp-for="Password" class="authText">@Localizer["Password"]</label>
-    <input asp-for="Password" class="authInput" required />
-    <span asp-validation-for="Password" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="Password" class="auth-label">@Localizer["Password"]</label>
+                <input asp-for="Password" class="gym-input" placeholder="••••••" type="password" />
+                <span asp-validation-for="Password" class="text-danger" style="font-size:12px;"></span>
+            </div>
 
-    <div class="form-group form-check">
-        <input asp-for="RememberMe" class="form-check-input" />
-        <label asp-for="RememberMe" class="form-check-label">
-            @Localizer["RememberMe"]
-        </label>
+            <div class="form-check">
+                <input asp-for="RememberMe" class="ae-toggle-input" />
+                <label asp-for="RememberMe" class="form-check-label">
+                    @Localizer["RememberMe"]
+                </label>
+
+            </div>
+
+            <button type="submit" class="gym-btn gym-btn-primary w-100 scale-btn">
+                @Localizer["LoginButton"]
+            </button>
+
+        </form>
+
+        <div class="auth-footer-column" style="margin: 10px">
+            <div>
+                @Localizer["ForgotPassword"]
+                <a asp-controller="Auth" asp-action="ForgotPassword" class="auth-link">@Localizer["ChangePassword"]</a>
+            </div>
+            <div>
+                @Localizer["DontHaveAccount"]
+                <a asp-action="Register" class="auth-link">@Localizer["SignUp"]</a>
+            </div>
+        </div>
     </div>
-
-    <button type="submit" class="authButton scaleButton">
-        @Localizer["LoginButton"]
-    </button>
-</form>
+</div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+        <partial name="_ValidationScriptsPartial" />
 }
-''

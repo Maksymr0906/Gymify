@@ -13,59 +13,73 @@
 
     <div class="ae-header-section">
         <div class="ae-flex-row ae-justify-between ae-align-start">
+            
             <div style="flex: 1; margin-right: 20px;">
-
-                <h1 id="viewName" class="ae-page-title">@Model.Name</h1>
-                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="@Localizer["Workout Name"]" />
+                <h1 id="viewName" class="ae-page-title" style="text-align: left; margin-bottom: 5px;">@Model.Name</h1>
+                <input id="inputName" type="text" class="ae-input-std ae-hidden" value="@Model.Name" placeholder="@Localizer["Placeholder_WorkoutName"]" style="font-size: 1.5rem; font-weight: 700;" />
+                <div id="err-Name" class="ae-error-text ae-hidden" style="color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
 
                 <div class="ae-text-muted ae-mt-20">
-                    @Localizer["CreatedBy"] <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                    @Localizer["Label_CreatedBy"] <strong>@Model.AuthorName</strong> &bull; @Model.CreatedAt.ToString("MMMM dd, yyyy")
                 </div>
 
                 <div class="ae-flex-row ae-align-center ae-gap-sm ae-mt-20">
-                    <span class="ae-badge ae-badge-xp">XP: @Model.TotalXP</span>
-
+                    @if (Model.IsOwner)
+                    {
+                        <span class="ae-badge ae-badge-xp">XP: @Model.TotalXP</span>
+                    }
+                    
                     <span id="viewPrivacy" class="ae-badge ae-badge-private @(Model.IsPrivate ? "" : "ae-hidden")">
-                        @Localizer["Private"]
+                        <i class="fa-solid fa-lock" style="margin-right: 5px;"></i> @Localizer["Badge_Private"]
                     </span>
 
                     <div id="inputPrivacyWrapper" class="ae-toggle-wrapper ae-hidden">
                         <input type="checkbox" id="inputPrivacy" class="ae-toggle-input" @(Model.IsPrivate ? "checked" : "")>
-                        <label for="inputPrivacy" class="ae-text-muted">@Localizer["Private Mode"]</label>
+                        <label for="inputPrivacy" class="ae-text-muted" style="cursor:pointer;">@Localizer["Label_PrivateMode"]</label>
                     </div>
                 </div>
             </div>
 
             @if (Model.IsOwner)
             {
-            <div class="ae-flex-row ae-gap-sm">
-                <button id="btnCancelInfo" class="ae-btn ae-btn-outline ae-hidden">@Localizer["Cancel"]</button>
-                <button id="btnEditInfo" class="ae-btn ae-btn-outline">@Localizer["Edit Info"]</button>
-            </div>
-             <form method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId"
-                   onsubmit="return confirm('Are you sure you want to delete this workout? This action cannot be undone.');">
+                <div style="display: flex; align-items: center; gap: 10px; align-self: flex-start;">
+                    
+                    <button id="btnCancelInfo" class="gym-btn gym-btn-secondary ae-hidden">
+                        @Localizer["Btn_Cancel"]
+                    </button>
 
-                 <button type="submit" class="ae-btn ae-btn-danger">
-                     <i class="bi bi-trash"></i> Delete
-                 </button>
-             </form>
+                    <button id="btnEditInfo" class="gym-btn gym-btn-secondary">
+                        @Localizer["Btn_EditInfo"]
+                    </button>
+                    
+                    @* --- ЗМІНИ ТУТ (ВИДАЛЕННЯ) --- *@
+                    <form id="formDeleteWorkout" method="post" asp-action="RemoveWorkout" asp-controller="Workout" asp-route-workoutId="@Model.WorkoutId" style="margin: 0;"> 
+                        @* Змінено type на "button" і додано id="btnDeleteWorkout" *@
+                        <button type="button" id="btnDeleteWorkout" class="gym-btn gym-btn-danger">
+                            <i class="bi bi-trash" style="margin-right: 5px;"></i> @Localizer["Btn_Delete"]
+                        </button>
+                    </form>
+                    @* ----------------------------- *@
+                </div>
             }
         </div>
 
         <div class="ae-mt-20">
-            <div id="viewDescription" class="ae-lead-text" style="white-space: pre-wrap;">@Model.Description</div>
-            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="@Localizer["Description"]">@Model.Description</textarea>
+            <div id="viewDescription" class="ae-lead-text" style="text-align: left; white-space: pre-wrap; margin-bottom: 20px;">@Model.Description</div>
+            <textarea id="inputDescription" class="ae-input-std ae-textarea-std ae-hidden" placeholder="@Localizer["Placeholder_Description"]">@Model.Description</textarea>
+            <div id="err-Description" class="ae-error-text ae-hidden" style="color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
         </div>
 
         <div class="ae-mt-20">
             <div id="viewConclusionWrapper" class="ae-conclusion-box @(string.IsNullOrEmpty(Model.Conclusion) ? "ae-hidden" : "")">
-                <strong class="ae-text-muted">@Localizer["Conclusion"]:</strong>
+                <strong style="color: #333;">@Localizer["Label_Conclusion"]:</strong>
                 <p id="viewConclusion" style="margin: 5px 0 0 0; font-style: italic;">@Model.Conclusion</p>
             </div>
 
             <div id="inputConclusionWrapper" class="ae-hidden">
-                <label class="ae-text-muted" style="font-size:0.85rem; font-weight:bold;">@Localizer["Conclusion"]</label>
-                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="@Localizer["HowDidItGo"]">@Model.Conclusion</textarea>
+                <label class="ae-label-mini">@Localizer["Label_Conclusion"]</label>
+                <textarea id="inputConclusion" class="ae-input-std ae-textarea-std" placeholder="@Localizer["Placeholder_Conclusion"]">@Model.Conclusion</textarea>
+                <div id="err-Conclusion" class="ae-error-text ae-hidden" style="color: #dc3545; font-size: 0.875rem; margin-top: 5px;"></div>
             </div>
         </div>
     </div>
@@ -74,11 +88,12 @@
 
     <div class="ae-exercises-section">
         <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20">
-            <h3 class="ae-section-title">@Localizer["Workout Plan"]</h3>
+            <h3 class="ae-section-title">@Localizer["Header_WorkoutPlan"]</h3>
+            
             @if (Model.IsOwner)
             {
-                <button id="btnToggleEdit" class="ae-btn ae-btn-warning">
-                    @Localizer["Edit Exercises"]
+                <button id="btnToggleEdit" class="gym-btn gym-btn-secondary" style="font-size: 14px; padding: 8px 16px;">
+                    <i class="fa-solid fa-pen" style="margin-right: 5px;"></i> @Localizer["Btn_EditExercises"]
                 </button>
             }
         </div>
@@ -100,178 +115,281 @@
     <div class="ae-separator"></div>
 
     <div class="ae-comments-section">
-        <h3 class="ae-section-title ae-mb-20">@Localizer["Comments"]</h3>
-
+        <h3 class="ae-section-title ae-mb-20">@Localizer["Header_Comments"]</h3>
         @{
             var commentsVm = new Gymify.Application.ViewModels.Comment.CommentsSectionViewModel
             {
                 TargetId = Model.WorkoutId,
                 TargetType = Gymify.Data.Enums.CommentTargetType.Workout,
-                Items = Model.Comments?.Items ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
+                CommentDtos = Model.Comments?.CommentDtos ?? new List<Gymify.Application.DTOs.Comment.CommentDto>(),
                 CurrentUserAvatarUrl = Model.CurrentUserAvatarUrl
             };
         }
-
         <partial name="_CommentsSection" model="commentsVm" />
     </div>
 </div>
 
 @section Scripts {
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const btnEdit = document.getElementById("btnEditInfo");
-                const btnCancel = document.getElementById("btnCancelInfo");
+    <script>
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            btnEditInfo: '@Localizer["Btn_EditInfo"]',
+            btnSaveInfo: '@Localizer["Btn_SaveInfo"]',
+            btnSaving: '@Localizer["Btn_Saving"]',
+            msgNameRequired: "@Localizer["Msg_NameRequired"]",
+            msgUpdateFailed: '@Localizer["Msg_UpdateFailed"]',
+            // Додано повідомлення для видалення
+            msgDeleteConfirm: '@Localizer["Msg_DeleteConfirm"]' 
+        };
 
-                const els = {
-                    name: { view: document.getElementById("viewName"), input: document.getElementById("inputName") },
-                    desc: { view: document.getElementById("viewDescription"), input: document.getElementById("inputDescription") },
-                    conc: { viewWrapper: document.getElementById("viewConclusionWrapper"), inputWrapper: document.getElementById("inputConclusionWrapper"), input: document.getElementById("inputConclusion") },
-                    priv: { view: document.getElementById("viewPrivacy"), inputWrapper: document.getElementById("inputPrivacyWrapper"), input: document.getElementById("inputPrivacy") }
+        document.addEventListener("DOMContentLoaded", () => {
+            const btnEdit = document.getElementById("btnEditInfo");
+            const btnCancel = document.getElementById("btnCancelInfo");
+            
+            // --- ЛОГІКА ВИДАЛЕННЯ ВОРКАУТУ ---
+            const btnDeleteWorkout = document.getElementById("btnDeleteWorkout");
+            if (btnDeleteWorkout) {
+                btnDeleteWorkout.addEventListener("click", function() {
+                    alertify.confirm(
+                        'Gymify', 
+                        JS_RESOURCES.msgDeleteConfirm, 
+                        function() { 
+                            // Якщо натиснули ОК - відправляємо форму
+                            document.getElementById("formDeleteWorkout").submit();
+                        },
+                        function() { 
+                            // Якщо натиснули Cancel - нічого не робимо
+                        }
+                    ).set('labels', {ok:'Yes', cancel:'No'});
+                });
+            }
+            // ----------------------------------
+
+            const els = {
+                name: { 
+                    view: document.getElementById("viewName"), 
+                    input: document.getElementById("inputName"), 
+                    err: document.getElementById("err-Name") 
+                },
+                desc: { 
+                    view: document.getElementById("viewDescription"), 
+                    input: document.getElementById("inputDescription"),
+                    err: document.getElementById("err-Description")
+                },
+                conc: { 
+                    viewWrapper: document.getElementById("viewConclusionWrapper"), 
+                    inputWrapper: document.getElementById("inputConclusionWrapper"), 
+                    input: document.getElementById("inputConclusion"),
+                    err: document.getElementById("err-Conclusion")
+                },
+                priv: { 
+                    view: document.getElementById("viewPrivacy"), 
+                    inputWrapper: document.getElementById("inputPrivacyWrapper"), 
+                    input: document.getElementById("inputPrivacy") 
+                }
+            };
+
+            let originalValues = {};
+
+            if (btnEdit) {
+                btnEdit.addEventListener("click", async () => {
+                    if (btnEdit.innerText.includes(JS_RESOURCES.btnEditInfo)) {
+                        enterEditMode();
+                    } else {
+                        await saveChanges();
+                    }
+                });
+            }
+
+            if (btnCancel) {
+                btnCancel.addEventListener("click", () => {
+                    restoreValues();
+                    clearErrors(); 
+                    exitEditMode();
+                });
+            }
+
+            // 1. Функція для ГЛОБАЛЬНИХ помилок (Alertify)
+            function showGlobalError(msg) {
+                if(typeof alertify !== 'undefined') {
+                    alertify.error(msg, 5);
+                } else {
+                    alert(msg); 
+                }
+            }
+
+            // 2. Функція для ВАЛІДАЦІЇ ПОЛІВ (Текст під input)
+            function showFieldError(fieldKey, message) {
+                let targetEl = null;
+                
+                // Мапінг ключів DTO на елементи HTML
+                if (fieldKey === "Name") targetEl = els.name.err;
+                else if (fieldKey === "Description") targetEl = els.desc.err;
+                else if (fieldKey === "Conclusion") targetEl = els.conc.err;
+
+                if (targetEl) {
+                    targetEl.innerText = message;
+                    targetEl.classList.remove("ae-hidden");
+                } else {
+                    // Якщо помилка прийшла, але поля для неї немає (наприклад, якась загальна помилка)
+                    showGlobalError(message);
+                }
+            }
+
+            function clearErrors() {
+                [els.name.err, els.desc.err, els.conc.err].forEach(el => {
+                    if (el) {
+                        el.innerText = "";
+                        el.classList.add("ae-hidden");
+                    }
+                });
+            }
+
+            function enterEditMode() {
+                originalValues = {
+                    name: els.name.input.value,
+                    desc: els.desc.input.value,
+                    conc: els.conc.input.value,
+                    priv: els.priv.input.checked
                 };
 
-                let originalValues = {};
+                toggleVis(true);
+                btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
+                btnEdit.classList.remove("gym-btn-secondary");
+                btnEdit.classList.add("gym-btn-primary");
+                btnCancel.classList.remove("ae-hidden");
+            }
 
-                if (btnEdit) {
-                    btnEdit.addEventListener("click", async () => {
-                        if (btnEdit.innerText === "Edit Info") {
-                            enterEditMode();
-                        } else {
-                            await saveChanges();
-                        }
+            function exitEditMode() {
+                toggleVis(false);
+                btnEdit.innerText = JS_RESOURCES.btnEditInfo;
+                btnEdit.classList.add("gym-btn-secondary");
+                btnEdit.classList.remove("gym-btn-primary");
+                btnEdit.disabled = false;
+                btnCancel.classList.add("ae-hidden");
+            }
+
+            function toggleVis(isEdit) {
+                els.name.view.classList.toggle("ae-hidden", isEdit);
+                els.name.input.classList.toggle("ae-hidden", !isEdit);
+
+                els.desc.view.classList.toggle("ae-hidden", isEdit);
+                els.desc.input.classList.toggle("ae-hidden", !isEdit);
+
+                if(isEdit) {
+                    els.conc.viewWrapper.classList.add("ae-hidden");
+                    els.conc.inputWrapper.classList.remove("ae-hidden");
+                } else {
+                    if(els.conc.input.value.trim()) els.conc.viewWrapper.classList.remove("ae-hidden");
+                    else els.conc.viewWrapper.classList.add("ae-hidden");
+                    els.conc.inputWrapper.classList.add("ae-hidden");
+                }
+
+                if(isEdit) {
+                    els.priv.view.classList.add("ae-hidden");
+                    els.priv.inputWrapper.classList.remove("ae-hidden");
+                } else {
+                    if(els.priv.input.checked) els.priv.view.classList.remove("ae-hidden");
+                    else els.priv.view.classList.add("ae-hidden");
+                    els.priv.inputWrapper.classList.add("ae-hidden");
+                }
+            }
+
+            function restoreValues() {
+                els.name.input.value = originalValues.name;
+                els.desc.input.value = originalValues.desc;
+                els.conc.input.value = originalValues.conc;
+                els.priv.input.checked = originalValues.priv;
+            }
+
+            async function saveChanges() {
+                clearErrors(); 
+
+                const nameVal = els.name.input.value.trim();
+                if (!nameVal) { 
+                    showFieldError("Name", JS_RESOURCES.msgNameRequired); // Викликаємо showFieldError
+                    return; 
+                }
+
+                btnEdit.innerText = JS_RESOURCES.btnSaving;
+                btnEdit.disabled = true;
+
+                const payload = {
+                    id: "@Model.WorkoutId",
+                    name: nameVal,
+                    description: els.desc.input.value,
+                    conclusion: els.conc.input.value,
+                    isPrivate: els.priv.input.checked
+                };
+
+                try {
+                    const res = await fetch('/Workout/UpdateWorkoutInfo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
                     });
-                }
+                    
+                    const data = await res.json();
 
-                if (btnCancel) {
-                    btnCancel.addEventListener("click", () => {
-                        restoreValues();
-                        exitEditMode();
-                    });
-                }
-
-                function enterEditMode() {
-                    originalValues = {
-                        name: els.name.input.value,
-                        desc: els.desc.input.value,
-                        conc: els.conc.input.value,
-                        priv: els.priv.input.checked
-                    };
-
-                    toggleVis(true);
-                    btnEdit.innerText = "Save Info";
-                    btnEdit.classList.remove("ae-btn-outline");
-                    btnEdit.classList.add("ae-btn-success");
-                    btnCancel.classList.remove("ae-hidden");
-                }
-
-                function exitEditMode() {
-                    toggleVis(false);
-                    btnEdit.innerText = "Edit Info";
-                    btnEdit.classList.add("ae-btn-outline");
-                    btnEdit.classList.remove("ae-btn-success");
-                    btnEdit.disabled = false;
-                    btnCancel.classList.add("ae-hidden");
-                }
-
-                function toggleVis(isEdit) {
-                    els.name.view.classList.toggle("ae-hidden", isEdit);
-                    els.name.input.classList.toggle("ae-hidden", !isEdit);
-
-                    els.desc.view.classList.toggle("ae-hidden", isEdit);
-                    els.desc.input.classList.toggle("ae-hidden", !isEdit);
-
-                    if(isEdit) {
-                        els.conc.viewWrapper.classList.add("ae-hidden");
-                        els.conc.inputWrapper.classList.remove("ae-hidden");
+                    if (res.ok && data.success) {
+                        window.location.reload();
                     } else {
-                        if(els.conc.input.value.trim()) els.conc.viewWrapper.classList.remove("ae-hidden");
-                        else els.conc.viewWrapper.classList.add("ae-hidden");
-                        els.conc.inputWrapper.classList.add("ae-hidden");
-                    }
-
-                    if(isEdit) {
-                        els.priv.view.classList.add("ae-hidden");
-                        els.priv.inputWrapper.classList.remove("ae-hidden");
-                    } else {
-                        if(els.priv.input.checked) els.priv.view.classList.remove("ae-hidden");
-                        else els.priv.view.classList.add("ae-hidden");
-                        els.priv.inputWrapper.classList.add("ae-hidden");
-                    }
-                }
-
-                function restoreValues() {
-                    els.name.input.value = originalValues.name;
-                    els.desc.input.value = originalValues.desc;
-                    els.conc.input.value = originalValues.conc;
-                    els.priv.input.checked = originalValues.priv;
-                }
-
-                async function saveChanges() {
-                    const nameVal = els.name.input.value.trim();
-                    if (!nameVal) { alert("Name is required"); return; }
-
-                    btnEdit.innerText = "Saving...";
-                    btnEdit.disabled = true;
-
-                    const payload = {
-                        id: "@Model.WorkoutId",
-                        name: nameVal,
-                        description: els.desc.input.value,
-                        conclusion: els.conc.input.value,
-                        isPrivate: els.priv.input.checked
-                    };
-
-                    try {
-                        const res = await fetch('/Workout/UpdateWorkoutInfo', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (res.ok) {
-                            window.location.reload();
-                        } else {
-                            alert("Update failed");
-                            btnEdit.disabled = false;
-                            btnEdit.innerText = "Save Info";
-                        }
-                    } catch (e) {
-                        console.error(e);
-                        alert("Error");
                         btnEdit.disabled = false;
-                        btnEdit.innerText = "Save Info";
+                        btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
+
+                        if (data.errors) {
+                            // ТУТ МИ ВИКИДУЄМО ПОМИЛКИ
+                            Object.keys(data.errors).forEach(key => {
+                                const errorMessages = data.errors[key];
+                                const msg = Array.isArray(errorMessages) ? errorMessages.join(". ") : errorMessages;
+                                
+                                // Викликаємо правильну функцію
+                                showFieldError(key, msg); 
+                            });
+                        } else {
+                            showGlobalError(data.message || JS_RESOURCES.msgUpdateFailed);
+                        }
                     }
+                } catch (e) {
+                    console.error(e);
+                    btnEdit.disabled = false;
+                    btnEdit.innerText = JS_RESOURCES.btnSaveInfo;
+                    showGlobalError(JS_RESOURCES.msgUpdateFailed);
                 }
+            }
 
-                const btnToggle = document.getElementById("btnToggleEdit");
-                const viewContainer = document.getElementById("viewModeContainer");
-                const editContainer = document.getElementById("editModeContainer");
-                const btnCancelInternal = document.getElementById("mgrBtnCancel");
-                const workoutId = "@Model.WorkoutId"; 
+            // ... (код для Exercises partial залишається без змін)
+            const btnToggle = document.getElementById("btnToggleEdit");
+            const viewContainer = document.getElementById("viewModeContainer");
+            const editContainer = document.getElementById("editModeContainer");
+            const btnCancelInternal = document.getElementById("mgrBtnCancel");
+            const workoutId = "@Model.WorkoutId"; 
 
-                if (btnToggle) {
-                    btnToggle.addEventListener("click", () => {
-                        viewContainer.classList.add("ae-hidden");
-                        editContainer.classList.remove("ae-hidden");
-                        btnToggle.classList.add("ae-hidden");
-                    });
-                }
-                if (btnCancelInternal) {
-                    btnCancelInternal.addEventListener("click", () => {
+            if (btnToggle) {
+                btnToggle.addEventListener("click", () => {
+                    viewContainer.classList.add("ae-hidden");
+                    editContainer.classList.remove("ae-hidden");
+                    btnToggle.classList.add("ae-hidden");
+                });
+            }
+            if (btnCancelInternal) {
+                btnCancelInternal.addEventListener("click", () => {
+                    viewContainer.classList.remove("ae-hidden");
+                    editContainer.classList.add("ae-hidden");
+                    btnToggle.classList.remove("ae-hidden");
+                });
+            }
+
+            document.addEventListener('exercises-saved', function () {
+                fetch(`/Workout/GetExercisesPartial?workoutId=${workoutId}`)
+                    .then(r => r.text())
+                    .then(html => {
+                        viewContainer.innerHTML = html;
                         viewContainer.classList.remove("ae-hidden");
                         editContainer.classList.add("ae-hidden");
                         btnToggle.classList.remove("ae-hidden");
                     });
-                }
-
-                document.addEventListener('exercises-saved', function () {
-                    fetch(`/Workout/GetExercisesPartial?workoutId=${workoutId}`)
-                        .then(r => r.text())
-                        .then(html => {
-                            viewContainer.innerHTML = html;
-                            viewContainer.classList.remove("ae-hidden");
-                            editContainer.classList.add("ae-hidden");
-                            btnToggle.classList.remove("ae-hidden");
-                        });
-                });
             });
-        </script>
+        });
+    </script>
 }

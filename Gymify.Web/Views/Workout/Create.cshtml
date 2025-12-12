@@ -1,22 +1,53 @@
-﻿@model Gymify.Application.DTOs.Workout.CreateWorkoutRequestDto;
+﻿@model Gymify.Application.DTOs.Workout.CreateWorkoutRequestDto
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Create Workout";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
-<form asp-action="GenerateWorkout" method="post" class="createWorkoutForm">
-    <label asp-for="Name" class="createWorkoutLabel">@Localizer["Workout name"]</label>
-    <input asp-for="Name" class="createWorkoutInput" required />
+<div class="dashboard-wrapper">
+    <div class="workout-page-container">
 
-    <label asp-for="Description" class="createWorkoutLabel">@Localizer["Description"]</label>
-    <input asp-for="Description" class="createWorkoutInput" required />
+        <div class="workout-form-card">
+            <h1 class="workout-page-title">@Localizer["Header_Title"]</h1>
 
-    <div class="form-group form-check">
-        <input asp-for="IsPrivate" class="form-check-input" />
-        <label asp-for="IsPrivate" class="form-check-label">@Localizer["IsPrivate"]</label>
+            <form asp-action="GenerateWorkout" method="post">
+
+                <div class="workout-form-group">
+                    <label asp-for="Name" class="workout-label">@Localizer["Label_Name"]</label>
+                    <input asp-for="Name" class="gym-input" placeholder="@Localizer["Placeholder_Name"]" />
+                    <span asp-validation-for="Name" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <div class="workout-form-group">
+                    <label asp-for="Description" class="workout-label">@Localizer["Label_Description"]</label>
+                    <textarea asp-for="Description" class="gym-input" rows="3" placeholder="@Localizer["Placeholder_Description"]"></textarea>
+                    <span asp-validation-for="Description" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <div class="form-check" style="margin-bottom: 30px;">
+                    <input asp-for="IsPrivate" class="form-check-input" id="isPrivateCheck" />
+                    <label asp-for="IsPrivate" class="form-check-label" for="isPrivateCheck">
+                        @Localizer["Label_IsPrivate"]
+                    </label>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="submit" class="gym-btn gym-btn-primary w-100 scale-btn">
+                        @Localizer["Btn_Continue"]
+                    </button>
+                    
+                    <a href="/" class="gym-btn gym-btn-secondary w-100 scale-btn">
+                        @Localizer["Btn_Cancel"]
+                    </a>
+                </div>
+            </form>
+        </div>
+
     </div>
+</div>
 
-    <button type="submit" class="createWorkoutButton scaleButton">@Localizer["Continue"]</button>
-</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

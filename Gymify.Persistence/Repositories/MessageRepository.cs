@@ -30,4 +30,14 @@ public class MessageRepository(GymifyDbContext context)
                 .OrderByDescending(m => m.CreatedAt)
                 .FirstOrDefaultAsync();
     }
+
+    public async Task<int> CountUnreadMessagesAsync(Guid chatId, Guid userId)
+    {
+        return await _context.Messages
+            .Where(m => m.ChatId == chatId)
+            .Where(m => m.SenderId != userId)
+            .Where(m => !_context.MessageReadStatuses
+                .Any(s => s.MessageId == m.Id && s.UserProfileId == userId))
+            .CountAsync();
+    }
 }

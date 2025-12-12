@@ -10,19 +10,16 @@ public class UserChatConfiguration : IEntityTypeConfiguration<UserChat>
     {
         builder.ToTable("UserChats");
 
-        // ❗ Композитний ключ (ChatId + UserProfileId)
         builder.HasKey(uc => new { uc.ChatId, uc.UserProfileId });
 
         builder.Property(uc => uc.JoinedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        // Зв'язок з Чатом (Видаляємо чат -> видаляються учасники)
         builder.HasOne(uc => uc.Chat)
             .WithMany(c => c.Members)
             .HasForeignKey(uc => uc.ChatId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Зв'язок з Юзером (Видаляємо юзера -> він зникає з учасників)
         builder.HasOne(uc => uc.UserProfile)
             .WithMany() // Можна додати UserChats в UserProfile
             .HasForeignKey(uc => uc.UserProfileId)

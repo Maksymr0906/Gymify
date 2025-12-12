@@ -13,15 +13,15 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
     private readonly INotificationService _notificationService = notificationService;
     private readonly Random _random = new Random();
 
-    public async Task<ICollection<CaseInfoDto>> GetAllUserCasesAsync(Guid userProfileId)
+    public async Task<ICollection<CaseInfoDto>> GetAllUserCasesAsync(Guid userProfileId, bool ukranianVer)
     {
         var userCases = await _unitOfWork.CaseRepository.GetAllCasesByUserIdAsync(userProfileId);
 
         var casesDtos = userCases.Select(item => new CaseInfoDto
         {
             Id = item.Id,
-            Name = item.Name,
-            Description = item.Description,
+            Name = ukranianVer ? item.NameUk : item.NameEn,
+            Description = ukranianVer ? item.DescriptionUk : item.DescriptionEn,
             ImageUrl = item.ImageUrl,
             Type = (int)item.Type,
         }).ToList();
@@ -29,15 +29,15 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
         return casesDtos;
     }
 
-    public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId)
+    public async Task<CaseInfoDto> GetCaseDetailsAsync(Guid caseId, bool ukranianVer)
     {
         var caseEntity = await _unitOfWork.CaseRepository.GetByIdAsync(caseId);
 
         return new CaseInfoDto()
         {
             Id = caseEntity.Id,
-            Name = caseEntity.Name,
-            Description = caseEntity.Description,
+            Name = ukranianVer ? caseEntity.NameUk : caseEntity.NameEn,
+            Description = ukranianVer ? caseEntity.DescriptionUk : caseEntity.DescriptionEn,
             ImageUrl = caseEntity.ImageUrl,
 			Type = (int)caseEntity.Type
         };
@@ -63,15 +63,15 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
             var userCase = new UserCase
             {
                 Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
                 UserProfileId = userProfileId,
                 CaseId = randomCase.Id
             };
 
             await _notificationService.SendNotificationAsync(
                         userProfileId,
-                        $"You received new case '{randomCase.Name}'.",
-                        "/Inventory" // Клікати нікуди не треба, це просто інфо
+                        $"You received new case '{randomCase.NameEn}'.",
+                        $"Ви отримали новий кейс '{randomCase.NameUk}'.",
+                        "/Inventory" 
                     );
 
             await _unitOfWork.UserCaseRepository.CreateAsync(userCase);
@@ -92,22 +92,22 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
         var userItem = new UserItem
         {
             Id = Guid.NewGuid(),
-            CreatedAt = DateTime.UtcNow,
             UserProfileId = userProfileId,
             ItemId = rewardItemId
         };
 
         await _notificationService.SendNotificationAsync(
                         userProfileId,
-                        $"You received new case '{rewardItem.Name}'.",
-                        "/Inventory" // Клікати нікуди не треба, це просто інфо
+                        $"You received new item '{rewardItem.NameEn}'.",
+                        $"Ви отримали новий предмет '{rewardItem.NameUk}'.",
+                        "/Inventory" 
                     );
 
         await _unitOfWork.UserItemRepository.CreateAsync(userItem);
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId)
+    public async Task<OpenCaseResultDto> OpenCaseAsync(Guid userId, Guid caseId, bool ukranianVer)
 	{
 		var userCase = await _unitOfWork.UserCaseRepository
 			.GetFirstByUserIdAndCaseIdAsync(userId, caseId);
@@ -145,13 +145,13 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
 			.ToList();
 
 		if (rewardsOfSameRarity.Count == 0)
-			rewardsOfSameRarity = detailedItems.ToList(); // Fallback, якщо нема предметів такої рідкості
+			rewardsOfSameRarity = detailedItems.ToList(); 
 
 		int selectedIndex = _random.Next(rewardsOfSameRarity.Count);
-		var selectedReward = rewardsOfSameRarity[selectedIndex]; // Це наш переможець!
+		var selectedReward = rewardsOfSameRarity[selectedIndex]; 
 
-		const int stripLength = 100; // Загальна довжина стрічки (як у прикладі)
-		const int winningIndex = 78;  // Позиція, де завжди буде переможець
+		const int stripLength = 100; 
+		const int winningIndex = 78;  
 
 		var rouletteItems = new List<Item>();
 
@@ -159,11 +159,10 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
 		{
 			if (i == winningIndex)
 			{
-				rouletteItems.Add(selectedReward); // Вставляємо переможця
+				rouletteItems.Add(selectedReward); 
 			}
 			else
 			{
-				// Вставляємо випадковий предмет з усіх можливих у цьому кейсі
 				rouletteItems.Add(detailedItems[_random.Next(detailedItems.Count)]);
 			}
 		}
@@ -171,8 +170,8 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
 		var rouletteStripDto = rouletteItems.Select(i => new ItemDto
 		{
 			Id = i.Id,
-			Name = i.Name,
-			Description = i.Description,
+			Name = ukranianVer ? i.NameUk : i.NameEn,
+			Description = ukranianVer ? i.DescriptionUk : i.DescriptionEn,
 			ImageURL = i.ImageURL,
 			Rarity = (int)i.Rarity,
 			Type = (int)i.Type
@@ -192,13 +191,10 @@ public class CaseService(IUnitOfWork unitOfWork, INotificationService notificati
 
 		return new OpenCaseResultDto()
 		{
-			RouletteStrip = rouletteStripDto, // Повертаємо нову стрічку
-											  // SelectedIndex видалено
-
-			// Інформація про переможця
-			Name = selectedReward.Name,
-			Description = selectedReward.Description,
-			ImageURL = selectedReward.ImageURL,
+			RouletteStrip = rouletteStripDto,
+            Name = ukranianVer ? selectedReward.NameUk : selectedReward.NameEn,
+            Description = ukranianVer ? selectedReward.DescriptionUk : selectedReward.DescriptionEn,
+            ImageURL = selectedReward.ImageURL,
 			Rarity = (int)selectedReward.Rarity,
 			Type = (int)selectedReward.Type
 		};

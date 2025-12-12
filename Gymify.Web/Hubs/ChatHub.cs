@@ -1,7 +1,10 @@
 ﻿using Gymify.Application.DTOs.Chat;
+using Gymify.Application.DTOs.Comment;
+using Gymify.Application.Services.Implementation; // Переконайтеся, що тут правильний namespace трекера
 using Gymify.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gymify.Web.Hubs
 {
@@ -9,65 +12,95 @@ namespace Gymify.Web.Hubs
     public class ChatHub : Hub
     {
         private readonly IChatService _chatService;
+        private readonly ChatMembersTrackerService _chatMembersTrackerService;
 
-        public ChatHub(IChatService chatService)
+        public ChatHub(IChatService chatService, ChatMembersTrackerService chatMembersTrackerService)
         {
             _chatService = chatService;
+            _chatMembersTrackerService = chatMembersTrackerService;
         }
 
-        // Клієнт викликає цей метод, коли відкриває конкретний чат
+        public Task EnterChatSection()
+        {
+            if (Guid.TryParse(Context.UserIdentifier, out Guid userId))
+            {
+                _chatMembersTrackerService.UserJoinedChat(userId, Guid.Empty);
+            }
+            return Task.CompletedTask;
+        }
+
         public async Task JoinChat(string chatId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
+
+            if (Guid.TryParse(chatId, out Guid cId) &&
+                Guid.TryParse(Context.UserIdentifier, out Guid userId))
+            {
+                _chatMembersTrackerService.UserJoinedChat(userId, cId);
+            }
         }
 
-        // Клієнт викликає, коли закриває чат
         public async Task LeaveChat(string chatId)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId);
+
+            if (Guid.TryParse(Context.UserIdentifier, out Guid userId))
+            {
+                _chatMembersTrackerService.UserLeftChat(userId);
+            }
         }
 
-        // ВІДПРАВКА ПОВІДОМЛЕННЯ
-        public async Task SendMessage(string chatIdStr, string content)
+        public override Task OnDisconnectedAsync(Exception? exception)
         {
-            var userId = Guid.Parse(Context.UserIdentifier); // Працює завдяки CustomUserIdProvider
-            var chatId = Guid.Parse(chatIdStr);
+            if (Guid.TryParse(Context.UserIdentifier, out Guid userId))
+            {
+                _chatMembersTrackerService.UserLeftChat(userId);
+            }
 
-            // 1. Зберігаємо в БД
-            var messageDto = await _chatService.SaveMessageAsync(chatId, userId, content);
-
-            // 2. Відправляємо всім у кімнаті (включаючи себе)
-            // Клієнт сам розбереться, це "моє" повідомлення чи "чуже" по SenderId
-            await Clients.Group(chatIdStr).SendAsync("ReceiveMessage", messageDto);
-
-            // 3. (Опціонально) Сповістити інших учасників, щоб оновили список чатів (Sidebar), 
-            // навіть якщо вони не в цьому чаті зараз. Це складніше, поки пропустимо.
+            return base.OnDisconnectedAsync(exception);
         }
 
-        public async Task EditMessage(string messageIdStr, string newContent)
+        public async Task SendMessage(CreateMessageRequestDto request)
         {
-            var userId = Guid.Parse(Context.UserIdentifier);
-            var messageId = Guid.Parse(messageIdStr);
+            if (!TryValidate(request, out var errorMessage))
+            {
+                throw new HubException(errorMessage);
+            }
 
-            var updatedMsg = await _chatService.EditMessageAsync(messageId, userId, newContent);
+            var senderId = Guid.Parse(Context.UserIdentifier ?? Context.User.FindFirst("UserProfileId").Value);
 
-            // Сповіщаємо групу (чат), що повідомлення змінилось
-            await Clients.Group(updatedMsg.ChatId.ToString()).SendAsync("MessageEdited", updatedMsg);
+            var messageDto = await _chatService.SaveMessageAsync(request.ChatId, senderId, request.Content);
+
+            var chatParticipants = await _chatService.GetChatParticipantIdsAsync(request.ChatId);
+
+            var usersToNotify = chatParticipants.Select(u => u.ToString()).ToList();
+
+            await Clients.Users(usersToNotify).SendAsync("ReceiveMessage", messageDto);
+        }
+
+        public async Task EditMessage(EditMessageRequestDto request)
+        {
+            if (!TryValidate(request, out var errorMessage))
+            {
+                throw new HubException(errorMessage);
+            }
+
+            var senderId = Guid.Parse(Context.UserIdentifier ?? Context.User.FindFirst("UserProfileId").Value);
+
+            var messageDto = await _chatService.EditMessageAsync(request.MessageId, senderId, request.Content);
+
+            await Clients.Group(messageDto.ChatId.ToString()).SendAsync("MessageEdited", messageDto);
         }
 
         public async Task DeleteMessage(string messageIdStr, string chatIdStr)
         {
-            var userId = Guid.Parse(Context.UserIdentifier);
+            var userId = Guid.Parse(Context.UserIdentifier ?? Context.User.FindFirst("UserProfileId").Value);
             var messageId = Guid.Parse(messageIdStr);
-            var chatId = Guid.Parse(chatIdStr);
 
-            // Видаляємо і отримуємо нове прев'ю (якщо треба)
             var updatedChatInfo = await _chatService.DeleteMessageAsync(messageId, userId);
 
-            // 1. Сповіщаємо про видалення самого повідомлення (щоб зникло з діалогу)
             await Clients.Group(chatIdStr).SendAsync("MessageDeleted", messageIdStr);
 
-            // 2. Якщо змінилося останнє повідомлення - сповіщаємо про оновлення прев'ю
             if (updatedChatInfo != null)
             {
                 await Clients.Group(chatIdStr).SendAsync("ChatPreviewUpdated", new
@@ -77,6 +110,23 @@ namespace Gymify.Web.Hubs
                     createdAt = updatedChatInfo.LastMessageTime
                 });
             }
+        }
+
+        private bool TryValidate(object obj, out string error)
+        {
+            var context = new ValidationContext(obj);
+            var results = new List<ValidationResult>();
+
+            bool isValid = Validator.TryValidateObject(obj, context, results, true);
+
+            if (!isValid)
+            {
+                error = results.FirstOrDefault()?.ErrorMessage ?? "Validation error";
+                return false;
+            }
+
+            error = null;
+            return true;
         }
     }
 }

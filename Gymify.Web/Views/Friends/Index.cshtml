@@ -1,229 +1,124 @@
 ﻿@using Gymify.Application.ViewModels.Friends
 @using Gymify.Data.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model FriendsViewModel
 
 @{
-    ViewData["Title"] = "My Friends";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
-<style>
-    /* --- LAYOUT --- */
-    .ae-friends-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-
-    /* --- TABS --- */
-    .ae-tabs-container {
-        display: flex;
-        gap: 25px;
-    }
+<div class="dashboard-wrapper">
     
-    .ae-tab-btn {
-        background: none;
-        border: none;
-        font-weight: 600;
-        color: #7f8c8d;
-        font-size: 1rem;
-        padding: 10px 0;
-        cursor: pointer;
-        position: relative;
-        transition: color 0.2s;
-    }
-    
-    .ae-tab-btn:hover { color: #3498db; }
-    
-    .ae-tab-btn.active {
-        color: #3498db;
-    }
-    
-    .ae-tab-btn.active::after {
-        content: '';
-        position: absolute;
-        bottom: -11px;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background-color: #3498db;
-        border-radius: 3px 3px 0 0;
-    }
-
-    /* --- SEARCH --- */
-    .ae-search-inline {
-        position: relative;
-        min-width: 280px;
-    }
-    
-    .ae-search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #95a5a6;
-        font-size: 0.9rem;
-        pointer-events: none;
-    }
-    
-    .ae-search-input {
-        width: 100%;
-        padding: 10px 10px 10px 38px;
-        border: 1px solid #e0e0e0;
-        border-radius: 20px;
-        background-color: #f9f9f9;
-        font-size: 0.9rem;
-        outline: none;
-        transition: all 0.2s;
-        box-sizing: border-box;
-    }
-    
-    .ae-search-input:focus {
-        background-color: #fff;
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
-
-    /* --- REQUEST LISTS --- */
-    .ae-request-group-title {
-        font-size: 0.85rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #95a5a6;
-        margin-bottom: 15px;
-        margin-top: 10px;
-        letter-spacing: 0.5px;
-    }
-
-    .ae-request-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        background: white;
-        border: 1px solid #f0f0f0;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        transition: transform 0.1s, border-color 0.1s;
-    }
-    .ae-request-row:hover { border-color: #ddd; }
-
-    /* --- UTILS --- */
-    .ae-avatar-circle {
-        width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;
-    }
-    .ae-user-info { display: flex; align-items: center; gap: 15px; }
-    .ae-username { font-weight: 700; color: #2c3e50; font-size: 1rem; }
-    .ae-meta { font-size: 0.8rem; color: #7f8c8d; }
-
-    .hidden { display: none !important; }
-    .ae-fade-in { animation: fadeIn 0.3s ease; }
-    
-    /* Анімація для нового елемента в списку */
-    .ae-slide-in { animation: slideIn 0.4s ease-out; }
-
-    @Html.Raw("@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }")
-    @Html.Raw("@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }")
-</style>
-
-<div class="ae-page-container">
-    
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 class="ae-page-title">Community</h1>
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 class="wd-title">@Localizer["Header_Community"]</h1>
     </div>
 
-    <div class="ae-friends-header">
+    @* --- ЗАГОЛОВОК І ТАБИ --- *@
+    <div class="friends-header">
+        <div class="friends-tabs">
+            <button class="friends-tab-btn active" onclick="switchTab('friends')" id="btn-friends">
+                @Localizer["Tab_MyFriends"] 
+                @* ID для оновлення лічильника *@
+                <span id="friendsCount" style="font-weight:normal; font-size:0.9em; opacity:0.7;">(@Model.Friends.Count)</span>
+            </button>
+            <button class="friends-tab-btn" onclick="switchTab('requests')" id="btn-requests">
+                @Localizer["Tab_Requests"]
+                @if(Model.IncomingRequests.Any()) { <span class="ae-badge-xp" style="margin-left:5px; font-size:0.7em; padding: 2px 6px;">@Model.IncomingRequests.Count</span> }
+            </button>
+            <button class="friends-tab-btn hidden" id="btn-search" onclick="switchTab('search')">@Localizer["Tab_SearchResults"]</button>
+        </div>
+
+        <div class="friends-search-wrapper">
+            <i class="fa-solid fa-magnifying-glass friends-search-icon"></i>
+            <input type="text" id="userSearchInput" class="friends-search-input" placeholder="@Localizer["Placeholder_SearchInput"]" autocomplete="off">
+        </div>
+    </div>
+
+    @* --- ТАБ: МОЇ ДРУЗІ --- *@
+    <div id="tab-friends" class="ae-tab-content fade-in">
         
-        <div class="ae-tabs-container">
-            <button class="ae-tab-btn active" onclick="switchTab('friends')" id="btn-friends">
-                My Friends 
-                <span class="ae-text-muted" style="font-size:0.8em; font-weight:normal;">(@Model.Friends.Count)</span>
-            </button>
-            
-            <button class="ae-tab-btn" onclick="switchTab('requests')" id="btn-requests">
-                Requests
-                @if(Model.IncomingRequests.Any()) 
-                { 
-                    <span class="ae-badge ae-badge-xp" style="margin-left:5px; font-size:0.7em;">@Model.IncomingRequests.Count</span> 
-                }
-            </button>
-
-            <button class="ae-tab-btn hidden" id="btn-search" onclick="switchTab('search')">Search Results</button>
-        </div>
-
-        <div class="ae-search-inline">
-            <i class="fa-solid fa-magnifying-glass ae-search-icon"></i>
-            <input type="text" id="userSearchInput" class="ae-search-input" placeholder="Find new gym partners..." autocomplete="off">
-        </div>
-    </div>
-
-    <div id="tab-friends" class="ae-tab-content ae-fade-in">
+        @* Порожній стан (при завантаженні) *@
         @if (!Model.Friends.Any())
         {
-            <div style="text-align:center; padding:50px; color:#999; border: 2px dashed #eee; border-radius:12px;">
-                <i class="fa-solid fa-user-group" style="font-size:2.5rem; margin-bottom:15px; opacity:0.3; display:block;"></i>
-                <p>You have no friends yet.</p>
-                <p style="font-size:0.9rem;">Use the search bar to find people!</p>
+            <div class="friends-empty">
+                <i class="fa-solid fa-user-group"></i>
+                <p>@Localizer["Msg_NoFriendsYet"]</p>
+                <p style="font-size:0.9rem;">@Localizer["Msg_UseSearch"]</p>
             </div>
         }
         else
         {
-            <div class="ae-cards-grid">
+            @* Прихований порожній стан (для JS, якщо видалимо всіх) *@
+            <div id="friendsEmptyState" class="friends-empty" style="display: none;">
+                <i class="fa-solid fa-user-group"></i>
+                <p>@Localizer["Msg_NoFriendsYet"]</p>
+                <p style="font-size:0.9rem;">@Localizer["Msg_UseSearch"]</p>
+            </div>
+
+            <div id="friendsGrid" class="ae-cards-grid">
                 @foreach (var f in Model.Friends)
                 {
-                    <div class="ae-card-item" style="align-items: center; text-align: center;">
-                        <img src="@f.AvatarUrl" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <div id="friend-card-@f.ProfileId" class="ae-card-item" style="align-items: center; text-align: center; padding: 30px 20px; display: flex; flex-direction: column; height: 100%; transition: all 0.3s ease;">
                         
-                        <div class="ae-card-header-title" style="border:none; margin:0;">@f.UserName</div>
-                        <div class="ae-text-muted mb-20">Level @f.Level</div>
+                        <a href="@Url.Action("Profile", "User", new { userId = f.ProfileId })" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center;">
+                            <img src="@f.AvatarUrl" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; transition: transform 0.2s;" alt="@Localizer["Alt_Avatar"]">
+                            <div class="ae-card-header-title" style="border:none; margin:0 0 5px 0; font-size: 1.2rem;">@f.UserName</div>
+                        </a>
                         
-                        <a asp-controller="Chat" 
-                            asp-action="Start" 
-                            asp-route-userId="@f.ProfileId" 
-                            class="ae-btn ae-btn-primary ae-w-100">
-                            <i class="bi bi-chat-dots"></i> Message
-                        </a>
-                        <a asp-controller="User" asp-action="Profile" asp-route-userId="@f.ProfileId" class="ae-btn ae-btn-outline ae-w-100 ae-mt-20" style="margin-top:8px;">
-                            Profile
-                        </a>
+                        <div class="ae-text-muted" style="margin-bottom: 25px;">@Localizer["Label_Level"] @f.Level</div>
+                        
+                        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: auto;">
+                            <a asp-controller="Chat" asp-action="Start" asp-route-userId="@f.ProfileId" 
+                               class="gym-btn gym-btn-primary w-100" style="padding: 10px;">
+                               <i class="fa-solid fa-comment-dots" style="margin-right: 8px;"></i> @Localizer["Btn_Message"]
+                            </a>
+
+                            <a asp-controller="User" asp-action="Profile" asp-route-userId="@f.ProfileId" class="gym-btn gym-btn-secondary w-100" style="padding: 10px;">
+                                <i class="fa-solid fa-user" style="margin-right: 8px;"></i> @Localizer["Btn_Profile"]
+                            </a>
+
+                            @* Кнопка видалення (AJAX) *@
+                            <button type="button" class="gym-btn gym-btn-danger w-100" style="padding: 10px;"
+                                    onclick="removeFriend(this, '@f.ProfileId', '@f.UserName')">
+                                <i class="fa-solid fa-user-xmark" style="margin-right: 8px;"></i> @Localizer["Btn_Remove"]
+                            </button>
+                        </div>
                     </div>
                 }
             </div>
         }
     </div>
 
-    <div id="tab-requests" class="ae-tab-content hidden ae-fade-in">
+    @* --- ТАБ: ЗАЯВКИ --- *@
+    <div id="tab-requests" class="ae-tab-content hidden fade-in">
         
-        <div class="ae-request-group-title">
-            Incoming Requests <span style="font-weight:normal;">(@Model.IncomingRequests.Count)</span>
-        </div>
-        
+        @* Вхідні заявки *@
+        <div class="friends-section-title">@Localizer["Header_IncomingRequests"] <span style="font-weight:normal;">(@Model.IncomingRequests.Count)</span></div>
         @if (!Model.IncomingRequests.Any())
         {
-            <div class="ae-text-muted ae-mb-20" style="font-style:italic; padding-left:10px;">
-                No incoming requests.
-            </div>
+            <div class="ae-text-muted ae-mb-20" style="font-style:italic; padding-left:10px;">@Localizer["Msg_NoIncomingRequests"]</div>
         }
         else
         {
-            <div class="ae-list-vertical ae-mb-20">
+            <div style="margin-bottom: 30px;">
                 @foreach (var r in Model.IncomingRequests)
                 {
-                    <div class="ae-request-row">
-                        <div class="ae-user-info">
-                            <img src="@r.AvatarUrl" class="ae-avatar-circle">
+                    <div class="request-card">
+                        <a href="@Url.Action("Profile", "User", new { userId = r.ProfileId })" class="request-link-wrapper">
+                            <img src="@r.AvatarUrl" class="request-avatar" alt="@Localizer["Alt_Avatar"]">
                             <div>
-                                <div class="ae-username">@r.UserName</div>
-                                <div class="ae-meta">Sent @r.SentAt?.ToString("g")</div>
+                                <div class="request-username">@r.UserName</div>
+                                <div class="request-meta">@Localizer["Label_Sent"] @r.SentAt?.ToString("g")</div>
                             </div>
-                        </div>
-                        <div class="ae-flex-row ae-gap-sm">
-                            <form asp-action="Accept" asp-route-senderId="@r.ProfileId"><button class="ae-btn ae-btn-success ae-btn-sm"><i class="bi bi-check-lg"></i> Accept</button></form>
-                            <form asp-action="Decline" asp-route-senderId="@r.ProfileId"><button class="ae-btn ae-btn-outline ae-btn-sm">Decline</button></form>
+                        </a>
+                        <div style="display: flex; gap: 10px;">
+                            <form asp-action="Accept" asp-route-senderId="@r.ProfileId" style="margin:0;">
+                                <button class="gym-btn gym-btn-primary" style="padding: 6px 15px; font-size: 13px;"><i class="fa-solid fa-check" style="margin-right: 5px;"></i> @Localizer["Btn_Accept"]</button>
+                            </form>
+                            <form asp-action="Decline" asp-route-senderId="@r.ProfileId" style="margin:0;">
+                                <button class="gym-btn gym-btn-secondary" style="padding: 6px 15px; font-size: 13px;">@Localizer["Btn_Decline"]</button>
+                            </form>
                         </div>
                     </div>
                 }
@@ -232,254 +127,346 @@
 
         <div class="ae-separator"></div>
 
-        <div class="ae-request-group-title">
-            Sent Requests <span style="font-weight:normal;" id="sentCount">(@Model.OutgoingRequests.Count)</span>
-        </div>
-
-        <div id="outgoingList" class="ae-list-vertical">
+        @* Вихідні заявки *@
+        <div class="friends-section-title">@Localizer["Header_SentRequests"] <span style="font-weight:normal;" id="sentCount">(@Model.OutgoingRequests.Count)</span></div>
+        <div id="outgoingList">
             @if (!Model.OutgoingRequests.Any())
             {
-                <div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">
-                    No sent requests.
-                </div>
+                <div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">@Localizer["Msg_NoSentRequests"]</div>
             }
-            
             @foreach (var r in Model.OutgoingRequests)
             {
-                <div class="ae-request-row" id="req-@r.ProfileId" style="background-color:#fafafa;">
-                    <div class="ae-user-info" style="opacity:0.7;">
-                        <img src="@r.AvatarUrl" class="ae-avatar-circle">
+                <div class="request-card slide-in" id="req-@r.ProfileId">
+                    <a href="@Url.Action("Profile", "User", new { userId = r.ProfileId })" class="request-link-wrapper">
+                        <img src="@r.AvatarUrl" class="request-avatar" alt="@Localizer["Alt_Avatar"]">
                         <div>
-                            <div class="ae-username">@r.UserName</div>
-                            <div class="ae-meta">Waiting...</div>
+                            <div class="request-username">@r.UserName</div>
+                            <div class="request-meta">@Localizer["Label_Waiting"]</div>
                         </div>
-                    </div>
-                    <form onsubmit="cancelRequest(event, '@r.ProfileId')">
-                        <button class="ae-btn ae-btn-outline ae-btn-sm" style="color:#e74c3c; border-color:#e74c3c;">Cancel</button>
-                    </form>
+                    </a>
+                    
+                    @* Кнопка скасування (AJAX) *@
+                    <button type="button" class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"
+                            onclick="cancelRequest(this, '@r.ProfileId')">
+                        <i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> @Localizer["Btn_Cancel"]
+                    </button>
                 </div>
             }
         </div>
     </div>
 
-    <div id="tab-search" class="ae-tab-content hidden ae-fade-in">
-        <h4 class="ae-section-title ae-mb-20">Search Results</h4>
-        <div id="searchResults" class="ae-cards-grid">
-            </div>
+    @* --- ТАБ: ПОШУК --- *@
+    <div id="tab-search" class="ae-tab-content hidden fade-in">
+        <h4 class="friends-section-title">@Localizer["Header_SearchResults"]</h4>
+        <div id="searchResults" class="ae-cards-grid"></div>
     </div>
-
 </div>
 
 @section Scripts {
-        <script>
-            // --- 1. TAB LOGIC ---
-            function switchTab(tabName) {
-                // Ховаємо всі контенти
-                document.querySelectorAll('.ae-tab-content').forEach(el => el.classList.add('hidden'));
-                // Показуємо вибраний
-                document.getElementById('tab-' + tabName).classList.remove('hidden');
+    <script>
+        // --- РЕСУРСИ ЛОКАЛІЗАЦІЇ ---
+        const JS_RESOURCES = {
+            labelSearching: '@Localizer["Msg_Searching"]',
+            msgNoUsersFound: '@Localizer["Msg_NoUsersFound"]',
+            msgErrorSearch: '@Localizer["Msg_ErrorSearch"]',
+            msgErrorCancel: '@Localizer["Msg_ErrorCancel"]',
+            msgCannotAdd: '@Localizer["Msg_CannotAdd"]',
+            msgNetworkError: '@Localizer["Msg_NetworkError"]',
+            btnMessage: '@Localizer["Btn_Message"]',
+            btnRequestSent: '@Localizer["Btn_RequestSent"]',
+            btnViewRequest: '@Localizer["Btn_ViewRequest"]',
+            btnAddFriend: '@Localizer["Btn_AddFriend"]',
+            btnSent: '@Localizer["Btn_Sent"]',
+            confirmCancel: '@Localizer["Msg_ConfirmCancelRequest"]',
+            labelJustNow: '@Localizer["Label_JustNow"]',
+            btnCancel: '@Localizer["Btn_Cancel"]',
+            msgNoSentRequests: '@Localizer["Msg_NoSentRequests"]',
+            labelLevel: '@Localizer["Label_Level"]',
+            
+            // Нові ресурси
+            msgSuccess: "@Localizer["Msg_Success"]",
+            msgConfirmRemove: '@Localizer["Msg_ConfirmRemove", "USER_NAME_PLACEHOLDER"]', 
+            msgFriendRemoved: '@Localizer["Msg_FriendRemoved"]', 
+            msgError: '@Localizer["Msg_Error"]'
+        };
 
-                // Скидаємо активний клас з усіх кнопок
-                document.querySelectorAll('.ae-tab-btn').forEach(btn => btn.classList.remove('active'));
+        function switchTab(tabName) {
+            document.querySelectorAll('.ae-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            document.querySelectorAll('.friends-tab-btn').forEach(btn => btn.classList.remove('active'));
+            const btn = document.getElementById('btn-' + tabName);
+            if (btn) btn.classList.add('active');
+            if (tabName !== 'search') {
+                document.getElementById('userSearchInput').value = '';
+                const searchTabBtn = document.getElementById('btn-search');
+                if(searchTabBtn) searchTabBtn.classList.add('hidden');
+            }
+        }
 
-                // Активуємо потрібну кнопку
-                const btn = document.getElementById('btn-' + tabName);
-                if (btn) btn.classList.add('active');
+        // --- ВИДАЛЕННЯ ДРУГА (Robust AJAX) ---
+        async function removeFriend(btn, friendId, userName) {
+            const confirmText = JS_RESOURCES.msgConfirmRemove
+                .replace("USER_NAME_PLACEHOLDER", userName)
+                .replace("&quot;", '"');
 
-                // Логіка очищення пошуку при виході
-                if (tabName !== 'search') {
-                    document.getElementById('userSearchInput').value = '';
-                    const searchTabBtn = document.getElementById('btn-search');
-                    if(searchTabBtn) searchTabBtn.classList.add('hidden');
+            alertify.confirm(
+                'Gymify', 
+                confirmText, 
+                async function() { 
+                    // Зберігаємо початковий стан
+                    const originalContent = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                    try {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        const headers = {};
+                        if (token) headers['RequestVerificationToken'] = token;
+
+                        const res = await fetch(`/Friends/RemoveFriend?friendId=${friendId}`, { 
+                            method: 'POST',
+                            headers: headers
+                        });
+
+                        if (res.ok) {
+                            const card = document.getElementById(`friend-card-${friendId}`);
+                            if (card) {
+                                card.style.transition = 'all 0.3s';
+                                card.style.opacity = '0';
+                                card.style.transform = 'scale(0.9)';
+                                setTimeout(() => {
+                                    card.remove(); 
+                                    updateFriendsCount(); 
+                                }, 300);
+                            }
+                        } else {
+                            const errText = await res.text();
+                            console.error("Server Error:", errText);
+                            if (typeof alertify !== 'undefined') alertify.error("Server Error: " + errText);
+                        }
+                    } catch (error) {
+                        console.error("Network Error:", error);
+                        if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNetworkError);
+                    } finally {
+                        // Завжди повертаємо кнопку до життя
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                },
+                function() { /* Cancel */ }
+            ).set('labels', {ok:'Yes', cancel:'No'});
+        }
+
+        // --- СКАСУВАННЯ ЗАЯВКИ (Robust AJAX) ---
+        async function cancelRequest(btn, id) {
+            alertify.confirm(
+                'Gymify', 
+                JS_RESOURCES.confirmCancel,
+                async function() {
+                    const originalContent = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                    try {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        const headers = {};
+                        if (token) headers['RequestVerificationToken'] = token;
+
+                        const res = await fetch(`/Friends/Cancel?receiverId=${id}`, { 
+                            method: "POST",
+                            headers: headers
+                        });
+
+                        if (res.ok) {
+                            const row = document.getElementById(`req-${id}`);
+                            if (row) {
+                                row.style.transition = 'all 0.3s';
+                                row.style.opacity = '0';
+                                row.style.transform = 'scale(0.95)';
+                                setTimeout(() => {
+                                    row.remove();
+                                    const list = document.getElementById('outgoingList');
+                                    if (list && list.querySelectorAll('.request-card').length === 0) {
+                                        const emptyMsg = document.getElementById('noSentMsg');
+                                        if (emptyMsg) emptyMsg.style.display = 'block';
+                                        else list.innerHTML = `<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">${JS_RESOURCES.msgNoSentRequests}</div>`;
+                                    }
+                                }, 300);
+                            }
+
+                            const countSpan = document.getElementById('sentCount');
+                            if (countSpan) {
+                                let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
+                                count = Math.max(0, count - 1);
+                                countSpan.innerText = `(${count})`;
+                            }
+
+                        } else {
+                            const errText = await res.text();
+                            if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorCancel);
+                        }
+                    } catch(err) { 
+                        console.error(err);
+                        if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNetworkError);
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                },
+                function() { /* Cancel */ }
+            ).set('labels', {ok:'Yes', cancel:'No'});
+        }
+
+        function updateFriendsCount() {
+            const countSpan = document.getElementById('friendsCount');
+            const grid = document.getElementById('friendsGrid');
+            if (countSpan) {
+                let count = parseInt(countSpan.textContent.replace(/\D/g, '')) || 0;
+                count = Math.max(0, count - 1);
+                countSpan.textContent = `(${count})`;
+                if (count === 0) {
+                    const emptyState = document.getElementById('friendsEmptyState');
+                    if (emptyState) emptyState.style.display = 'block';
+                    if (grid) grid.style.display = 'none';
                 }
             }
+        }
 
-            // --- 2. DEBOUNCE ---
-            function debounce(func, wait) {
-                let timeout;
-                return function(...args) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(this, args), wait);
-                };
+        // --- ДОДАВАННЯ НОВОГО ЗАПИТУ (Для відображення) ---
+        function addToOutgoingList(id, userName, avatarUrl) {
+            const countSpan = document.getElementById('sentCount');
+            if (countSpan) {
+                let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
+                countSpan.innerText = `(${count + 1})`;
+            }
+            const list = document.getElementById('outgoingList');
+            if (!list) return;
+            const emptyMsg = document.getElementById('noSentMsg');
+            if(emptyMsg) emptyMsg.style.display = 'none';
+
+            const profileUrl = `/User/Profile?userId=${id}`;
+
+            const html = `
+                <div class="request-card slide-in" id="req-${id}">
+                    <a href="${profileUrl}" class="request-link-wrapper">
+                        <img src="${avatarUrl}" class="request-avatar">
+                        <div>
+                            <div class="request-username">${escapeHtml(userName)}</div>
+                            <div class="request-meta">${JS_RESOURCES.labelJustNow}</div>
+                        </div>
+                    </a>
+                    <button type="button" class="gym-btn gym-btn-danger" style="padding: 6px 15px; font-size: 13px;"
+                            onclick="cancelRequest(this, '${id}')">
+                        <i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> ${JS_RESOURCES.btnCancel}
+                    </button>
+                </div>
+            `;
+            list.insertAdjacentHTML('afterbegin', html);
+        }
+
+        // --- ПОШУК (Стандартний) ---
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        const searchInput = document.getElementById('userSearchInput');
+
+        const performSearch = debounce(async (query) => {
+            const container = document.getElementById('searchResults');
+            const searchTabBtn = document.getElementById('btn-search');
+
+            if (!query) {
+                switchTab('friends');
+                if(searchTabBtn) searchTabBtn.classList.add('hidden');
+                return;
             }
 
-            // --- 3. SEARCH LOGIC ---
-            const searchInput = document.getElementById('userSearchInput');
+            if(searchTabBtn) searchTabBtn.classList.remove('hidden');
+            switchTab('search');
 
-            const performSearch = debounce(async (query) => {
-                const container = document.getElementById('searchResults');
-                const searchTabBtn = document.getElementById('btn-search');
+            container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999; padding: 20px;">${JS_RESOURCES.labelSearching}</div>`;
 
-                if (!query) {
-                    switchTab('friends');
-                    if(searchTabBtn) searchTabBtn.classList.add('hidden');
+            try {
+                const res = await fetch(`/Friends/Search?query=${encodeURIComponent(query)}`);
+                const users = await res.json();
+
+                container.innerHTML = '';
+                if (users.length === 0) {
+                    container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#999; padding: 20px;">${JS_RESOURCES.msgNoUsersFound}</div>`;
                     return;
                 }
 
-                if(searchTabBtn) searchTabBtn.classList.remove('hidden');
-                switchTab('search');
-
-                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">Searching...</div>';
-
-                try {
-                    const res = await fetch(`/Friends/Search?query=${encodeURIComponent(query)}`);
-                    const users = await res.json();
-
-                    container.innerHTML = '';
-
-                    if (users.length === 0) {
-                        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">No users found.</div>';
-                        return;
+                users.forEach(u => {
+                    let actionBtn = '';
+                    if (u.status === 1) {
+                          actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="gym-btn gym-btn-primary w-100" style="padding:8px;">${JS_RESOURCES.btnMessage}</a>`;
+                    } else if (u.status === 2) {
+                          actionBtn = `<button class="gym-btn gym-btn-secondary w-100" disabled style="opacity:0.6; cursor:default; padding:8px;">${JS_RESOURCES.btnRequestSent}</button>`;
+                    } else if (u.status === 3) {
+                          actionBtn = `<button class="gym-btn gym-btn-primary w-100" onclick="switchTab('requests')" style="padding:8px;">${JS_RESOURCES.btnViewRequest}</button>`;
+                    } else { 
+                          actionBtn = `<button class="gym-btn gym-btn-primary w-100" style="padding:8px;"
+                            onclick="sendRequest(this, '${u.profileId}', '${escapeHtml(u.userName)}', '${u.avatarUrl}')">
+                            <i class="fa-solid fa-user-plus"></i> ${JS_RESOURCES.btnAddFriend}
+                         </button>`;
                     }
 
-                    users.forEach(u => {
-                        let actionBtn = '';
+                    const profileLink = `/User/Profile?userId=${u.profileId}`;
 
-                        // Статуси: 1=Friend, 2=Sent, 3=Received, 0=None
-                        if (u.status === 1) {
-                             actionBtn = `<a href="/Chat/Room?chatId=${u.chatId}" class="ae-btn ae-btn-primary ae-w-100">Message</a>`;
-                        } 
-                        else if (u.status === 2) {
-                             actionBtn = `<button class="ae-btn ae-btn-outline ae-w-100" disabled style="opacity:0.6; border-style:dashed;">Request Sent</button>`;
-                        }
-                        else if (u.status === 3) {
-                             actionBtn = `<button class="ae-btn ae-btn-warning ae-w-100" onclick="switchTab('requests')">View Request</button>`;
-                        }
-                        else { 
-                             // Передаємо ім'я та аватар для динамічного оновлення списку
-                             actionBtn = `<button class="ae-btn ae-btn-success ae-w-100" 
-                                onclick="sendRequest(this, '${u.profileId}', '${escapeHtml(u.userName)}', '${u.avatarUrl}')">
-                                <i class="bi bi-person-plus"></i> Add Friend
-                             </button>`;
-                        }
+                    const html = `
+                        <div class="ae-card-item" style="align-items: center; text-align: center; padding: 20px;">
+                            <a href="${profileLink}" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center;">
+                                <img src="${u.avatarUrl}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; transition: transform 0.2s;">
+                                <div class="ae-card-header-title" style="border:none; margin:0 0 5px 0;">${escapeHtml(u.userName)}</div>
+                            </a>
+                                <div class="ae-text-muted mb-20" style="font-size: 0.85rem; margin-bottom: 10px">${JS_RESOURCES.labelLevel} ${u.level}</div>
+                            ${actionBtn}
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+            } catch (e) {
+                container.innerHTML = `<div style="color:red; text-align:center; padding: 20px;">${JS_RESOURCES.msgErrorSearch}</div>`;
+            }
+        }, 500);
 
-                        const html = `
-                            <div class="ae-card-item" style="align-items: center; text-align: center;">
-                                <img src="${u.avatarUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
-                                <div class="ae-card-header-title" style="border:none; margin:0;">${escapeHtml(u.userName)}</div>
-                                <div class="ae-text-muted mb-20">Level ${u.level}</div>
-                                ${actionBtn}
-                            </div>
-                        `;
-                        container.insertAdjacentHTML('beforeend', html);
-                    });
-
-                } catch (e) {
-                    console.error(e);
-                    container.innerHTML = '<div style="color:red; text-align:center;">Error searching.</div>';
-                }
-            }, 500);
-
+        if(searchInput) {
             searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
+        }
 
-            // --- 4. SEND REQUEST ---
-            async function sendRequest(btn, id, userName, avatarUrl) {
-                const originalHTML = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = "...";
-
-                try {
-                    const res = await fetch(`/Friends/SendRequest?receiverId=${id}`, { method: "POST" });
-
-                    if(res.ok) {
-                        // Оновлюємо кнопку
-                        btn.className = "ae-btn ae-btn-outline ae-w-100";
-                        btn.disabled = true;
-                        btn.innerHTML = '<i class="bi bi-check"></i> Sent';
-                        btn.style.borderStyle = "dashed";
-
-                        // Додаємо в список вихідних заявок без перезавантаження
-                        addToOutgoingList(id, userName, avatarUrl);
-
-                    } else {
-                        const errText = await res.text();
-                        alert("Cannot add: " + errText);
-                        btn.disabled = false;
-                        btn.innerHTML = originalHTML;
-                    }
-                } catch(e) {
-                    alert("Network Error");
+        async function sendRequest(btn, id, userName, avatarUrl) {
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = "...";
+            try {
+                const res = await fetch(`/Friends/SendRequest?receiverId=${id}`, { method: "POST" });
+                if(res.ok) {
+                    btn.className = "gym-btn gym-btn-secondary w-100";
+                    btn.style.padding = "8px";
+                    btn.disabled = true;
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i> ${JS_RESOURCES.btnSent}`;
+                    btn.style.opacity = "0.7";
+                    addToOutgoingList(id, userName, avatarUrl);
+                } else {
+                    const errText = await res.text();
+                    if (typeof alertify !== 'undefined') alertify.error(`${JS_RESOURCES.msgCannotAdd}: ${errText}`);
                     btn.disabled = false;
                     btn.innerHTML = originalHTML;
                 }
+            } catch(e) {
+                if (typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgNetworkError);
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
             }
+        }
 
-            // --- 5. DYNAMIC UPDATE: Add to Sent List ---
-            function addToOutgoingList(id, userName, avatarUrl) {
-                // Оновлення лічильника
-                const countSpan = document.getElementById('sentCount');
-                if (countSpan) {
-                    let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
-                    countSpan.innerText = `(${count + 1})`;
-                }
-
-                const list = document.getElementById('outgoingList');
-                if (!list) return;
-
-                // Прибираємо повідомлення "No sent requests", якщо воно є
-                const emptyMsg = document.getElementById('noSentMsg');
-                if(emptyMsg) emptyMsg.style.display = 'none';
-
-                const html = `
-                    <div class="ae-request-row ae-slide-in" id="req-${id}" style="background-color:#fafafa;">
-                        <div class="ae-user-info" style="opacity:0.7;">
-                            <img src="${avatarUrl}" class="ae-avatar-circle">
-                            <div>
-                                <div class="ae-username">${escapeHtml(userName)}</div>
-                                <div class="ae-meta">Just now</div>
-                            </div>
-                        </div>
-                        <form onsubmit="cancelRequest(event, '${id}')">
-                            <button class="ae-btn ae-btn-outline ae-btn-sm" style="color:#e74c3c; border-color:#e74c3c;">Cancel</button>
-                        </form>
-                    </div>
-                `;
-                list.insertAdjacentHTML('afterbegin', html);
-            }
-
-            // --- 6. CANCEL REQUEST ---
-            async function cancelRequest(e, id) {
-                e.preventDefault();
-                if(!confirm("Cancel request?")) return;
-
-                try {
-                    const res = await fetch(`/Friends/Cancel?receiverId=${id}`, { method: "POST" });
-                    if (res.ok) {
-                        // Видаляємо рядок
-                        const row = document.getElementById(`req-${id}`);
-                        if (row) row.remove();
-
-                        // Оновлюємо лічильник (мінусуємо)
-                        const countSpan = document.getElementById('sentCount');
-                        if (countSpan) {
-                            let count = parseInt(countSpan.innerText.replace(/\D/g, '')) || 0;
-                            count = count > 0 ? count - 1 : 0;
-                            countSpan.innerText = `(${count})`;
-                        }
-
-                        // Перевіряємо, чи список став пустим
-                        const list = document.getElementById('outgoingList');
-                        // Шукаємо тільки рядки з заявками, ігноруючи приховані елементи
-                        const remaining = list.querySelectorAll('.ae-request-row').length;
-
-                        if (remaining === 0) {
-                            const emptyMsg = document.getElementById('noSentMsg');
-                            if (emptyMsg) {
-                                emptyMsg.style.display = 'block';
-                            } else {
-                                // Якщо елемент був видалений раніше, відновлюємо його
-                                list.innerHTML = '<div id="noSentMsg" class="ae-text-muted" style="font-style:italic; padding-left:10px;">No sent requests.</div>';
-                            }
-                        }
-                    } else {
-                        alert("Failed to cancel");
-                    }
-                } catch(err) { console.error(err); }
-            }
-
-            function escapeHtml(text) {
-                if (!text) return "";
-                return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-            }
-        </script>
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
 }

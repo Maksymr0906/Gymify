@@ -7,10 +7,14 @@ using Gymify.Web.Hubs;
 using Gymify.Web.Seed;
 using Gymify.Web.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using Gymify.Web;
+using Gymify.Application.Services.Implementation;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,19 +25,19 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    var cultures = new[]
+    var supportedCultures = new[]
     {
-        new CultureInfo("en"),
-        new CultureInfo("uk")
+        new CultureInfo("en-US"),
+        new CultureInfo("uk-UA")
+        {
+            NumberFormat = { NumberDecimalSeparator = ".", CurrencyDecimalSeparator = "." }
+        },
     };
 
-    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en");
-    options.SupportedCultures = cultures;
-    options.SupportedUICultures = cultures;
-
-    options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.QueryStringRequestCultureProvider());
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
 });
-
 
 services.Configure<SeedDataOptions>(configuration.GetSection("SeedDataOptions"));
 
@@ -43,20 +47,28 @@ services
 
 services.AddSignalR();
 services.AddSingleton<IUserIdProvider, CustomUserIdProviderService>();
-
+services.AddSingleton<ChatMembersTrackerService>();
 
 services.AddScoped<INotifierService, SignalRNotifierService>();
 
 services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 {
+    options.User.RequireUniqueEmail = true;
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
+    options.SignIn.RequireConfirmedAccount = true; // Не пускати, поки не підтвердить пошту
+    options.SignIn.RequireConfirmedEmail = true;  
+
+    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
 })
 .AddEntityFrameworkStores<GymifyDbContext>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddErrorDescriber<LocalizedIdentityErrorDescriber>();
+
+services.AddTransient<IEmailSender, EmailSenderService>();
 
 services.ConfigureApplicationCookie(options =>
 {
@@ -66,12 +78,17 @@ services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });
+
 services.AddControllersWithViews()
-        .AddViewLocalization()          
-        .AddDataAnnotationsLocalization();  
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (type, factory) =>
+            factory.Create(typeof(SharedResource));
+    });
 
+var app = builder.Build();
 
-var app = builder.Build(); 
 var localizationOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>()!.Value;
 app.UseRequestLocalization(localizationOptions);
 
@@ -90,14 +107,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.MapControllerRoute(
     name: "default",

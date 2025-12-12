@@ -22,12 +22,15 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             Content = comment.Content,
             CreatedAt = comment.CreatedAt,
             AuthorName = comment.Author?.ApplicationUser?.UserName ?? "Unknown User",
-            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
+
+            AuthorAvatarUrl = comment.Author?.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
+
             CanDelete = comment.AuthorId == currentProfileUserId,
             TargetId = targetId,
             TargetType = targetType,
-            IsApproved = comment.IsApproved
-        }).Where(comment => comment.IsApproved == true).ToList();
+            IsApproved = comment.IsApproved,
+            IsRejected = comment.IsRejected
+        }).Where(comment => comment.IsRejected == false).ToList(); // Я вообще ХЗ як бути...
 
         return commentDtos;
     }
@@ -38,7 +41,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
 
         if (currentUser == null) throw new Exception("User not found");
 
-        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png";
+        var avatarUrl = currentUser.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
 
         var commentDto = new CommentDto
         {
@@ -49,8 +52,7 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             AuthorAvatarUrl = avatarUrl,
             TargetId = targetId,
             TargetType = targetType,
-            CreatedAt = DateTime.UtcNow,
-            CanDelete = true
+            CanDelete = true // Автор завжди може видалити свій коментар
         };
 
         await CreateCommentAsync(commentDto);
@@ -66,18 +68,32 @@ public class CommentService(IUnitOfWork unitOfWork, INotificationService notific
             var workout = await _unitOfWork.WorkoutRepository.GetByIdAsync(targetId);
             receiverId = workout.UserProfileId;
         }
-
+        
         if (receiverId != Guid.Empty && receiverId != currentProfileUserId)
         {
             var senderName = currentUser.ApplicationUser?.UserName ?? "Someone";
-            var message = targetType == CommentTargetType.Workout ?
-                $"{senderName} commented your workout." : $"{senderName} commented your profile.";
+
+            string messageEn;
+            string messageUk;
+
+            if (targetType == CommentTargetType.Workout)
+            {
+                messageEn = $"{senderName} commented your workout.";
+
+                messageUk = $"{senderName} прокоментував ваше тренування.";
+            }
+            else
+            {
+                messageEn = $"{senderName} commented your profile.";
+
+                messageUk = $"{senderName} прокоментував ваш профіль.";
+            }
 
             string link = targetType == CommentTargetType.Workout
                 ? $"/Workout/Details?workoutId={targetId}"
                 : $"/Profile?userId={targetId}";
 
-            await _notificationService.SendNotificationAsync(receiverId, message, link);
+            await _notificationService.SendNotificationAsync(receiverId, messageEn, messageUk, link);
         }
 
         return commentDto;

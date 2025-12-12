@@ -4,12 +4,14 @@ namespace Gymify.Application.DTOs.Auth
 {
     public class LoginRequestDto
     {
-        [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [Required(ErrorMessage = "Required")]
+        [EmailAddress(ErrorMessage = "EmailInvalid")]
+        [Display(Name = "Email")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Password is required.")]
-        [MinLength(6, ErrorMessage = "Password must contain at least 6 characters.")]
+        [Required(ErrorMessage = "Required")]
+        [MinLength(6, ErrorMessage = "PasswordLength")]
+        [Display(Name = "Password")]
         public string Password { get; set; } = string.Empty;
 
         public bool RememberMe { get; set; }

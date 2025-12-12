@@ -117,43 +117,89 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Add" xml:space="preserve">
-    <value>Кілограми</value>
+  <data name="Btn_Add" xml:space="preserve">
+    <value>Додати</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
+  <data name="Btn_Cancel" xml:space="preserve">
     <value>Скасувати</value>
   </data>
-  <data name="ErrorSaving" xml:space="preserve">
-    <value>Помилка збереження!</value>
-  </data>
-  <data name="ExerciseName" xml:space="preserve">
-    <value>Назва вправи</value>
-  </data>
-  <data name="Kg" xml:space="preserve">
-    <value>Кілограми</value>
-  </data>
-  <data name="Min" xml:space="preserve">
-    <value>Хвилини</value>
-  </data>
-  <data name="NoExercises" xml:space="preserve">
-    <value>Ще не додано жодної вправи.</value>
-  </data>
-  <data name="Remove" xml:space="preserve">
+  <data name="Btn_Remove" xml:space="preserve">
     <value>Видалити</value>
   </data>
-  <data name="Reps" xml:space="preserve">
-    <value>Повторення</value>
-  </data>
-  <data name="SaveChanges" xml:space="preserve">
+  <data name="Btn_SaveChanges" xml:space="preserve">
     <value>Зберегти зміни</value>
   </data>
-  <data name="Saved" xml:space="preserve">
+  <data name="Btn_Saving" xml:space="preserve">
+    <value>Збереження...</value>
+  </data>
+  <data name="Label_ExerciseName" xml:space="preserve">
+    <value>Назва вправи</value>
+  </data>
+  <data name="Label_Kg" xml:space="preserve">
+    <value>Кг</value>
+  </data>
+  <data name="Label_Min" xml:space="preserve">
+    <value>Хв</value>
+  </data>
+  <data name="Label_Reps" xml:space="preserve">
+    <value>Повт.</value>
+  </data>
+  <data name="Label_Sets" xml:space="preserve">
+    <value>Сети</value>
+  </data>
+  <data name="Msg_DurationPositive" xml:space="preserve">
+    <value>Тривалість у хвилинах має бути невід'ємним числом.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
+  </data>
+  <data name="Msg_Error" xml:space="preserve">
+    <value>Помилка!</value>
+  </data>
+  <data name="Msg_ExerciseNameRequired" xml:space="preserve">
+    <value>Будь ласка, введіть назву вправи.</value>
+    <comment>Клієнтська (JS) та Серверна (DTO) валідація.</comment>
+  </data>
+  <data name="Msg_NameLength" xml:space="preserve">
+    <value>Назва вправи не може бути коротшою за 3 та довшою за 100 символів.</value>
+    <comment>Серверна валідація DTO (Length).</comment>
+  </data>
+  <data name="Msg_NameTooShort" xml:space="preserve">
+    <value>Назва має містити щонайменше 3 символи.</value>
+  </data>
+  <data name="Msg_NoExercises" xml:space="preserve">
+    <value>Вправи ще не додано.</value>
+  </data>
+  <data name="Msg_NoExercisesToSave" xml:space="preserve">
+    <value>Немає вправ для збереження.</value>
+    <comment>Валідація в контролері, якщо список вправ порожній.</comment>
+  </data>
+  <data name="Msg_RepsOrWeightOrDurationRequiredForAtLeastOne" xml:space="preserve">
+    <value>Кожна вправа повинна мати принаймні одне позитивне значення (повторення, вага або тривалість).</value>
+    <comment>Валідація на рівні бізнес-логіки в контролері.</comment>
+  </data>
+  <data name="Msg_RepsPositive" xml:space="preserve">
+    <value>Кількість повторень має бути невід'ємним числом.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
+  </data>
+  <data name="Msg_Saved" xml:space="preserve">
     <value>Збережено!</value>
   </data>
-  <data name="Search" xml:space="preserve">
-    <value>Пошук...</value>
+  <data name="Msg_SetsMustBePositive" xml:space="preserve">
+    <value>Кількість підходів має бути від 1 до 100.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
   </data>
-  <data name="Sets" xml:space="preserve">
-    <value>Підходи</value>
+  <data name="Msg_SetsRequired" xml:space="preserve">
+    <value>Кількість підходів (Sets) є обов'язковою.</value>
+    <comment>Серверна валідація DTO.</comment>
+  </data>
+  <data name="Msg_ValidationFailedTitle" xml:space="preserve">
+    <value>Не вдалося зберегти вправи через помилки:</value>
+    <comment>Заголовок для повідомлення про помилку валідації в alertify.</comment>
+  </data>
+  <data name="Msg_WeightPositive" xml:space="preserve">
+    <value>Вага має бути невід'ємним числом.</value>
+    <comment>Серверна валідація DTO (Data Annotation).</comment>
+  </data>
+  <data name="Placeholder_Search" xml:space="preserve">
+    <value>Пошук</value>
   </data>
 </root>

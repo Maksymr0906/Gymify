@@ -117,19 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Continue" xml:space="preserve">
+  <data name="Btn_Cancel" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="Btn_Continue" xml:space="preserve">
     <value>Продовжити</value>
   </data>
-  <data name="Create Workout" xml:space="preserve">
+  <data name="Header_Title" xml:space="preserve">
     <value>Створити тренування</value>
   </data>
-  <data name="Description" xml:space="preserve">
+  <data name="Label_Description" xml:space="preserve">
     <value>Опис</value>
   </data>
-  <data name="IsPrivate" xml:space="preserve">
-    <value>Приватне?</value>
+  <data name="Label_IsPrivate" xml:space="preserve">
+    <value>Приватне тренування (видно лише вам)</value>
   </data>
-  <data name="Workout name" xml:space="preserve">
+  <data name="Label_Name" xml:space="preserve">
     <value>Назва тренування</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Створити тренування</value>
+  </data>
+  <data name="Placeholder_Description" xml:space="preserve">
+    <value>Опишіть свої цілі...</value>
+  </data>
+  <data name="Placeholder_Name" xml:space="preserve">
+    <value>напр. Знищення Ніг</value>
   </data>
 </root>

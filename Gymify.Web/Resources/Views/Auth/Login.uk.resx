@@ -117,8 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ChangePassword" xml:space="preserve">
+    <value>Змінити пароль</value>
+  </data>
+  <data name="DontHaveAccount" xml:space="preserve">
+    <value>Не зареєстровані?</value>
+  </data>
   <data name="Email" xml:space="preserve">
     <value>Електронна пошта</value>
+  </data>
+  <data name="ForgotPassword" xml:space="preserve">
+    <value>Забули пароль?</value>
   </data>
   <data name="LoginButton" xml:space="preserve">
     <value>Увійти</value>
@@ -126,7 +135,16 @@
   <data name="Password" xml:space="preserve">
     <value>Пароль</value>
   </data>
+  <data name="PleaseEnterDetails" xml:space="preserve">
+    <value>Введіть свої дані, щоб авторизуватись</value>
+  </data>
   <data name="RememberMe" xml:space="preserve">
     <value>Запам'ятати мене</value>
+  </data>
+  <data name="SignUp" xml:space="preserve">
+    <value>Зереєструватись</value>
+  </data>
+  <data name="WelcomeBack" xml:space="preserve">
+    <value>З поверненям</value>
   </data>
 </root>

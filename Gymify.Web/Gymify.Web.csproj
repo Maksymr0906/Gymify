@@ -123,6 +123,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -132,6 +133,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="MimeKit" Version="4.14.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -142,6 +144,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Resources\Views\Auth\SharedResource.en.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SharedResource.en.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\Views\Auth\SharedResource.uk.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SharedResource.uk.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\SharedResource.en.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SharedResource.uk.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="SharedResource.uk-UA.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Views\Main\Start.en.resx">
       <Generator></Generator>
     </EmbeddedResource>

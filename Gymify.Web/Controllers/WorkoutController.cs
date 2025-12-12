@@ -4,12 +4,13 @@ using Gymify.Application.Services.Interfaces;
 using Gymify.Application.ViewModels.Workout;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class WorkoutController : Controller
+    public class WorkoutController : BaseController
     {
         private readonly IWorkoutService _workoutService;
         private readonly IExerciseService _exerciseService;
@@ -34,6 +35,13 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GenerateWorkout(CreateWorkoutRequestDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                NotifyModelStateErrors();
+
+                return View("Create", dto);
+            }
+
             var userProfileId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
             var workout = await _workoutService.CreateWorkoutAsync(dto, userProfileId);
 
@@ -71,13 +79,26 @@ namespace Gymify.Web.Controllers
             return View(new List<UserExerciseDto>());
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> AddExercisesBatch(Guid workoutId, [FromForm] List<UserExerciseDto> exercises)
+        public async Task<IActionResult> AddExercisesBatch(Guid workoutId, [FromForm] List<AddUserExerciseDto> exercises)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Any())
+                                       .ToDictionary(
+                                           kvp => kvp.Key,
+                                           kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                                       );
+
+                return BadRequest(new { success = false, message = "Validation Error", errors = errors });
+            }
+
             try
             {
                 var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-                await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId);
+
+                await _userExerciseService.SyncWorkoutExercisesAsync(workoutId, exercises, currentUserId, IsUkrainian);
 
                 return Ok(new { success = true, message = "Exercise saved!" });
             }
@@ -93,7 +114,7 @@ namespace Gymify.Web.Controllers
             if (string.IsNullOrWhiteSpace(query))
                 return Json(new List<string>());
 
-            var exercises = await _exerciseService.FindByNameAsync(query);
+            var exercises = await _exerciseService.FindByNameAsync(query, IsUkrainian);
             return Json(exercises.Select(e => e.Name));
         }
 
@@ -111,7 +132,7 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Finish(CompleteWorkoutRequestDto dto)
         {
-            await _workoutService.CompleteWorkoutAsync(dto);
+            await _workoutService.CompleteWorkoutAsync(dto, IsUkrainian);
             return RedirectToAction("Index", "Main");
         }
 
@@ -121,7 +142,7 @@ namespace Gymify.Web.Controllers
             try
             {
                 var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value);
-                var model = await _workoutService.GetWorkoutDetailsViewModel(userId, workoutId);
+                var model = await _workoutService.GetWorkoutDetailsViewModel(userId, workoutId, IsUkrainian);
                 return View(model);
             }
             catch (KeyNotFoundException)
@@ -141,7 +162,7 @@ namespace Gymify.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetExercisesPartial(Guid workoutId)
         {
-            var exerciseDtos = await _userExerciseService.GetAllWorkoutExercisesAsync(workoutId);
+            var exerciseDtos = await _userExerciseService.GetAllWorkoutExercisesAsync(workoutId, IsUkrainian);
 
             return PartialView("_ExerciseListReadOnly", exerciseDtos);
         }
@@ -149,6 +170,19 @@ namespace Gymify.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateWorkoutInfo([FromBody] UpdateWorkoutRequestDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Any())
+                                       .ToDictionary(
+                                           kvp => kvp.Key,
+                                           kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                                       );
+
+                NotifyModelStateErrors();
+
+                return BadRequest(new { success = false, message = "Validation Error", errors = errors });
+            }
+
             try
             {
                 var currentUserId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());

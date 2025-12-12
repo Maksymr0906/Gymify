@@ -8,16 +8,15 @@ namespace Gymify.Persistence.Repositories;
 public class ExerciseRepository(GymifyDbContext context)
     : Repository<Exercise>(context), IExerciseRepository
 {
-    public async Task<IEnumerable<Exercise>> FindByNameAsync(string name)
-    {
-        return await Entities
-            .Where(e => e.Name.Contains(name))
-            .ToListAsync();
+    public async Task<IEnumerable<Exercise>> FindByNameAsync(string name, bool ukranianVer)
+    { 
+        return await Entities.Where(e => ukranianVer ? e.NameUk.Contains(name) : e.NameEn.Contains(name)).ToListAsync();
     }
 
-    public async Task<Exercise> GetByNameAsync(string name)
+    public async Task<Exercise> GetByNameAsync(string name, bool ukranianVer)
     {
-        return await Entities.FirstOrDefaultAsync(e => e.Name.ToLower() == name.ToLower());
+        return await Entities
+            .FirstOrDefaultAsync(e => ukranianVer ? e.NameUk.ToLower() == name.ToLower() : e.NameEn.ToLower() == name.ToLower());
     }
 
     public async Task<(List<Exercise> Exercises, int TotalCount)> GetFilteredAsync(
@@ -25,14 +24,15 @@ public class ExerciseRepository(GymifyDbContext context)
         ExerciseType? type,
         bool pendingOnly,
         int page,
-        int pageSize)
+        int pageSize,
+        bool ukranianVer)
     {
         var query = Entities.AsNoTracking();
 
         // 1. Пошук за назвою
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(e => e.Name.Contains(search));
+            query = ukranianVer ? query.Where(e => e.NameUk.Contains(search)) : query.Where(e => e.NameEn.Contains(search));
         }
 
         // 2. Фільтр по типу (Cardio, Strength...)
@@ -58,7 +58,7 @@ public class ExerciseRepository(GymifyDbContext context)
 
         // 5. Отримуємо сторінку даних
         var items = await query
-            .OrderBy(e => e.Name) // Сортуємо за алфавітом
+            .OrderBy(e => ukranianVer ? e.NameUk : e.NameEn) // Сортуємо за алфавітом
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

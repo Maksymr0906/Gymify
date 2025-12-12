@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = c.NativeName })
+        .ToList();
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"{Context.Request.Path}{Context.Request.QueryString}";
+    
+    // Поточна культура
+    var currentCultureName = requestCulture?.RequestCulture.UICulture.Name;
+}
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle gym-nav-link gym-lang-trigger" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="@Localizer["SelectLanguage"]">
+        <i class="fa-solid fa-globe"></i> 
+        <span style="text-transform: uppercase;">
+            @(currentCultureName == "uk-UA" ? "UA" : "EN")
+        </span>
+    </a>
+    
+    <ul class="dropdown-menu dropdown-menu-end gym-dropdown-menu" aria-labelledby="langDropdown">
+        @foreach (var culture in cultureItems)
+        {
+            var isActive = culture.Value == currentCultureName;
+
+            <li>
+                <form asp-controller="Main" 
+                      asp-action="SetLanguage" 
+                      asp-route-returnUrl="@returnUrl" 
+                      method="post" 
+                      class="d-inline w-100">
+                    
+                    <input type="hidden" name="culture" value="@culture.Value" />
+                    
+                    <button type="submit" class="dropdown-item gym-dropdown-item @(isActive ? "active-lang" : "")">
+                        @if(culture.Value == "uk-UA") 
+                        { 
+                            <span>🇺🇦 Українська</span> 
+                        }
+                        @if(culture.Value == "en-US") 
+                        { 
+                            <span>🇺🇸 English</span> 
+                        }
+                        
+                        @if(isActive)
+                        {
+                            <i class="fa-solid fa-check" style="margin-left: auto; color: var(--gym-orange);"></i>
+                        }
+                    </button>
+                </form>
+            </li>
+        }
+    </ul>
+</li>

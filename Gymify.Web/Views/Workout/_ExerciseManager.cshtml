@@ -7,61 +7,73 @@
 @{
     var workoutId = ViewData["WorkoutId"] ?? ViewBag.WorkoutId;
     var hideButtons = ViewData["HideSaveButtons"] as bool? ?? false;
-
     var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     var initialJson = JsonSerializer.Serialize(Model, jsonOptions);
 }
 
-<div class="ae-card-item" style="background-color: #fcfcfc;">
+<div class="ae-manager-card">
 
     <div class="ae-add-panel">
-        <div style="flex-grow: 1; min-width: 200px; position: relative;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["ExerciseName"]</label>
-            <input type="text" id="mgrName" class="ae-input-std" placeholder="@Localizer["Search"]" autocomplete="off">
+        <div style="flex-grow: 1; min-width: 250px; position: relative;">
+            <label class="ae-label-mini">@Localizer["Label_ExerciseName"]</label>
+            @* Додано maxlength="30", щоб браузер сам обмежував введення *@
+            <input type="text" id="mgrName" class="ae-input-std" 
+                   placeholder="@Localizer["Placeholder_Search"]..." 
+                   autocomplete="off" 
+                   maxlength="30"> 
             <ul id="mgrSuggestions" class="ae-suggestions" style="display:none;"></ul>
         </div>
-        <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Sets"]</label>
+        
+        <div class="ae-group-small">
+            <label class="ae-label-mini">@Localizer["Label_Sets"]</label>
             <input type="number" id="mgrSets" class="ae-input-std" value="3">
         </div>
-        <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Reps"]</label>
+        <div class="ae-group-small">
+            <label class="ae-label-mini">@Localizer["Label_Reps"]</label>
             <input type="number" id="mgrReps" class="ae-input-std" value="12">
         </div>
-        <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Kg"]</label>
+        <div class="ae-group-small">
+            <label class="ae-label-mini">@Localizer["Label_Kg"]</label>
             <input type="number" id="mgrWeight" class="ae-input-std" value="0" step="0.5">
         </div>
-        <div class="ae-group-small" style="width: 70px;">
-            <label class="ae-text-muted" style="font-size: 0.85rem; font-weight: 600;">@Localizer["Min"]</label>
-            <input type="number" id="mgrDuration" class="ae-input-std" value="0">
+        <div class="ae-group-small">
+            <label class="ae-label-mini">@Localizer["Label_Min"]</label>
+            <input type="number" id="mgrDuration" class="ae-input-std" value="0" step="0.5">
         </div>
+        
         <div>
-            <button type="button" id="mgrBtnAdd" class="ae-btn ae-btn-success" style="height: 45px;">@Localizer["Add"]</button>
+            <button type="button" id="mgrBtnAdd" class="gym-btn gym-btn-primary" style="height: 42px; margin-top: 19px;">
+                @Localizer["Btn_Add"]
+            </button>
         </div>
     </div>
 
     <form id="mgrForm" method="post" action="@Url.Action("AddExercisesBatch", "Workout")">
         <input type="hidden" name="workoutId" value="@workoutId" />
 
-        <div id="mgrList" class="ae-cards-grid">
+        <div id="mgrList" class="ae-list-container">
             <div id="mgrEmpty" class="ae-empty-state">
-                @Localizer["NoExercises"]
+                @Localizer["Msg_NoExercises"]
             </div>
+            
             @for (int i = 0; i < Model.Count; i++)
             {
-                <div class="ae-card-item">
+                <div class="ae-item-card">
                     <input type="hidden" name="exercises[@i].Id" value="@Model[i].Id" class="inp-id" />
                     <input type="hidden" name="exercises[@i].Name" value="@Model[i].Name" class="inp-name" />
-                    <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
-                        <span class="card-title-text" style="font-weight:bold; color:#2c3e50;">@Model[i].Name</span>
-                        <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">@Localizer["Remove"]</button>
+                    
+                    <div class="ae-item-header">
+                        <span class="ae-item-title">@Model[i].Name</span>
+                        <button type="button" class="gym-btn gym-btn-secondary ae-btn-remove" style="padding: 4px 10px; font-size: 12px; color: #e74c3c; border-color: #fadbd8;">
+                            @Localizer["Btn_Remove"]
+                        </button>
                     </div>
-                    <div class="ae-card-inputs-grid">
-                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Sets"]</label><input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" /></div>
-                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Reps"]</label><input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" /></div>
-                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Kg"]</label><input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" /></div>
-                        <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Min"]</label><input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" /></div>
+                    
+                    <div class="ae-item-grid">
+                        <div><label class="ae-label-mini">@Localizer["Label_Sets"]</label><input type="number" name="exercises[@i].Sets" value="@Model[i].Sets" class="ae-input-std inp-sets" /></div>
+                        <div><label class="ae-label-mini">@Localizer["Label_Reps"]</label><input type="number" name="exercises[@i].Reps" value="@Model[i].Reps" class="ae-input-std inp-reps" /></div>
+                        <div><label class="ae-label-mini">@Localizer["Label_Kg"]</label><input type="number" name="exercises[@i].Weight" value="@Model[i].Weight" class="ae-input-std inp-weight" step="0.5" /></div>
+                        <div><label class="ae-label-mini">@Localizer["Label_Min"]</label><input type="number" name="exercises[@i].DurationMinutes" value="@Model[i].DurationMinutes" class="ae-input-std inp-duration" step="0.5" /></div>
                     </div>
                 </div>
             }
@@ -69,119 +81,135 @@
 
         @if (!hideButtons)
         {
-            <div class="ae-mt-20" style="text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                <span id="mgrSaveStatus" style="display:none; font-weight:bold; color: #27ae60;"></span>
-
-                <button type="button" id="mgrBtnCancel" class="ae-btn ae-btn-outline">@Localizer["Cancel"]</button>
-                <button type="submit" id="mgrBtnSave" class="ae-btn ae-btn-primary">@Localizer["SaveChanges"]</button>
+            <div class="ae-flex-end" style="padding: 20px; background: #fcfcfc;">
+                <span id="mgrSaveStatus" style="display:none; font-weight:bold; color: #27ae60; margin-right: 10px;">@Localizer["Msg_Saved"]</span>
+                <button type="button" id="mgrBtnCancel" class="gym-btn gym-btn-secondary">@Localizer["Btn_Cancel"]</button>
+                <button type="submit" id="mgrBtnSave" class="gym-btn gym-btn-primary">@Localizer["Btn_SaveChanges"]</button>
             </div>
         }
     </form>
 </div>
 
 <template id="mgrTemplate">
-    <div class="ae-card-item">
+    <div class="ae-item-card">
         <input type="hidden" class="inp-id">
         <input type="hidden" class="inp-name">
-        <div class="ae-flex-row ae-justify-between ae-align-center ae-mb-20" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
-            <span class="card-title-text" style="font-weight:bold; color:#2c3e50;"></span>
-            <button type="button" class="ae-btn ae-btn-danger ae-btn-sm ae-btn-remove">@Localizer["Remove"]</button>
+        
+        <div class="ae-item-header">
+            <span class="ae-item-title card-title-text"></span>
+            <button type="button" class="gym-btn gym-btn-secondary ae-btn-remove" style="padding: 4px 10px; font-size: 12px; color: #e74c3c; border-color: #fadbd8;">
+                @Localizer["Btn_Remove"]
+            </button>
         </div>
-        <div class="ae-card-inputs-grid">
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Sets"]</label><input type="number" class="ae-input-std inp-sets"></div>
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Reps"]</label><input type="number" class="ae-input-std inp-reps"></div>
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Kg"]</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
-            <div><label class="ae-text-muted" style="font-size:0.75rem;">@Localizer["Min"]</label><input type="number" class="ae-input-std inp-duration"></div>
+        
+        <div class="ae-item-grid">
+            <div><label class="ae-label-mini">@Localizer["Label_Sets"]</label><input type="number" class="ae-input-std inp-sets"></div>
+            <div><label class="ae-label-mini">@Localizer["Label_Reps"]</label><input type="number" class="ae-input-std inp-reps"></div>
+            <div><label class="ae-label-mini">@Localizer["Label_Kg"]</label><input type="number" class="ae-input-std inp-weight" step="0.5"></div>
+            <div><label class="ae-label-mini">@Localizer["Label_Min"]</label><input type="number" class="ae-input-std inp-duration" step="0.5"></div>
         </div>
     </div>
 </template>
+
 <script>
     (function() {
-        // --- 1. ОТРИМУЄМО ПОЧАТКОВІ ДАНІ З СЕРВЕРА ---
-        // Html.Raw важливий, щоб не екранувати лапки
-        const initialData = @Html.Raw(initialJson);
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            msgSaved: '@Localizer["Msg_Saved"]',
+            msgError: '@Localizer["Msg_Error"]',
+            btnSaving: '@Localizer["Btn_Saving"]',
+            btnSaveChanges: '@Localizer["Btn_SaveChanges"]',
+            msgExerciseNameRequired: '@Localizer["Msg_ExerciseNameRequired"]', 
+            msgNameTooShort: '@Localizer["Msg_NameTooShort"]', // НОВИЙ КЛЮЧ
+            msgValidationFailedTitle: '@Localizer["Msg_ValidationFailedTitle"]'
+        };
 
+        const initialData = @Html.Raw(initialJson);
         const container = document.getElementById("mgrList");
         const emptyMsg = document.getElementById("mgrEmpty");
         const template = document.getElementById("mgrTemplate");
         const form = document.getElementById("mgrForm");
-
         const inName = document.getElementById("mgrName");
         const suggestions = document.getElementById("mgrSuggestions");
         const btnAdd = document.getElementById("mgrBtnAdd");
-
-        const btnSave = document.getElementById("mgrBtnSave");
-        const btnCancel = document.getElementById("mgrBtnCancel");
-        const statusMsg = document.getElementById("mgrSaveStatus");
-
-        // Підв'язуємо події видалення для того, що прийшло з сервера
-        bindRemoveEvents();
-        checkEmpty();
-
-        // --- 2. ЛОГІКА ВІДНОВЛЕННЯ (CANCEL) ---
-        if (btnCancel) {
-            btnCancel.addEventListener("click", function() {
-                // Замість reload, ми робимо Restore
-                restoreInitialState();
-
-                // І ховаємо редактор (якщо це Details page)
-                // Для цього ми просто "клікаємо" кнопку Cancel всередині Details логіки, 
-                // або кидаємо подію, або просто лишаємо це на Details.cshtml
-                // Але оскільки Details.cshtml слухає клік по цьому ID, там все спрацює само.
-            });
-        }
-
+        
         function restoreInitialState() {
-            console.log("Restoring state...", initialData);
-
-            // 1. Очищаємо контейнер (лишаємо тільки emptyMsg)
-            // Найбезпечніше: видалити всі .ae-card-item
-            container.querySelectorAll(".ae-card-item").forEach(el => el.remove());
-
-            // 2. Перебудовуємо з initialData
-            initialData.forEach(item => {
-                createCardDOM(item);
-            });
-
-            // 3. Скидаємо інпути додавання
+            container.querySelectorAll(".ae-item-card").forEach(el => el.remove()); 
+            initialData.forEach(item => createCardDOM(item));
             inName.value = "";
             document.getElementById("mgrSets").value = 3;
             document.getElementById("mgrReps").value = 12;
-
+            document.getElementById("mgrWeight").value = 0;
+            document.getElementById("mgrDuration").value = 0;
             reindex();
             checkEmpty();
         }
 
-        // --- УНІВЕРСАЛЬНА ФУНКЦІЯ СТВОРЕННЯ КАРТКИ (DOM) ---
         function createCardDOM(data) {
             const clone = template.content.cloneNode(true);
-            const card = clone.querySelector(".ae-card-item");
+            const card = clone.querySelector(".ae-item-card"); 
 
-            // Заповнюємо
+            const durationVal = data.durationMinutes !== undefined 
+                                ? data.durationMinutes 
+                                : (typeof data.duration === 'number' ? data.duration : 0);
+
             card.querySelector(".card-title-text").textContent = data.name;
             card.querySelector(".inp-id").value = data.id;
             card.querySelector(".inp-name").value = data.name;
-
-            // Важливо: дані можуть приходити як з сервера (camelCase через JSON options), так і з input
-            // Перевіряємо обидва варіанти або приводимо до спільного
             card.querySelector(".inp-sets").value = data.sets;
             card.querySelector(".inp-reps").value = data.reps;
             card.querySelector(".inp-weight").value = data.weight || 0;
-            // durationMinutes (C#) vs duration (JS input)
-            card.querySelector(".inp-duration").value = data.durationMinutes !== undefined ? data.durationMinutes : (data.duration || 0);
+            card.querySelector(".inp-duration").value = durationVal;
 
             card.querySelector(".ae-btn-remove").addEventListener("click", removeCard);
             container.appendChild(card);
         }
 
-        // --- ПОШУК ---
+        function removeCard(e) {
+            e.target.closest(".ae-item-card").remove(); 
+            reindex();
+            checkEmpty();
+        }
+
+        function bindRemoveEvents() {
+            if(container) {
+                container.querySelectorAll(".ae-btn-remove").forEach(btn => {
+                    btn.removeEventListener("click", removeCard);
+                    btn.addEventListener("click", removeCard);
+                });
+            }
+        }
+
+        function reindex() {
+            const cards = container.querySelectorAll(".ae-item-card"); 
+            cards.forEach((card, index) => {
+                setName(card, ".inp-id", `exercises[${index}].Id`);
+                setName(card, ".inp-name", `exercises[${index}].Name`);
+                setName(card, ".inp-sets", `exercises[${index}].Sets`);
+                setName(card, ".inp-reps", `exercises[${index}].Reps`);
+                setName(card, ".inp-weight", `exercises[${index}].Weight`);
+                setName(card, ".inp-duration", `exercises[${index}].Duration`);
+            });
+        }
+
+        function setName(parent, selector, newName) {
+            const el = parent.querySelector(selector);
+            if (el) el.name = newName;
+        }
+
+        function checkEmpty() {
+            if(!container) return;
+            const hasItems = container.querySelectorAll(".ae-item-card").length > 0;
+            if(emptyMsg) emptyMsg.style.display = hasItems ? "none" : "block";
+        }
+
+        // Search logic
         let timeout;
         if(inName) {
             inName.addEventListener("input", function() {
                 const q = this.value.trim();
                 clearTimeout(timeout);
                 if (q.length < 2) { suggestions.style.display = "none"; return; }
-
                 timeout = setTimeout(() => {
                     fetch(`/Workout/SearchExercises?query=${encodeURIComponent(q)}`)
                         .then(res => res.json())
@@ -202,116 +230,152 @@
             document.addEventListener("click", e => { if (e.target !== inName && suggestions) suggestions.style.display = "none"; });
         }
 
-        // --- ГЕНЕРАЦІЯ UUID ---
+        // UUID
         function generateUUID() {
             if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+            return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ (typeof crypto !== 'undefined' ? crypto.getRandomValues(new Uint8Array(1))[0] : 0) & 15 >> c / 4).toString(16));
         }
 
-        // --- ДОДАВАННЯ ---
         if(btnAdd) {
             btnAdd.addEventListener("click", () => {
                 const name = inName.value.trim();
-                if (!name) return;
+                
+                // --- ВАЛІДАЦІЯ ---
+                
+                // 1. Перевірка на пустоту
+                if (!name) { 
+                    showError(JS_RESOURCES.msgExerciseNameRequired);
+                    inName.focus();
+                    return;
+                }
 
+                // 2. Перевірка на довжину (мін 3 символи)
+                // Максимум 30 обмежується HTML атрибутом maxlength="30"
+                if (name.length < 3) {
+                    showError(JS_RESOURCES.msgNameTooShort);
+                    inName.focus();
+                    return;
+                }
+
+                // Всередині btnAdd.addEventListener
                 const data = {
                     id: generateUUID(),
                     name: name,
                     sets: document.getElementById("mgrSets").value,
                     reps: document.getElementById("mgrReps").value,
                     weight: document.getElementById("mgrWeight").value,
-                    duration: document.getElementById("mgrDuration").value
+                    durationMinutes: parseFloat(document.getElementById("mgrDuration").value) || 0
                 };
-
                 createCardDOM(data);
-
-                inName.value = ""; // Очистка поля пошуку
+                inName.value = "";
                 reindex();
                 checkEmpty();
             });
         }
 
-        function removeCard(e) {
-            e.target.closest(".ae-card-item").remove();
-            reindex();
-            checkEmpty();
-        }
-
-        function bindRemoveEvents() {
-            if(container) {
-                container.querySelectorAll(".ae-btn-remove").forEach(btn => {
-                    btn.removeEventListener("click", removeCard); // На всяк випадок, щоб не дублювати
-                    btn.addEventListener("click", removeCard);
-                });
+        function showError(msg) {
+            if(typeof alertify !== 'undefined') {
+                alertify.error(msg, 5);
+            } else {
+                alert(msg); 
             }
         }
 
-        function reindex() {
-            const cards = container.querySelectorAll(".ae-card-item");
-            cards.forEach((card, index) => {
-                setName(card, ".inp-id", `exercises[${index}].Id`);
-                setName(card, ".inp-name", `exercises[${index}].Name`);
-                setName(card, ".inp-sets", `exercises[${index}].Sets`);
-                setName(card, ".inp-reps", `exercises[${index}].Reps`);
-                setName(card, ".inp-weight", `exercises[${index}].Weight`);
-                setName(card, ".inp-duration", `exercises[${index}].DurationMinutes`);
-            });
-        }
+        // Cancel / Save logic (Buttons)
+        const btnCancel = document.getElementById("mgrBtnCancel");
+        const btnSave = document.getElementById("mgrBtnSave");
+        const statusMsg = document.getElementById("mgrSaveStatus");
 
-        function setName(parent, selector, newName) {
-            const el = parent.querySelector(selector);
-            if (el) el.name = newName;
-        }
+        if (btnCancel) btnCancel.addEventListener("click", restoreInitialState);
 
-        function checkEmpty() {
-            if(!container) return;
-            const hasItems = container.querySelectorAll(".ae-card-item").length > 0;
-            if(emptyMsg) emptyMsg.style.display = hasItems ? "none" : "block"; // Grid/Block fix
-        }
-
-        // --- AJAX SAVE ---
         if(form) {
             form.addEventListener("submit", function(e) {
                 e.preventDefault();
-                if (btnSave) { btnSave.innerHTML = 'Saving...'; btnSave.disabled = true; }
+                if (btnSave) { 
+                    btnSave.innerHTML = JS_RESOURCES.btnSaving; 
+                    btnSave.disabled = true; 
+                }
                 if (statusMsg) statusMsg.style.display = "none";
-
                 reindex();
                 const formData = new FormData(form);
-
+                
                 fetch(form.action, { method: 'POST', body: formData })
-                .then(res => {
-                    if (res.ok) return res.json();
-                    throw new Error("Server Error");
+                .then(res => { 
+                    if (res.ok) return res.json(); 
+                    
+                    return res.json().then(data => {
+                        throw { serverData: data, status: res.status };
+                    });
                 })
                 .then(data => {
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
                         statusMsg.style.color = "#28a745";
-                        statusMsg.innerHTML = '<i class="bi bi-check-circle"></i> Saved!';
+                        statusMsg.innerHTML = JS_RESOURCES.msgSaved;
                         setTimeout(() => { statusMsg.style.display = "none"; }, 2000);
                     }
-
-                    // ❗ ВАЖЛИВО: Оновлюємо "знімок" даних
-                    // Тепер "оригінальні" дані - це те, що ми щойно зберегли.
-                    // Це треба, щоб якщо натиснути Cancel ПІСЛЯ Save, воно не відкотилось до старту сесії.
-                    // Ми могли б оновити initialData з форми, але простіше перезавантажити сторінку подією
-                    // або просто залишити як є (Details перезавантажить вюшку)
-
                     document.dispatchEvent(new CustomEvent('exercises-saved'));
                 })
-                .catch(err => {
-                    console.error(err);
+                .catch(error => {
+                    console.error("Save Error:", error);
+                    
+                    let displayMessage = JS_RESOURCES.msgError || "An unexpected error occurred.";
+                    
+                    if (error.serverData && error.serverData.errors) {
+                        const errors = error.serverData.errors;
+                        let errorDetails = "";
+                        let indexMap = {};
+
+                        container.querySelectorAll(".ae-item-card").forEach((card, index) => {
+                            const name = card.querySelector(".inp-name").value;
+                            indexMap[`exercises[${index}].`] = `**${name}**: `;
+                        });
+
+                        for (const key in errors) {
+                            if (errors.hasOwnProperty(key) && errors[key].length > 0) {
+                                let exerciseName = "";
+                                for (const prefix in indexMap) {
+                                    if (key.startsWith(prefix)) {
+                                        exerciseName = indexMap[prefix];
+                                        break;
+                                    }
+                                }
+                                const errorList = errors[key].join(", ");
+                                errorDetails += `${exerciseName}${errorList}<br>`;
+                            }
+                        }
+                        
+                        if (errorDetails) {
+                            displayMessage = `<strong>${JS_RESOURCES.msgValidationFailedTitle}</strong>:<br>${errorDetails}`;
+                        } else if (error.serverData && error.serverData.message) {
+                            displayMessage = error.serverData.message;
+                        }
+                    }
+                    
+                    if(typeof alertify !== 'undefined') {
+                        alertify.error(displayMessage, 0);
+                    } else {
+                        alert(displayMessage.replace(/<[^>]*>?/gm, ''));
+                    }
+
                     if (statusMsg) {
                         statusMsg.style.display = "inline-block";
                         statusMsg.style.color = "#dc3545";
-                        statusMsg.textContent = "Error saving!";
+                        statusMsg.textContent = JS_RESOURCES.msgError;
                     }
                 })
                 .finally(() => {
-                    if (btnSave) { btnSave.innerHTML = "Save Changes"; btnSave.disabled = false; }
+                    if (btnSave) { 
+                        btnSave.innerHTML = JS_RESOURCES.btnSaveChanges; 
+                        btnSave.disabled = false; 
+                    }
                 });
             });
         }
+
+        // Init
+        bindRemoveEvents();
+        checkEmpty();
+
     })();
 </script>

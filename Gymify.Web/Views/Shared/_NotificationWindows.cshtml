@@ -1,0 +1,67 @@
+﻿@using Newtonsoft.Json
+
+@if (TempData["QuickSuccess"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'bottom-right');
+            var msg = @Json.Serialize(TempData["QuickSuccess"]);
+            alertify.success(msg, 5); 
+        });
+    </script>
+}
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'bottom-right');
+            var msg = @Json.Serialize(TempData["Success"]);
+            alertify.success(msg, 0);
+        });
+    </script>
+}
+
+@if (TempData["QuickError"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'bottom-right');
+            var msg = @Json.Serialize(TempData["QuickError"]);
+            alertify.error(msg, 5); 
+        });
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'bottom-right');
+            var msg = @Json.Serialize(TempData["Error"]);
+            alertify.error(msg, 0); 
+        });
+    </script>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'bottom-right');
+            var msg = @Json.Serialize(TempData["Warning"]);
+            alertify.warning(msg, 0);
+        });
+    </script>
+}
+
+@if (TempData["Message"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            alertify.set('notifier','position', 'bottom-right');
+            var msg = @Json.Serialize(TempData["Message"]);
+            alertify.message(msg, 0);
+        });
+    </script>
+}

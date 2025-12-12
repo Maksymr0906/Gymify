@@ -8,12 +8,12 @@ public class UserExerciseDto
     public int Type { get; set; }
     public int? Sets { get; set; }
     public int? Reps { get; set; }
-    public int? Weight { get; set; }
+    public double? Weight { get; set; }
     public int EarnedXP { get; set; }
     public TimeSpan? Duration { get; set; }
-    public int DurationMinutes
+    public double DurationMinutes
     {
-        get => Duration.HasValue ? (int)Duration.Value.TotalMinutes : 0;
+        get => Duration.HasValue ? (double)Duration.Value.TotalMinutes : 0;
         set => Duration = TimeSpan.FromMinutes(value);
     }
 

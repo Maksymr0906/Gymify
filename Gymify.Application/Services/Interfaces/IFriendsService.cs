@@ -14,6 +14,7 @@ public interface IFriendsService
     Task AcceptFriendRequestAsync(Guid senderId, Guid currentUserId);
     Task DeclineFriendRequestAsync(Guid senderId, Guid currentUserId);
     Task CancelFriendRequestAsync(Guid receiverId, Guid currentUserId);
+    Task RemoveFriendAsync(Guid currentUserId, Guid friendId);
     Task<List<FriendDto>> GetFriendsAsync(Guid userId);
     Task<List<FriendDto>> GetIncomingInvitesAsync(Guid userId);
     Task<List<FriendDto>> GetOutgoingInvitesAsync(Guid userId);

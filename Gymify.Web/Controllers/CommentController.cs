@@ -2,16 +2,16 @@
 using Gymify.Application.Services.Implementation;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Enums;
-using Gymify.Application.ViewModels; // Де лежить ViewModel
+using Gymify.Application.ViewModels; 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class CommentController : Controller
+    public class CommentController : BaseController
     {
-        private readonly ICommentService _commentService; // Твій сервіс
+        private readonly ICommentService _commentService; 
 
         public CommentController(ICommentService commentService)
         {
@@ -20,39 +20,55 @@ namespace Gymify.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddComment(Guid targetId, CommentTargetType targetType, string content)
+        public async Task<IActionResult> AddComment([FromForm] CreateCommentRequestDto request)
         {
-            if (string.IsNullOrWhiteSpace(content)) return BadRequest("Content required");
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Any())
+                                       .ToDictionary(
+                                            kvp => kvp.Key,
+                                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                                       );
+
+                return BadRequest(new { success = false, message = "Validation Error", errors = errors });
+            }
 
             try
             {
                 var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-                
-                var commentDto = await _commentService.UploadComment(userId, targetId, targetType, content);
+                var commentDto = await _commentService.UploadComment(userId, request.TargetId, request.TargetType, request.Content);
 
                 return Ok(commentDto);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditComment(Guid commentId, string newContent)
+        public async Task<IActionResult> EditComment([FromForm] EditCommentRequestDto request)
         {
-            if (string.IsNullOrWhiteSpace(newContent)) return BadRequest("Content required");
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Where(x => x.Value.Errors.Any())
+                                       .ToDictionary(
+                                            kvp => kvp.Key,
+                                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                                       );
+
+                return BadRequest(new { success = false, message = "Validation Error", errors = errors });
+            }
 
             try
             {
                 var userId = Guid.Parse(User.FindFirst("UserProfileId")?.Value ?? Guid.Empty.ToString());
-                // Припускаємо, що у тебе є метод в сервісі, який перевіряє права і оновлює
-                await _commentService.UpdateCommentAsync(commentId, userId, newContent);
-                return Ok();
+                await _commentService.UpdateCommentAsync(request.CommentId, userId, request.NewContent);
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 

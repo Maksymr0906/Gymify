@@ -1,14 +1,27 @@
-﻿using Gymify.Application.DTOs.Chat;
+﻿using AutoMapper.Execution;
+using Gymify.Application.DTOs.Chat;
 using Gymify.Application.Services.Interfaces;
 using Gymify.Data.Entities;
 using Gymify.Data.Enums;
 using Gymify.Data.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gymify.Application.Services.Implementation;
 
-public class ChatService(IUnitOfWork unitOfWork) : IChatService
+public class ChatService(IUnitOfWork unitOfWork, INotificationService notificationService, ChatMembersTrackerService chatMembersTrackerService) : IChatService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly INotificationService _notificationService = notificationService;
+    private readonly ChatMembersTrackerService _chatMembersTrackerService = chatMembersTrackerService;
+
+    public async Task<List<Guid>> GetChatParticipantIdsAsync(Guid chatId)
+    {
+        var chat = await _unitOfWork.UserChatRepository.GetChatMembersAsync(chatId);
+
+        if (chat == null) return new List<Guid>();
+
+        return chat.Select(u => u.UserProfileId).ToList();
+    }
 
     public async Task<List<ChatDto>> GetUserChatsAsync(Guid userId)
     {
@@ -17,31 +30,38 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
         foreach (var uc in userChats)
         {
-            // 1. ОГОЛОШЕННЯ: Ініціалізуємо null на початку кожної ітерації
+            string chatName = "Group Chat";
+            string chatImage = "https://localhost:7102/Images/DefaultAvatar.png";
             Guid? targetUserId = null;
-
-            string chatName = "Unknown";
-            string chatImage = "/images/default.png";
 
             if (uc.Chat.Type == ChatType.Private)
             {
-                // Шукаємо співрозмовника
                 var otherMember = uc.Chat.Members.FirstOrDefault(m => m.UserProfileId != userId);
-
                 if (otherMember != null)
                 {
                     chatName = otherMember.UserProfile.ApplicationUser?.UserName ?? "Unknown";
-                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png";
-
-                    // 2. ПРИСВОЄННЯ: Якщо це приватний чат, беремо ID друга
+                    chatImage = otherMember.UserProfile.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png";
                     targetUserId = otherMember.UserProfileId;
                 }
             }
             else
             {
-                // Для груп targetUserId залишається null
                 chatName = uc.Chat.Name ?? "Group Chat";
-                // chatImage = ...
+            }
+
+            var allMessages = await _unitOfWork.MessageRepository.GetMessagesByChatIdAsync(uc.ChatId);
+
+            int unreadCount = 0;
+            foreach (var msg in allMessages)
+            {
+                if (msg.SenderId != userId)
+                {
+                    bool isRead = await _unitOfWork.MessageReadStatusRepository.IsReadAsync(msg.Id, userId);
+                    if (!isRead)
+                    {
+                        unreadCount++;
+                    }
+                }
             }
 
             result.Add(new ChatDto
@@ -53,76 +73,123 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
                 LastMessageTime = uc.Chat.LastMessage?.CreatedAt,
                 IsPrivate = uc.Chat.Type == ChatType.Private,
                 TargetUserId = targetUserId,
-                LastMessageId = uc.Chat.LastMessage?.Id
+                LastMessageId = uc.Chat.LastMessage?.Id,
+                UnreadCount = unreadCount 
             });
         }
 
-        return result;
+        return result.OrderByDescending(c => c.LastMessageTime).ToList();
+    }
+
+    public async Task MarkChatAsReadAsync(Guid chatId, Guid userId)
+    {
+        var allMessages = await _unitOfWork.MessageRepository.GetMessagesByChatIdAsync(chatId);
+
+        var receivedMessages = allMessages.Where(m => m.SenderId != userId);
+
+        foreach (var msg in receivedMessages)
+        {
+
+            await _unitOfWork.MessageReadStatusRepository.CreateAsync(new MessageReadStatus
+            {
+                MessageId = msg.Id,
+                UserProfileId = userId
+            });
+        }
+
+        await _unitOfWork.SaveAsync();
     }
 
     public async Task<List<MessageDto>> GetChatHistoryAsync(Guid chatId, Guid currentUserId)
     {
-        // Перевірка доступу: чи є юзер учасником чату?
         var membership = await _unitOfWork.UserChatRepository.GetByChatAndUserAsync(chatId, currentUserId);
         if (membership == null) throw new UnauthorizedAccessException("You are not a member of this chat.");
 
+        await MarkChatAsReadAsync(chatId, currentUserId);
+
         var messages = await _unitOfWork.MessageRepository.GetMessagesByChatIdAsync(chatId);
 
-        // Мапимо і розвертаємо (щоб старі були зверху, як у діалозі)
         return messages.Select(m => new MessageDto
         {
             Id = m.Id,
             ChatId = m.ChatId,
             SenderId = m.SenderId,
             SenderName = m.Sender.ApplicationUser?.UserName ?? "Unknown",
-            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png",
+            SenderAvatarUrl = m.Sender.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Content = m.Content,
             CreatedAt = m.CreatedAt,
-            IsMe = m.SenderId == currentUserId // Важливо для CSS класів (справа/зліва)
+            IsMe = m.SenderId == currentUserId
         })
-        .OrderBy(m => m.CreatedAt) // Старі зверху
+        .OrderBy(m => m.CreatedAt)
         .ToList();
     }
 
     public async Task<MessageDto> SaveMessageAsync(Guid chatId, Guid senderId, string content)
     {
-        // 1. Перевірка доступу (чи є юзер учасником)
-        var member = await _unitOfWork.UserChatRepository.GetByChatAndUserAsync(chatId, senderId);
-        if (member == null) throw new UnauthorizedAccessException("User is not a member of this chat");
+        if (string.IsNullOrWhiteSpace(content) || content.Length > 1000)
+            throw new ArgumentException("Invalid content");
 
-        // 2. Створення повідомлення
+        var member = await _unitOfWork.UserChatRepository.GetByChatAndUserAsync(chatId, senderId);
+        if (member == null) throw new UnauthorizedAccessException("Not a member");
+
         var message = new Message
         {
             Id = Guid.NewGuid(),
             ChatId = chatId,
             SenderId = senderId,
-            Content = content,
-            CreatedAt = DateTime.UtcNow
+            Content = content
         };
 
         await _unitOfWork.MessageRepository.CreateAsync(message);
 
-        // 3. Оновлення "Останнього повідомлення" в чаті (для сортування списку)
         var chat = await _unitOfWork.ChatRepository.GetByIdAsync(chatId);
         chat.LastMessageId = message.Id;
         await _unitOfWork.ChatRepository.UpdateAsync(chat);
 
+        await _unitOfWork.MessageReadStatusRepository.CreateAsync(new MessageReadStatus
+        {
+            MessageId = message.Id,
+            UserProfileId = senderId
+        });
+
         await _unitOfWork.SaveAsync();
 
-        // 4. Повертаємо DTO для відправки клієнтам
-        // Дістаємо профіль автора з екіпіруванням (щоб взяти аватар)
         var senderProfile = await _unitOfWork.UserProfileRepository.GetAllCredentialsAboutUserByIdAsync(senderId);
 
-        var avatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "/images/default-avatar.png";
-        var senderName = senderProfile?.ApplicationUser?.UserName ?? "Unknown";
+        var members = await _unitOfWork.UserChatRepository.GetChatMembersAsync(chatId);
+        var recipients = members.Where(m => m.UserProfileId != senderId).ToList();
+
+        foreach (var recipient in recipients)
+        {
+            bool isWatchingNow = _chatMembersTrackerService.IsUserActiveInChat(recipient.UserProfileId, chatId);
+
+            bool isBrowsingList = _chatMembersTrackerService.IsUserBrowsingChats(recipient.UserProfileId);
+
+            if (isWatchingNow || isBrowsingList)
+            {
+                continue; 
+            }
+
+            var unreadCount = await _unitOfWork.MessageRepository.CountUnreadMessagesAsync(chatId, recipient.UserProfileId);
+
+            if (unreadCount == 1)
+            {
+                await _notificationService.SendNotificationAsync(
+                    recipient.UserProfileId,
+                    $"New message from {senderProfile?.ApplicationUser?.UserName ?? "Unknown"}",
+                    $"Нове повідомлення від {senderProfile?.ApplicationUser?.UserName ?? "Unknown"}",
+                    $"/Chat?openChatId={chatId}"
+                );
+            }
+        }
 
         return new MessageDto
         {
             Id = message.Id,
             ChatId = chatId,
             SenderId = senderId,
-            SenderName = senderName, // <--- ЗАПОВНЮЄМО
-            SenderAvatarUrl = avatarUrl, // <--- ЗАПОВНЮЄМО
+            SenderName = senderProfile?.ApplicationUser?.UserName ?? "Unknown",
+            SenderAvatarUrl = senderProfile?.Equipment?.Avatar?.ImageURL ?? "https://localhost:7102/Images/DefaultAvatar.png",
             Content = message.Content,
             CreatedAt = message.CreatedAt,
             IsMe = true
@@ -130,9 +197,6 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
     }
     public async Task<Guid> GetOrCreatePrivateChatAsync(Guid currentUserId, Guid targetUserId)
     {
-        // 1. Спроба знайти існуючий приватний чат
-        // Це складний запит: шукаємо чат типу Private, де є обидва юзери
-        // Але ми можемо схитрувати: якщо вони друзі, у них в таблиці Friendship вже є ChatId.
 
         var friendship = await _unitOfWork.FriendshipRepository.GetByUsersAsync(currentUserId, targetUserId);
         if (friendship != null)
@@ -140,20 +204,13 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
             return friendship.ChatId;
         }
 
-        // Якщо вони не друзі (але ти дозволяєш писати), або Friendship.ChatId чомусь пустий (стара база),
-        // то треба шукати в таблиці UserChats перетином.
-        // ... (для простоти поки опустимо складний SQL пошук, покладемося на Friendship) ...
-
-        // 2. Якщо чату немає - створюємо новий
         var newChat = new Chat
         {
             Id = Guid.NewGuid(),
             Type = ChatType.Private,
-            CreatedAt = DateTime.UtcNow
         };
         await _unitOfWork.ChatRepository.CreateAsync(newChat);
 
-        // Додаємо учасників
         await _unitOfWork.UserChatRepository.CreateAsync(new UserChat { ChatId = newChat.Id, UserProfileId = currentUserId });
         await _unitOfWork.UserChatRepository.CreateAsync(new UserChat { ChatId = newChat.Id, UserProfileId = targetUserId });
 
@@ -164,18 +221,20 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
     public async Task<MessageDto> EditMessageAsync(Guid messageId, Guid userId, string newContent)
     {
+        if (string.IsNullOrWhiteSpace(newContent) || newContent.Length > 1000)
+        {
+            throw new ArgumentException("Invalid message content.");
+        }
+
         var msg = await _unitOfWork.MessageRepository.GetByIdAsync(messageId);
         if (msg == null) throw new Exception("Message not found");
         if (msg.SenderId != userId) throw new UnauthorizedAccessException("Not your message");
 
         msg.Content = newContent;
-        // До речі, у сутності Message варто додати поле IsEdited (bool)
-        // msg.IsEdited = true; 
 
         await _unitOfWork.MessageRepository.UpdateAsync(msg);
         await _unitOfWork.SaveAsync();
 
-        // Повертаємо оновлений DTO (можна спрощено)
         return new MessageDto
         {
             Id = msg.Id,
@@ -193,31 +252,22 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
 
         var chatId = msg.ChatId;
 
-        // Видаляємо
         await _unitOfWork.MessageRepository.DeleteByIdAsync(messageId);
-        // (Save поки не робимо, зробимо в кінці разом з оновленням чату)
 
-        // Перевіряємо, чи це було останнє повідомлення в чаті
         var chat = await _unitOfWork.ChatRepository.GetByIdAsync(chatId);
 
         if (chat.LastMessageId == messageId)
         {
-            // Так, це було останнє. Треба знайти нове останнє.
-            // Важливо: Оскільки ми ще не зробили SaveAsync, поточне повідомлення ще технічно є в базі,
-            // тому беремо "передостаннє" або робимо Save спочатку.
-            // Простіше зробити Save спочатку.
             await _unitOfWork.SaveAsync();
 
-            // Шукаємо нове останнє
             var newLastMsg = await _unitOfWork.MessageRepository.FindLastMessageAsync(chatId);
 
             chat.LastMessageId = newLastMsg?.Id;
-            chat.LastMessage = newLastMsg; // Для оновлення навігаційної властивості
+            chat.LastMessage = newLastMsg; 
 
             await _unitOfWork.ChatRepository.UpdateAsync(chat);
             await _unitOfWork.SaveAsync();
-
-            // Повертаємо інфо для оновлення UI
+            
             return new ChatDto
             {
                 ChatId = chatId,
@@ -227,9 +277,8 @@ public class ChatService(IUnitOfWork unitOfWork) : IChatService
         }
         else
         {
-            // Це було не останнє повідомлення, просто зберігаємо видалення
             await _unitOfWork.SaveAsync();
-            return null; // UI оновлювати не треба (в плані прев'ю)
+            return null; 
         }
     }
 }

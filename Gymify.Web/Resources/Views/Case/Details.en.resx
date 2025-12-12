@@ -117,16 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Details_Title" xml:space="preserve">
-    <value>Case Details</value>
+  <data name="Alt_Reward" xml:space="preserve">
+    <value>Reward</value>
   </data>
-  <data name="OkButton" xml:space="preserve">
+  <data name="Btn_Ok" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="OpenCaseButton" xml:space="preserve">
+  <data name="Btn_OpenAgain" xml:space="preserve">
+    <value>Open Again</value>
+  </data>
+  <data name="Btn_OpenCase" xml:space="preserve">
     <value>Open Case</value>
   </data>
-  <data name="RewardTitle" xml:space="preserve">
-    <value>Your reward</value>
+  <data name="Btn_Opening" xml:space="preserve">
+    <value>Opening...</value>
+  </data>
+  <data name="Header_Reward" xml:space="preserve">
+    <value>You received!</value>
+  </data>
+  <data name="Msg_CaseOutOfStock" xml:space="preserve">
+    <value>You don't have case of this type</value>
+  </data>
+  <data name="Msg_ErrorGeneric" xml:space="preserve">
+    <value>Error opening case.</value>
+  </data>
+  <data name="Msg_ServerError" xml:space="preserve">
+    <value>Server error</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Open Case</value>
+  </data>
+  <data name="Placeholder_ItemName" xml:space="preserve">
+    <value>Item Name</value>
+  </data>
+  <data name="Placeholder_Rarity" xml:space="preserve">
+    <value>Common</value>
   </data>
 </root>

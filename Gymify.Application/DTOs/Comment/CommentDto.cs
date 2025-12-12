@@ -1,4 +1,5 @@
 ﻿using Gymify.Data.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gymify.Application.DTOs.Comment;
 
@@ -14,4 +15,6 @@ public class CommentDto
     public DateTime CreatedAt { get; set; }
     public bool CanDelete { get; set; } 
     public bool IsApproved { get; set; } 
+    public bool IsRejected { get; set; } 
+
 }

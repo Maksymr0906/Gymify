@@ -17,7 +17,11 @@ public partial class NotificationConfiguration(SeedDataOptions seedDataOptions)
            .IsRequired()
            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-        builder.Property(n => n.Content)
+        builder.Property(n => n.ContentEn)
+            .IsRequired()
+            .HasMaxLength(500);
+        
+        builder.Property(n => n.ContentUk)
             .IsRequired()
             .HasMaxLength(500);
 
@@ -29,7 +33,8 @@ public partial class NotificationConfiguration(SeedDataOptions seedDataOptions)
             {
                 Id = n.Id,
                 CreatedAt = n.CreatedAt,
-                Content = n.Content,
+                ContentEn = n.ContentEn,
+                ContentUk = n.ContentUk,
                 Type = (NotificationType)n.Type,
                 UserProfileId = n.UserProfileId,
             })

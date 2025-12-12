@@ -7,7 +7,7 @@ public record UserProfileSeedData
     public required DateTime CreatedAt { get; init; }
     public required int TotalWorkouts { get; init; } = 0;
     public required int WorkoutStreak { get; init; } = 0;
-    public required int TotalWeightLifted { get; init; } = 0;
+    public required double TotalWeightLifted { get; init; } = 0;
     public required int TotalKmRunned { get; init; } = 0;
     public required int StrengthExercisesCompleted { get; init; } = 0;
     public required int CardioExercisesCompleted { get; init; } = 0;

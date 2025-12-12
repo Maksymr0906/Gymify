@@ -1,139 +1,179 @@
 ﻿@model Gymify.Application.ViewModels.UserItems.UserItemsViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Inventory";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
-<div id="itemModal" class="modal hidden">
-    <div class="modal-content">
-        <h2 id="modalName"></h2>
-        <div class="drop-image-containter">
-            <img id="modalImage" src="" width="150" />
-        </div>
-        <p id="modalRarity"></p>
-        <p id="modalDescription"></p>
-        <form id="openCaseForm" method="post" asp-action="GoToCasePage">
-            <input type="hidden" name="caseId" id="modalCaseId" />
-            <button type="submit" id="openCaseBtn" class="hidden">Open Case</button>
-        </form>
-        <button onclick="closeModal()">Close</button>
-    </div>
-</div>
+<div class="inventory-page-wrapper">
 
-<div class="InventoryContainer">
     @foreach (var group in Model.Items.GroupBy(i => i.Type))
     {
-        <div class="InventoryBlock">
-            <h2 class="InventoryTitle">
+            <div class="inventory-section">
+                <h2 class="inventory-section-title">
+                @* Логіка вибору назви секції перекладена *@
                 @(group.Key switch
                 {
-                    1 => "Background",
-                    2 => "Avatar",
-                    3 => "Border",
-                    4 => "Title",
-                    _ => "Unknown"
+                    1 => Localizer["Type_Backgrounds"],
+                    2 => Localizer["Type_Avatars"],
+                    3 => Localizer["Type_Frames"],
+                    4 => Localizer["Type_Titles"],
+                    _ => Localizer["Type_Misc"]
                 })
-        </h2>
-        <div class="Inventory">
-            @foreach (var item in group)
+                </h2>
+
+                <div class="inventory-grid">
+                @foreach (var item in group)
                 {
                     var isTitle = group.Key == 4;
 
-                    if (isTitle)
-                    {
-                        <div class="UserItem TitleBox"
-                             data-id="@item.Id"
-                             data-name="@item.Name"
-                             data-description="@item.Description"
-                             data-rarity="@item.RarityName"
-                             data-image="@item.ImageURL"
-                             onclick="showItemModal(this)">
-                            @item.Name
-                        </div>
-                    }
-                    else
-                    {
-                        <img src="@item.ImageURL"
-                             alt="@item.Name"
-                             class="UserItem"
-                             data-id="@item.Id"
-                             data-name="@item.Name"
-                             data-description="@item.Description"
-                             data-rarity="@item.RarityName"
-                             data-image="@item.ImageURL"
-                             onclick="showItemModal(this)" />
-                    }
+                            <div class="inventory-card @(isTitle ? "card-type-title" : "")"
+                                 onclick="showItemModal(this)"
+                                 data-id="@item.Id"
+                                 data-name="@item.Name"
+                                 data-description="@item.Description"
+                                 data-rarity="@item.RarityName"
+                                 data-image="@item.ImageURL"
+                                 data-istitle="@isTitle">
+
+                        @if (isTitle)
+                        {
+                                            <div class="inventory-title-badge">@item.Name</div>
+                        }
+                        else
+                        {
+                                            <div class="inventory-img-container">
+                                                <img src="@item.ImageURL" alt="@item.Name" loading="lazy" />
+                                            </div>
+                        }
+                                <div class="inventory-card-name">@item.Name</div>
+                            </div>
                 }
+                </div>
             </div>
-        </div>
     }
 
-    <div class="InventoryBlock">
-        <h2 class="InventoryTitle">Cases</h2>
-        <div class="Inventory">
+    <div class="inventory-section">
+        <h2 class="inventory-section-title">@Localizer["Section_Cases"]</h2>
+        <div class="inventory-grid">
             @foreach (var caseEntity in Model.Cases.ToList())
             {
-                <img src="@caseEntity.ImageUrl"
-                     alt="@caseEntity.Name"
-                     class="UserItem"
-                     data-id="@caseEntity.Id"
-                     data-name="@caseEntity.Name"
-                     data-description="@caseEntity.Description"
-                     data-image="@caseEntity.ImageUrl"
-                     data-type="case"
-                     onclick="showItemModal(this)" />
+                    <div class="inventory-card card-type-case"
+                         onclick="showItemModal(this)"
+                         data-id="@caseEntity.Id"
+                         data-name="@caseEntity.Name"
+                         data-description="@caseEntity.Description"
+                         data-image="@caseEntity.ImageUrl"
+                         data-type="case">
+
+                        <div class="inventory-img-container">
+                            <img src="@caseEntity.ImageUrl" alt="@caseEntity.Name" />
+                        </div>
+                        <div class="inventory-card-name">@caseEntity.Name</div>
+                    </div>
             }
+        </div>
+    </div>
+</div>
+
+<div id="itemModal" class="gym-modal-overlay hidden" aria-hidden="true">
+    <div class="gym-modal-content">
+        <button class="gym-modal-close" onclick="closeModal()">×</button>
+
+        <div class="gym-modal-header">
+            <h2 id="modalName" class="gym-modal-title">@Localizer["Modal_DefaultTitle"]</h2>
+        </div>
+
+        <div class="gym-modal-body">
+            <div class="gym-modal-image-wrapper">
+                <img id="modalImage" src="" alt="@Localizer["Alt_ItemPreview"]" />
+                <div id="modalTitlePreview" class="title-preview-box" style="display:none;"></div>
+            </div>
+
+            <span id="modalRarityBadge" class="rarity-badge">@Localizer["Modal_DefaultRarity"]</span>
+
+            <p id="modalDescription" class="gym-modal-description">@Localizer["Modal_DefaultDesc"]</p>
+        </div>
+
+        <div class="gym-modal-footer">
+            <form id="openCaseForm" method="post" asp-action="GoToCasePage" style="width:100%">
+                <input type="hidden" name="caseId" id="modalCaseId" />
+                <button type="submit" id="goToCasePageBtn" class="gym-btn gym-btn-primary w-100 hidden">
+                    @Localizer["Btn_OpenCase"]
+                </button>
+            </form>
+            <button onclick="closeModal()" class="gym-btn gym-btn-secondary w-100">@Localizer["Btn_Close"]</button>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        function showItemModal(element) {
-            const id = element.dataset.id;
-            const name = element.dataset.name;
-            const description = element.dataset.description;
-            const rarity = element.dataset.rarity;
-            const image = element.dataset.image;
-            const type = element.dataset.type;
+        <script>
+            function showItemModal(element) {
+                const ds = element.dataset;
 
-            const openButton = document.getElementById("openCaseBtn");
+                const nameEl = document.getElementById("modalName");
+                const descEl = document.getElementById("modalDescription");
+                const rarityBadge = document.getElementById("modalRarityBadge");
+                const imgEl = document.getElementById("modalImage");
+                const titlePreviewEl = document.getElementById("modalTitlePreview");
+                const goToCasePageBtn = document.getElementById("goToCasePageBtn");
+                const modalCaseId = document.getElementById("modalCaseId");
 
-            document.getElementById("modalName").textContent = name;
-            document.getElementById("modalDescription").textContent = description;
+                // Fill Data
+                nameEl.textContent = ds.name;
+                // Тут ми вставляємо локалізований рядок, якщо опису немає
+                descEl.textContent = ds.description || "@Localizer["Msg_NoDescription"]";
 
-            const rarityElement = document.getElementById("modalRarity");
-            if (rarity) {
-                rarityElement.textContent = `Rarity: ${rarity}`;
-                rarityElement.style.display = "block";
-            } else {
-                rarityElement.style.display = "none";
+                // Rarity Logic
+                if (ds.rarity) {
+                    rarityBadge.textContent = ds.rarity;
+                    // Reset classes and add specific rarity class
+                    rarityBadge.className = 'rarity-badge';
+                    // Note: This relies on English rarity names for CSS (e.g. rarity-common). 
+                    // If your DB returns localized rarity names, CSS might break.
+                    rarityBadge.classList.add(`rarity-${ds.rarity.toLowerCase()}`);
+                    rarityBadge.style.display = "inline-block";
+                } else {
+                    rarityBadge.style.display = "none";
+                }
+
+                // Image vs Title Logic
+                if (ds.istitle === "True") {
+                    imgEl.style.display = "none";
+                    titlePreviewEl.style.display = "flex";
+                    titlePreviewEl.textContent = ds.name;
+                } else {
+                    titlePreviewEl.style.display = "none";
+                    if (ds.image) {
+                        imgEl.src = ds.image;
+                        imgEl.style.display = "block";
+                    } else {
+                        imgEl.style.display = "none";
+                    }
+                }
+
+                // Case Logic
+                if (ds.type === "case") {
+                    goToCasePageBtn.classList.remove("hidden");
+                    modalCaseId.value = ds.id;
+                    rarityBadge.style.display = "none";
+                } else {
+                    goToCasePageBtn.classList.add("hidden");
+                    modalCaseId.value = '';
+                }
+
+                document.getElementById("itemModal").classList.remove("hidden");
             }
 
-            const img = document.getElementById("modalImage");
-            if (image) {
-                img.src = image;
-                img.style.display = "block";
-            } else {
-                img.style.display = "none";
+            function closeModal() {
+                document.getElementById("itemModal").classList.add("hidden");
             }
 
-            const openCaseBtn = document.getElementById("openCaseBtn");
-            const modalCaseId = document.getElementById("modalCaseId");
-            if (type === "case") {
-                openCaseBtn.classList.remove("hidden");
-                modalCaseId.value = id;
-            } else {
-                openCaseBtn.classList.add("hidden");
-                modalCaseId.value = '';
-            }
-
-            document.getElementById("itemModal").classList.remove("hidden");
-        }
-
-        function closeModal() {
-            document.getElementById("itemModal").classList.add("hidden");
-        }
-    </script>
+            // Close on click outside
+            document.getElementById("itemModal").addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal();
+            });
+        </script>
 }
-

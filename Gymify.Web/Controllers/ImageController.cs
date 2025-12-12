@@ -1,20 +1,25 @@
 ﻿using FluentValidation;
 using Gymify.Application.DTOs.Image;
 using Gymify.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace Gymify.Web.Controllers
 {
-    public class ImageController : Controller
+    [Authorize]
+    public class ImageController : BaseController
     {
         private readonly IImageService _imageService;
+        private readonly IItemService _itemService;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ImageController(IImageService imageService, IWebHostEnvironment webHostEnvironment)
+        public ImageController(IImageService imageService, IWebHostEnvironment webHostEnvironment, IItemService itemService)
         {
             _imageService = imageService;
             _webHostEnvironment = webHostEnvironment;
+            _itemService = itemService;
         }
 
         // GET: /Image
@@ -82,6 +87,8 @@ namespace Gymify.Web.Controllers
             if (file == null)
                 return BadRequest("File not provided.");
 
+            var userId = Guid.Parse(User.FindFirst("UserProfileId")!.Value);
+
             var httpRequest = HttpContext.Request;
             var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file.FileName);
             var fileExtension = Path.GetExtension(file.FileName);
@@ -106,9 +113,9 @@ namespace Gymify.Web.Controllers
                 await ConvertFileToByteArrayAsync(file)
             );
 
-            var createdImage = await _imageService.CreateImageAsync(imageUploadModel);
+            var createdImage = await _itemService.CreateCustomAvatarAsync(userId, imageUploadModel, IsUkrainian);
 
-            return Json(new { success = true, url = createdImage.Url });
+            return Json(new { success = true, url = createdImage.ImageURL , id = createdImage.Id});
         }
 
         private async Task<byte[]> ConvertFileToByteArrayAsync(IFormFile file)

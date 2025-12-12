@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gymify.Web.Controllers
 {
     [Authorize]
-    public class FriendsController : Controller
+    public class FriendsController : BaseController
     {
         private readonly IFriendsService _friendsService;
 
@@ -25,13 +25,12 @@ namespace Gymify.Web.Controllers
             {
                 Friends = await _friendsService.GetFriendsAsync(userId),
                 IncomingRequests = await _friendsService.GetIncomingInvitesAsync(userId),
-                OutgoingRequests = await _friendsService.GetOutgoingInvitesAsync(userId) // <--- Додали
+                OutgoingRequests = await _friendsService.GetOutgoingInvitesAsync(userId) 
             };
 
             return View(model);
         }
 
-        // Метод для скасування (кнопка Cancel)
 
         [HttpGet]
         public async Task<IActionResult> Search(string query)
@@ -57,7 +56,7 @@ namespace Gymify.Web.Controllers
         {
             var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
             await _friendsService.CancelFriendRequestAsync(receiverId, userId);
-            return RedirectToAction("Index");
+            return Ok();
         }
 
         [HttpPost]
@@ -74,6 +73,24 @@ namespace Gymify.Web.Controllers
             var userId = Guid.Parse(User.FindFirst("UserProfileId").Value);
             await _friendsService.DeclineFriendRequestAsync(senderId, userId);
             return RedirectToAction("Index");
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveFriend(Guid friendId) // Перевірте назву змінної!
+        {
+            try
+            {
+                var currentUserId = Guid.Parse(User.FindFirst("UserProfileId").Value);
+                await _friendsService.RemoveFriendAsync(currentUserId, friendId);
+
+                // ВАЖЛИВО: Повертаємо Ok (JSON), а не Redirect!
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

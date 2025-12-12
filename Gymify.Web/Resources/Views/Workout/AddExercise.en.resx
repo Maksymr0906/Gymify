@@ -117,19 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AddExercises" xml:space="preserve">
-    <value>Add Exercises</value>
+  <data name="Btn_Cancel" xml:space="preserve">
+    <value>Cancel &amp; Delete Workout</value>
   </data>
-  <data name="AddExercisesToAccomplishWorkoutCreation" xml:space="preserve">
-    <value>Add exercises to accomplish workout creation.</value>
-  </data>
-  <data name="CancelAndDeleteWorkout" xml:space="preserve">
-    <value>Cancel and delete workout</value>
-  </data>
-  <data name="FinishCreation" xml:space="preserve">
+  <data name="Btn_Finish" xml:space="preserve">
     <value>Finish Creation</value>
   </data>
-  <data name="WorkoutExercises" xml:space="preserve">
-    <value>Workout exercises</value>
+  <data name="Btn_Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="Header_Subtitle" xml:space="preserve">
+    <value>Add exercises to complete your workout creation.</value>
+  </data>
+  <data name="Header_Title" xml:space="preserve">
+    <value>Workout Exercises</value>
+  </data>
+  <data name="Msg_ErrorSaving" xml:space="preserve">
+    <value>Error saving.</value>
+  </data>
+  <data name="Msg_ValidationFailedTitle" xml:space="preserve">
+    <value>Validation failed</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Add Exercises</value>
   </data>
 </root>

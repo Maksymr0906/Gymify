@@ -1,13 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
-
 @using Gymify.Application.DTOs.UserExercise
 @model List<UserExerciseDto>
 
 @if (!Model.Any())
 {
     <div style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px; color: #888; border: 2px dashed #ddd;">
-        @Localizer["NoExercises"]
+        @Localizer["Msg_NoExercises"]
     </div>
 }
 else
@@ -19,14 +18,17 @@ else
                 <div class="ae-card-header-title">@ex.Name</div>
 
                 <div class="ae-stat-row">
-                    <span>@Localizer["Sets"]: <strong>@ex.Sets</strong></span>
-                    <span>@Localizer["Reps"]: <strong>@ex.Reps</strong></span>
+                    <span>@Localizer["Label_Sets"]: <strong>@ex.Sets</strong></span>
+                    <span>@Localizer["Label_Reps"]: <strong>@ex.Reps</strong></span>
                 </div>
 
                 <div class="ae-card-stats">
                     @if (ex.Weight > 0)
                     {
-                        <span>@ex.Weight kg</span>
+                        <span>
+                            <i class="fa-solid fa-dumbbell"></i> 
+                            @ex.Weight @Localizer["Label_Kg"]
+                        </span>
                     }
                     else
                     {
@@ -35,7 +37,10 @@ else
 
                     @if (ex.DurationMinutes > 0)
                     {
-                        <span>@ex.DurationMinutes @Localizer["MinutesShort"]</span>
+                        <span>
+                            <i class="fa-regular fa-clock"></i> 
+                            @ex.DurationMinutes @Localizer["Label_Min"]
+                        </span>
                     }
                 </div>
             </div>

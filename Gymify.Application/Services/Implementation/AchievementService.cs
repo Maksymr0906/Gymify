@@ -46,11 +46,11 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
             {
                 completedAchievements.Add(achievement);
                 userAchievement.IsCompleted = true;
-                userAchievement.UnlockedAt = DateTime.UtcNow;
                 await _notificationService.SendNotificationAsync(
                         userProfileId,
-                        $"You have completed '{achievement.Name}' achievement.",
-                        "/Achievements" // Клікати нікуди не треба, це просто інфо
+                        $"You have completed '{achievement.NameEn}' achievement.",
+                        $"Ви виконали досягнення '{achievement.NameUk}'.",
+                        "/Achievements"
                     );
                 await _caseService.GiveRewardByAchievement(user.Id, achievement.RewardItemId);
             }
@@ -65,27 +65,7 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
         return completedAchievements;
     }
 
-    public async Task<ICollection<AchievementDto>> GetAllAchievementsAsync()
-    {
-        var achievements = await _unitOfWork.AchievementRepository.GetAllAsync();
-
-        return achievements.Select(a => new AchievementDto
-        {
-            AchievementId = a.Id,
-            Name = a.Name,
-            Description = a.Description,
-            IconUrl = a.IconUrl,
-            TargetProperty = a.TargetProperty,
-            TargetValue = a.TargetValue,
-            ComparisonType = a.ComparisonType,
-            RewardItemId = a.RewardItemId,
-            Progress = 0,
-            IsCompleted = false,
-            UnlockedAt = null
-        }).ToList();
-    }
-
-    public async Task<ICollection<AchievementDto>> GetUserAchievementsAsync(Guid userProfileId)
+    public async Task<ICollection<AchievementDto>> GetUserAchievementsAsync(Guid userProfileId, bool ukranianVer)
     {
         var achievements = await _unitOfWork.AchievementRepository.GetAllByUserId(userProfileId);
 
@@ -96,8 +76,8 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
             return new AchievementDto
             {
                 AchievementId = a.Id,
-                Name = a.Name,
-                Description = a.Description,
+                Name = ukranianVer ? a.NameUk : a.NameEn,
+                Description = ukranianVer ? a.DescriptionUk : a.DescriptionEn,
                 IconUrl = a.IconUrl,
                 TargetProperty = a.TargetProperty,
                 TargetValue = a.TargetValue,
@@ -120,8 +100,7 @@ public class AchievementService(IUnitOfWork unitOfWork, ICaseService caseService
             UserProfileId = userProfileId,
             AchievementId = a.Id,
             Progress = 0,
-            IsCompleted = false,
-            UnlockedAt = DateTime.UtcNow,
+            IsCompleted = false
         }).ToList();
 
         foreach (var ua in userAchievements)

@@ -3,42 +3,43 @@
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Finish Workout";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="ae-page-container">
-    <div style="max-width: 600px; margin: 0 auto;">
+
+    <div class="finish-wrapper">
 
         <div style="text-align: center; margin-bottom: 30px;">
-            <h1 class="ae-page-title">@Localizer["FinishWorkout"]</h1>
-            <p class="ae-lead-text ae-text-muted">@Localizer["FinishWorkoutLead"]</p>
+            <h1 class="ae-page-title">@Localizer["Header_Title"]</h1>
+            <p class="ae-lead-text">@Localizer["Header_Subtitle"]</p>
         </div>
 
-        <div class="ae-card-item" style="padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div class="finish-card">
 
             <form method="post" asp-action="Finish">
                 <input type="hidden" asp-for="WorkoutId" />
                 <input type="hidden" asp-for="UserProfileId" />
 
-                <div class="ae-mb-20">
-                    <label asp-for="Conclusions" class="ae-text-muted" style="font-weight: 600; margin-bottom: 8px; display: block;">
-                        @Localizer["Conclusions"]
+                <div class="workout-form-group" style="margin-bottom: 25px;">
+                    <label asp-for="Conclusions" class="ae-label-mini" style="font-size: 14px; margin-bottom: 10px;">
+                        @Localizer["Label_Conclusions"]
                     </label>
+
                     <textarea asp-for="Conclusions"
-                              class="ae-input-std ae-textarea-std"
-                              rows="6"
-                              placeholder="@Localizer["ConclusionsPlaceholder"]"></textarea>
+                              class="gym-input finish-textarea"
+                              placeholder="@Localizer["Placeholder_Conclusions"]"></textarea>
                 </div>
 
-                <button type="submit" class="ae-btn ae-btn-success ae-w-100" style="padding: 12px; font-size: 1.1rem;">
-                    @Localizer["CompleteWorkout"] <i class="bi bi-trophy-fill" style="margin-left: 8px;"></i>
+                <button type="submit" class="gym-btn gym-btn-primary w-100 scale-btn" style="padding: 15px; font-size: 18px;">
+                    @Localizer["Btn_Complete"] <i class="fa-solid fa-trophy" style="margin-left: 10px;"></i>
                 </button>
-            </form> <div class="ae-mt-20" style="text-align: center;">
+            </form>
+
+            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #eee;">
                 <form method="post" asp-action="RemoveWorkout" asp-route-workoutId="@Model.WorkoutId">
-                    <button type="submit"
-                            class="ae-btn"
-                            style="background: none; border: none; color: #999; text-decoration: underline; font-size: 0.9rem; padding: 0; cursor: pointer;">
-                        Cancel and delete workout
+                    <button type="submit" class="gym-btn gym-btn-secondary w-100">
+                        @Localizer["Btn_CancelDelete"]
                     </button>
                 </form>
             </div>

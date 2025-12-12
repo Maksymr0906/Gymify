@@ -9,7 +9,7 @@ namespace Gymify.Web.Controllers
 {
 
     [Authorize]
-    public class WorkoutsFeedController : Controller
+    public class WorkoutsFeedController : BaseController
     {
         public IWorkoutService _workoutService;
 
@@ -41,7 +41,7 @@ namespace Gymify.Web.Controllers
 
             ViewBag.OnlyMy = onlyMy;
 
-            return PartialView("WorkoutsList", model);
+            return PartialView("_WorkoutsList", model);
         }
 
     }

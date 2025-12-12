@@ -117,19 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Continue" xml:space="preserve">
+  <data name="Btn_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Btn_Continue" xml:space="preserve">
     <value>Continue</value>
   </data>
-  <data name="Create Workout" xml:space="preserve">
+  <data name="Header_Title" xml:space="preserve">
     <value>Create Workout</value>
   </data>
-  <data name="Description" xml:space="preserve">
+  <data name="Label_Description" xml:space="preserve">
     <value>Description</value>
   </data>
-  <data name="IsPrivate" xml:space="preserve">
-    <value>IsPrivate</value>
+  <data name="Label_IsPrivate" xml:space="preserve">
+    <value>Private Workout (visible only to you)</value>
   </data>
-  <data name="Workout name" xml:space="preserve">
+  <data name="Label_Name" xml:space="preserve">
     <value>Workout name</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Create Workout</value>
+  </data>
+  <data name="Placeholder_Description" xml:space="preserve">
+    <value>Describe your goals...</value>
+  </data>
+  <data name="Placeholder_Name" xml:space="preserve">
+    <value>e.g. Leg Day Destruction</value>
   </data>
 </root>

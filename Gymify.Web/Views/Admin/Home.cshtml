@@ -1,41 +1,50 @@
-﻿@{
-    ViewData["Title"] = "Admin Dashboard";
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
 <div class="ae-page-container">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <h1 class="ae-page-title m-0">@Localizer["Header_Dashboard"]</h1>
+    </div>
 
-    <h1 class="ae-page-title mb-4">👑 Admin Dashboard</h1>
-    <p class="text-muted mb-4">
-        Welcome to the admin panel!
-        Here you manage content, moderation and users of the system.
+    <p class="ae-text-muted mb-4">
+        @Localizer["Desc_Welcome"]
     </p>
 
     <div class="admin-grid">
-
         <a asp-action="ExercisePanel" class="admin-card">
-            <div class="admin-card-icon">🏋</div>
-            <div class="admin-card-title">Exercise Moderation</div>
-            <div class="admin-card-desc">Review and approve new exercises</div>
+            <div class="admin-card-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+            <div class="admin-card-title">@Localizer["Card_Exercise_Title"]</div>
+            <div class="admin-card-desc">@Localizer["Card_Exercise_Desc"]</div>
         </a>
 
         <a asp-action="CommentPanel" class="admin-card">
-            <div class="admin-card-icon">💬</div>
-            <div class="admin-card-title">Comment Moderation</div>
-            <div class="admin-card-desc">Filter comments and fight spam</div>
+            <div class="admin-card-icon">
+                <i class="fa-regular fa-comments"></i>
+            </div>
+            <div class="admin-card-title">@Localizer["Card_Comment_Title"]</div>
+            <div class="admin-card-desc">@Localizer["Card_Comment_Desc"]</div>
         </a>
 
         <a asp-action="UserPanel" class="admin-card">
-            <div class="admin-card-icon">🧑‍🤝‍🧑</div>
-            <div class="admin-card-title">Users</div>
-            <div class="admin-card-desc">Bans, warnings and role control</div>
+            <div class="admin-card-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="admin-card-title">@Localizer["Card_User_Title"]</div>
+            <div class="admin-card-desc">@Localizer["Card_User_Desc"]</div>
         </a>
 
         <a asp-action="WorkoutPanel" class="admin-card">
-            <div class="admin-card-icon">🔥</div>
-            <div class="admin-card-title">Workout Overview</div>
-            <div class="admin-card-desc">Explore training statistics</div>
+            <div class="admin-card-icon">
+                <i class="fa-solid fa-fire"></i>
+            </div>
+            <div class="admin-card-title">@Localizer["Card_Workout_Title"]</div>
+            <div class="admin-card-desc">@Localizer["Card_Workout_Desc"]</div>
         </a>
-
     </div>
-
 </div>

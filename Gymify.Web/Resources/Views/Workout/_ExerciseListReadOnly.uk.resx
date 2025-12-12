@@ -117,16 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MinutesShort" xml:space="preserve">
+  <data name="Label_Kg" xml:space="preserve">
+    <value>кг</value>
+  </data>
+  <data name="Label_Min" xml:space="preserve">
     <value>хв</value>
   </data>
-  <data name="NoExercises" xml:space="preserve">
-    <value>Ще не додано жодної вправи.</value>
+  <data name="Label_Reps" xml:space="preserve">
+    <value>Повт.</value>
   </data>
-  <data name="Reps" xml:space="preserve">
-    <value>Повторення</value>
+  <data name="Label_Sets" xml:space="preserve">
+    <value>Сети</value>
   </data>
-  <data name="Sets" xml:space="preserve">
-    <value>Підходи</value>
+  <data name="Msg_NoExercises" xml:space="preserve">
+    <value>У цьому тренуванні немає вправ.</value>
   </data>
 </root>

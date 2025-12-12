@@ -1,148 +1,135 @@
 ﻿@using Gymify.Application.ViewModels.Leaderboard
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model LeaderboardViewModel
 
 @{
-    ViewData["Title"] = "Leaderboard";
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
-
-<style>
-    @Html.Raw("@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }")
-
-    @Html.Raw("@media (max-width: 600px) { .lb-row { grid-template-columns: 40px 1fr 70px; gap: 10px; padding: 15px 10px; } .lb-stat-lvl { display: none; } /* Hide Level on very small screens */ .lb-title { font-size: 1.8rem; } }")
-</style>
-
-<div class="lb-container">
+<div class="dashboard-wrapper">
 
     <div class="lb-header">
         <h1 class="lb-title">
             <i class="fa-solid fa-trophy" style="color:#f1c40f;"></i> 
-            Leaderboard
+            @Localizer["Header_Title"]
         </h1>
-        <p class="lb-subtitle">See who's grinding the hardest and compete with friends!</p>
+        <p class="lb-subtitle">@Localizer["Header_Subtitle"]</p>
     </div>
 
     <div class="lb-card">
 
         <div class="lb-row header">
-            <div style="text-align: center;">#</div>
-            <div>User</div>
-            <div class="lb-stat-lvl" style="text-align: center;">Level</div>
-            <div style="text-align: right;">Total XP</div>
+            <div style="text-align: center;">@Localizer["Col_Rank"]</div>
+            <div>@Localizer["Col_User"]</div>
+            <div class="lb-stat-lvl" style="text-align: center;">@Localizer["Col_Level"]</div>
+            <div style="text-align: right;">@Localizer["Col_TotalXP"]</div>
         </div>
 
         @foreach (var user in Model.TopUsers)
         {
-            // Визначаємо клас рядка: Пріоритет: Я > Друг > Звичайний
             var rowClass = user.IsMe ? "is-me" : (user.IsFriend ? "is-friend" : "");
 
-                <div class="lb-row @rowClass">
+            <div class="lb-row @rowClass">
 
-                    <div class="lb-rank 
+                <div class="lb-rank 
                     @(user.Rank == 1 ? "gold" : "")
                     @(user.Rank == 2 ? "silver" : "")
                     @(user.Rank == 3 ? "bronze" : "")">
 
-                    @if (user.Rank == 1)
-                    {
-                        <i class="fa-solid fa-crown"></i>
-                    }
-                    else if (user.Rank == 2)
-                    {
-                        <i class="fa-solid fa-medal"></i>
-                    }
-                    else if (user.Rank == 3)
-                    {
-                        <i class="fa-solid fa-medal"></i>
-                    }
-                    else
-                    {
-                        <span>@user.Rank</span>
-                    }
-                    </div>
+                    @if (user.Rank == 1) { <i class="fa-solid fa-crown"></i> }
+                    else if (user.Rank == 2) { <i class="fa-solid fa-medal"></i> }
+                    else if (user.Rank == 3) { <i class="fa-solid fa-medal"></i> }
+                    else { <span>@user.Rank</span> }
+                </div>
 
-                    <div class="lb-user">
-                        <img src="@user.AvatarUrl" class="lb-avatar" alt="Avatar" />
+                <div class="lb-user">
+                    <img src="@user.AvatarUrl" class="lb-avatar" alt="@Localizer["Alt_Avatar"]" loading="lazy" />
 
-                        <a href="@Url.Action("Profile", "User", new { userId = user.UserId })" class="lb-username">
+                    <a href="@Url.Action("Profile", "User", new { userId = user.UserId })" class="lb-username">
                         @user.UserName
 
                         @if (user.IsMe)
                         {
-                                    <span class="lb-you-tag">YOU</span>
+                            <span class="lb-you-tag">@Localizer["Tag_You"]</span>
                         }
                         else if (user.IsFriend)
                         {
-                                    <span title="Friend" style="color:#2ecc71; margin-left:5px; font-size:0.9rem;">
-                                        <i class="fa-solid fa-user-group"></i>
-                                    </span>
+                            <span title="@Localizer["Tooltip_Friend"]" style="color:#2ecc71; margin-left:5px; font-size:0.9rem;">
+                                <i class="fa-solid fa-user-group"></i>
+                            </span>
                         }
-                        </a>
-                    </div>
-
-                    <div class="lb-stat-lvl" style="text-align: center;">
-                        <div class="lb-level">@user.Level</div>
-                    </div>
-
-                    <div class="lb-xp">
-                    @user.TotalXP <span>XP</span>
-                    </div>
+                    </a>
                 </div>
+
+                <div class="lb-stat-lvl" style="text-align: center;">
+                    <div class="lb-level">@user.Level</div>
+                </div>
+
+                <div class="lb-xp">
+                    @user.TotalXP <span>@Localizer["Suffix_XP"]</span>
+                </div>
+            </div>
         }
     </div>
 
+    @* Sticky footer for current user if not in top list *@
     @if (Model.CurrentUser != null && !Model.TopUsers.Any(u => u.IsMe))
     {
-            <div class="lb-sticky-me">
-                <div class="lb-row is-me" style="border: none;">
-                    <div class="lb-rank">@Model.CurrentUser.Rank</div>
-                    <div class="lb-user">
-                        <img src="@Model.CurrentUser.AvatarUrl" class="lb-avatar" />
-                        <a href="@Url.Action("Profile", "User", new { userId = Model.CurrentUser.UserId })" class="lb-username">
+        <div class="lb-sticky-me">
+            <div class="lb-row is-me" style="border: none;">
+                <div class="lb-rank">@Model.CurrentUser.Rank</div>
+                
+                <div class="lb-user">
+                    <img src="@Model.CurrentUser.AvatarUrl" class="lb-avatar" loading="lazy" alt="@Localizer["Alt_Avatar"]" />
+                    <a href="@Url.Action("Profile", "User", new { userId = Model.CurrentUser.UserId })" class="lb-username">
                         @Model.CurrentUser.UserName
-                            <span class="lb-you-tag">YOU</span>
-                        </a>
-                    </div>
-                    <div class="lb-stat-lvl" style="text-align: center;">
-                        <div class="lb-level">@Model.CurrentUser.Level</div>
-                    </div>
-                    <div class="lb-xp">
-                    @Model.CurrentUser.TotalXP <span>XP</span>
-                    </div>
+                        <span class="lb-you-tag">@Localizer["Tag_You"]</span>
+                    </a>
+                </div>
+                
+                <div class="lb-stat-lvl" style="text-align: center;">
+                    <div class="lb-level">@Model.CurrentUser.Level</div>
+                </div>
+                
+                <div class="lb-xp">
+                    @Model.CurrentUser.TotalXP <span>@Localizer["Suffix_XP"]</span>
                 </div>
             </div>
+        </div>
     }
 
     @if (Model.TotalPages > 1)
     {
-            <div class="lb-pagination">
+        <div class="lb-pagination">
             @if (Model.HasPreviousPage)
             {
-                        <a href="@Url.Action("Index", new { page = Model.CurrentPage - 1 })" class="lb-btn">
-                            <i class="fa-solid fa-arrow-left"></i> Prev
-                        </a>
+                <a href="@Url.Action("Index", new { page = Model.CurrentPage - 1 })" class="gym-btn gym-btn-secondary" style="padding: 8px 16px;">
+                    <i class="fa-solid fa-arrow-left" style="margin-right: 5px;"></i> @Localizer["Pagination_Prev"]
+                </a>
             }
             else
             {
-                        <span class="lb-btn" style="opacity: 0.5; cursor: default;">
-                            <i class="fa-solid fa-arrow-left"></i> Prev
-                        </span>
+                <button class="gym-btn gym-btn-secondary" disabled style="opacity: 0.5; cursor: default; padding: 8px 16px;">
+                    <i class="fa-solid fa-arrow-left" style="margin-right: 5px;"></i> @Localizer["Pagination_Prev"]
+                </button>
             }
 
-                <span class="lb-page-info">Page @Model.CurrentPage of @Model.TotalPages</span>
+            <span class="lb-page-info">@Localizer["Pagination_Info", Model.CurrentPage, Model.TotalPages]</span>
 
             @if (Model.HasNextPage)
             {
-                        <a href="@Url.Action("Index", new { page = Model.CurrentPage + 1 })" class="lb-btn">
-                            Next <i class="fa-solid fa-arrow-right"></i>
-                        </a>
+                <a href="@Url.Action("Index", new { page = Model.CurrentPage + 1 })" class="gym-btn gym-btn-secondary" style="padding: 8px 16px;">
+                    @Localizer["Pagination_Next"] <i class="fa-solid fa-arrow-right" style="margin-left: 5px;"></i>
+                </a>
             }
             else
             {
-                        <span class="lb-btn" style="opacity: 0.5; cursor: default;">
-                            Next <i class="fa-solid fa-arrow-right"></i>
-                        </span>
+                <button class="gym-btn gym-btn-secondary" disabled style="opacity: 0.5; cursor: default; padding: 8px 16px;">
+                    @Localizer["Pagination_Next"] <i class="fa-solid fa-arrow-right" style="margin-left: 5px;"></i>
+                </button>
             }
-            </div>
+        </div>
     }
+
 </div>

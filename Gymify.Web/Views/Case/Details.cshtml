@@ -3,129 +3,161 @@
 @model Gymify.Application.DTOs.Case.CaseInfoDto
 
 @{
-	ViewData["Title"] = Localizer["Details_Title"];
+    ViewData["Title"] = Localizer["PageTitle"];
 }
 
-<h2 class="text-center">@Model.Name</h2>
+<div class="case-opening-page">
+    <div class="case-header">
+        <h2 class="text-center case-title">@Model.Name</h2>
+        <div class="case-image-wrapper">
+            <img src="@Model.ImageUrl" alt="@Model.Name" />
+        </div>
+    </div>
 
-<div class="text-center">
-	<img src="@Model.ImageUrl" width="250" alt="@Model.Name" />
+    <div class="roulette-wrapper">
+        <div class="roulette-container">
+            <div id="roulette-strip">
+            </div>
+        </div>
+        <div class="roulette-marker"></div>
+    </div>
+
+    <div class="controls-area">
+        <button id="triggerOpenCaseBtn" class="gym-btn gym-btn-primary scale-btn" data-case-id="@Model.Id">
+            @Localizer["Btn_OpenCase"]
+        </button>
+    </div>
 </div>
 
-<div class="text-center" style="margin-top: 20px;">
-	<button id="openCaseBtn" class="authButton scaleButton"
-			data-case-id="@Model.Id">
-		@Localizer["OpenCaseButton"]
-	</button>
-</div>
+<div id="resultModal" class="gym-modal-overlay hidden" aria-hidden="true">
+    <div class="gym-modal-content">
+        <div class="gym-modal-header">
+            <h2 class="gym-modal-title">@Localizer["Header_Reward"]</h2>
+        </div>
 
-<div class="roulette-wrapper">
-	<div class="roulette-container">
-		<div id="roulette-strip"></div>
-	</div>
-</div>
+        <div class="gym-modal-body">
+            <div class="gym-modal-image-wrapper">
+                <img id="dropImage" src="" alt="@Localizer["Alt_Reward"]" />
+            </div>
+            <h3 id="dropName" class="gym-drop-name">@Localizer["Placeholder_ItemName"]</h3>
+            <span id="dropRarity" class="rarity-badge">@Localizer["Placeholder_Rarity"]</span>
+        </div>
 
-<div id="resultModal" class="modal hidden">
-	<div class="modal-content">
-		<h2>@Localizer["RewardTitle"]</h2>
-
-		<div class="drop-image-containter">
-			<img id="dropImage" src="" width="150" />
-		</div>
-
-		<h3 id="dropName"></h3>
-		<p id="dropRarity"></p>
-
-		<a id="closeModal" href="~/Inventory/">
-			@Localizer["OkButton"]
-		</a>
-	</div>
+        <div class="gym-modal-footer">
+            <button id="resetRouletteBtn" class="gym-btn gym-btn-primary">
+                @Localizer["Btn_OpenAgain"]
+            </button>
+            <a id="closeResultModal" href="~/Inventory/" class="gym-btn gym-btn-secondary">
+                @Localizer["Btn_Ok"]
+            </a>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-	<script>
+    <script>
+        // --- LOCALIZATION BRIDGE ---
+        const JS_RESOURCES = {
+            btnOpenCase: '@Localizer["Btn_OpenCase"]',
+            btnOpening: '@Localizer["Btn_Opening"]',
+            msgServerError: '@Localizer["Msg_ServerError"]',
+            msgErrorGeneric: '@Localizer["Msg_ErrorGeneric"]',
+            msgOutOfStock: "@Localizer["Msg_CaseOutOfStock"]" 
+        };
 
-		const openButton = document.getElementById("openCaseBtn");
-		const strip = document.getElementById("roulette-strip");
-		const modal = document.getElementById("resultModal");
+        const openButton = document.getElementById("triggerOpenCaseBtn");
+        const strip = document.getElementById("roulette-strip");
+        const resultModal = document.getElementById("resultModal");
+        const resetBtn = document.getElementById("resetRouletteBtn");
 
-		openButton.addEventListener("click", async (e) => {
-			e.preventDefault();
-			openButton.disabled = true; // Блокуємо кнопку на час анімації
+        // === OPEN CASE LOGIC ===
+        openButton.addEventListener("click", async (e) => {
+            e.preventDefault();
 
-			const caseId = e.target.dataset.caseId;
+            openButton.disabled = true;
+            openButton.style.opacity = "0.7";
+            openButton.innerText = JS_RESOURCES.btnOpening;
 
-			const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
-				method: "POST",
-				headers: { "X-Requested-With": "XMLHttpRequest" }
-			});
+            const caseId = e.target.dataset.caseId;
 
-			if (!response.ok) {
-				alert("Помилка при відкритті кейсу!");
-				openButton.disabled = false;
-				return;
-			}
+            try {
+                const response = await fetch(`/Case/OpenCase?caseId=${caseId}`, {
+                    method: "POST",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
 
-			const data = await response.json(); // Отримуємо { rouletteStrip, itemName, ... }
+                const data = await response.json();
 
-			// 1. Очищуємо та скидаємо стрічку
-			strip.innerHTML = '';
-			strip.style.transition = 'none'; // Вимикаємо анімацію для скидання
-			strip.style.transform = 'translateX(0px)'; // Скидаємо позицію
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                    return;
+                }
 
-			// 2. Заповнюємо стрічку з data.rouletteStrip
-			data.rouletteStrip.forEach(item => {
-				const div = document.createElement('div');
-				// Додаємо клас рідкісності для CSS-бордюру
-				div.classList.add('item', `rarity-${item.rarity}`);
-				div.innerHTML = `<img src="${item.imageURL}" alt="${item.name}" /><p>${item.name}</p>`;
-				strip.appendChild(div);
-			});
+                if (!response.ok) throw new Error(JS_RESOURCES.msgServerError);
 
-			// 3. Розрахунок анімації
-			// Потрібно, щоб 78-й елемент опинився під центральною лінією
+                strip.innerHTML = '';
+                strip.style.transition = 'none';
+                strip.style.transform = 'translateX(0px)';
 
-			const itemWidth = 120; // .item width
-			const itemMargin = 6 + 6; // .item margin (left + right)
-			const totalItemWidth = itemWidth + itemMargin; // = 132px
+                data.rouletteStrip.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = `roulette-item rarity-border-${item.rarity}`;
+                    div.innerHTML = `<img src="${item.imageURL}" alt="${item.name}" /><p>${item.name}</p>`;
+                    strip.appendChild(div);
+                });
 
-			const containerWidth = 800; // .roulette-container width
-			const winningIndex = 78; // Наш фіксований індекс переможця
+                // Animation Calc
+                const itemWidth = 120; 
+                const itemMargin = 12; 
+                const totalItemWidth = itemWidth + itemMargin;
+                const containerWidth = 800; 
+                const winningIndex = 78; 
 
-			// Розраховуємо, де має бути центр 78-го елемента
-			// (позиція зліва) + (половина ширини)
-			const winnerCenter = (winningIndex * totalItemWidth) + (totalItemWidth / 2);
+                const winnerCenter = (winningIndex * totalItemWidth) + (totalItemWidth / 2);
+                const targetOffset = winnerCenter - (containerWidth / 2);
+                const randomJitter = Math.floor(Math.random() * 30) - 15;
+                const finalOffset = targetOffset + randomJitter;
 
-			// Ми хочемо, щоб центр переможця був по центру контейнера (containerWidth / 2)
-			const targetOffset = winnerCenter - (containerWidth / 2);
+                // Start
+                setTimeout(() => {
+                    strip.style.transition = 'transform 4s cubic-bezier(0.15, 1, 0.3, 1)'; 
+                    strip.style.transform = `translateX(-${finalOffset}px)`;
+                }, 50);
 
-			// Додаємо невеликий випадковий зсув, щоб не зупинялось завжди піксель в піксель
-			const randomJitter = Math.floor(Math.random() * (itemWidth / 4)) - (itemWidth / 8); // ~ від -15px до +15px
-			const finalOffset = targetOffset + randomJitter;
+                // Result
+                setTimeout(() => {
+                    document.getElementById("dropImage").src = data.imageURL;
+                    document.getElementById("dropName").textContent = data.name;
 
-			// Необхідна невелика затримка, щоб браузер встиг застосувати скидання позиції
-			setTimeout(() => {
-				// 4. Запускаємо анімацію
-				strip.style.transition = 'transform 4s cubic-bezier(0.25, 1, 0.5, 1)';
-				strip.style.transform = `translateX(-${finalOffset}px)`;
-			}, 100); // 100ms затримки
+                    const rBadge = document.getElementById("dropRarity");
+                    
+                    rBadge.textContent = data.rarityName;
+                    
+                    rBadge.className = 'rarity-badge'; 
+                    rBadge.classList.add(`rarity-${data.rarityName.toLowerCase()}`);
 
-			// 5. Показуємо результат після анімації
-			setTimeout(() => {
-				document.getElementById("dropImage").src = data.imageURL;
-				document.getElementById("dropName").textContent = data.name;
-				document.getElementById("dropRarity").textContent = data.rarityName; // Використовуємо функцію
+                    resultModal.classList.remove("hidden");
+                }, 4200);
 
-				// Додаємо клас рідкісності до модального вікна
-				modal.querySelector('.modal-content').className = `modal-content rarity-${data.rarity}`;
+            } catch (err) {
+                console.error(err);
+                if(typeof alertify !== 'undefined') alertify.error(JS_RESOURCES.msgErrorGeneric);
+                else alert(JS_RESOURCES.msgErrorGeneric);
 
-				modal.classList.remove("hidden");
-			}, 4200); // 4000ms анімація + 200ms запас
-		});
+                openButton.disabled = false;
+                openButton.innerText = JS_RESOURCES.btnOpenCase;
+            }
+        });
 
-		document.getElementById("closeModal").addEventListener("click", () => {
-			modal.classList.add("hidden");
-			openButton.disabled = false; // Розблоковуємо кнопку
-		});
-	</script>
+        // === RESET LOGIC ===
+        resetBtn.addEventListener('click', () => {
+            resultModal.classList.add("hidden");
+            openButton.disabled = false;
+            openButton.style.opacity = "1";
+            openButton.innerText = JS_RESOURCES.btnOpenCase;
+            strip.style.transition = 'none';
+            strip.style.transform = 'translateX(0px)';
+            strip.innerHTML = ''; 
+        });
+    </script>
 }

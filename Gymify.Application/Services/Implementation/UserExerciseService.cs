@@ -12,12 +12,12 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
     private readonly INotificationService _notificationService = notificationService;
     private const int DefaultPendingExerciseXP = 10;
 
-    public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<UserExerciseDto> dtos, Guid userId)
+    public async Task SyncWorkoutExercisesAsync(Guid workoutId, List<AddUserExerciseDto> dtos, Guid userId, bool ukranianVer)
     {
         var currentExercises = await _unitOfWork.UserExerciseRepository
             .GetAllByWorkoutIdAsync(workoutId);
 
-        var incomingIds = dtos.Select(d => d.Id).ToList();
+        var incomingIds = dtos.Select(d => d.Id).ToHashSet();
 
         var toDelete = currentExercises
             .Where(e => !incomingIds.Contains(e.Id))
@@ -31,23 +31,25 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
         foreach (var dto in dtos)
         {
             var existingEntity = currentExercises.FirstOrDefault(e => e.Id == dto.Id);
+            var durationTimespan = TimeSpan.FromMinutes(dto.Duration ?? 0);
+
+            var calcModel = new AddUserExerciseDto
+            {
+                Sets = dto.Sets,
+                Reps = dto.Reps ?? 0,
+                Weight = dto.Weight ?? 0.0, 
+                Duration = dto.Duration ?? 0
+            };
 
             if (existingEntity != null)
             {
                 existingEntity.Sets = dto.Sets;
-                existingEntity.Reps = dto.Reps;
-                existingEntity.Weight = dto.Weight;
-                existingEntity.Duration = dto.Duration ?? TimeSpan.Zero;
+                existingEntity.Reps = dto.Reps ?? 0;
+                existingEntity.Weight = dto.Weight ?? 0.0;
+                existingEntity.Duration = durationTimespan;
 
                 if (existingEntity.Exercise != null)
                 {
-                    var calcModel = new AddUserExerciseToWorkoutRequestDto
-                    {
-                        Sets = dto.Sets,
-                        Reps = dto.Reps,
-                        Weight = dto.Weight,
-                        Duration = (int)(existingEntity.Duration?.TotalMinutes ?? 0)
-                    };
                     existingEntity.EarnedXP = CalculateXp(calcModel, existingEntity.Exercise);
                 }
 
@@ -55,18 +57,19 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
             }
             else
             {
-                var baseExercise = await _unitOfWork.ExerciseRepository.GetByNameAsync(dto.Name);
+                var baseExercise = await _unitOfWork.ExerciseRepository.GetByNameAsync(dto.Name, ukranianVer);
 
                 if (baseExercise == null)
                 {
                     baseExercise = new Exercise
                     {
                         Id = Guid.NewGuid(),
-                        Name = dto.Name,
-                        Description = string.Empty,
-                        CreatedAt = DateTime.UtcNow,
-                        Type = (ExerciseType)dto.Type,
-                        BaseXP = 10,
+                        NameEn = ukranianVer ? string.Empty : dto.Name,
+                        DescriptionEn = string.Empty,
+                        NameUk = ukranianVer ? dto.Name : string.Empty,
+                        DescriptionUk = string.Empty,
+                        Type = (ExerciseType)dto.ExerciseType,
+                        BaseXP = DefaultPendingExerciseXP, // 10
                         DifficultyMultiplier = 1.0,
                         IsApproved = false,
                         IsRejected = false
@@ -75,30 +78,25 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
 
                     await _notificationService.SendNotificationAsync(
                         userId,
-                        $"Exercise '{dto.Name}' was sended for a moderation.",
-                        "#" // Клікати нікуди не треба, це просто інфо
+                        $"Exercise '{dto.Name}' was sent for a moderation.",
+                        $"Вправа '{dto.Name}' була відправлена на модерацію.",
+                        "#"
                     );
                 }
 
-                var calcModel = new AddUserExerciseToWorkoutRequestDto
-                {
-                    Sets = dto.Sets,
-                    Reps = dto.Reps,
-                    Weight = dto.Weight,
-                    Duration = dto.Duration.HasValue ? (int)dto.Duration.Value.TotalMinutes : 0
-                };
-
+                // 3.2. Створюємо нову сутність UserExercise
                 var newEntity = new UserExercise
                 {
                     Id = dto.Id,
                     WorkoutId = workoutId,
                     ExerciseId = baseExercise.Id,
-                    Name = baseExercise.Name,
+                    NameEn = baseExercise.NameEn,
+                    NameUk = baseExercise.NameUk,
                     Type = baseExercise.Type,
                     Sets = dto.Sets,
-                    Reps = dto.Reps,
-                    Weight = dto.Weight,
-                    Duration = dto.Duration ?? TimeSpan.Zero,
+                    Reps = dto.Reps ?? 0,
+                    Weight = dto.Weight ?? 0.0,
+                    Duration = durationTimespan,
                     EarnedXP = CalculateXp(calcModel, baseExercise)
                 };
 
@@ -109,7 +107,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<List<UserExerciseDto>> GetAllWorkoutExercisesAsync(Guid workoutId)
+    public async Task<List<UserExerciseDto>> GetAllWorkoutExercisesAsync(Guid workoutId, bool ukranianVer)
     {
         var userExercises = await _unitOfWork.UserExerciseRepository.GetAllByWorkoutIdAsync(workoutId);
 
@@ -121,7 +119,7 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
             {
                 Id = userExercise.Id,
                 WorkoutId = userExercise.WorkoutId,
-                Name = userExercise.Name,
+                Name = ukranianVer ? userExercise.NameUk : userExercise.NameEn,
                 Type = (int)userExercise.Type,
                 Sets = userExercise.Sets,
                 Reps = userExercise.Reps,
@@ -134,27 +132,26 @@ public class UserExerciseService(IUnitOfWork unitOfWork, INotificationService no
     }
 
     // переписати
-    public static int CalculateXp(AddUserExerciseToWorkoutRequestDto exerciseModel, Exercise userExercise)
+    public static int CalculateXp(AddUserExerciseDto exerciseModel, Exercise userExercise)
     {
         int sets = exerciseModel.Sets ?? 0;
         int reps = exerciseModel.Reps ?? 0;
-        int weight = exerciseModel.Weight ?? 0;
+        double weight = exerciseModel.Weight ?? 0;
         double minutes = exerciseModel.Duration ?? 0;
 
         double factor = 1.0;
 
         if (weight > 0 && minutes == 0)
         {
-            factor += (double)weight / 50.0; // кожні 50 кг — подвоєння
+            factor += (double)weight / 50.0; 
         }
         else if (minutes > 0 && weight == 0)
         {
-            factor += minutes / 10.0; // кожні 10 хв — подвоєння
+            factor += minutes / 10.0; 
         }
 
         double xp = userExercise.DifficultyMultiplier * sets * Math.Max(reps, 1) * factor;
 
-        // мінімальне XP, щоб не було нуля
         return (int)Math.Max(xp, userExercise.BaseXP);
     }
 }

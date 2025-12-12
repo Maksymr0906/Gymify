@@ -7,7 +7,7 @@ public class UserProfile : BaseEntity
     public long CurrentXP { get; set; } = 0;
     public int TotalWorkouts { get; set; } = 0;
     public int WorkoutStreak { get; set; } = 0;
-    public int TotalWeightLifted { get; set; } = 0;
+    public double TotalWeightLifted { get; set; } = 0;
     public int TotalKmRunned { get; set; } = 0;
     public int StrengthExercisesCompleted { get; set; } = 0;
     public int CardioExercisesCompleted { get; set; } = 0;
