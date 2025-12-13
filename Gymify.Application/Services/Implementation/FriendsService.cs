@@ -116,8 +116,8 @@ public class FriendsService(IUnitOfWork unitOfWork,INotificationService notifica
 
         await _notificationService.SendNotificationAsync(
             receiverId, 
-            "Вам прийшло нове запрошення в друзі.",
             "You received new friend request.", 
+            "Вам прийшло нове запрошення в друзі.",
             "/Friends"
             );
 
